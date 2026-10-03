@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "observed_on": "2026-10-03",
+  "runtime": {
+    "id": "2010-rust-rewrite-mashup",
+    "repository": "https://github.com/chasmlol/2010-rust-rewrite-mashup",
+    "commit": "f608f85e407ff1b7689d54a9aafdd16e95711ac4",
+    "tag": "v0.4.0",
+    "release_url": "https://github.com/chasmlol/2010-rust-rewrite-mashup/releases/tag/v0.4.0",
+    "release_published_at": "2026-10-02T02:28:19Z",
+    "platform": "windows-x64",
+    "asset": {
+      "name": "2010-Rust-Rewrite-Mashup-windows-x64.zip",
+      "url": "https://github.com/chasmlol/2010-rust-rewrite-mashup/releases/download/v0.4.0/2010-Rust-Rewrite-Mashup-windows-x64.zip",
+      "sha256": "f7c02cfb4dd5650be29762947a0b17d3e6f9b9f1259025ee89a99bd031e1ebca",
+      "size_bytes": 70231384
+    }
+  },
+  "verification": {
+    "source_commit": "fetched-and-inspected",
+    "tag_commit": "verified-with-git-ls-remote",
+    "archive_sha256": "publisher-declared-not-locally-verified",
+    "archive_executed": false,
+    "gameplay": "unverified",
+    "redistribution": "unresolved"
+  },
+  "source_files": [
+    {
+      "path": "README.md",
+      "sha256": "6945cb1dca0242a240eee8369d820af2784bb2e7773362f2ef6bbd260d69977e"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "NOTICE",
+      "sha256": "2402982b804f2a1eb8475ae9b80f84001c0d005c6eabe6a5eb9301d1ddb8ec5e"
+    },
+    {
+      "path": "docs/SKATE.md",
+      "sha256": "791dff39125bb077e117e872f040881426586a93e05090e252eb13f7e8c77a81"
+    },
+    {
+      "path": "docs/WINDOWS.md",
+      "sha256": "540dd08f88808b19aeeff927766f8f327a88594e2138da1fbbac15390ad095f9"
+    },
+    {
+      "path": "docs/BUILD.md",
+      "sha256": "4db8cdbf54af1961904a65cda4e04bd5336b794b529d485a47a4017f6fa86805"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "sha256": "a6a0bbd29ffaa8182dc22d1d9149709f1091e47df40ed96eb8a78a711c66a4ce"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "6d37c28f9e998879808e703e70a0dd5999098f797c7da01ea2b7132cc9b4b39d"
+    },
+    {
+      "path": "skate/Cargo.toml",
+      "sha256": "9caaad87c3e422cd220719f518ca3b29d6a4db542bdb9e2659b4fc77ce1be858"
+    },
+    {
+      "path": "skate/crates/skate-core/Cargo.toml",
+      "sha256": "81f41d8fd4d582bb917ba0fc1788f3e90f8ffa2963be6e78bbf45cab8699a2b7"
+    },
+    {
+      "path": "third_party/minecraftoss/README.md",
+      "sha256": "890ffbac721acab9212c9a8803720192b7911edb2d9594c90f21b694366826c2"
+    },
+    {
+      "path": "third_party/minecraftoss/core/Cargo.toml",
+      "sha256": "5bf50806e6e3f24ba5e030c9bd4462bcfc7b8d1ceb3d8ad48334d25d71e31754"
+    },
+    {
+      "path": "crates/launcher/src/first_run.rs",
+      "sha256": "c423d60da401b2c3f6bd6a5e68ba4ecb59cd5bb6643975a57b10f55d16da248f"
+    },
+    {
+      "path": "crates/render_anim/src/skate.rs",
+      "sha256": "0be5ca6b98a7382764d3b671c7fc57cb8a09dec416ea970357eea2ae3d8f442e"
+    },
+    {
+      "path": "crates/assets/src/minecraft_setup.rs",
+      "sha256": "3db71f1ee2d8d6f8cdca17e2d40d235c62048ebce213b9a46d46cdc06a547e8e"
+    }
+  ],
+  "embedded_origins": [
+    {
+      "component": "skate",
+      "upstream": "https://github.com/SK8-ENGINE/skate-3-rust-engine",
+      "reported_revision": "cb79689",
+      "status": "short-revision-reported-by-upstream; vendored bytes pinned by runtime commit"
+    },
+    {
+      "component": "minecraftoss",
+      "upstream": null,
+      "reported_revision": "4013a68",
+      "status": "short-revision-reported-by-upstream; origin URL unresolved; vendored bytes pinned by runtime commit"
+    }
+  ]
+}

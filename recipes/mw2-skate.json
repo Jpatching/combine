@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "id": "mw2-skate",
+  "title": "MW2 Rust with skating — research candidate",
+  "runtime": {
+    "id": "2010-rust-rewrite-mashup",
+    "commit": "f608f85e407ff1b7689d54a9aafdd16e95711ac4"
+  },
+  "world": "iw4:mp_rust",
+  "movement": ["on-foot", "skate"],
+  "combat": "mw2-default",
+  "required_content": ["mw2-2009-steam-multiplayer", "skate3-xbox360-extracted"]
+}

@@ -10,11 +10,14 @@ Record consequential decisions in docs/DECISIONS.md.
 
 Use the globally installed `$matt-workflow` for substantial work, resuming the
 current phase. Small fixes stay lightweight. Read [workflow guidance](docs/WORKFLOW.md).
-The selected plan and existing slice contract satisfy settled setup/design choices;
-do not restart settled discussions. The destination is the proper Synergy menu
-plus trickshot hit radius, without Combine-specific practice additions. C-017's
-approved requirements and the finalised C-016 contract are in the menu guide;
-resume the board's next missing implementation/check, not settled discussion.
+The selected plan and existing contracts satisfy settled setup/design choices;
+do not restart settled discussions. D-015 records the owner's correction:
+execute the actual pinned Synergy GSC menu through the existing runtime engine,
+with its own presentation and options. A native imitation is not the replacement.
+The destination also includes the agreed trickshot hit radius, without Combine
+practice additions. The menu guide owns requirements; its earlier native C-016
+mechanism is historical where superseded by D-015. Resume the same board item's
+next missing integration/check.
 
 ### Issue tracker
 
@@ -30,8 +33,9 @@ Use the existing player/menu guides and `docs/DECISIONS.md`. See
 ## Current slice and references
 
 Validate ordinary Windows players configuring, launching and sharing supported
-MW2/Skate/Minecraft mashups. The Intervention slice has a finalised contract;
-native implementation and gameplay evidence remain required. Hide HUD
+MW2/Skate/Minecraft mashups. The current slice integrates Synergy itself;
+automated Intervention navigation/equip is observed, with input, presentation
+and owner gameplay evidence still required. Hide HUD
 is deferred and blocks no active work. Baseline reproduction remains incomplete.
 No universal merger, new engine, marketplace or production launcher is authorized.
 

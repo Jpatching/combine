@@ -74,7 +74,7 @@ index 1d3c626..cda18a1 100644
  mod practice_ui;
  pub mod input;
 diff --git a/crates/console/src/practice.rs b/crates/console/src/practice.rs
-index 9dea3de..11fc56d 100644
+index 9dea3de..4c972ad 100644
 --- a/crates/console/src/practice.rs
 +++ b/crates/console/src/practice.rs
 @@ -1,12 +1,10 @@
@@ -213,7 +213,7 @@ index 9dea3de..11fc56d 100644
      // Keep physical state independently: gameplay isolation resets ButtonInput.
      let (mut events, mut keys, mouse) = keyboard;
      keys.clear();
-@@ -174,281 +105,160 @@ pub(crate) fn input(
+@@ -174,281 +105,164 @@ pub(crate) fn input(
                      || p.get(B::RightTrigger2).unwrap_or(0.) > 0.1
              }),
      };
@@ -505,13 +505,12 @@ index 9dea3de..11fc56d 100644
      }
  }
 -
--fn publish_view(
--    state: Res<Practice>,
+ fn publish_view(
+     state: Res<Practice>,
 -    hold: Res<BotHold>,
--    devices: Res<frame::InputDevices>,
--    mut view: ResMut<MenuView>,
--) {
-+fn publish_view(state: Res<Practice>, active: Res<frame::ActivePad>, mut view: ResMut<MenuView>) {
+     devices: Res<frame::InputDevices>,
+     mut view: ResMut<MenuView>,
+ ) {
      view.set_if_neq(MenuView {
 -        open: state.menu.open && state.available,
 +        open: state.menu.open,

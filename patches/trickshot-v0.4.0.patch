@@ -1,0 +1,2490 @@
+diff --git a/COMBINE-NOTICE.md b/COMBINE-NOTICE.md
+new file mode 100644
+index 0000000..132083a
+--- /dev/null
++++ b/COMBINE-NOTICE.md
+@@ -0,0 +1,31 @@
++# Combine practice menu attribution
++
++The native practice menu is a source-derived port of **Synergy MW2**, by
++SyndiShanX, pinned to `33bcc80f5446e7543a2eb68b17c798e29d3f27c4`:
++https://github.com/SyndiShanX/Synergy-GSC-Menu/tree/33bcc80f5446e7543a2eb68b17c798e29d3f27c4/MW2
++
++Synergy credits M203 by Xeirh and the Apparition Structure Team: CF4_99
++(main developer), Extinct, ItsFebiven and Joel (ideas and suggestions).
++Its GPL version 3 licence is preserved verbatim in LICENSES/Synergy-GPL-3.0.md.
++
++Combine modifications, 2026-10-03:
++
++- Ported initial_variables, create_menu, input_manager, open_menu, close_menu,
++  set_menu_visibility, new_menu, scroll_cursor and set_options into native Rust
++  state/navigation and Bevy UI. Seven slots, scrolling, cursor/history retention,
++  right-side panel, title, selection bar, submenu arrows and footer are derived
++  from those functions. Cyan replaces the rainbow theme.
++- Replaced GSC execution with a closed action enum connected to existing local
++  practice actions. Added keyboard/D-pad support and input release barriers.
++- Removed the initial controls banner. Closing destroys every menu UI entity.
++  Used the runtime's existing Oxanium game UI font; imported no Synergy assets.
++- Added synthetic tests and a standalone asset-free native rendering preview.
++
++The adapted menu and console crate containing it are GPL-3.0-only. Existing
++upstream files keep their copyright notices; the upstream Apache-2.0 LICENSE
++and NOTICE remain intact. Distribution of a combined executable needs the
++corresponding source and applicable notices/licences; no executable or game
++assets are distributed by this patch. This notice does not grant game-asset
++rights, publisher permission, or permission to redistribute local caches.
++
++No IW4x binary, GSC loader, or unrelated Synergy gameplay modification is included.
+diff --git a/Cargo.lock b/Cargo.lock
+index 683dff9..3c242d9 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -2207,11 +2207,14 @@ dependencies = [
+  "diag",
+  "entity_iw4",
+  "frame",
++ "gamemode_iw4",
+  "hud",
++ "hud_iw4",
+  "input_iw4",
+  "master_protocol",
+  "net",
+  "perf",
++ "playerstate_iw4",
+  "render",
+  "render_frontend",
+  "render_fx",
+diff --git a/LICENSES/Synergy-GPL-3.0.md b/LICENSES/Synergy-GPL-3.0.md
+new file mode 100644
+index 0000000..ed990f8
+--- /dev/null
++++ b/LICENSES/Synergy-GPL-3.0.md
+@@ -0,0 +1,621 @@
++                    GNU GENERAL PUBLIC LICENSE
++                       Version 3, 29 June 2007
++
++ Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
++ Everyone is permitted to copy and distribute verbatim copies
++ of this license document, but changing it is not allowed.
++
++                            Preamble
++
++  The GNU General Public License is a free, copyleft license for
++software and other kinds of works.
++
++  The licenses for most software and other practical works are designed
++to take away your freedom to share and change the works.  By contrast,
++the GNU General Public License is intended to guarantee your freedom to
++share and change all versions of a program--to make sure it remains free
++software for all its users.  We, the Free Software Foundation, use the
++GNU General Public License for most of our software; it applies also to
++any other work released this way by its authors.  You can apply it to
++your programs, too.
++
++  When we speak of free software, we are referring to freedom, not
++price.  Our General Public Licenses are designed to make sure that you
++have the freedom to distribute copies of free software (and charge for
++them if you wish), that you receive source code or can get it if you
++want it, that you can change the software or use pieces of it in new
++free programs, and that you know you can do these things.
++
++  To protect your rights, we need to prevent others from denying you
++these rights or asking you to surrender the rights.  Therefore, you have
++certain responsibilities if you distribute copies of the software, or if
++you modify it: responsibilities to respect the freedom of others.
++
++  For example, if you distribute copies of such a program, whether
++gratis or for a fee, you must pass on to the recipients the same
++freedoms that you received.  You must make sure that they, too, receive
++or can get the source code.  And you must show them these terms so they
++know their rights.
++
++  Developers that use the GNU GPL protect your rights with two steps:
++(1) assert copyright on the software, and (2) offer you this License
++giving you legal permission to copy, distribute and/or modify it.
++
++  For the developers' and authors' protection, the GPL clearly explains
++that there is no warranty for this free software.  For both users' and
++authors' sake, the GPL requires that modified versions be marked as
++changed, so that their problems will not be attributed erroneously to
++authors of previous versions.
++
++  Some devices are designed to deny users access to install or run
++modified versions of the software inside them, although the manufacturer
++can do so.  This is fundamentally incompatible with the aim of
++protecting users' freedom to change the software.  The systematic
++pattern of such abuse occurs in the area of products for individuals to
++use, which is precisely where it is most unacceptable.  Therefore, we
++have designed this version of the GPL to prohibit the practice for those
++products.  If such problems arise substantially in other domains, we
++stand ready to extend this provision to those domains in future versions
++of the GPL, as needed to protect the freedom of users.
++
++  Finally, every program is threatened constantly by software patents.
++States should not allow patents to restrict development and use of
++software on general-purpose computers, but in those that do, we wish to
++avoid the special danger that patents applied to a free program could
++make it effectively proprietary.  To prevent this, the GPL assures that
++patents cannot be used to render the program non-free.
++
++  The precise terms and conditions for copying, distribution and
++modification follow.
++
++                       TERMS AND CONDITIONS
++
++  0. Definitions.
++
++  "This License" refers to version 3 of the GNU General Public License.
++
++  "Copyright" also means copyright-like laws that apply to other kinds of
++works, such as semiconductor masks.
++
++  "The Program" refers to any copyrightable work licensed under this
++License.  Each licensee is addressed as "you".  "Licensees" and
++"recipients" may be individuals or organizations.
++
++  To "modify" a work means to copy from or adapt all or part of the work
++in a fashion requiring copyright permission, other than the making of an
++exact copy.  The resulting work is called a "modified version" of the
++earlier work or a work "based on" the earlier work.
++
++  A "covered work" means either the unmodified Program or a work based
++on the Program.
++
++  To "propagate" a work means to do anything with it that, without
++permission, would make you directly or secondarily liable for
++infringement under applicable copyright law, except executing it on a
++computer or modifying a private copy.  Propagation includes copying,
++distribution (with or without modification), making available to the
++public, and in some countries other activities as well.
++
++  To "convey" a work means any kind of propagation that enables other
++parties to make or receive copies.  Mere interaction with a user through
++a computer network, with no transfer of a copy, is not conveying.
++
++  An interactive user interface displays "Appropriate Legal Notices"
++to the extent that it includes a convenient and prominently visible
++feature that (1) displays an appropriate copyright notice, and (2)
++tells the user that there is no warranty for the work (except to the
++extent that warranties are provided), that licensees may convey the
++work under this License, and how to view a copy of this License.  If
++the interface presents a list of user commands or options, such as a
++menu, a prominent item in the list meets this criterion.
++
++  1. Source Code.
++
++  The "source code" for a work means the preferred form of the work
++for making modifications to it.  "Object code" means any non-source
++form of a work.
++
++  A "Standard Interface" means an interface that either is an official
++standard defined by a recognized standards body, or, in the case of
++interfaces specified for a particular programming language, one that
++is widely used among developers working in that language.
++
++  The "System Libraries" of an executable work include anything, other
++than the work as a whole, that (a) is included in the normal form of
++packaging a Major Component, but which is not part of that Major
++Component, and (b) serves only to enable use of the work with that
++Major Component, or to implement a Standard Interface for which an
++implementation is available to the public in source code form.  A
++"Major Component", in this context, means a major essential component
++(kernel, window system, and so on) of the specific operating system
++(if any) on which the executable work runs, or a compiler used to
++produce the work, or an object code interpreter used to run it.
++
++  The "Corresponding Source" for a work in object code form means all
++the source code needed to generate, install, and (for an executable
++work) run the object code and to modify the work, including scripts to
++control those activities.  However, it does not include the work's
++System Libraries, or general-purpose tools or generally available free
++programs which are used unmodified in performing those activities but
++which are not part of the work.  For example, Corresponding Source
++includes interface definition files associated with source files for
++the work, and the source code for shared libraries and dynamically
++linked subprograms that the work is specifically designed to require,
++such as by intimate data communication or control flow between those
++subprograms and other parts of the work.
++
++  The Corresponding Source need not include anything that users
++can regenerate automatically from other parts of the Corresponding
++Source.
++
++  The Corresponding Source for a work in source code form is that
++same work.
++
++  2. Basic Permissions.
++
++  All rights granted under this License are granted for the term of
++copyright on the Program, and are irrevocable provided the stated
++conditions are met.  This License explicitly affirms your unlimited
++permission to run the unmodified Program.  The output from running a
++covered work is covered by this License only if the output, given its
++content, constitutes a covered work.  This License acknowledges your
++rights of fair use or other equivalent, as provided by copyright law.
++
++  You may make, run and propagate covered works that you do not
++convey, without conditions so long as your license otherwise remains
++in force.  You may convey covered works to others for the sole purpose
++of having them make modifications exclusively for you, or provide you
++with facilities for running those works, provided that you comply with
++the terms of this License in conveying all material for which you do
++not control copyright.  Those thus making or running the covered works
++for you must do so exclusively on your behalf, under your direction
++and control, on terms that prohibit them from making any copies of
++your copyrighted material outside their relationship with you.
++
++  Conveying under any other circumstances is permitted solely under
++the conditions stated below.  Sublicensing is not allowed; section 10
++makes it unnecessary.
++
++  3. Protecting Users' Legal Rights From Anti-Circumvention Law.
++
++  No covered work shall be deemed part of an effective technological
++measure under any applicable law fulfilling obligations under article
++11 of the WIPO copyright treaty adopted on 20 December 1996, or
++similar laws prohibiting or restricting circumvention of such
++measures.
++
++  When you convey a covered work, you waive any legal power to forbid
++circumvention of technological measures to the extent such circumvention
++is effected by exercising rights under this License with respect to
++the covered work, and you disclaim any intention to limit operation or
++modification of the work as a means of enforcing, against the work's
++users, your or third parties' legal rights to forbid circumvention of
++technological measures.
++
++  4. Conveying Verbatim Copies.
++
++  You may convey verbatim copies of the Program's source code as you
++receive it, in any medium, provided that you conspicuously and
++appropriately publish on each copy an appropriate copyright notice;
++keep intact all notices stating that this License and any
++non-permissive terms added in accord with section 7 apply to the code;
++keep intact all notices of the absence of any warranty; and give all
++recipients a copy of this License along with the Program.
++
++  You may charge any price or no price for each copy that you convey,
++and you may offer support or warranty protection for a fee.
++
++  5. Conveying Modified Source Versions.
++
++  You may convey a work based on the Program, or the modifications to
++produce it from the Program, in the form of source code under the
++terms of section 4, provided that you also meet all of these conditions:
++
++    a) The work must carry prominent notices stating that you modified
++    it, and giving a relevant date.
++
++    b) The work must carry prominent notices stating that it is
++    released under this License and any conditions added under section
++    7.  This requirement modifies the requirement in section 4 to
++    "keep intact all notices".
++
++    c) You must license the entire work, as a whole, under this
++    License to anyone who comes into possession of a copy.  This
++    License will therefore apply, along with any applicable section 7
++    additional terms, to the whole of the work, and all its parts,
++    regardless of how they are packaged.  This License gives no
++    permission to license the work in any other way, but it does not
++    invalidate such permission if you have separately received it.
++
++    d) If the work has interactive user interfaces, each must display
++    Appropriate Legal Notices; however, if the Program has interactive
++    interfaces that do not display Appropriate Legal Notices, your
++    work need not make them do so.
++
++  A compilation of a covered work with other separate and independent
++works, which are not by their nature extensions of the covered work,
++and which are not combined with it such as to form a larger program,
++in or on a volume of a storage or distribution medium, is called an
++"aggregate" if the compilation and its resulting copyright are not
++used to limit the access or legal rights of the compilation's users
++beyond what the individual works permit.  Inclusion of a covered work
++in an aggregate does not cause this License to apply to the other
++parts of the aggregate.
++
++  6. Conveying Non-Source Forms.
++
++  You may convey a covered work in object code form under the terms
++of sections 4 and 5, provided that you also convey the
++machine-readable Corresponding Source under the terms of this License,
++in one of these ways:
++
++    a) Convey the object code in, or embodied in, a physical product
++    (including a physical distribution medium), accompanied by the
++    Corresponding Source fixed on a durable physical medium
++    customarily used for software interchange.
++
++    b) Convey the object code in, or embodied in, a physical product
++    (including a physical distribution medium), accompanied by a
++    written offer, valid for at least three years and valid for as
++    long as you offer spare parts or customer support for that product
++    model, to give anyone who possesses the object code either (1) a
++    copy of the Corresponding Source for all the software in the
++    product that is covered by this License, on a durable physical
++    medium customarily used for software interchange, for a price no
++    more than your reasonable cost of physically performing this
++    conveying of source, or (2) access to copy the
++    Corresponding Source from a network server at no charge.
++
++    c) Convey individual copies of the object code with a copy of the
++    written offer to provide the Corresponding Source.  This
++    alternative is allowed only occasionally and noncommercially, and
++    only if you received the object code with such an offer, in accord
++    with subsection 6b.
++
++    d) Convey the object code by offering access from a designated
++    place (gratis or for a charge), and offer equivalent access to the
++    Corresponding Source in the same way through the same place at no
++    further charge.  You need not require recipients to copy the
++    Corresponding Source along with the object code.  If the place to
++    copy the object code is a network server, the Corresponding Source
++    may be on a different server (operated by you or a third party)
++    that supports equivalent copying facilities, provided you maintain
++    clear directions next to the object code saying where to find the
++    Corresponding Source.  Regardless of what server hosts the
++    Corresponding Source, you remain obligated to ensure that it is
++    available for as long as needed to satisfy these requirements.
++
++    e) Convey the object code using peer-to-peer transmission, provided
++    you inform other peers where the object code and Corresponding
++    Source of the work are being offered to the general public at no
++    charge under subsection 6d.
++
++  A separable portion of the object code, whose source code is excluded
++from the Corresponding Source as a System Library, need not be
++included in conveying the object code work.
++
++  A "User Product" is either (1) a "consumer product", which means any
++tangible personal property which is normally used for personal, family,
++or household purposes, or (2) anything designed or sold for incorporation
++into a dwelling.  In determining whether a product is a consumer product,
++doubtful cases shall be resolved in favor of coverage.  For a particular
++product received by a particular user, "normally used" refers to a
++typical or common use of that class of product, regardless of the status
++of the particular user or of the way in which the particular user
++actually uses, or expects or is expected to use, the product.  A product
++is a consumer product regardless of whether the product has substantial
++commercial, industrial or non-consumer uses, unless such uses represent
++the only significant mode of use of the product.
++
++  "Installation Information" for a User Product means any methods,
++procedures, authorization keys, or other information required to install
++and execute modified versions of a covered work in that User Product from
++a modified version of its Corresponding Source.  The information must
++suffice to ensure that the continued functioning of the modified object
++code is in no case prevented or interfered with solely because
++modification has been made.
++
++  If you convey an object code work under this section in, or with, or
++specifically for use in, a User Product, and the conveying occurs as
++part of a transaction in which the right of possession and use of the
++User Product is transferred to the recipient in perpetuity or for a
++fixed term (regardless of how the transaction is characterized), the
++Corresponding Source conveyed under this section must be accompanied
++by the Installation Information.  But this requirement does not apply
++if neither you nor any third party retains the ability to install
++modified object code on the User Product (for example, the work has
++been installed in ROM).
++
++  The requirement to provide Installation Information does not include a
++requirement to continue to provide support service, warranty, or updates
++for a work that has been modified or installed by the recipient, or for
++the User Product in which it has been modified or installed.  Access to a
++network may be denied when the modification itself materially and
++adversely affects the operation of the network or violates the rules and
++protocols for communication across the network.
++
++  Corresponding Source conveyed, and Installation Information provided,
++in accord with this section must be in a format that is publicly
++documented (and with an implementation available to the public in
++source code form), and must require no special password or key for
++unpacking, reading or copying.
++
++  7. Additional Terms.
++
++  "Additional permissions" are terms that supplement the terms of this
++License by making exceptions from one or more of its conditions.
++Additional permissions that are applicable to the entire Program shall
++be treated as though they were included in this License, to the extent
++that they are valid under applicable law.  If additional permissions
++apply only to part of the Program, that part may be used separately
++under those permissions, but the entire Program remains governed by
++this License without regard to the additional permissions.
++
++  When you convey a copy of a covered work, you may at your option
++remove any additional permissions from that copy, or from any part of
++it.  (Additional permissions may be written to require their own
++removal in certain cases when you modify the work.)  You may place
++additional permissions on material, added by you to a covered work,
++for which you have or can give appropriate copyright permission.
++
++  Notwithstanding any other provision of this License, for material you
++add to a covered work, you may (if authorized by the copyright holders of
++that material) supplement the terms of this License with terms:
++
++    a) Disclaiming warranty or limiting liability differently from the
++    terms of sections 15 and 16 of this License; or
++
++    b) Requiring preservation of specified reasonable legal notices or
++    author attributions in that material or in the Appropriate Legal
++    Notices displayed by works containing it; or
++
++    c) Prohibiting misrepresentation of the origin of that material, or
++    requiring that modified versions of such material be marked in
++    reasonable ways as different from the original version; or
++
++    d) Limiting the use for publicity purposes of names of licensors or
++    authors of the material; or
++
++    e) Declining to grant rights under trademark law for use of some
++    trade names, trademarks, or service marks; or
++
++    f) Requiring indemnification of licensors and authors of that
++    material by anyone who conveys the material (or modified versions of
++    it) with contractual assumptions of liability to the recipient, for
++    any liability that these contractual assumptions directly impose on
++    those licensors and authors.
++
++  All other non-permissive additional terms are considered "further
++restrictions" within the meaning of section 10.  If the Program as you
++received it, or any part of it, contains a notice stating that it is
++governed by this License along with a term that is a further
++restriction, you may remove that term.  If a license document contains
++a further restriction but permits relicensing or conveying under this
++License, you may add to a covered work material governed by the terms
++of that license document, provided that the further restriction does
++not survive such relicensing or conveying.
++
++  If you add terms to a covered work in accord with this section, you
++must place, in the relevant source files, a statement of the
++additional terms that apply to those files, or a notice indicating
++where to find the applicable terms.
++
++  Additional terms, permissive or non-permissive, may be stated in the
++form of a separately written license, or stated as exceptions;
++the above requirements apply either way.
++
++  8. Termination.
++
++  You may not propagate or modify a covered work except as expressly
++provided under this License.  Any attempt otherwise to propagate or
++modify it is void, and will automatically terminate your rights under
++this License (including any patent licenses granted under the third
++paragraph of section 11).
++
++  However, if you cease all violation of this License, then your
++license from a particular copyright holder is reinstated (a)
++provisionally, unless and until the copyright holder explicitly and
++finally terminates your license, and (b) permanently, if the copyright
++holder fails to notify you of the violation by some reasonable means
++prior to 60 days after the cessation.
++
++  Moreover, your license from a particular copyright holder is
++reinstated permanently if the copyright holder notifies you of the
++violation by some reasonable means, this is the first time you have
++received notice of violation of this License (for any work) from that
++copyright holder, and you cure the violation prior to 30 days after
++your receipt of the notice.
++
++  Termination of your rights under this section does not terminate the
++licenses of parties who have received copies or rights from you under
++this License.  If your rights have been terminated and not permanently
++reinstated, you do not qualify to receive new licenses for the same
++material under section 10.
++
++  9. Acceptance Not Required for Having Copies.
++
++  You are not required to accept this License in order to receive or
++run a copy of the Program.  Ancillary propagation of a covered work
++occurring solely as a consequence of using peer-to-peer transmission
++to receive a copy likewise does not require acceptance.  However,
++nothing other than this License grants you permission to propagate or
++modify any covered work.  These actions infringe copyright if you do
++not accept this License.  Therefore, by modifying or propagating a
++covered work, you indicate your acceptance of this License to do so.
++
++  10. Automatic Licensing of Downstream Recipients.
++
++  Each time you convey a covered work, the recipient automatically
++receives a license from the original licensors, to run, modify and
++propagate that work, subject to this License.  You are not responsible
++for enforcing compliance by third parties with this License.
++
++  An "entity transaction" is a transaction transferring control of an
++organization, or substantially all assets of one, or subdividing an
++organization, or merging organizations.  If propagation of a covered
++work results from an entity transaction, each party to that
++transaction who receives a copy of the work also receives whatever
++licenses to the work the party's predecessor in interest had or could
++give under the previous paragraph, plus a right to possession of the
++Corresponding Source of the work from the predecessor in interest, if
++the predecessor has it or can get it with reasonable efforts.
++
++  You may not impose any further restrictions on the exercise of the
++rights granted or affirmed under this License.  For example, you may
++not impose a license fee, royalty, or other charge for exercise of
++rights granted under this License, and you may not initiate litigation
++(including a cross-claim or counterclaim in a lawsuit) alleging that
++any patent claim is infringed by making, using, selling, offering for
++sale, or importing the Program or any portion of it.
++
++  11. Patents.
++
++  A "contributor" is a copyright holder who authorizes use under this
++License of the Program or a work on which the Program is based.  The
++work thus licensed is called the contributor's "contributor version".
++
++  A contributor's "essential patent claims" are all patent claims
++owned or controlled by the contributor, whether already acquired or
++hereafter acquired, that would be infringed by some manner, permitted
++by this License, of making, using, or selling its contributor version,
++but do not include claims that would be infringed only as a
++consequence of further modification of the contributor version.  For
++purposes of this definition, "control" includes the right to grant
++patent sublicenses in a manner consistent with the requirements of
++this License.
++
++  Each contributor grants you a non-exclusive, worldwide, royalty-free
++patent license under the contributor's essential patent claims, to
++make, use, sell, offer for sale, import and otherwise run, modify and
++propagate the contents of its contributor version.
++
++  In the following three paragraphs, a "patent license" is any express
++agreement or commitment, however denominated, not to enforce a patent
++(such as an express permission to practice a patent or covenant not to
++sue for patent infringement).  To "grant" such a patent license to a
++party means to make such an agreement or commitment not to enforce a
++patent against the party.
++
++  If you convey a covered work, knowingly relying on a patent license,
++and the Corresponding Source of the work is not available for anyone
++to copy, free of charge and under the terms of this License, through a
++publicly available network server or other readily accessible means,
++then you must either (1) cause the Corresponding Source to be so
++available, or (2) arrange to deprive yourself of the benefit of the
++patent license for this particular work, or (3) arrange, in a manner
++consistent with the requirements of this License, to extend the patent
++license to downstream recipients.  "Knowingly relying" means you have
++actual knowledge that, but for the patent license, your conveying the
++covered work in a country, or your recipient's use of the covered work
++in a country, would infringe one or more identifiable patents in that
++country that you have reason to believe are valid.
++
++  If, pursuant to or in connection with a single transaction or
++arrangement, you convey, or propagate by procuring conveyance of, a
++covered work, and grant a patent license to some of the parties
++receiving the covered work authorizing them to use, propagate, modify
++or convey a specific copy of the covered work, then the patent license
++you grant is automatically extended to all recipients of the covered
++work and works based on it.
++
++  A patent license is "discriminatory" if it does not include within
++the scope of its coverage, prohibits the exercise of, or is
++conditioned on the non-exercise of one or more of the rights that are
++specifically granted under this License.  You may not convey a covered
++work if you are a party to an arrangement with a third party that is
++in the business of distributing software, under which you make payment
++to the third party based on the extent of your activity of conveying
++the work, and under which the third party grants, to any of the
++parties who would receive the covered work from you, a discriminatory
++patent license (a) in connection with copies of the covered work
++conveyed by you (or copies made from those copies), or (b) primarily
++for and in connection with specific products or compilations that
++contain the covered work, unless you entered into that arrangement,
++or that patent license was granted, prior to 28 March 2007.
++
++  Nothing in this License shall be construed as excluding or limiting
++any implied license or other defenses to infringement that may
++otherwise be available to you under applicable patent law.
++
++  12. No Surrender of Others' Freedom.
++
++  If conditions are imposed on you (whether by court order, agreement or
++otherwise) that contradict the conditions of this License, they do not
++excuse you from the conditions of this License.  If you cannot convey a
++covered work so as to satisfy simultaneously your obligations under this
++License and any other pertinent obligations, then as a consequence you may
++not convey it at all.  For example, if you agree to terms that obligate you
++to collect a royalty for further conveying from those to whom you convey
++the Program, the only way you could satisfy both those terms and this
++License would be to refrain entirely from conveying the Program.
++
++  13. Use with the GNU Affero General Public License.
++
++  Notwithstanding any other provision of this License, you have
++permission to link or combine any covered work with a work licensed
++under version 3 of the GNU Affero General Public License into a single
++combined work, and to convey the resulting work.  The terms of this
++License will continue to apply to the part which is the covered work,
++but the special requirements of the GNU Affero General Public License,
++section 13, concerning interaction through a network will apply to the
++combination as such.
++
++  14. Revised Versions of this License.
++
++  The Free Software Foundation may publish revised and/or new versions of
++the GNU General Public License from time to time.  Such new versions will
++be similar in spirit to the present version, but may differ in detail to
++address new problems or concerns.
++
++  Each version is given a distinguishing version number.  If the
++Program specifies that a certain numbered version of the GNU General
++Public License "or any later version" applies to it, you have the
++option of following the terms and conditions either of that numbered
++version or of any later version published by the Free Software
++Foundation.  If the Program does not specify a version number of the
++GNU General Public License, you may choose any version ever published
++by the Free Software Foundation.
++
++  If the Program specifies that a proxy can decide which future
++versions of the GNU General Public License can be used, that proxy's
++public statement of acceptance of a version permanently authorizes you
++to choose that version for the Program.
++
++  Later license versions may give you additional or different
++permissions.  However, no additional obligations are imposed on any
++author or copyright holder as a result of your choosing to follow a
++later version.
++
++  15. Disclaimer of Warranty.
++
++  THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY
++APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
++HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY
++OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,
++THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
++PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM
++IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
++ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
++
++  16. Limitation of Liability.
++
++  IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
++WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS
++THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
++GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE
++USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF
++DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
++PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
++EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
++SUCH DAMAGES.
++
++  17. Interpretation of Sections 15 and 16.
++
++  If the disclaimer of warranty and limitation of liability provided
++above cannot be given local legal effect according to their terms,
++reviewing courts shall apply local law that most closely approximates
++an absolute waiver of all civil liability in connection with the
++Program, unless a warranty or assumption of liability accompanies a
++copy of the Program in return for a fee.
++
++                     END OF TERMS AND CONDITIONS
+\ No newline at end of file
+diff --git a/crates/console/Cargo.toml b/crates/console/Cargo.toml
+index b27c42b..9a37e90 100644
+--- a/crates/console/Cargo.toml
++++ b/crates/console/Cargo.toml
+@@ -2,7 +2,7 @@
+ name = "console"
+ version = "0.1.0"
+ edition.workspace = true
+-license.workspace = true
++license = "GPL-3.0-only"
+ description = "Our console: input, parsing, execution, cvar storage, coverage report."
+ 
+ [dependencies]
+@@ -29,6 +29,11 @@ bots = { path = "../bots" }
+ hud = { path = "../hud" }
+ entity_iw4.workspace = true
+ perf.workspace = true
++playerstate_iw4.workspace = true
++hud_iw4.workspace = true
++
++[dev-dependencies]
++gamemode_iw4.workspace = true
+ 
+ [lints]
+ workspace = true
+diff --git a/crates/console/examples/practice_menu_preview.rs b/crates/console/examples/practice_menu_preview.rs
+new file mode 100644
+index 0000000..33d3c42
+--- /dev/null
++++ b/crates/console/examples/practice_menu_preview.rs
+@@ -0,0 +1,112 @@
++// SPDX-License-Identifier: GPL-3.0-only
++//! Asset-free native renderer check. Does not load a game, profile or network.
++//! Run with a fresh output directory; captures root, submenu, feedback and closed.
++#[path = "../src/practice_menu.rs"]
++mod practice_menu;
++#[path = "../src/practice_ui.rs"]
++mod practice_ui;
++use bevy::prelude::*;
++use bevy::render::view::screenshot::{Screenshot, ScreenshotCaptured, save_to_disk};
++use practice_menu::Page;
++use practice_ui::{MenuRoot, MenuView};
++
++#[derive(Resource)]
++struct Preview {
++    directory: String,
++    stage: usize,
++    frame: usize,
++    waiting: bool,
++}
++fn main() {
++    let args: Vec<_> = std::env::args().collect();
++    let width: u32 = args.get(1).expect("width").parse().unwrap();
++    let height: u32 = args.get(2).expect("height").parse().unwrap();
++    let directory = args.get(3).expect("fresh output directory").clone();
++    std::fs::create_dir(&directory).expect("output directory must be fresh");
++    App::new()
++        .add_plugins(
++            DefaultPlugins.set(WindowPlugin {
++                primary_window: Some(Window {
++                    title: "Combine menu preview - no game assets".into(),
++                    resolution: bevy::window::WindowResolution::new(width, height)
++                        .with_scale_factor_override(1.),
++                    ..default()
++                }),
++                ..default()
++            }),
++        )
++        .insert_resource(ClearColor(Color::srgb(0.16, 0.19, 0.23)))
++        .insert_resource(Preview {
++            directory,
++            stage: 0,
++            frame: 0,
++            waiting: false,
++        })
++        .init_resource::<MenuView>()
++        .add_systems(Startup, setup)
++        .add_systems(Update, (advance, practice_ui::render).chain())
++        .run();
++}
++fn setup(mut commands: Commands, mut fonts: ResMut<Assets<Font>>) {
++    let font = fonts.add(Font::from_bytes(
++        include_bytes!("../../ui/assets/Oxanium-Regular.ttf").to_vec(),
++    ));
++    commands.insert_resource(ui::GameUiFont(font));
++    commands.spawn(Camera2d);
++}
++fn advance(
++    mut commands: Commands,
++    mut p: ResMut<Preview>,
++    mut view: ResMut<MenuView>,
++    roots: Query<Entity, With<MenuRoot>>,
++    mut exit: MessageWriter<AppExit>,
++) {
++    if p.waiting {
++        return;
++    }
++    if p.stage >= 4 {
++        exit.write(AppExit::Success);
++        return;
++    }
++    p.frame += 1;
++    if p.frame == 1 {
++        *view = match p.stage {
++            0 => MenuView {
++                open: true,
++                ..default()
++            },
++            1 => MenuView {
++                open: true,
++                page: Page::Aim,
++                selected: 1,
++                pad: true,
++                ..default()
++            },
++            2 => MenuView {
++                open: true,
++                page: Page::Targets,
++                selected: 1,
++                status: "No living bot: add a target and wait for it to spawn.".into(),
++                ..default()
++            },
++            _ => MenuView {
++                aim_lock: true,
++                ..default()
++            },
++        };
++    }
++    if p.frame == 60 {
++        assert_eq!(roots.iter().count(), if p.stage == 3 { 0 } else { 1 });
++        let name = ["root", "aim", "feedback", "closed"][p.stage];
++        let path = format!("{}/{name}.png", p.directory);
++        p.waiting = true;
++        commands
++            .spawn(Screenshot::primary_window())
++            .observe(save_to_disk(path))
++            .observe(|_: On<ScreenshotCaptured>, mut p: ResMut<Preview>| {
++                p.stage += 1;
++                p.frame = 0;
++                p.waiting = false;
++            });
++    }
++}
+diff --git a/crates/console/src/gamepad.rs b/crates/console/src/gamepad.rs
+index de83681..6573911 100644
+--- a/crates/console/src/gamepad.rs
++++ b/crates/console/src/gamepad.rs
+@@ -179,6 +179,7 @@ const REPEAT_DELAY: f32 = 0.4;
+ const REPEAT_EVERY: f32 = 0.12;
+ 
+ pub(crate) fn drive_menus_with_pad(
++    practice: Res<crate::practice::Practice>,
+     gamepads: Query<&Gamepad>,
+     active: Res<frame::ActivePad>,
+     script_menus: Option<Res<hud::ScriptMenus>>,
+@@ -191,7 +192,7 @@ pub(crate) fn drive_menus_with_pad(
+     mut requests: MessageWriter<UiMenuRequest>,
+     mut repeat: Local<Option<(UiMenuKey, f32)>>,
+ ) {
+-    if !devices.focused || console.open {
++    if !devices.focused || console.open || practice.captured {
+         *repeat = None;
+         return;
+     }
+diff --git a/crates/console/src/lib.rs b/crates/console/src/lib.rs
+index 31ff273..1d3c626 100644
+--- a/crates/console/src/lib.rs
++++ b/crates/console/src/lib.rs
+@@ -24,6 +24,10 @@ pub mod editor;
+ mod feature_dispatch;
+ mod frontend;
+ mod gamepad;
++mod practice;
++mod practice_core;
++mod practice_menu;
++mod practice_ui;
+ pub mod input;
+ pub mod plugin;
+ pub mod registry;
+diff --git a/crates/console/src/plugin/mod.rs b/crates/console/src/plugin/mod.rs
+index 76532e8..284c1f1 100644
+--- a/crates/console/src/plugin/mod.rs
++++ b/crates/console/src/plugin/mod.rs
+@@ -81,6 +81,7 @@ impl Plugin for ConsolePlugin {
+     fn build(&self, app: &mut App) {
+         app.add_systems(Update, crate::debug_move::update_skate_overlay.in_set(ClientSet::Ui));
+         crate::startup::install_stdin(app);
++        crate::practice::install(app);
+         app.init_resource::<ConsoleSettings>()
+             .init_resource::<ConsoleState>()
+             .init_resource::<frame::HudInputView>()
+@@ -107,11 +108,12 @@ impl Plugin for ConsolePlugin {
+                 PreUpdate,
+                 (
+                     crate::gamepad::track_active_pad,
++                    crate::practice::input,
+                     crate::gamepad::drive_menus_with_pad,
+                 )
+                     .chain()
+                     .after(InputSystems)
+-                    .before(publish_client_action_input),
++                    .before(handle_console_input),
+             )
+             .add_systems(
+                 Update,
+@@ -261,10 +263,11 @@ fn dispatch_menu_commands(
+ 
+ fn isolate_gameplay_input(
+     console: Res<ConsoleState>,
++    practice: Res<crate::practice::Practice>,
+     mut keys: ResMut<ButtonInput<KeyCode>>,
+     mut mouse: MessageReader<MouseMotion>,
+ ) {
+-    if !console.open {
++    if !console.open && !practice.captured {
+         return;
+     }
+     keys.reset_all();
+@@ -283,6 +286,7 @@ struct PhysicalInputState {
+ }
+ 
+ fn publish_client_action_input(
++    practice: Res<crate::practice::Practice>,
+     mut skate: ResMut<frame::SkateMode>,
+     time: Res<Time>,
+     keys: Res<ButtonInput<KeyCode>>,
+@@ -348,7 +352,7 @@ fn publish_client_action_input(
+     }
+     let script_menu = script_menus.is_some_and(|menus| menus.captures_input());
+     let inventory_open = minecraft.is_some_and(|ui| ui.active && ui.inventory_open);
+-    skate.input_blocked = console.open || script_menu;
++    skate.input_blocked = console.open || script_menu || practice.captured;
+     // J, or clicking both sticks in together, toggles skating.
+     let sticks_clicked = pad.is_some_and(|pad| {
+         use bevy::input::gamepad::GamepadButton::{LeftThumb, RightThumb};
+@@ -360,12 +364,13 @@ fn publish_client_action_input(
+         skate.toggle_requested = true;
+     }
+     let modal_captured = console.open
++        || practice.captured
+         || script_menu
+         || inventory_open
+         || keys.just_pressed(KeyCode::Escape)
+         || pad.is_some_and(|pad| pad.just_pressed(bevy::input::gamepad::GamepadButton::Start));
+     let captured = !devices.focused || modal_captured;
+-    hud_input.console_open = console.open;
++    hud_input.console_open = console.open || practice.captured;
+     physical.blocked.retain(|button| inputs.pressed(*button));
+ 
+     let akimbo = prediction
+@@ -580,6 +585,7 @@ fn publish_client_action_input(
+ /// every key, and the console, still work.
+ fn sync_cursor_grab(
+     console: Res<ConsoleState>,
++    practice: Res<crate::practice::Practice>,
+     script_menus: Option<Res<hud::ScriptMenus>>,
+     minecraft: Option<Res<frame::MinecraftUi>>,
+     screen: Option<Res<AppScreen>>,
+@@ -598,7 +604,7 @@ fn sync_cursor_grab(
+     let in_game = screen
+         .as_ref()
+         .is_some_and(|s| matches!(**s, AppScreen::InGame));
+-    let grab = in_game && !console.open && !menu_open;
++    let grab = in_game && !console.open && !menu_open && !practice.captured;
+     let Ok(mut cursor) = windows.single_mut() else {
+         return;
+     };
+@@ -1161,6 +1167,7 @@ fn apply_console_os_paste(
+ }
+ 
+ fn handle_console_input(
++    practice: Res<crate::practice::Practice>,
+     keys: Res<ButtonInput<KeyCode>>,
+     logical_keys: Res<ButtonInput<Key>>,
+     mut events: MessageReader<KeyboardInput>,
+@@ -1175,6 +1182,7 @@ fn handle_console_input(
+     prompt: Option<Res<ConsolePrompt>>,
+     mut editables: Query<&mut EditableText, With<ConsoleInputText>>,
+ ) {
++    if practice.captured { events.clear(); return; }
+     let prompt_entity = prompt.map(|p| p.0);
+     if keys.just_pressed(KeyCode::Backquote) {
+         state.open = !state.open;
+@@ -2355,3 +2363,13 @@ fn suggest_span_bundle(span: &SuggestSpan, font: Handle<Font>) -> impl Bundle {
+         TextBackgroundColor(COLOR_SUGGEST_BG),
+     )
+ }
++
++#[cfg(test)]
++pub(crate) fn install_practice_test_input(app: &mut App) {
++    app.add_systems(PreUpdate, (
++        crate::practice::input,
++        crate::gamepad::drive_menus_with_pad,
++        isolate_gameplay_input,
++        publish_client_action_input,
++    ).chain().after(InputSystems));
++}
+diff --git a/crates/console/src/practice.rs b/crates/console/src/practice.rs
+new file mode 100644
+index 0000000..9dea3de
+--- /dev/null
++++ b/crates/console/src/practice.rs
+@@ -0,0 +1,454 @@
++//! Local practice UI. Commands reuse the existing authority queues; no executable injection.
++use crate::ConsoleState;
++use crate::practice_core::{self, Spot};
++use crate::practice_menu::{Action, Controls, Menu};
++use crate::practice_ui::MenuView;
++use bevy::input::gamepad::GamepadButton as B;
++use bevy::input::keyboard::KeyboardInput;
++use bevy::prelude::*;
++use bots::{BotAddQueue, BotHold, BotRoster, BotTpQueue, BotTpRequest, BotTpTarget, BotTpWhere};
++use frame::{AppScreen, ClientSet, RuntimeRole, WorldGeneration};
++use net::{
++    ActionRequestIds, AuthorityWorld, ClientActionInbox, LocalPresentClient, PresentedSnapshot,
++};
++
++#[derive(Resource, Default)]
++pub(crate) struct Practice {
++    menu: Menu,
++    pub captured: bool,
++    available: bool,
++    generation: Option<u64>,
++    saved: Option<Spot>,
++    pending_return: Option<(Spot, f32)>,
++    aim_lock: bool,
++    locked_bot: Option<u32>,
++    old_aim: Option<AimSettings>,
++    status: String,
++}
++#[derive(Clone, Copy)]
++struct AimSettings {
++    preset: u8,
++    sensitivity: f32,
++    ads: f32,
++    curve: u8,
++    acceleration: bool,
++    deadzone: f32,
++}
++impl AimSettings {
++    fn read(s: &frame::GameSettings) -> Self {
++        Self {
++            preset: s.pad_sensitivity_preset,
++            sensitivity: s.pad_custom_sensitivity,
++            ads: s.pad_ads_sensitivity,
++            curve: s.pad_curve,
++            acceleration: s.pad_acceleration,
++            deadzone: s.pad_deadzone_right,
++        }
++    }
++    fn apply(self, s: &mut frame::GameSettings) {
++        s.pad_sensitivity_preset = self.preset;
++        s.pad_custom_sensitivity = self.sensitivity;
++        s.pad_ads_sensitivity = self.ads;
++        s.pad_curve = self.curve;
++        s.pad_acceleration = self.acceleration;
++        s.pad_deadzone_right = self.deadzone;
++        s.revision = s.revision.wrapping_add(1);
++    }
++}
++
++pub(crate) fn install(app: &mut App) {
++    app.init_resource::<Practice>()
++        .init_resource::<MenuView>()
++        .add_systems(
++            Update,
++            (publish_view, crate::practice_ui::render)
++                .chain()
++                .in_set(ClientSet::Ui),
++        )
++        .add_systems(
++            Update,
++            aim_lock
++                .after(net::sample_client_input)
++                .in_set(ClientSet::Input),
++        );
++}
++
++fn allowed(
++    role: Option<&RuntimeRole>,
++    world: Option<&AuthorityWorld>,
++    snapshot: &PresentedSnapshot,
++    local: &LocalPresentClient,
++    bots: &BotRoster,
++) -> bool {
++    let Some(s) = snapshot.snapshot() else {
++        return false;
++    };
++    practice_core::permitted(
++        role == Some(&RuntimeRole::Listen),
++        world.is_some_and(|w| w.0.cheats_enabled()),
++        true,
++        s.meta
++            .clients
++            .iter()
++            .any(|(id, _)| *id != local.0 && !bots.is_bot(*id)),
++    )
++}
++
++/// Runs before both gamepad menu navigation and gameplay publication.
++pub(crate) fn input(
++    mut state: ResMut<Practice>,
++    keyboard: (
++        MessageReader<KeyboardInput>,
++        Local<ButtonInput<KeyCode>>,
++        Res<ButtonInput<MouseButton>>,
++    ),
++    pads: Query<&Gamepad>,
++    active: Res<frame::ActivePad>,
++    devices: Res<frame::InputDevices>,
++    console: Res<ConsoleState>,
++    menus: Option<Res<hud::ScriptMenus>>,
++    minecraft: Option<Res<frame::MinecraftUi>>,
++    screen: Res<AppScreen>,
++    context: (
++        Option<Res<RuntimeRole>>,
++        Option<Res<AuthorityWorld>>,
++        Res<WorldGeneration>,
++        Res<PresentedSnapshot>,
++        Res<LocalPresentClient>,
++    ),
++    bots: (
++        Res<BotRoster>,
++        ResMut<BotAddQueue>,
++        ResMut<BotHold>,
++        ResMut<BotTpQueue>,
++    ),
++    mut skate: ResMut<frame::SkateMode>,
++    mut settings: ResMut<frame::GameSettings>,
++    actions: (
++        Option<ResMut<ClientActionInbox>>,
++        ResMut<ActionRequestIds>,
++        ResMut<net::LookState>,
++    ),
++    time: Res<Time>,
++) {
++    let (role, world, generation, snapshot, local) = context;
++    let (roster, mut add, mut hold, mut tp) = bots;
++    let (mut inbox, mut requests, mut look) = actions;
++    // Keep physical state independently: gameplay isolation resets ButtonInput.
++    let (mut events, mut keys, mouse) = keyboard;
++    keys.clear();
++    for event in events.read() {
++        if event.state.is_pressed() {
++            keys.press(event.key_code);
++        } else {
++            keys.release(event.key_code);
++        }
++    }
++    if !devices.focused {
++        keys.reset_all();
++    }
++    let pad = active.0.and_then(|e| pads.get(e).ok());
++    let held = |b| pad.is_some_and(|p| p.pressed(b));
++    let pressed = |b| pad.is_some_and(|p| p.just_pressed(b));
++    let controls = Controls {
++        up: keys.pressed(KeyCode::ArrowUp) || held(B::DPadUp) || held(B::LeftTrigger2),
++        down: keys.pressed(KeyCode::ArrowDown) || held(B::DPadDown) || held(B::RightTrigger2),
++        select: keys.pressed(KeyCode::Enter)
++            || keys.pressed(KeyCode::NumpadEnter)
++            || keys.pressed(KeyCode::ArrowRight)
++            || held(B::South)
++            || held(B::West)
++            || held(B::DPadRight),
++        back: keys.pressed(KeyCode::Backspace)
++            || keys.pressed(KeyCode::ArrowLeft)
++            || held(B::East)
++            || held(B::RightThumb)
++            || held(B::DPadLeft),
++        toggle: keys.just_pressed(KeyCode::F6) || (held(B::LeftTrigger2) && pressed(B::RightThumb)),
++        escape: keys.pressed(KeyCode::Escape),
++        any_down: keys.get_pressed().next().is_some()
++            || mouse.get_pressed().next().is_some()
++            || pad.is_some_and(|p| {
++                p.get_pressed().next().is_some()
++                    || p.get(B::LeftTrigger2).unwrap_or(0.) > 0.1
++                    || p.get(B::RightTrigger2).unwrap_or(0.) > 0.1
++            }),
++    };
++    if state.generation != generation.0 {
++        state.generation = generation.0;
++        state.saved = None;
++        state.pending_return = None;
++        state.aim_lock = false;
++        state.locked_bot = None;
++        state.menu.reset();
++        state.status = "New map: starting spot cleared; aim lock off.".into();
++    }
++    let usable = allowed(
++        role.as_deref(),
++        world.as_deref(),
++        &snapshot,
++        &local,
++        &roster,
++    );
++    state.available = usable && *screen == AppScreen::InGame;
++    let available = state.available
++        && devices.focused
++        && !console.open
++        && !menus.as_ref().is_some_and(|m| m.captures_input())
++        && !minecraft
++            .as_ref()
++            .is_some_and(|m| m.active && m.inventory_open)
++        && snapshot.alive_player(local.0).is_some();
++    let action = state
++        .menu
++        .step(controls, available, time.elapsed_secs_f64());
++    state.captured = state.menu.captured;
++    if !available {
++        state.pending_return = None;
++        state.locked_bot = None;
++        if !usable {
++            state.aim_lock = false;
++        }
++        return;
++    }
++    let Some(ps) = snapshot.alive_player(local.0) else {
++        return;
++    };
++    if let Some((spot, started)) = state.pending_return {
++        if !spot.valid_for(generation.0) || time.elapsed_secs() - started > 2.0 {
++            state.pending_return = None;
++            state.status = "Return cancelled: map changed or skating did not stop.".into();
++        } else if !skate.active && !skate.entering {
++            state.pending_return = None;
++            if let Some(inbox) = inbox.as_deref_mut() {
++                let request_id = requests.allocate();
++                match inbox.push(
++                    local.0,
++                    sim::ClientAction::Move {
++                        request_id,
++                        origin: spot.origin,
++                        angles: spot.angles,
++                    },
++                ) {
++                    Ok(()) => {
++                        look.angles = net::look_angles_from_degrees(std::array::from_fn(|i| {
++                            spot.angles[i] - ps.delta_angles[i]
++                        }));
++                        state.status = "Return requested.".into();
++                    }
++                    Err(e) => state.status = format!("Cannot return: {e}"),
++                }
++            } else {
++                state.status = "Return unavailable: no local authority.".into();
++            }
++        }
++    }
++    let Some(action) = action else {
++        return;
++    };
++    match action {
++        Action::Save => {
++            state.status = "Cannot save: map or position unavailable.".into();
++            if let Some(generation) = generation.0 {
++                let s = Spot {
++                    generation,
++                    origin: ps.origin,
++                    angles: ps.viewangles,
++                };
++                if s.valid_for(Some(generation)) {
++                    state.saved = Some(s);
++                    state.status = "Starting spot saved for this map.".into();
++                }
++            }
++        }
++        Action::Return => {
++            if let Some(s) = state.saved.filter(|s| s.valid_for(generation.0)) {
++                if skate.active || skate.entering {
++                    skate.toggle_requested = true;
++                }
++                state.pending_return = Some((s, time.elapsed_secs()));
++                state.status = "Leaving skating and returning...".into();
++            } else {
++                state.status = "Save a starting spot first.".into();
++            }
++        }
++        Action::AddBot => {
++            if roster.bots.len() >= bots::MAX_HOST_BOTS as usize {
++                state.status = "Bot limit reached.".into();
++            } else {
++                add.push_dummy(1);
++                state.status = "Bot requested. Place it after spawning.".into();
++            }
++        }
++        Action::PlaceBot => {
++            if let Some(bot) = roster
++                .bots
++                .iter()
++                .rev()
++                .find(|b| snapshot.alive_player(b.id).is_some())
++            {
++                let mut origin = ps.origin;
++                origin[2] += 10.0;
++                tp.push(BotTpRequest {
++                    target: BotTpTarget::Id(bot.id),
++                    where_: BotTpWhere::Absolute {
++                        origin,
++                        yaw: Some(ps.viewangles[1] + 180.),
++                        pitch: Some(0.),
++                    },
++                });
++                state.status = format!("Bot {} placement requested.", bot.id.0);
++            } else {
++                state.status = "No living bot: add a target and wait for it to spawn.".into();
++            }
++        }
++        Action::FreezeBots => {
++            hold.0 = !hold.0;
++            state.status = if hold.0 {
++                "Bots frozen; firing stopped."
++            } else {
++                "Bots unfrozen."
++            }
++            .into();
++        }
++        Action::AimLock => {
++            state.aim_lock = !state.aim_lock;
++            state.locked_bot = None;
++            state.status = if state.aim_lock {
++                "Aim lock ON: hold aim on foot."
++            } else {
++                "Aim lock OFF."
++            }
++            .into();
++        }
++        Action::SmoothAim => {
++            if state.old_aim.is_none() {
++                state.old_aim = Some(AimSettings::read(&settings));
++            }
++            AimSettings {
++                preset: 0,
++                sensitivity: 1.,
++                ads: 0.75,
++                curve: 0,
++                acceleration: false,
++                deadzone: 0.05,
++            }
++            .apply(&mut settings);
++            state.status = "Smooth preset applied.".into();
++        }
++        Action::RestoreAim => {
++            if let Some(old) = state.old_aim.take() {
++                old.apply(&mut settings);
++                state.status = "Previous aim settings restored.".into();
++            } else {
++                state.status = "No preset to restore in this session.".into();
++            }
++        }
++    }
++}
++
++fn publish_view(
++    state: Res<Practice>,
++    hold: Res<BotHold>,
++    devices: Res<frame::InputDevices>,
++    mut view: ResMut<MenuView>,
++) {
++    view.set_if_neq(MenuView {
++        open: state.menu.open && state.available,
++        page: state.menu.page,
++        selected: state.menu.cursor.selected,
++        offset: state.menu.cursor.offset,
++        frozen: hold.0,
++        aim_lock: state.aim_lock,
++        pad: devices.pad_prompts,
++        status: state.status.clone(),
++    });
++}
++
++fn aim_lock(
++    mut state: ResMut<Practice>,
++    role: Option<Res<RuntimeRole>>,
++    world: Option<Res<AuthorityWorld>>,
++    roster: Res<BotRoster>,
++    snapshot: Res<PresentedSnapshot>,
++    local: Res<LocalPresentClient>,
++    skate: Res<frame::SkateMode>,
++    console: Res<ConsoleState>,
++    devices: Res<frame::InputDevices>,
++    screen: Res<AppScreen>,
++    mut template: ResMut<net::ClientCmdTemplate>,
++    mut look: ResMut<net::LookState>,
++) {
++    state.locked_bot = None;
++    if !state.aim_lock
++        || state.captured
++        || skate.active
++        || skate.entering
++        || console.open
++        || !devices.focused
++        || *screen != AppScreen::InGame
++        || !template.ready
++        || template.cmd.buttons & playerstate_iw4::buttons::ADS == 0
++        || !allowed(
++            role.as_deref(),
++            world.as_deref(),
++            &snapshot,
++            &local,
++            &roster,
++        )
++    {
++        return;
++    }
++    let (Some(world), Some(s), Some(ps)) = (
++        world.as_ref(),
++        snapshot.snapshot(),
++        snapshot.alive_player(local.0),
++    ) else {
++        return;
++    };
++    let eye = [
++        ps.origin[0],
++        ps.origin[1],
++        ps.origin[2] + ps.view_height_current,
++    ];
++    let view = std::array::from_fn(|i| {
++        template.cmd.angles[i] as f32 / input_iw4::ANGLE2SHORT + ps.delta_angles[i]
++    });
++    let mine = s.meta.for_client(local.0).map(|m| m.client_state_team);
++    let mut best: Option<(u32, [f32; 3], f32)> = None;
++    for bot in &roster.bots {
++        let Some(target) = snapshot.alive_player(bot.id) else {
++            continue;
++        };
++        if s.meta.kind.is_team() && s.meta.for_client(bot.id).map(|m| m.client_state_team) == mine {
++            continue;
++        }
++        let point = [
++            target.origin[0],
++            target.origin[1],
++            target.origin[2] + target.view_height_current * 0.75,
++        ];
++        let Some((angles, error)) = practice_core::target_angles(eye, point, view) else {
++            continue;
++        };
++        let hit = world
++            .0
++            .trace_world(eye, point, [0.; 3], [0.; 3], hud_iw4::OVERHEAD_TRACE_MASK);
++        if hit.startsolid != 0 || hit.fraction < 1.0 {
++            continue;
++        }
++        if best.is_none_or(|(_, _, e)| error < e) {
++            best = Some((bot.id.0, angles, error));
++        }
++    }
++    if let Some((id, angles, _)) = best {
++        let command_angles = std::array::from_fn(|i| angles[i] - ps.delta_angles[i]);
++        template.cmd.angles = net::look_angles_from_degrees(command_angles);
++        look.angles = template.cmd.angles;
++        state.locked_bot = Some(id);
++    }
++}
++
++#[cfg(test)]
++#[path = "practice_tests.rs"]
++mod tests;
+diff --git a/crates/console/src/practice_core.rs b/crates/console/src/practice_core.rs
+new file mode 100644
+index 0000000..018a80d
+--- /dev/null
++++ b/crates/console/src/practice_core.rs
+@@ -0,0 +1,106 @@
++//! Pure practice policy/math; also testable with `rustc --test` without game assets.
++#[derive(Clone, Copy, Debug, PartialEq)]
++pub struct Spot {
++    pub generation: u64,
++    pub origin: [f32; 3],
++    pub angles: [f32; 3],
++}
++impl Spot {
++    pub fn valid_for(self, generation: Option<u64>) -> bool {
++        generation == Some(self.generation)
++            && self
++                .origin
++                .iter()
++                .chain(self.angles.iter())
++                .all(|v| v.is_finite())
++    }
++}
++
++pub fn permitted(listen: bool, debug: bool, has_world: bool, other_humans: bool) -> bool {
++    listen && debug && has_world && !other_humans
++}
++
++/// Desired world pitch/yaw and angular error, for a visible target in a 30 degree cone.
++pub fn target_angles(eye: [f32; 3], target: [f32; 3], view: [f32; 3]) -> Option<([f32; 3], f32)> {
++    if !eye
++        .iter()
++        .chain(target.iter())
++        .chain(view.iter())
++        .all(|v| v.is_finite())
++    {
++        return None;
++    }
++    let d = std::array::from_fn::<_, 3, _>(|i| target[i] - eye[i]);
++    let horizontal = d[0].hypot(d[1]);
++    if horizontal.hypot(d[2]) < 0.01 {
++        return None;
++    }
++    let angles = [
++        -d[2].atan2(horizontal).to_degrees(),
++        d[1].atan2(d[0]).to_degrees(),
++        0.0,
++    ];
++    let pitch = view[0].to_radians();
++    let yaw = view[1].to_radians();
++    let forward = [
++        pitch.cos() * yaw.cos(),
++        pitch.cos() * yaw.sin(),
++        -pitch.sin(),
++    ];
++    let length = horizontal.hypot(d[2]);
++    let dot = (0..3)
++        .map(|i| forward[i] * d[i] / length)
++        .sum::<f32>()
++        .clamp(-1.0, 1.0);
++    let error = dot.acos().to_degrees();
++    (error <= 30.0).then_some((angles, error))
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn practice_requires_local_debug_world_without_humans() {
++        assert!(permitted(true, true, true, false));
++        for args in [
++            (false, true, true, false),
++            (true, false, true, false),
++            (true, true, false, false),
++            (true, true, true, true),
++        ] {
++            assert!(!permitted(args.0, args.1, args.2, args.3));
++        }
++    }
++    #[test]
++    fn saved_spot_rejects_other_maps_and_nonfinite_data() {
++        let mut s = Spot {
++            generation: 7,
++            origin: [1., 2., 3.],
++            angles: [0.; 3],
++        };
++        assert!(s.valid_for(Some(7)));
++        assert!(!s.valid_for(Some(8)));
++        assert!(!s.valid_for(None));
++        s.origin[0] = f32::NAN;
++        assert!(!s.valid_for(Some(7)));
++    }
++    #[test]
++    fn aim_handles_yaw_wrap_and_vertical_pitch() {
++        let (a, error) = target_angles([0.; 3], [-100., -1., 0.], [0., 179., 0.]).unwrap();
++        assert!(a[1] < -179. && error < 2.);
++        let (a, _) = target_angles([0.; 3], [100., 0., 10.], [0.; 3]).unwrap();
++        assert!(a[0] < -5. && a[0] > -6.);
++    }
++    #[test]
++    fn aim_rejects_behind_outside_cone_zero_and_nonfinite() {
++        for p in [
++            [-10., 0., 0.],
++            [0., 10., 0.],
++            [0.; 3],
++            [f32::NAN, 0., 0.],
++            [f32::INFINITY, 0., 0.],
++        ] {
++            assert!(target_angles([0.; 3], p, [0.; 3]).is_none());
++        }
++    }
++}
+diff --git a/crates/console/src/practice_menu.rs b/crates/console/src/practice_menu.rs
+new file mode 100644
+index 0000000..c5b0917
+--- /dev/null
++++ b/crates/console/src/practice_menu.rs
+@@ -0,0 +1,399 @@
++// SPDX-License-Identifier: GPL-3.0-only
++// Source-derived port of Synergy MW2 by SyndiShanX (M203 / Xeirh and
++// Apparition Structure Team). Revision 33bcc80f5446e7543a2eb68b17c798e29d3f27c4.
++// Adapted for Combine on 2026-10-03; see COMBINE-NOTICE.md and LICENSES/.
++//! Menu navigation only. Actions are typed requests, never executable strings.
++
++pub const VISIBLE_ROWS: usize = 7;
++const REPEAT_DELAY: f64 = 0.4;
++const REPEAT_EVERY: f64 = 0.12;
++
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub enum Action {
++    Save,
++    Return,
++    AddBot,
++    PlaceBot,
++    FreezeBots,
++    AimLock,
++    SmoothAim,
++    RestoreAim,
++}
++#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
++pub enum Page {
++    #[default]
++    Root,
++    Positions,
++    Targets,
++    Aim,
++}
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub enum Entry {
++    Submenu(Page),
++    Action(Action),
++}
++impl Page {
++    pub fn title(self) -> &'static str {
++        match self {
++            Self::Root => "TRICKSHOT",
++            Self::Positions => "POSITIONS",
++            Self::Targets => "TARGETS",
++            Self::Aim => "AIM",
++        }
++    }
++    pub fn entries(self) -> &'static [Entry] {
++        use Action::*;
++        use Entry::{Action as A, Submenu as S};
++        match self {
++            Self::Root => &[S(Self::Positions), S(Self::Targets), S(Self::Aim)],
++            Self::Positions => &[A(Save), A(Return)],
++            Self::Targets => &[A(AddBot), A(PlaceBot), A(FreezeBots)],
++            Self::Aim => &[A(AimLock), A(SmoothAim), A(RestoreAim)],
++        }
++    }
++}
++impl Entry {
++    pub fn label(self) -> &'static str {
++        match self {
++            Self::Submenu(Page::Root) => "Trickshot",
++            Self::Submenu(Page::Positions) => "Positions",
++            Self::Submenu(Page::Targets) => "Targets",
++            Self::Submenu(Page::Aim) => "Aim",
++            Self::Action(a) => match a {
++                Action::Save => "Save starting spot",
++                Action::Return => "Return to starting spot",
++                Action::AddBot => "Add stationary bot",
++                Action::PlaceBot => "Place latest bot here",
++                Action::FreezeBots => "Freeze bots",
++                Action::AimLock => "Bot aim lock",
++                Action::SmoothAim => "Smooth controller preset",
++                Action::RestoreAim => "Restore settings",
++            },
++        }
++    }
++}
++
++#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
++pub struct Cursor {
++    pub selected: usize,
++    pub offset: usize,
++}
++impl Cursor {
++    pub fn move_by(&mut self, down: bool, count: usize) {
++        if count == 0 {
++            *self = Self::default();
++            return;
++        }
++        self.selected = if down {
++            (self.selected + 1) % count
++        } else {
++            (self.selected + count - 1) % count
++        };
++        // Synergy keeps the cursor near the middle, with seven visible options.
++        self.offset = self
++            .selected
++            .saturating_sub(VISIBLE_ROWS / 2)
++            .min(count.saturating_sub(VISIBLE_ROWS));
++    }
++}
++
++#[derive(Clone, Copy, Default)]
++pub struct Controls {
++    pub up: bool,
++    pub down: bool,
++    pub select: bool,
++    pub back: bool,
++    /// Edge only: F6 pressed, or R3 pressed while L2 is held.
++    pub toggle: bool,
++    pub escape: bool,
++    /// Physical keys, mouse buttons and pad buttons, even when gameplay keys reset.
++    pub any_down: bool,
++}
++#[derive(Default)]
++pub struct Menu {
++    pub open: bool,
++    pub captured: bool,
++    pub page: Page,
++    pub cursor: Cursor,
++    history: Vec<(Page, Cursor)>,
++    saved: [Cursor; 4],
++    release_guard: bool,
++    previous: Controls,
++    repeat: Option<(bool, f64)>,
++}
++impl Menu {
++    pub fn close(&mut self) {
++        if self.open {
++            self.release_guard = true;
++            self.captured = true;
++        }
++        self.open = false;
++        self.repeat = None;
++    }
++    pub fn reset(&mut self) {
++        self.close();
++        self.page = Page::Root;
++        self.cursor = Cursor::default();
++        self.history.clear();
++        self.saved = [Cursor::default(); 4];
++    }
++    pub fn step(&mut self, c: Controls, available: bool, now: f64) -> Option<Action> {
++        let old = self.previous;
++        self.previous = c;
++        self.captured = self.open || self.release_guard;
++        if !available {
++            self.close();
++        }
++        if self.release_guard {
++            self.release_guard = c.any_down;
++            // Capture the release frame too. Never re-open or act on a held button.
++            return None;
++        }
++        if !available {
++            return None;
++        }
++        if c.toggle {
++            if self.open {
++                self.close();
++            } else {
++                self.open = true;
++                self.captured = true;
++                self.release_guard = true;
++            }
++            return None;
++        }
++        if !self.open {
++            return None;
++        }
++        if c.escape {
++            self.close();
++            return None;
++        }
++        if c.back && !old.back {
++            self.saved[self.page as usize] = self.cursor;
++            if let Some((page, cursor)) = self.history.pop() {
++                self.page = page;
++                self.cursor = cursor;
++            } else {
++                self.close();
++            }
++            self.repeat = None;
++            return None;
++        }
++        if c.select && !old.select {
++            self.repeat = None;
++            match self.page.entries()[self.cursor.selected] {
++                Entry::Submenu(page) => {
++                    self.saved[self.page as usize] = self.cursor;
++                    self.history.push((self.page, self.cursor));
++                    self.page = page;
++                    self.cursor = self.saved[page as usize];
++                }
++                Entry::Action(action) => return Some(action),
++            }
++            return None;
++        }
++        let direction = if c.up == c.down { None } else { Some(c.down) };
++        match (direction, self.repeat) {
++            (Some(down), Some((held, next))) if down == held => {
++                if now >= next {
++                    self.cursor.move_by(down, self.page.entries().len());
++                    self.repeat = Some((down, now + REPEAT_EVERY));
++                }
++            }
++            (Some(down), _) => {
++                self.cursor.move_by(down, self.page.entries().len());
++                self.repeat = Some((down, now + REPEAT_DELAY));
++            }
++            (None, _) => self.repeat = None,
++        }
++        None
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn open(m: &mut Menu) {
++        m.step(
++            Controls {
++                toggle: true,
++                any_down: true,
++                ..Default::default()
++            },
++            true,
++            0.,
++        );
++        m.step(Controls::default(), true, 0.1);
++    }
++    fn tap(m: &mut Menu, c: Controls) -> Option<Action> {
++        let out = m.step(c, true, 1.);
++        m.step(Controls::default(), true, 1.1);
++        out
++    }
++    #[test]
++    fn starts_completely_closed_and_escape_does_not_open() {
++        let mut m = Menu::default();
++        assert!(!m.open && !m.captured);
++        tap(
++            &mut m,
++            Controls {
++                escape: true,
++                ..Default::default()
++            },
++        );
++        assert!(!m.open && !m.captured);
++    }
++    #[test]
++    fn submenu_backtracking_restores_parent_and_child_cursor() {
++        let mut m = Menu::default();
++        open(&mut m);
++        tap(
++            &mut m,
++            Controls {
++                down: true,
++                ..Default::default()
++            },
++        );
++        tap(
++            &mut m,
++            Controls {
++                select: true,
++                ..Default::default()
++            },
++        );
++        assert_eq!(m.page, Page::Targets);
++        tap(
++            &mut m,
++            Controls {
++                down: true,
++                ..Default::default()
++            },
++        );
++        assert_eq!(
++            tap(
++                &mut m,
++                Controls {
++                    select: true,
++                    ..Default::default()
++                }
++            ),
++            Some(Action::PlaceBot)
++        );
++        assert!(m.open); // Even failed actions leave navigation intact.
++        tap(
++            &mut m,
++            Controls {
++                back: true,
++                ..Default::default()
++            },
++        );
++        assert_eq!((m.page, m.cursor.selected), (Page::Root, 1));
++        tap(
++            &mut m,
++            Controls {
++                select: true,
++                ..Default::default()
++            },
++        );
++        assert_eq!((m.page, m.cursor.selected), (Page::Targets, 1));
++    }
++    #[test]
++    fn held_navigation_delays_repeats_and_opposites_cancel() {
++        let mut m = Menu::default();
++        open(&mut m);
++        let down = Controls {
++            down: true,
++            any_down: true,
++            ..Default::default()
++        };
++        m.step(down, true, 1.);
++        assert_eq!(m.cursor.selected, 1);
++        m.step(down, true, 1.39);
++        assert_eq!(m.cursor.selected, 1);
++        m.step(down, true, 1.4);
++        assert_eq!(m.cursor.selected, 2);
++        m.step(down, true, 1.51);
++        assert_eq!(m.cursor.selected, 2);
++        m.step(down, true, 1.53);
++        assert_eq!(m.cursor.selected, 0);
++        m.step(Controls { up: true, ..down }, true, 2.);
++        assert_eq!(m.cursor.selected, 0);
++    }
++    #[test]
++    fn scroll_window_wraps_and_contains_selection() {
++        let mut c = Cursor::default();
++        c.move_by(false, 12);
++        assert_eq!(
++            c,
++            Cursor {
++                selected: 11,
++                offset: 5
++            }
++        );
++        c.move_by(true, 12);
++        assert_eq!(c, Cursor::default());
++        for _ in 0..30 {
++            c.move_by(true, 12);
++            assert!(c.selected >= c.offset && c.selected < c.offset + VISIBLE_ROWS);
++            assert!(c.offset <= 5);
++        }
++        c.move_by(true, 0);
++        assert_eq!(c, Cursor::default());
++    }
++    #[test]
++    fn opening_chord_and_closing_buttons_require_release() {
++        let mut m = Menu::default();
++        let chord = Controls {
++            toggle: true,
++            up: true,
++            back: true,
++            any_down: true,
++            ..Default::default()
++        };
++        m.step(chord, true, 0.);
++        m.step(chord, true, 1.);
++        assert!(m.open && m.captured);
++        assert_eq!(m.cursor.selected, 0);
++        m.step(Controls::default(), true, 2.);
++        m.step(
++            Controls {
++                escape: true,
++                any_down: true,
++                ..Default::default()
++            },
++            true,
++            3.,
++        );
++        assert!(!m.open && m.captured);
++        m.step(chord, true, 4.);
++        assert!(!m.open && m.captured);
++        m.step(Controls::default(), true, 5.);
++        assert!(m.captured);
++        m.step(Controls::default(), true, 6.);
++        assert!(!m.captured);
++    }
++    #[test]
++    fn action_hold_never_repeats_and_context_loss_closes() {
++        let mut m = Menu::default();
++        open(&mut m);
++        tap(
++            &mut m,
++            Controls {
++                select: true,
++                ..Default::default()
++            },
++        );
++        let c = Controls {
++            select: true,
++            any_down: true,
++            ..Default::default()
++        };
++        assert_eq!(m.step(c, true, 2.), Some(Action::Save));
++        assert_eq!(m.step(c, true, 3.), None);
++        m.step(c, false, 4.);
++        assert!(!m.open && m.captured);
++        m.reset();
++        assert_eq!((m.page, m.cursor.selected), (Page::Root, 0));
++    }
++}
+diff --git a/crates/console/src/practice_tests.rs b/crates/console/src/practice_tests.rs
+new file mode 100644
+index 0000000..dbe289e
+--- /dev/null
++++ b/crates/console/src/practice_tests.rs
+@@ -0,0 +1,410 @@
++// SPDX-License-Identifier: GPL-3.0-only
++//! Synthetic ECS integration tests; no game assets or network, no claim of gameplay.
++use super::*;
++use crate::practice_menu::Page;
++use bevy::ecs::system::RunSystemOnce;
++use bevy::input::{
++    ButtonState, InputPlugin,
++    keyboard::{Key, NativeKey},
++};
++
++fn app() -> App {
++    let mut a = App::new();
++    let mut world = sim::SimWorld::new();
++    world
++        .bootstrap(sim::MatchBootstrap {
++            allow_debug_actions: true,
++            ..default()
++        })
++        .unwrap();
++    let mut snap = sim::Snapshot::unpublished(sim::Tick(1));
++    let mut ps = playerstate_iw4::PlayerState::ZERO;
++    ps.origin = [10., 20., 30.];
++    ps.viewangles = [0., 90., 0.];
++    ps.view_height_current = 60.;
++    snap.players.push((sim::ClientId(0), ps));
++    snap.meta.clients.push((
++        sim::ClientId(0),
++        sim::ClientSnapshotMeta {
++            lifecycle: sim::ClientLifecycle::Alive,
++            ..default()
++        },
++    ));
++    let mut presented = PresentedSnapshot::default();
++    presented.publish_decoded(snap);
++    let mut binds = crate::KeyBinds::default();
++    binds.apply_defaults();
++    binds.apply_pad_layout(0);
++    a.add_plugins(InputPlugin)
++        .insert_resource(Time::<()>::default())
++        .init_resource::<Practice>()
++        .insert_resource(RuntimeRole::Listen)
++        .insert_resource(AuthorityWorld(world))
++        .insert_resource(WorldGeneration(Some(1)))
++        .insert_resource(presented)
++        .insert_resource(LocalPresentClient(sim::ClientId(0)))
++        .init_resource::<frame::ActivePad>()
++        .insert_resource(frame::InputDevices {
++            focused: true,
++            ..default()
++        })
++        .init_resource::<ConsoleState>()
++        .insert_resource(AppScreen::InGame)
++        .init_resource::<BotRoster>()
++        .init_resource::<BotAddQueue>()
++        .init_resource::<BotHold>()
++        .init_resource::<BotTpQueue>()
++        .init_resource::<frame::SkateMode>()
++        .init_resource::<frame::GameSettings>()
++        .init_resource::<ClientActionInbox>()
++        .init_resource::<ActionRequestIds>()
++        .init_resource::<net::LookState>()
++        .init_resource::<frame::HudInputView>()
++        .init_resource::<net::ClientActionInput>()
++        .init_resource::<crate::ConsoleInputState>()
++        .insert_resource(binds)
++        .init_resource::<net::ClientPredictionState>()
++        .init_resource::<frame::UiBindingCapture>()
++        .add_message::<frame::UiMenuRequest>();
++    crate::plugin::install_practice_test_input(&mut a);
++    a.update();
++    a
++}
++fn key(a: &mut App, code: KeyCode, down: bool) {
++    a.world_mut().write_message(KeyboardInput {
++        key_code: code,
++        logical_key: Key::Unidentified(NativeKey::Unidentified),
++        state: if down {
++            ButtonState::Pressed
++        } else {
++            ButtonState::Released
++        },
++        text: None,
++        repeat: false,
++        window: Entity::PLACEHOLDER,
++    });
++    a.update();
++}
++fn tap(a: &mut App, code: KeyCode) {
++    key(a, code, true);
++    key(a, code, false);
++}
++fn page(a: &mut App, p: Page, selected: usize) {
++    let mut s = a.world_mut().resource_mut::<Practice>();
++    s.menu.page = p;
++    s.menu.cursor.selected = selected;
++}
++fn open(a: &mut App) {
++    tap(a, KeyCode::F6);
++}
++#[test]
++fn practice_keyboard_escape_consumed_and_held_keys_blocked_until_release() {
++    let mut a = app();
++    open(&mut a);
++    assert!(a.world().resource::<Practice>().menu.open);
++    key(&mut a, KeyCode::Space, true);
++    key(&mut a, KeyCode::KeyJ, true);
++    key(&mut a, KeyCode::Escape, true);
++    assert!(!a.world().resource::<Practice>().menu.open);
++    assert!(
++        !a.world()
++            .resource::<ButtonInput<KeyCode>>()
++            .just_pressed(KeyCode::Escape)
++    );
++    for _ in 0..3 {
++        a.update();
++        assert!(a.world().resource::<Practice>().captured);
++        assert!(!a.world().resource::<frame::SkateMode>().toggle_requested);
++        assert!(
++            a.world()
++                .resource::<net::ClientActionInput>()
++                .client
++                .keys
++                .iter()
++                .all(|k| k.down == 0)
++        );
++    }
++    key(&mut a, KeyCode::Escape, false);
++    key(&mut a, KeyCode::Space, false);
++    key(&mut a, KeyCode::KeyJ, false);
++    a.update();
++    assert!(!a.world().resource::<Practice>().captured);
++    tap(&mut a, KeyCode::KeyJ);
++    assert!(a.world().resource::<frame::SkateMode>().toggle_requested);
++}
++#[test]
++fn practice_missing_save_bot_and_restore_keep_menu_open() {
++    let mut a = app();
++    open(&mut a);
++    for (p, row, expected) in [
++        (Page::Positions, 1, "Save a starting"),
++        (Page::Targets, 1, "No living bot"),
++        (Page::Aim, 2, "No preset"),
++    ] {
++        page(&mut a, p, row);
++        tap(&mut a, KeyCode::Enter);
++        let s = a.world().resource::<Practice>();
++        assert!(s.menu.open);
++        assert!(s.status.starts_with(expected), "{}", s.status);
++    }
++    assert_eq!(a.world().resource::<ClientActionInbox>().pending_len(), 0);
++    assert!(a.world().resource::<BotTpQueue>().0.is_empty());
++}
++#[test]
++fn practice_save_return_exits_skating_then_queues_move_and_map_clears_state() {
++    let mut a = app();
++    open(&mut a);
++    page(&mut a, Page::Positions, 0);
++    tap(&mut a, KeyCode::Enter);
++    let saved = a.world().resource::<Practice>().saved.unwrap();
++    a.world_mut().resource_mut::<frame::SkateMode>().active = true;
++    page(&mut a, Page::Positions, 1);
++    tap(&mut a, KeyCode::Enter);
++    assert!(a.world().resource::<frame::SkateMode>().toggle_requested);
++    assert_eq!(a.world().resource::<ClientActionInbox>().pending_len(), 0);
++    a.world_mut().resource_mut::<frame::SkateMode>().active = false;
++    a.update();
++    let inbox = a.world().resource::<ClientActionInbox>();
++    assert!(
++        matches!(inbox.pending()[0].1, sim::ClientAction::Move { origin, angles, .. } if origin == saved.origin && angles == saved.angles)
++    );
++    a.world_mut().resource_mut::<Practice>().aim_lock = true;
++    a.world_mut().resource_mut::<WorldGeneration>().0 = Some(2);
++    a.update();
++    let s = a.world().resource::<Practice>();
++    assert!(s.saved.is_none() && s.pending_return.is_none() && !s.aim_lock && !s.menu.open);
++}
++#[test]
++fn practice_return_timeout_and_missing_authority_queue_are_visible() {
++    let mut a = app();
++    open(&mut a);
++    page(&mut a, Page::Positions, 0);
++    tap(&mut a, KeyCode::Enter);
++    a.world_mut().remove_resource::<ClientActionInbox>();
++    page(&mut a, Page::Positions, 1);
++    tap(&mut a, KeyCode::Enter);
++    assert!(
++        a.world()
++            .resource::<Practice>()
++            .status
++            .contains("no local authority")
++    );
++    a.world_mut().resource_mut::<frame::SkateMode>().active = true;
++    tap(&mut a, KeyCode::Enter);
++    a.world_mut()
++        .resource_mut::<Time>()
++        .advance_by(std::time::Duration::from_secs(3));
++    a.update();
++    let s = a.world().resource::<Practice>();
++    assert!(s.menu.open && s.pending_return.is_none());
++    assert!(s.status.contains("Return cancelled"));
++}
++#[test]
++fn practice_bot_queue_freeze_and_preset_restore() {
++    let mut a = app();
++    open(&mut a);
++    page(&mut a, Page::Targets, 0);
++    tap(&mut a, KeyCode::Enter);
++    assert!(a.world().resource::<BotAddQueue>().0[0].dummy);
++    page(&mut a, Page::Targets, 2);
++    tap(&mut a, KeyCode::Enter);
++    assert!(a.world().resource::<BotHold>().0);
++    a.world_mut()
++        .resource_mut::<frame::GameSettings>()
++        .pad_ads_sensitivity = 1.23;
++    page(&mut a, Page::Aim, 1);
++    tap(&mut a, KeyCode::Enter);
++    tap(&mut a, KeyCode::Enter);
++    assert_eq!(
++        a.world()
++            .resource::<frame::GameSettings>()
++            .pad_ads_sensitivity,
++        0.75
++    );
++    page(&mut a, Page::Aim, 2);
++    tap(&mut a, KeyCode::Enter);
++    assert_eq!(
++        a.world()
++            .resource::<frame::GameSettings>()
++            .pad_ads_sensitivity,
++        1.23
++    );
++}
++#[test]
++fn practice_pad_chord_select_back_and_gameplay_isolation() {
++    let mut a = app();
++    let pad = a.world_mut().spawn(Gamepad::default()).id();
++    a.world_mut().resource_mut::<frame::ActivePad>().0 = Some(pad);
++    // Directly mutate digital input after InputSystems, as a real pad event would.
++    fn buttons(a: &mut App, pad: Entity, buttons: &[B]) {
++        {
++            let mut p = a.world_mut().get_mut::<Gamepad>(pad).unwrap();
++            p.digital_mut().reset_all();
++            for &b in buttons {
++                p.digital_mut().press(b);
++            }
++        }
++        a.world_mut().run_system_once(input).unwrap();
++    }
++    buttons(&mut a, pad, &[B::LeftTrigger2, B::RightThumb]);
++    assert!(a.world().resource::<Practice>().menu.open);
++    buttons(&mut a, pad, &[]);
++    buttons(&mut a, pad, &[B::West]);
++    assert_eq!(a.world().resource::<Practice>().menu.page, Page::Positions);
++    buttons(&mut a, pad, &[]);
++    buttons(&mut a, pad, &[B::RightThumb]);
++    assert_eq!(a.world().resource::<Practice>().menu.page, Page::Root);
++    buttons(&mut a, pad, &[]);
++    buttons(
++        &mut a,
++        pad,
++        &[
++            B::LeftTrigger2,
++            B::RightThumb,
++            B::LeftThumb,
++            B::RightTrigger2,
++            B::South,
++        ],
++    );
++    assert!(!a.world().resource::<Practice>().menu.open);
++    // Run the complete ordered pipeline with those buttons still held.
++    a.update();
++    assert!(a.world().resource::<Practice>().captured);
++    assert!(!a.world().resource::<frame::SkateMode>().toggle_requested);
++    assert!(
++        a.world()
++            .resource::<net::ClientActionInput>()
++            .client
++            .keys
++            .iter()
++            .all(|k| k.down == 0)
++    );
++}
++#[test]
++fn practice_closed_renderer_has_no_entities_even_with_aim_lock_on() {
++    let mut a = App::new();
++    a.init_resource::<MenuView>()
++        .insert_resource(ui::GameUiFont(Handle::default()))
++        .add_systems(Update, crate::practice_ui::render);
++    a.update();
++    assert_eq!(
++        a.world_mut()
++            .query::<&crate::practice_ui::MenuRoot>()
++            .iter(a.world())
++            .count(),
++        0
++    );
++    a.world_mut().resource_mut::<MenuView>().open = true;
++    a.update();
++    assert_eq!(
++        a.world_mut()
++            .query::<&crate::practice_ui::MenuRoot>()
++            .iter(a.world())
++            .count(),
++        1
++    );
++    *a.world_mut().resource_mut::<MenuView>() = MenuView {
++        aim_lock: true,
++        ..default()
++    };
++    a.update();
++    assert_eq!(a.world_mut().query::<&Node>().iter(a.world()).count(), 0);
++}
++
++#[test]
++fn practice_aim_lock_excludes_humans_dead_teammates_and_obstructions() {
++    let mut a = app();
++    assert!(!a.world().resource::<Practice>().aim_lock);
++    let id = a
++        .world_mut()
++        .resource_mut::<BotRoster>()
++        .add_bots(1, &[sim::ClientId(0)], true)[0];
++    let mut snap = a
++        .world()
++        .resource::<PresentedSnapshot>()
++        .snapshot()
++        .unwrap()
++        .clone();
++    let mut target = playerstate_iw4::PlayerState::ZERO;
++    target.origin = [110., 25., 45.];
++    target.view_height_current = 60.;
++    snap.players.push((id, target));
++    snap.meta.clients.push((
++        id,
++        sim::ClientSnapshotMeta {
++            lifecycle: sim::ClientLifecycle::Alive,
++            ..default()
++        },
++    ));
++    a.world_mut()
++        .resource_mut::<PresentedSnapshot>()
++        .publish_decoded(snap.clone());
++    a.world_mut().resource_mut::<Practice>().aim_lock = true;
++    a.init_resource::<net::ClientCmdTemplate>();
++    fn run(a: &mut App, ads: bool) -> Option<u32> {
++        {
++            let mut t = a.world_mut().resource_mut::<net::ClientCmdTemplate>();
++            t.ready = true;
++            t.cmd.angles = [0; 3];
++            t.cmd.buttons = if ads {
++                playerstate_iw4::buttons::ADS
++            } else {
++                0
++            };
++        }
++        a.world_mut().run_system_once(aim_lock).unwrap();
++        a.world().resource::<Practice>().locked_bot
++    }
++    assert_eq!(run(&mut a, true), Some(id.0));
++    assert_eq!(run(&mut a, false), None);
++    a.world_mut().resource_mut::<frame::SkateMode>().active = true;
++    assert_eq!(run(&mut a, true), None);
++    a.world_mut().resource_mut::<frame::SkateMode>().active = false;
++    a.world_mut().resource_mut::<Practice>().captured = true;
++    assert_eq!(run(&mut a, true), None);
++    a.world_mut().resource_mut::<Practice>().captured = false;
++    let mut dead = snap.clone();
++    dead.meta.clients[1].1.lifecycle = sim::ClientLifecycle::Spectating;
++    a.world_mut()
++        .resource_mut::<PresentedSnapshot>()
++        .publish_decoded(dead);
++    assert_eq!(run(&mut a, true), None);
++    let mut team = snap.clone();
++    team.meta.kind = gamemode_iw4::GameModeKind::TeamDeathmatch;
++    a.world_mut()
++        .resource_mut::<PresentedSnapshot>()
++        .publish_decoded(team);
++    assert_eq!(run(&mut a, true), None);
++    let mut humans = snap.clone();
++    humans
++        .meta
++        .clients
++        .push((sim::ClientId(9), sim::ClientSnapshotMeta::default()));
++    a.world_mut()
++        .resource_mut::<PresentedSnapshot>()
++        .publish_decoded(humans);
++    assert_eq!(run(&mut a, true), None);
++    a.world_mut()
++        .resource_mut::<PresentedSnapshot>()
++        .publish_decoded(snap);
++    // A synthetic solid slab between the local eye and the target.
++    let mut content = sim::SimContentBuilder::default();
++    content.set_clip_brushes(vec![sim::SimBrush {
++        planes: vec![
++            [1., 0., 0., 60.],
++            [-1., 0., 0., -40.],
++            [0., 1., 0., 100.],
++            [0., -1., 0., 100.],
++            [0., 0., 1., 200.],
++            [0., 0., -1., 0.],
++        ],
++        contents: 1,
++        plane_surface_flags: vec![0; 6],
++        glass_encoded: 0,
++    }]);
++    a.world_mut()
++        .resource_mut::<AuthorityWorld>()
++        .0
++        .install_content(content.finish());
++    assert_eq!(run(&mut a, true), None);
++}
+diff --git a/crates/console/src/practice_ui.rs b/crates/console/src/practice_ui.rs
+new file mode 100644
+index 0000000..1d75a26
+--- /dev/null
++++ b/crates/console/src/practice_ui.rs
+@@ -0,0 +1,110 @@
++// SPDX-License-Identifier: GPL-3.0-only
++// Synergy MW2 presentation adapted for Combine, 2026-10-03.
++// See COMBINE-NOTICE.md for the source revision, authors and modifications.
++use crate::practice_menu::{Action, Entry, Page, VISIBLE_ROWS};
++use bevy::prelude::*;
++
++#[derive(Resource, Default, PartialEq, Clone)]
++pub(crate) struct MenuView {
++    pub open: bool,
++    pub page: Page,
++    pub selected: usize,
++    pub offset: usize,
++    pub frozen: bool,
++    pub aim_lock: bool,
++    pub pad: bool,
++    pub status: String,
++}
++#[derive(Component)]
++pub(crate) struct MenuRoot;
++
++/// A closed menu has no UI entities, so layer visibility cannot resurrect it.
++pub(crate) fn render(
++    mut commands: Commands,
++    view: Res<MenuView>,
++    font: Option<Res<ui::GameUiFont>>,
++    windows: Query<&Window, With<bevy::window::PrimaryWindow>>,
++    roots: Query<Entity, With<MenuRoot>>,
++    mut previous: Local<Option<(MenuView, Vec2)>>,
++) {
++    let viewport = windows
++        .single()
++        .map_or(Vec2::new(1280., 720.), |w| Vec2::new(w.width(), w.height()));
++    if previous
++        .as_ref()
++        .is_some_and(|(v, size)| v == &*view && *size == viewport)
++    {
++        return;
++    }
++    for entity in &roots {
++        commands.entity(entity).despawn();
++    }
++    if !view.open {
++        *previous = Some((view.clone(), viewport));
++        return;
++    }
++    let Some(font) = font else {
++        return;
++    };
++    *previous = Some((view.clone(), viewport));
++    let scale = (viewport.y / 720.).min(viewport.x / 1280.);
++    let cyan = Color::srgb(0.05, 0.85, 0.95);
++    let light = Color::srgb(0.88, 0.92, 0.95);
++    let muted = Color::srgb(0.56, 0.65, 0.69);
++    let dark = Color::srgb(0.025, 0.055, 0.065);
++    let text_font = |size| ui::game_text_font(&font.0, size * scale);
++    commands.spawn((
++        MenuRoot, ui::UiLayer::Overlay, GlobalZIndex(19500),
++        Node { position_type: PositionType::Absolute, width: percent(100), height: percent(100), ..default() },
++    )).with_children(|root| {
++        root.spawn((
++            Node {
++                position_type: PositionType::Absolute, right: px(32. * scale), top: px(144. * scale),
++                width: px(330. * scale), flex_direction: FlexDirection::Column,
++                border: UiRect::all(px(scale)), ..default()
++            },
++            BackgroundColor(Color::srgba(0.035, 0.045, 0.055, 0.9)), BorderColor::all(cyan),
++        )).with_children(|panel| {
++            panel.spawn((
++                Node { height: px(42. * scale), justify_content: JustifyContent::Center,
++                    align_items: AlignItems::Center, border: UiRect::bottom(px(scale)), ..default() },
++                BorderColor::all(cyan),
++            )).with_child((Text::new(view.page.title()), text_font(22.), TextColor(light)));
++            // Seven fixed slots as in Synergy; fewer actions leave empty slots.
++            for slot in 0..VISIBLE_ROWS {
++                let index = view.offset + slot;
++                let entry = view.page.entries().get(index).copied();
++                let selected = entry.is_some() && index == view.selected;
++                panel.spawn((
++                    Node { height: px(30. * scale), flex_shrink: 0., padding: UiRect::horizontal(px(12. * scale)),
++                        align_items: AlignItems::Center, justify_content: JustifyContent::SpaceBetween, ..default() },
++                    BackgroundColor(if selected { cyan } else { Color::NONE }),
++                )).with_children(|row| {
++                    if let Some(entry) = entry {
++                        row.spawn((Text::new(entry.label()), text_font(17.), TextColor(if selected { dark } else { light })));
++                        let suffix = match entry {
++                            Entry::Submenu(_) => ">",
++                            Entry::Action(Action::FreezeBots) => if view.frozen { "ON" } else { "OFF" },
++                            Entry::Action(Action::AimLock) => if view.aim_lock { "ON" } else { "OFF" },
++                            _ => "",
++                        };
++                        row.spawn((Text::new(suffix), text_font(17.), TextColor(if selected { dark } else { cyan })));
++                    }
++                });
++            }
++            panel.spawn((Node { min_height: px(44. * scale), padding: UiRect::all(px(10. * scale)),
++                border: UiRect::top(px(scale)), ..default() }, BorderColor::all(Color::srgba(0.05, 0.85, 0.95, 0.3)),
++            )).with_child((Text::new(if view.status.is_empty() { "Local bot practice" } else { &view.status }), text_font(14.), TextColor(light)));
++            let controls = if view.pad {
++                "D-pad / L2 R2: move   Cross / Square: select\nCircle / R3: back   L2 + R3: close"
++            } else { "Arrows: move   Enter: select   Backspace: back\nF6 / Esc: close" };
++            panel.spawn((Node { padding: UiRect::axes(px(10. * scale), px(7. * scale)),
++                flex_direction: FlexDirection::Column, row_gap: px(5. * scale), ..default() },
++                BackgroundColor(Color::srgba(0., 0., 0., 0.22)),
++            )).with_children(|footer| {
++                footer.spawn((Text::new(controls), text_font(12.), TextColor(muted)));
++                footer.spawn((Text::new("Synergy / SyndiShanX  ·  Combine port"), text_font(11.), TextColor(muted)));
++            });
++        });
++    });
++}

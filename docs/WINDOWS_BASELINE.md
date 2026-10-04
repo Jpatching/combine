@@ -1,31 +1,66 @@
 # Windows baseline — C-003
 
-This procedure tests the actual upstream release before Combine promises compatibility.
-It is a manual pilot, not an installer. Execute on the owner's Windows gaming PC;
-this Linux workspace cannot establish Windows gameplay results.
+This procedure tests the upstream runtime on the owner's Windows PC. “C-003” is
+just the backlog reference for that test, not a player-facing product name.
+Windows PowerShell is accessible through WSL with sandbox approval. Human observation
+is needed for gameplay; successful commands do not establish playable behaviour.
 
-**IW4x is not required.** This procedure uses the separate IW4L-based mashup release,
-which already includes its skating integration. A standalone Skate engine download
-does not provide Skate 3 game content.
+**Current priority: skating on Rust.** MW2 Multiplayer is installed, the v0.4.0
+archive was verified and a separate trial launched. The owner reports Minecraft
+worked and a possible freeze. See [the result](../research/results/2026-10-03-first-launch.md)
+and [current status](../BACKLOG.md) before repeating any preparation.
 
-## Start incrementally while MW2 downloads
+**IW4x is not required.** The pinned release includes the skating integration and
+converter. It still needs the player's Skate 3 Xbox 360 `default.xex` and accompanying
+`data` folder, plus a controller. A standalone engine or store DLC is not that data.
 
-The owner reports MW2 downloading and does not own Skate 3. Once MW2 Multiplayer
-files are ready, C-003a can start without Skate: verify the archive as below, extract
-a separate `mw2-only` trial, launch `iw4l.exe`, confirm MW2, and decline optional
-skating. Select Rust, test movement/combat, exit and relaunch. Record the result as
-**MW2-only partial baseline**; do not mark either skating recipe complete. Upstream
-may still fetch Minecraft content on first launch, so acquisition/network notes apply.
+## Resume the prepared skating trial
 
-Then perform C-003b with legitimate extracted Skate files and C-003c with the voxel
-world, using separate trial folders. The full procedure and acceptance checks follow.
+Preparation is complete in `%LOCALAPPDATA%\CombinePilot\v0.4.0\mw2-skate`,
+inside `2010-Rust-Rewrite-Mashup`. The converter passed and its process was launched;
+DualSense is detected over Bluetooth. See the
+[preparation evidence](../research/results/2026-10-03-skating-preparation.md).
+Game-data distribution provenance remains unresolved.
+
+1. In the launched trial, choose Create Game → Rust, then press **J**.
+2. Use the DualSense to move/turn and attempt a trick. Record board visibility,
+   collision, controller response and any freeze/error.
+3. Test ten on/off transitions, recovery and ten minutes of play; exit and relaunch.
+4. Compare original MW2 files after exit. Then decide whether to test Minecraft
+   skating or investigate a reproducible failure. Do not repeat extraction first.
+
+## Runtime preparation and evidence
+
+These are upstream functions at the selected revision, not code we implemented.
+Our ignored `.private/c003b/prepare-skating.ps1` only orchestrates local preparation.
+
+| Step | Reference | Evidence |
+| --- | --- | --- |
+| Convert extracted Xbox inputs into runtime assets | [Converter](https://github.com/chasmlol/2010-rust-rewrite-mashup/blob/f608f85e407ff1b7689d54a9aafdd16e95711ac4/skate/converter/iw4l_skate_convert.py), `convert()` | Adapts original data to the mashup; exit code 0 and four required outputs verified |
+| Read configured paths and prepare board assets | [First run](https://github.com/chasmlol/2010-rust-rewrite-mashup/blob/f608f85e407ff1b7689d54a9aafdd16e95711ac4/crates/launcher/src/first_run.rs), `prepare()` | Connects converted assets to startup; board.json and rig.json found after launch |
+| Translate controller input and update skating | [Skating adapter](https://github.com/chasmlol/2010-rust-rewrite-mashup/blob/f608f85e407ff1b7689d54a9aafdd16e95711ac4/crates/render_anim/src/skate.rs), `pad_frame()`, `update()`, `preload_map()` | Connects controller, simulation and world; source inspected, human movement/collision checks still pending |
+
+```text
+Xbox files -> converter -> runtime assets -> launcher -> controller + world -> skating
+ missing      fails          missing         fails       no response        observe
+    +------------+--------------+--------------+--------------+-> record exact stage
+```
+
+Each stage has a different check. A successful converter proves preparation, while
+moving and colliding correctly in Rust supplies gameplay evidence. Trace one stage
+at a time when learning or diagnosing a failure.
+
+The prior MW2-only on-foot ten-minute test is deferred at the owner's request.
+Minecraft first-play success is owner-reported; replay, session duration and the
+possible freeze still need a recorded test. Keep those observations separate from
+skating acceptance. Do not mark either skating recipe complete yet.
 
 ## Prerequisites and boundaries
 
 - A legitimate local MW2 (2009) Steam installation including Multiplayer files.
 - For both skating recipes, extracted Skate 3 Xbox 360 content: `default.xex` and
   its accompanying `data` folder. An ISO alone is not the mashup's documented input.
-- A controller; prefer XInput for the initial baseline. Record the exact model.
+- A controller; the current trial uses a detected DualSense. Record actual input results.
 - Internet for upstream first-run content downloads. Read C-006 in the research
   record before deciding whether to run the content downloader. This runbook is not
   permission to acquire files or bypass protection.
@@ -56,11 +91,12 @@ baseline report. A matching publisher hash establishes archive identity, not saf
 rights clearance, or reproducibility of its build from source. Do not disable security
 software if it blocks execution; record the exact warning and stop for investigation.
 
-## 2. Prepare two separate trial folders
+## 2. Prepare the current trial in a separate folder
 
 ```powershell
 $pilotRoot = Join-Path $env:LOCALAPPDATA 'CombinePilot\v0.4.0'
-foreach ($trialName in @('mw2-skate', 'minecraft-skate')) {
+# Prepare only the current trial; use 'minecraft-skate' for the later test.
+foreach ($trialName in @('mw2-skate')) {
     $trialDir = Join-Path $pilotRoot $trialName
     if (Test-Path -LiteralPath $trialDir) { throw 'Trial folder already exists; use a fresh named trial.' }
     Expand-Archive -LiteralPath $archivePath -DestinationPath $trialDir
@@ -73,9 +109,11 @@ and notices together. Record archive layout differences rather than guessing pat
 Do not invoke an updater. Existing runtime `.env` files may contain personal paths;
 keep them local and never include them in recipe exchange.
 
-Before launch, capture a local-only inventory/hash manifest of the original game
-folders if feasible; compare after the session. At minimum record observed file
-changes and disclose that full unchanged-file verification was not performed.
+Before launch, capture a complete local-only inventory and SHA-256 manifest of the
+original game folders; compare file additions, removals and changed hashes after
+exit. Stop and record a blocker if capture fails. The first MW2 manifest is already
+in ignored `.private/c003a/mw2-before.json`; it covers 178 files. A before manifest
+alone does not prove preservation; record the after comparison explicitly.
 
 ## 3. Establish prerequisites independently of gameplay
 
@@ -84,7 +122,7 @@ extracted Skate file when requested. Record every prompt, retry and conversion
 duration. Upstream may start Minecraft data downloads during initial startup even
 when the first selected world is MW2. Record network/content preparation time separately.
 
-Repeat setup in the second trial folder, preserving isolation. Record the duplicate
+For the later Minecraft skating test, repeat setup in a second trial if needed, preserving isolation. Record the duplicate
 conversion cost as a possible usability problem, not an assumed opportunity.
 Do not edit implementation files or add undocumented settings to make a test pass.
 

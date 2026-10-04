@@ -26,3 +26,12 @@ __pycache__/
 .venv/
 .DS_Store
 Thumbs.db
+
+# Local recordings and capture output.
+/recordings/
+/obs/
+*.mp4
+*.mkv
+*.mov
+*.webm
+*.iw4ldemo

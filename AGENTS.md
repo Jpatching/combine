@@ -1,63 +1,59 @@
-# Combine
+# Combine project instructions
 
-## Objective and current milestone
+Global collaboration defaults apply. Read README.md and BACKLOG.md first.
+BACKLOG.md is the local status authority; Git is the source authority. Do not
+claim a commit, remote, gameplay result, acceptance or release without evidence.
+Record consequential decisions in docs/DECISIONS.md.
 
-Validate whether ordinary Windows players can configure, launch and share
-supported game mashups without editing code. The owner is working solo with
-Codex on a small budget. Start with the existing MW2/Skate/Minecraft ecosystem.
-The current milestone is research and baseline reproduction, not a universal
-merger, new engine, marketplace or production launcher.
+## Current slice and references
 
-Read README.md and BACKLOG.md first. BACKLOG.md is the authoritative local issue
-tracker until a remote tracker is deliberately adopted. Record consequential
-decisions and milestone outcomes in docs/DECISIONS.md. Git is the code source
-of truth; do not claim a commit or remote exists without checking.
+Validate ordinary Windows players configuring, launching and sharing supported
+MW2/Skate/Minecraft mashups. The active bounded slice is the Synergy-derived native
+trickshot menu; broader research/baseline reproduction remains incomplete.
+No universal merger, new engine, marketplace or production launcher is authorized.
 
-## Evidence
+- README.md owns the player overview, controls and limitations.
+- docs/TRICKSHOT_MENU.md owns menu build, trial and acceptance procedures.
+- docs/WINDOWS_BASELINE.md owns baseline gameplay/recovery checks.
+- research/results/ owns redacted evidence; docs/HANDOFF.md points to the latest.
+- research/upstream.lock.json pins the supported source/release and menu source.
 
-- Record URLs, observation dates, exact source revisions and reproduction steps.
-- Distinguish documented, source-inspected, reproduced and unverified behaviour.
-- A successful build or matching archive hash does not establish playable behaviour.
-- Keep upstream claims separate from our measurements. Record contradictory docs.
-- Pin supported versions in research/upstream.lock.json. Refresh upstream refs at
-  handoff, but never silently replace the selected baseline with the newest build.
+## Project-specific boundaries
 
-## Boundaries
+Keep game assets, converted data, secrets, identities, OBS/recordings, private logs
+and local settings outside Git. Never upload game files or private logs to AI
+services. Preserve original installations; isolate runtime copies, caches and
+profiles. Redact shared diagnostics.
 
-- Keep game assets, converted data, secrets and participant identities out of Git.
-- Preserve original installations; keep runtime copies, caches and profiles separate.
-- Review code licences, asset rights and publisher terms separately. An open-source
-  licence or user-owned game is not blanket distribution or commercial clearance.
-- Do not implement DRM/anti-cheat bypasses or run unreviewed plugins/scripts.
-- Do not publish, redistribute, spend money or contact others without task-specific
-  authorization. Read-only research and reversible local work are authorized.
-- Never upload game files or private logs to AI services. Redact shared diagnostics.
+Review source licences, asset rights and publisher terms separately. Open source
+or ownership of a game does not grant blanket distribution/commercial clearance.
+Do not implement DRM/anti-cheat bypasses or run unreviewed plugins/scripts.
+Publishing, redistribution, spending and outreach need task-specific authority.
+The current plan permits source publication to Jpatching/combine only after the
+owner accepts the replacement menu. Read-only research and reversible local work
+within the slice are authorized.
 
-## Engineering and validation
+Recipes remain strict data, never shell commands, paths or download URLs. Reuse
+verified upstream capabilities; each new integration needs its own evidence.
+Separate checking, preparation, launch, gameplay and owner acceptance. The Python
+recipe checker performs research validation only.
 
-- Deliver end-to-end vertical slices: one player outcome, the minimum supporting
-  layers, explicit failure handling, and observed acceptance evidence. The research
-  foundation is preparation, not a completed playable slice.
-- Reuse verified upstream capabilities before replacing them. Recipes select
-  implemented features; a new game requires a separately tested integration.
-- Recipes are strict configuration data, never shell commands, paths or download URLs.
-- Separate compatibility checking, preparation and launching. Current tooling only
-  checks research data; it does not install or launch a runtime.
-- Full local gate: `python3 scripts/verify.py` (Windows: `py -3 scripts/verify.py`).
-- Focused checks: `python3 -m unittest discover -s tests -v`.
-- Windows gameplay acceptance: follow docs/WINDOWS_BASELINE.md and record results
-  using templates/baseline-result.md. Synthetic fixtures do not prove gameplay.
-- Do not run an upstream build until that task needs it; record exact toolchain and
-  dependencies if building. The selected upstream currently uses moving `stable`.
-- Run the full local gate once at handoff; rerun only after relevant changes/failures.
+## Verification and coordination
 
-## Coordination and handoff
+Record observation date, source URL/revision, commands, results and reproduction.
+Distinguish documented, source-inspected, reproduced and unverified behavior;
+archive hashes/builds/synthetic fixtures do not prove play. Record contradictory
+upstream documentation. Refresh upstream refs at handoff without moving the pin.
 
-Use one lead agent by default. docs/AGENT_ROLES.md defines bounded work packages;
-it does not configure or automatically spawn agents. Delegate only when requested.
-Give each task an output, evidence requirement and completion check; avoid shared
-file ownership. Agent research cannot declare legal clearance.
+Full repository gate: `python3 scripts/verify.py` (Windows: `py -3 scripts/verify.py`).
+Focused Python checks: `python3 -m unittest discover -s tests -v`.
+Run the full gate once at handoff; repeat only after relevant changes/failures.
+Menu Rust/native-render checks are in docs/TRICKSHOT_MENU.md. Windows gameplay
+uses the baseline runbook and templates/baseline-result.md. Build upstream only
+when needed, recording exact tools; upstream's moving `stable` is not a pin.
 
-Keep explanations proportional to the task. Handoff must distinguish local tooling
-verification, upstream gameplay verification, owner acceptance and release status.
-State the next concrete step, prerequisites, exact checks and unresolved limits.
+Use one lead agent. docs/AGENT_ROLES.md describes bounded work packages, not an
+automatic delegation instruction. Delegate only when requested. Research agents
+cannot declare legal clearance. Finish with evidence, remaining limitations and
+one concrete next step, distinguishing implementation, verification, acceptance
+and release. Preserve unrelated work and keep explanations proportional.

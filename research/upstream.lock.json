@@ -19,9 +19,9 @@
   "verification": {
     "source_commit": "fetched-and-inspected",
     "tag_commit": "verified-with-git-ls-remote",
-    "archive_sha256": "publisher-declared-not-locally-verified",
-    "archive_executed": false,
-    "gameplay": "unverified",
+    "archive_sha256": "locally-verified-linux-and-windows",
+    "archive_executed": true,
+    "gameplay": "owner-reported-minecraft-and-skating-play; possible-freeze; recovery-and-replay-unverified",
     "redistribution": "unresolved"
   },
   "source_files": [
@@ -99,5 +99,51 @@
       "reported_revision": "4013a68",
       "status": "short-revision-reported-by-upstream; origin URL unresolved; vendored bytes pinned by runtime commit"
     }
-  ]
+  ],
+  "menu_port": {
+    "repository": "https://github.com/SyndiShanX/Synergy-GSC-Menu",
+    "commit": "33bcc80f5446e7543a2eb68b17c798e29d3f27c4",
+    "observed_on": "2026-10-03",
+    "license": "GPL-3.0-only",
+    "kind": "source-derived-native-presentation-and-navigation-port",
+    "source_files": [
+      {
+        "path": "MW2/Synergy/maps/mp/Synergy.gsc",
+        "sha256": "2c7be615f2e435c34ad7e1ee4bc9d1b1682ff08b909dea911abc6819e4a484d9"
+      },
+      {
+        "path": "LICENSE.md",
+        "sha256": "5220a7ab700b568136ff65182b41e9658f1a980c50fba36425f0ede86ac68652"
+      },
+      {
+        "path": "README.md",
+        "sha256": "782fe8e228126a577f272700fee71e522d76e9a5395791a37d30bc911b83eb6b"
+      }
+    ],
+    "adapted_functions": [
+      "initial_variables",
+      "create_menu",
+      "input_manager",
+      "open_menu",
+      "close_menu",
+      "set_menu_visibility",
+      "new_menu",
+      "scroll_cursor",
+      "set_options"
+    ],
+    "ref_refresh": "2026-10-03: remote main/HEAD still match selected Synergy revision; runtime HEAD/v0.4.0 still match selected runtime revision"
+  },
+  "local_audio_followup": {
+    "patch": "patches/skate-audio-v0.4.0.patch",
+    "applies_after": "patches/trickshot-v0.4.0.patch",
+    "sha256": "0f42b291c87ee2a57ee19a29603298ebd359abb9ead97743b475571101aa4456",
+    "extractor_reference": {
+      "repository": "https://github.com/sleepenskates/SK8-Engine-sleepen",
+      "commit": "29c9c7caf8692eaa2ce20689f9e1de535bd7145c",
+      "path": "tools/skate3_ui_extract",
+      "scope": "private local extraction; source not distributed in this patch"
+    },
+    "gameplay": "listening-and-gameplay-pending",
+    "music": "Even Flow - Pearl Jam; owner-supplied MP3 mixed into private comedy export; ten-second local cue installed and startup decoding confirmed; audible gameplay pending"
+  }
 }

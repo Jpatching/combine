@@ -1,0 +1,605 @@
+diff --git a/crates/audio/src/lib.rs b/crates/audio/src/lib.rs
+--- a/crates/audio/src/lib.rs
++++ b/crates/audio/src/lib.rs
+@@ -15,6 +15,8 @@
+ mod plugin;
+ mod rumble;
+ mod shellshock;
++mod skate;
++pub use skate::{SkateSound, SkateSoundQueue};
+ mod space;
+ mod start;
+ mod voice;
+diff --git a/crates/audio/src/plugin.rs b/crates/audio/src/plugin.rs
+--- a/crates/audio/src/plugin.rs
++++ b/crates/audio/src/plugin.rs
+@@ -8,6 +8,7 @@
+     fn build(&self, app: &mut App) {
+         crate::backend::register(app);
+         crate::minecraft::register(app);
++        crate::skate::register(app);
+         crate::match_bus::register(app);
+         app.add_plugins(PlayerSoundPlugin);
+         crate::match_set::register(app);
+diff --git a/crates/audio/src/skate.rs b/crates/audio/src/skate.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/audio/src/skate.rs
+@@ -0,0 +1,276 @@
++//! Optional local Skate samples. No audio assets or music ship with the patch.
++use crate::PcmAudio;
++use bevy::{
++    audio::{AudioSink, AudioSinkPlayback, PlaybackSettings, Volume},
++    prelude::*,
++};
++use std::path::Path;
++
++#[derive(Clone, Copy, Debug, PartialEq)]
++pub enum SkateSound {
++    Pop,
++    Land,
++    ChristAir,
++}
++#[derive(Resource, Default)]
++pub struct SkateSoundQueue(pub Vec<(SkateSound, f32)>);
++#[derive(Resource, Default)]
++struct MusicEntry(bool);
++
++#[derive(Clone)]
++struct Clip {
++    handle: Handle<PcmAudio>,
++    seconds: f32,
++}
++#[derive(Resource, Default)]
++struct Clips {
++    pop: Option<Clip>,
++    land: Option<Clip>,
++    music: Option<Clip>,
++}
++#[derive(Component)]
++struct Voice {
++    music: bool,
++    remaining: f32,
++    gain: f32,
++}
++
++pub(crate) fn register(app: &mut App) {
++    app.init_resource::<SkateSoundQueue>()
++        .init_resource::<MusicEntry>()
++        .init_resource::<Clips>()
++        .add_systems(Startup, preload)
++        .add_systems(PostUpdate, play);
++}
++
++fn read_clip(path: &Path, assets: &mut Assets<PcmAudio>, max_seconds: f32) -> Result<Clip, String> {
++    let size = std::fs::metadata(path).map_err(|e| e.to_string())?.len();
++    if size > 16 * 1024 * 1024 {
++        return Err("WAV exceeds 16 MiB".into());
++    }
++    let bytes = std::fs::read(path).map_err(|e| e.to_string())?;
++    if bytes.get(..4) != Some(b"RIFF") || bytes.get(8..12) != Some(b"WAVE") {
++        return Err("expected a local WAV file".into());
++    }
++    let pcm = crate::decode_audio_bytes(&bytes).ok_or("WAV did not decode")?;
++    let seconds = pcm.samples().len() as f32 / pcm.channel_count() as f32 / pcm.rate() as f32;
++    if !seconds.is_finite() || seconds <= 0.0 || seconds > max_seconds {
++        return Err(format!("WAV must be between 0 and {max_seconds} seconds"));
++    }
++    Ok(Clip {
++        handle: assets.add(pcm),
++        seconds,
++    })
++}
++
++fn preload(mut clips: ResMut<Clips>, mut assets: ResMut<Assets<PcmAudio>>) {
++    let root = std::env::var_os("IW4L_SKATE_AUDIO")
++        .map(std::path::PathBuf::from)
++        .or_else(|| {
++            std::env::var_os("IW4L_SKATE_ASSETS")
++                .map(|p| std::path::PathBuf::from(p).join("private/audio"))
++        });
++    let Some(root) = root else { return };
++    let mut load =
++        |name: &str, seconds: f32| match read_clip(&root.join(name), &mut assets, seconds) {
++            Ok(clip) => Some(clip),
++            Err(error) => {
++                diag::warn!(Audio, "Skate audio {name} unavailable: {error}");
++                None
++            }
++        };
++    clips.pop = load("pop.wav", 5.0);
++    clips.land = load("land.wav", 5.0);
++    clips.music = load("christ-air.wav", 20.0);
++    diag::info!(
++        Audio,
++        "Skate audio ready: pop={} land={} Christ Air music={}",
++        clips.pop.is_some(),
++        clips.land.is_some(),
++        clips.music.is_some()
++    );
++}
++
++fn play(
++    mut commands: Commands,
++    time: Res<Time>,
++    mode: Option<Res<frame::SkateMode>>,
++    screen: Option<Res<frame::AppScreen>>,
++    settings: Option<Res<frame::GameSettings>>,
++    mut queue: ResMut<SkateSoundQueue>,
++    mut entry: ResMut<MusicEntry>,
++    clips: Res<Clips>,
++    mut voices: Query<(
++        Entity,
++        &mut Voice,
++        &mut PlaybackSettings,
++        Option<&mut AudioSink>,
++    )>,
++) {
++    let riding = mode.as_ref().is_some_and(|m| m.active);
++    let just_entered = riding && !entry.0;
++    entry.0 = riding;
++    let enabled = mode.is_some_and(|m| m.active && !m.input_blocked)
++        && screen.is_some_and(|s| *s == frame::AppScreen::InGame);
++    let mut music_busy = false;
++    for (entity, mut voice, mut playback, sink) in &mut voices {
++        voice.remaining -= time.delta_secs();
++        if !enabled || voice.remaining <= 0.0 || sink.as_ref().is_some_and(|s| s.empty()) {
++            commands.entity(entity).try_despawn();
++            continue;
++        }
++        if voice.music {
++            music_busy = true;
++            let gain = voice.gain * (voice.remaining / 0.4).clamp(0.0, 1.0);
++            playback.volume = Volume::Linear(gain);
++            if let Some(mut sink) = sink {
++                sink.set_volume(Volume::Linear(
++                    gain * settings.as_ref().map_or(1.0, |s| s.master_volume),
++                ));
++            }
++        }
++    }
++    if just_entered && enabled {
++        queue.0.push((SkateSound::ChristAir, 0.32));
++    }
++    for (kind, gain) in std::mem::take(&mut queue.0).into_iter().take(32) {
++        if !enabled || !gain.is_finite() || gain <= 0.0 {
++            continue;
++        }
++        let music = kind == SkateSound::ChristAir;
++        if music && music_busy {
++            continue;
++        }
++        let clip = match kind {
++            SkateSound::Pop => &clips.pop,
++            SkateSound::Land => &clips.land,
++            SkateSound::ChristAir => &clips.music,
++        };
++        let Some(clip) = clip else { continue };
++        let gain = gain.clamp(0.0, 1.0);
++        commands.spawn((
++            AudioPlayer(clip.handle.clone()),
++            PlaybackSettings::DESPAWN.with_volume(Volume::Linear(gain)),
++            Voice {
++                music,
++                remaining: clip.seconds.min(if music { 10.0 } else { 5.0 }),
++                gain,
++            },
++        ));
++        music_busy |= music;
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn app() -> App {
++        let mut app = App::new();
++        app.init_resource::<Time>()
++            .init_resource::<SkateSoundQueue>()
++            .init_resource::<MusicEntry>()
++            .insert_resource(frame::SkateMode {
++                active: true,
++                ..Default::default()
++            })
++            .insert_resource(frame::AppScreen::InGame)
++            .insert_resource(Clips {
++                pop: Some(Clip {
++                    handle: Handle::default(),
++                    seconds: 0.3,
++                }),
++                land: Some(Clip {
++                    handle: Handle::default(),
++                    seconds: 0.5,
++                }),
++                music: Some(Clip {
++                    handle: Handle::default(),
++                    seconds: 10.0,
++                }),
++            })
++            .add_systems(Update, play);
++        app
++    }
++    fn send(app: &mut App, sound: SkateSound) {
++        app.world_mut()
++            .resource_mut::<SkateSoundQueue>()
++            .0
++            .push((sound, 0.8));
++    }
++    fn count(app: &mut App) -> usize {
++        app.world_mut().query::<&Voice>().iter(app.world()).count()
++    }
++    #[test]
++    fn cues_spawn_once_and_music_does_not_overlap() {
++        let mut a = app();
++        send(&mut a, SkateSound::Pop);
++        send(&mut a, SkateSound::ChristAir);
++        a.update();
++        assert_eq!(count(&mut a), 2);
++        a.update();
++        assert_eq!(count(&mut a), 2);
++        send(&mut a, SkateSound::ChristAir);
++        a.update();
++        assert_eq!(count(&mut a), 2);
++    }
++    #[test]
++    fn menu_exit_and_map_teardown_clear_voices_and_pending_cues() {
++        for boundary in 0..3 {
++            let mut a = app();
++            send(&mut a, SkateSound::ChristAir);
++            a.update();
++            match boundary {
++                0 => {
++                    a.world_mut()
++                        .resource_mut::<frame::SkateMode>()
++                        .input_blocked = true
++                }
++                1 => a.world_mut().resource_mut::<frame::SkateMode>().active = false,
++                _ => {
++                    a.world_mut().remove_resource::<frame::AppScreen>();
++                }
++            }
++            send(&mut a, SkateSound::Land);
++            a.update();
++            assert_eq!(count(&mut a), 0);
++            assert!(a.world().resource::<SkateSoundQueue>().0.is_empty());
++        }
++    }
++    #[test]
++    fn missing_clip_and_invalid_gain_are_silent() {
++        let mut a = app();
++        a.world_mut().resource_mut::<Clips>().land = None;
++        a.world_mut().resource_mut::<Clips>().music = None;
++        send(&mut a, SkateSound::Land);
++        a.world_mut()
++            .resource_mut::<SkateSoundQueue>()
++            .0
++            .push((SkateSound::Pop, f32::NAN));
++        a.update();
++        assert_eq!(count(&mut a), 0);
++    }
++
++    #[test]
++    fn boarding_starts_music_once_and_menu_resume_does_not_restart_it() {
++        let mut a = app();
++        a.update();
++        assert_eq!(count(&mut a), 1);
++        a.update();
++        assert_eq!(count(&mut a), 1);
++        a.world_mut()
++            .resource_mut::<frame::SkateMode>()
++            .input_blocked = true;
++        a.update();
++        assert_eq!(count(&mut a), 0);
++        a.world_mut()
++            .resource_mut::<frame::SkateMode>()
++            .input_blocked = false;
++        a.update();
++        assert_eq!(count(&mut a), 0);
++        a.world_mut().resource_mut::<frame::SkateMode>().active = false;
++        a.update();
++        a.world_mut().resource_mut::<frame::SkateMode>().active = true;
++        a.update();
++        assert_eq!(count(&mut a), 1);
++    }
++}
+diff --git a/crates/render_anim/src/skate.rs b/crates/render_anim/src/skate.rs
+--- a/crates/render_anim/src/skate.rs
++++ b/crates/render_anim/src/skate.rs
+@@ -333,6 +333,7 @@
+     mut authority: Option<ResMut<net::AuthorityWorld>>,
+     mut mode: ResMut<SkateMode>,
+     mut host: ResMut<Host>,
++    mut sounds: ResMut<audio::SkateSoundQueue>,
+     (gamepads, active): (Query<&bevy::input::gamepad::Gamepad>, Option<Res<frame::ActivePad>>),
+ ) {
+     let Some(authority) = authority.as_deref_mut() else {
+@@ -412,6 +413,17 @@
+                 diag::info!(World, "Skate activation from retained session: {ms}ms");
+             }
+             Reply::Pose(epoch, p) if epoch == host.epoch && mode.active => {
++                if !mode.input_blocked {
++                    for event in &p.sounds {
++                        use skate_host::bridge::SoundKind;
++                        let kind = match event.kind {
++                            SoundKind::Pop => audio::SkateSound::Pop,
++                            SoundKind::Land => audio::SkateSound::Land,
++                            SoundKind::ChristAir => audio::SkateSound::ChristAir,
++                        };
++                        if sounds.0.len() < 32 { sounds.0.push((kind, event.gain)); }
++                    }
++                }
+                 if p.tick / 120 != host.logged_tick / 120 {
+                     diag::info!(
+                         World,
+diff --git a/skate/crates/skate-host/src/physics/bridge.rs b/skate/crates/skate-host/src/physics/bridge.rs
+--- a/skate/crates/skate-host/src/physics/bridge.rs
++++ b/skate/crates/skate-host/src/physics/bridge.rs
+@@ -3,6 +3,9 @@
+ use bevy::prelude::*;
+ use skate_data::skate_map::{Collision, Geometry, Rail, SkateMap};
+ use std::path::Path;
++#[path = "bridge_audio.rs"]
++mod sound;
++pub use sound::{SoundEvent, SoundKind};
+ 
+ #[derive(Clone, Copy, Default)]
+ pub struct Controls {
+@@ -19,6 +22,8 @@
+     input: ControllerInput,
+     camera: CameraRuntime,
+     markers: crate::session_marker::Runtime,
++    sound_tracker: sound::SoundTracker,
++    pending_sounds: Vec<SoundEvent>,
+ }
+ pub struct Pose {
+     pub root: Mat4,
+@@ -28,6 +33,7 @@
+     pub velocity: Vec3,
+     pub tick: u64,
+     pub state: String,
++    pub sounds: Vec<SoundEvent>,
+ }
+ impl Session {
+     pub fn new(
+@@ -59,6 +65,8 @@
+             input: ControllerInput::default(),
+             camera: CameraRuntime::load(root)?,
+             markers: crate::session_marker::Runtime::load(root)?,
++            sound_tracker: Default::default(),
++            pending_sounds: Vec::new(),
+         })
+     }
+     /// A builder for collision to swap in later, usable on another thread.
+@@ -106,6 +114,8 @@
+             self.tick(Controls::default())?;
+         }
+         self.input = ControllerInput::default();
++        self.sound_tracker = Default::default();
++        self.pending_sounds.clear();
+         Ok(self.pose())
+     }
+     pub fn collect(&mut self, frame: InputFrame, dt: f32) {
+@@ -115,6 +125,8 @@
+     pub fn suspend_input(&mut self) {
+         self.input = ControllerInput::default();
+         self.markers.suspend();
++        self.sound_tracker = Default::default();
++        self.pending_sounds.clear();
+     }
+     pub fn advance(&mut self) -> Result<(), String> {
+         self.input.publish_actions();
+@@ -143,7 +155,18 @@
+             &mut actions,
+             published.controller_available(),
+             &mut self.camera,
+-        )
++        )?;
++        let input = &self.skater.animation_input.fields;
++        let frame = sound::SoundFrame {
++            state: self.skater.player_state.current() as u32,
++            jump: input.flags2468 & 0x400000 != 0,
++            christ_air: input.flags2472 & 0x40 != 0,
++            velocity_y: self.physics.board.bodies()[skate_core::physics::board::BodyId::Deck.index()].rates.linear_velocity.y,
++        };
++        for event in self.sound_tracker.observe(frame, self.period()) {
++            if self.pending_sounds.len() < 32 { self.pending_sounds.push(event); }
++        }
++        Ok(())
+     }
+     /// Deterministic raw-packet entry point for playback/diagnostics.
+     pub fn tick(&mut self, input: Controls) -> Result<(), String> {
+@@ -158,7 +181,7 @@
+         );
+         self.advance_published()
+     }
+-    pub fn pose(&self) -> Pose {
++    pub fn pose(&mut self) -> Pose {
+         let v = self.physics.board.bodies()[skate_core::physics::board::BodyId::Deck.index()]
+             .rates
+             .linear_velocity;
+@@ -183,6 +206,7 @@
+             velocity: Vec3::new(v.x, v.y, v.z),
+             tick: self.physics.ticks,
+             state: format!("{:?}", self.skater.player_state.current()),
++            sounds: std::mem::take(&mut self.pending_sounds),
+         }
+     }
+ }
+diff --git a/skate/crates/skate-host/src/physics/bridge_audio.rs b/skate/crates/skate-host/src/physics/bridge_audio.rs
+new file mode 100644
+--- /dev/null
++++ b/skate/crates/skate-host/src/physics/bridge_audio.rs
+@@ -0,0 +1,173 @@
++//! Local sound cues from completed Skate simulation ticks, never raw buttons.
++#[derive(Clone, Copy, Debug, PartialEq)]
++pub enum SoundKind {
++    Pop,
++    Land,
++    ChristAir,
++}
++
++#[derive(Clone, Copy, Debug)]
++pub struct SoundEvent {
++    pub kind: SoundKind,
++    pub gain: f32,
++}
++
++#[derive(Clone, Copy, Default)]
++pub(super) struct SoundFrame {
++    pub state: u32,
++    pub jump: bool,
++    pub christ_air: bool,
++    pub velocity_y: f32,
++}
++
++#[derive(Default)]
++pub(super) struct SoundTracker {
++    previous: Option<SoundFrame>,
++    airborne_seconds: f32,
++    fall_speed: f32,
++    music_cooldown: f32,
++    air_cued: bool,
++}
++
++fn air(state: u32) -> bool {
++    matches!(state, 200..=202)
++}
++fn board(state: u32) -> bool {
++    matches!(state, 100..=104 | 400..=405)
++}
++
++impl SoundTracker {
++    pub fn observe(&mut self, now: SoundFrame, dt: f32) -> Vec<SoundEvent> {
++        if !dt.is_finite() || dt <= 0.0 || dt > 0.25 || !now.velocity_y.is_finite() {
++            *self = Self::default();
++            return Vec::new();
++        }
++        self.music_cooldown = (self.music_cooldown - dt).max(0.0);
++        let Some(before) = self.previous.replace(now) else {
++            return Vec::new();
++        };
++        // Teleports, biped movement and sleep break the board sound sequence.
++        if !air(now.state) && !board(now.state) && now.state != 300 {
++            self.airborne_seconds = 0.0;
++            self.fall_speed = 0.0;
++            self.air_cued = false;
++            return Vec::new();
++        }
++        let mut events = Vec::new();
++        if now.jump && !before.jump && (board(before.state) || air(before.state)) {
++            events.push(SoundEvent {
++                kind: SoundKind::Pop,
++                gain: 0.8,
++            });
++        }
++        if air(now.state) {
++            self.airborne_seconds += dt;
++            self.fall_speed = self.fall_speed.max(-now.velocity_y);
++            if now.christ_air && !before.christ_air && !self.air_cued && self.music_cooldown == 0.0
++            {
++                events.push(SoundEvent {
++                    kind: SoundKind::ChristAir,
++                    gain: 0.32,
++                });
++                self.air_cued = true;
++                self.music_cooldown = 10.0;
++            }
++        } else {
++            if air(before.state) && self.airborne_seconds >= 0.05 && self.fall_speed >= 0.25 {
++                events.push(SoundEvent {
++                    kind: SoundKind::Land,
++                    gain: (0.35 + self.fall_speed * 0.06).clamp(0.35, 1.0),
++                });
++            }
++            self.airborne_seconds = 0.0;
++            self.fall_speed = 0.0;
++            self.air_cued = false;
++        }
++        events
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn frame(state: u32, vy: f32) -> SoundFrame {
++        SoundFrame {
++            state,
++            velocity_y: vy,
++            ..Default::default()
++        }
++    }
++    #[test]
++    fn held_jump_and_landing_emit_once_each() {
++        let mut t = SoundTracker::default();
++        assert!(t.observe(frame(100, 0.0), 0.02).is_empty());
++        let jump = SoundFrame {
++            jump: true,
++            ..frame(200, 3.0)
++        };
++        assert_eq!(t.observe(jump, 0.02)[0].kind, SoundKind::Pop);
++        for _ in 0..10 {
++            assert!(t.observe(jump, 0.02).is_empty());
++        }
++        t.observe(frame(200, -4.0), 0.02);
++        let e = t.observe(frame(100, 0.0), 0.02);
++        assert_eq!(e.len(), 1);
++        assert_eq!(e[0].kind, SoundKind::Land);
++        assert!(t.observe(frame(100, 0.0), 0.02).is_empty());
++    }
++    #[test]
++    fn falling_has_no_pop_but_a_real_landing() {
++        let mut t = SoundTracker::default();
++        t.observe(frame(100, 0.0), 0.02);
++        for _ in 0..5 {
++            assert!(t.observe(frame(200, -2.0), 0.02).is_empty());
++        }
++        assert_eq!(t.observe(frame(100, 0.0), 0.02)[0].kind, SoundKind::Land);
++    }
++    #[test]
++    fn activation_teleport_biped_and_short_contact_do_not_land() {
++        for state in [702, 500, 501, 700] {
++            let mut t = SoundTracker::default();
++            t.observe(frame(200, -9.0), 0.02);
++            for _ in 0..5 {
++                t.observe(frame(200, -9.0), 0.02);
++            }
++            assert!(t.observe(frame(state, 0.0), 0.02).is_empty());
++            assert!(t.observe(frame(100, 0.0), 0.02).is_empty());
++        }
++        let mut t = SoundTracker::default();
++        t.observe(frame(100, 0.0), 0.02);
++        t.observe(frame(200, -1.0), 0.02);
++        assert!(t.observe(frame(100, 0.0), 0.02).is_empty());
++    }
++    #[test]
++    fn christ_air_is_one_cue_with_cooldown() {
++        let mut t = SoundTracker::default();
++        t.observe(frame(100, 0.0), 0.02);
++        let pose = SoundFrame {
++            christ_air: true,
++            ..frame(200, 1.0)
++        };
++        assert_eq!(t.observe(pose, 0.02)[0].kind, SoundKind::ChristAir);
++        for _ in 0..20 {
++            assert!(t.observe(pose, 0.02).is_empty());
++        }
++        t.observe(frame(100, 0.0), 0.02);
++        assert!(t.observe(pose, 0.02).is_empty());
++        for _ in 0..501 {
++            t.observe(frame(100, 0.0), 0.02);
++        }
++        assert_eq!(t.observe(pose, 0.02)[0].kind, SoundKind::ChristAir);
++    }
++    #[test]
++    fn reset_and_invalid_samples_cannot_replay_old_impacts() {
++        let mut t = SoundTracker::default();
++        t.observe(frame(200, -5.0), 0.02);
++        for _ in 0..5 {
++            t.observe(frame(200, -5.0), 0.02);
++        }
++        assert!(t.observe(frame(200, f32::NAN), 0.02).is_empty());
++        assert!(t.observe(frame(100, 0.0), 0.02).is_empty());
++        assert!(t.observe(frame(200, -5.0), f32::NAN).is_empty());
++    }
++}

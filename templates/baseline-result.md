@@ -5,7 +5,9 @@ Status: NOT RUN (replace only with observed result).
 ## Identity and conditions
 
 - Date/time and tester pseudonym:
-- Recipe IDs:
+- Player outcome / backlog reference (use a plain-language name):
+- Evidence source: direct observation / owner report / source inspection:
+- Recipe IDs (or partial trial; do not imply skating passed):
 - Source commit: f608f85e407ff1b7689d54a9aafdd16e95711ac4
 - Release: v0.4.0
 - Actual archive SHA-256 and size (computed locally):
@@ -33,6 +35,9 @@ Use pass / fail / blocked / not tested, never leave a blank implying success.
 
 | Check | Result | Evidence / reproduction |
 | --- | --- | --- |
+| Minecraft first play (separate from skating) | Not tested | |
+| Exit/relaunch of the current trial | Not tested | |
+| Suspected freeze: stage, duration, recovery | Not tested | |
 | MW2 movement and combat | Not tested | |
 | Skating entry/exit (10 transitions) | Not tested | |
 | Falls/death/recovery | Not tested | |

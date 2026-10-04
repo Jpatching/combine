@@ -1,0 +1,776 @@
+diff --git a/crates/console/examples/practice_menu_preview.rs b/crates/console/examples/practice_menu_preview.rs
+--- a/crates/console/examples/practice_menu_preview.rs
++++ b/crates/console/examples/practice_menu_preview.rs
+@@ -1,22 +1,22 @@
+ // SPDX-License-Identifier: GPL-3.0-only
+-//! Asset-free native renderer check. Does not load a game, profile or network.
+-//! Run with a fresh output directory; captures root, submenu, feedback and closed.
++//! Native asset-free preview: production menu/banner/HUD suppression with labeled fixtures.
+ #[path = "../src/practice_menu.rs"]
+ mod practice_menu;
+ #[path = "../src/practice_ui.rs"]
+ mod practice_ui;
++#[path = "../src/skate_overlay.rs"]
++mod skate_overlay;
+ use bevy::prelude::*;
+ use bevy::render::view::screenshot::{Screenshot, ScreenshotCaptured, save_to_disk};
++use hud::gameplay_visibility::{GameplayHudRoot, suppress_gameplay_hud};
+ use practice_menu::Page;
+ use practice_ui::{MenuRoot, MenuView};
+ 
++const STAGES: [&str; 11] = ["root", "aim", "feedback", "closed", "hud-visible", "hide-on", "hud-hidden", "class", "pause", "skate-error", "restored"];
+ #[derive(Resource)]
+-struct Preview {
+-    directory: String,
+-    stage: usize,
+-    frame: usize,
+-    waiting: bool,
+-}
++struct Preview { directory: String, stage: usize, frame: usize, waiting: bool }
++#[derive(Component)]
++struct RecoveryFixture;
+ fn main() {
+     let args: Vec<_> = std::env::args().collect();
+     let width: u32 = args.get(1).expect("width").parse().unwrap();
+@@ -24,89 +24,74 @@
+     let directory = args.get(3).expect("fresh output directory").clone();
+     std::fs::create_dir(&directory).expect("output directory must be fresh");
+     App::new()
+-        .add_plugins(
+-            DefaultPlugins.set(WindowPlugin {
+-                primary_window: Some(Window {
+-                    title: "Combine menu preview - no game assets".into(),
+-                    resolution: bevy::window::WindowResolution::new(width, height)
+-                        .with_scale_factor_override(1.),
+-                    ..default()
+-                }),
++        .add_plugins(DefaultPlugins.set(WindowPlugin {
++            primary_window: Some(Window {
++                title: "Combine Hide HUD preview - synthetic fixtures, no game assets".into(),
++                resolution: bevy::window::WindowResolution::new(width, height).with_scale_factor_override(1.),
+                 ..default()
+-            }),
+-        )
++            }), ..default()
++        }))
+         .insert_resource(ClearColor(Color::srgb(0.16, 0.19, 0.23)))
+-        .insert_resource(Preview {
+-            directory,
+-            stage: 0,
+-            frame: 0,
+-            waiting: false,
+-        })
++        .insert_resource(Preview { directory, stage: 0, frame: 0, waiting: false })
+         .init_resource::<MenuView>()
++        .init_resource::<frame::GameplayHud>()
++        .insert_resource(frame::AppScreen::InGame)
++        .init_resource::<frame::SkateMode>()
++        .init_resource::<hud::HudTessGpuFrame>()
+         .add_systems(Startup, setup)
+-        .add_systems(Update, (advance, practice_ui::render).chain())
++        .add_systems(Update, (advance, suppress_gameplay_hud, skate_overlay::update_skate_overlay, practice_ui::render).chain())
+         .run();
+ }
+ fn setup(mut commands: Commands, mut fonts: ResMut<Assets<Font>>) {
+-    let font = fonts.add(Font::from_bytes(
+-        include_bytes!("../../ui/assets/Oxanium-Regular.ttf").to_vec(),
+-    ));
+-    commands.insert_resource(ui::GameUiFont(font));
++    let font = fonts.add(Font::from_bytes(include_bytes!("../../ui/assets/Oxanium-Regular.ttf").to_vec()));
++    commands.insert_resource(ui::GameUiFont(font.clone()));
+     commands.spawn(Camera2d);
++    commands.spawn((GameplayHudRoot, Node { width: percent(100), height: percent(100), position_type: PositionType::Absolute, ..default() }))
++        .with_children(|root| {
++            root.spawn((Node { position_type: PositionType::Absolute, left: percent(49), top: percent(48), ..default() }, Text::new("+"), ui::game_text_font(&font, 32.)));
++            root.spawn((Node { position_type: PositionType::Absolute, left: px(24), top: px(24), ..default() }, Text::new("Gameplay HUD fixture: ammo 30 / 90"), ui::game_text_font(&font, 22.)));
++        });
++    commands.spawn((skate_overlay::SkateHud, Visibility::Hidden, Node { position_type: PositionType::Absolute, left: px(24), bottom: px(24), ..default() }, Text::default(), ui::game_text_font(&font, 18.)));
++    commands.spawn((RecoveryFixture, Node { position_type: PositionType::Absolute, left: px(24), top: px(100), ..default() }, Text::default(), ui::game_text_font(&font, 24.)));
+ }
+ fn advance(
+-    mut commands: Commands,
+-    mut p: ResMut<Preview>,
+-    mut view: ResMut<MenuView>,
+-    roots: Query<Entity, With<MenuRoot>>,
+-    mut exit: MessageWriter<AppExit>,
++    mut commands: Commands, mut p: ResMut<Preview>, mut view: ResMut<MenuView>,
++    mut setting: ResMut<frame::GameplayHud>, mut screen: ResMut<frame::AppScreen>,
++    mut skate: ResMut<frame::SkateMode>, roots: Query<Entity, With<MenuRoot>>,
++    mut recovery: Query<&mut Text, With<RecoveryFixture>>, mut exit: MessageWriter<AppExit>,
+ ) {
+-    if p.waiting {
+-        return;
+-    }
+-    if p.stage >= 4 {
+-        exit.write(AppExit::Success);
+-        return;
+-    }
++    if p.waiting { return; }
++    if p.stage >= STAGES.len() { exit.write(AppExit::Success); return; }
+     p.frame += 1;
+     if p.frame == 1 {
++        *screen = frame::AppScreen::InGame;
++        setting.hidden = matches!(p.stage, 3 | 5..=9);
++        *skate = frame::SkateMode { active: p.stage >= 4, preloaded: true, controller: Some(0), ..default() };
++        for mut t in &mut recovery { t.clear(); }
+         *view = match p.stage {
+-            0 => MenuView {
+-                open: true,
+-                ..default()
+-            },
+-            1 => MenuView {
+-                open: true,
+-                page: Page::Aim,
+-                selected: 1,
+-                pad: true,
+-                ..default()
+-            },
+-            2 => MenuView {
+-                open: true,
+-                page: Page::Targets,
+-                selected: 1,
+-                status: "No living bot: add a target and wait for it to spawn.".into(),
+-                ..default()
+-            },
+-            _ => MenuView {
+-                aim_lock: true,
+-                ..default()
+-            },
++            0 => MenuView { open: true, ..default() },
++            1 => MenuView { open: true, page: Page::Aim, selected: 1, pad: true, ..default() },
++            2 => MenuView { open: true, page: Page::Targets, selected: 1, status: "No living bot: add a target and wait for it to spawn.".into(), ..default() },
++            5 => MenuView { open: true, page: Page::Appearance, pad: true, hide_hud: true, status: "HUD hidden. Turn Hide HUD OFF to restore it.".into(), ..default() },
++            _ => MenuView::default(),
+         };
++        if p.stage == 7 {
++            *screen = frame::AppScreen::ClassSelect;
++            skate.active = false;
++            for mut t in &mut recovery { **t = "CLASS SELECTION — recovery fixture".into(); }
++        }
++        if p.stage == 8 {
++            for mut t in &mut recovery { **t = "PAUSE / SETTINGS — recovery fixture".into(); }
++        }
++        if p.stage == 9 { skate.active = false; skate.preloaded = false; skate.status = "Synthetic missing assets; check local setup".into(); }
+     }
+     if p.frame == 60 {
+-        assert_eq!(roots.iter().count(), if p.stage == 3 { 0 } else { 1 });
+-        let name = ["root", "aim", "feedback", "closed"][p.stage];
+-        let path = format!("{}/{name}.png", p.directory);
++        assert_eq!(roots.iter().count(), usize::from(matches!(p.stage, 0..=2 | 5)));
++        let path = format!("{}/{}.png", p.directory, STAGES[p.stage]);
+         p.waiting = true;
+-        commands
+-            .spawn(Screenshot::primary_window())
+-            .observe(save_to_disk(path))
++        commands.spawn(Screenshot::primary_window()).observe(save_to_disk(path))
+             .observe(|_: On<ScreenshotCaptured>, mut p: ResMut<Preview>| {
+-                p.stage += 1;
+-                p.frame = 0;
+-                p.waiting = false;
++                p.stage += 1; p.frame = 0; p.waiting = false;
+             });
+     }
+ }
+diff --git a/crates/console/src/debug_move.rs b/crates/console/src/debug_move.rs
+--- a/crates/console/src/debug_move.rs
++++ b/crates/console/src/debug_move.rs
+@@ -13,8 +13,7 @@
+ 
+ #[derive(Component)]
+ pub(crate) struct ShowposHud;
+-#[derive(Component)]
+-pub(crate) struct SkateHud;
++use crate::skate_overlay::SkateHud;
+ 
+ pub(crate) fn spawn_showpos_hud(commands: &mut Commands, font: Handle<Font>) {
+     commands.spawn((SkateHud, UiLayer::Overlay, Visibility::Hidden,
+@@ -812,13 +811,3 @@
+     }
+ }
+ 
+-pub(crate) fn update_skate_overlay(mode:Res<frame::SkateMode>,mut hud:Query<(&mut Text,&mut Visibility),With<SkateHud>>) {
+-    for (mut text,mut visibility) in &mut hud {
+-        let failed = !mode.preloaded && !mode.preload_pending && !mode.status.is_empty();
+-        *visibility=if mode.active || mode.entering || failed {Visibility::Visible}else{Visibility::Hidden};
+-        **text=if failed {format!("Skate unavailable: {}", mode.status)}
+-        else if mode.entering && !mode.preloaded {"Skate is finishing map preparation... | J: cancel".into()}
+-        else if mode.controller.is_none() {"SKATE | Connect a controller | J: return to MW2".into()}
+-        else {"SKATE | Original controller controls | Start: pause | J: return to MW2".into()};
+-    }
+-}
+diff --git a/crates/console/src/lib.rs b/crates/console/src/lib.rs
+--- a/crates/console/src/lib.rs
++++ b/crates/console/src/lib.rs
+@@ -28,6 +28,7 @@
+ mod practice_core;
+ mod practice_menu;
+ mod practice_ui;
++mod skate_overlay;
+ pub mod input;
+ pub mod plugin;
+ pub mod registry;
+diff --git a/crates/console/src/plugin/mod.rs b/crates/console/src/plugin/mod.rs
+--- a/crates/console/src/plugin/mod.rs
++++ b/crates/console/src/plugin/mod.rs
+@@ -79,7 +79,7 @@
+ 
+ impl Plugin for ConsolePlugin {
+     fn build(&self, app: &mut App) {
+-        app.add_systems(Update, crate::debug_move::update_skate_overlay.in_set(ClientSet::Ui));
++        app.add_systems(Update, crate::skate_overlay::update_skate_overlay.in_set(ClientSet::Ui));
+         crate::startup::install_stdin(app);
+         crate::practice::install(app);
+         app.init_resource::<ConsoleSettings>()
+diff --git a/crates/console/src/practice.rs b/crates/console/src/practice.rs
+--- a/crates/console/src/practice.rs
++++ b/crates/console/src/practice.rs
+@@ -59,6 +59,7 @@
+ pub(crate) fn install(app: &mut App) {
+     app.init_resource::<Practice>()
+         .init_resource::<MenuView>()
++        .init_resource::<frame::GameplayHud>()
+         .add_systems(
+             Update,
+             (publish_view, crate::practice_ui::render)
+@@ -123,7 +124,7 @@
+         ResMut<BotTpQueue>,
+     ),
+     mut skate: ResMut<frame::SkateMode>,
+-    mut settings: ResMut<frame::GameSettings>,
++    presentation: (ResMut<frame::GameSettings>, ResMut<frame::GameplayHud>),
+     actions: (
+         Option<ResMut<ClientActionInbox>>,
+         ResMut<ActionRequestIds>,
+@@ -131,6 +132,7 @@
+     ),
+     time: Res<Time>,
+ ) {
++    let (mut settings, mut gameplay_hud) = presentation;
+     let (role, world, generation, snapshot, local) = context;
+     let (roster, mut add, mut hold, mut tp) = bots;
+     let (mut inbox, mut requests, mut look) = actions;
+@@ -174,7 +176,11 @@
+                     || p.get(B::RightTrigger2).unwrap_or(0.) > 0.1
+             }),
+     };
++    if *screen == AppScreen::MainMenu {
++        gameplay_hud.hidden = false;
++    }
+     if state.generation != generation.0 {
++        gameplay_hud.hidden = false;
+         state.generation = generation.0;
+         state.saved = None;
+         state.pending_return = None;
+@@ -247,6 +253,14 @@
+         return;
+     };
+     match action {
++        Action::HideHud => {
++            gameplay_hud.hidden = !gameplay_hud.hidden;
++            state.status = if gameplay_hud.hidden {
++                "HUD hidden. Turn Hide HUD OFF to restore it."
++            } else {
++                "HUD visible."
++            }.into();
++        }
+         Action::Save => {
+             state.status = "Cannot save: map or position unavailable.".into();
+             if let Some(generation) = generation.0 {
+@@ -349,6 +363,7 @@
+ 
+ fn publish_view(
+     state: Res<Practice>,
++    gameplay_hud: Res<frame::GameplayHud>,
+     hold: Res<BotHold>,
+     devices: Res<frame::InputDevices>,
+     mut view: ResMut<MenuView>,
+@@ -360,6 +375,7 @@
+         offset: state.menu.cursor.offset,
+         frozen: hold.0,
+         aim_lock: state.aim_lock,
++        hide_hud: gameplay_hud.hidden,
+         pad: devices.pad_prompts,
+         status: state.status.clone(),
+     });
+diff --git a/crates/console/src/practice_menu.rs b/crates/console/src/practice_menu.rs
+--- a/crates/console/src/practice_menu.rs
++++ b/crates/console/src/practice_menu.rs
+@@ -18,6 +18,7 @@
+     AimLock,
+     SmoothAim,
+     RestoreAim,
++    HideHud,
+ }
+ #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+ pub enum Page {
+@@ -26,6 +27,7 @@
+     Positions,
+     Targets,
+     Aim,
++    Appearance,
+ }
+ #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+ pub enum Entry {
+@@ -39,16 +41,18 @@
+             Self::Positions => "POSITIONS",
+             Self::Targets => "TARGETS",
+             Self::Aim => "AIM",
++            Self::Appearance => "APPEARANCE",
+         }
+     }
+     pub fn entries(self) -> &'static [Entry] {
+         use Action::*;
+         use Entry::{Action as A, Submenu as S};
+         match self {
+-            Self::Root => &[S(Self::Positions), S(Self::Targets), S(Self::Aim)],
++            Self::Root => &[S(Self::Positions), S(Self::Targets), S(Self::Aim), S(Self::Appearance)],
+             Self::Positions => &[A(Save), A(Return)],
+             Self::Targets => &[A(AddBot), A(PlaceBot), A(FreezeBots)],
+             Self::Aim => &[A(AimLock), A(SmoothAim), A(RestoreAim)],
++            Self::Appearance => &[A(HideHud)],
+         }
+     }
+ }
+@@ -59,6 +63,7 @@
+             Self::Submenu(Page::Positions) => "Positions",
+             Self::Submenu(Page::Targets) => "Targets",
+             Self::Submenu(Page::Aim) => "Aim",
++            Self::Submenu(Page::Appearance) => "Appearance",
+             Self::Action(a) => match a {
+                 Action::Save => "Save starting spot",
+                 Action::Return => "Return to starting spot",
+@@ -68,6 +73,7 @@
+                 Action::AimLock => "Bot aim lock",
+                 Action::SmoothAim => "Smooth controller preset",
+                 Action::RestoreAim => "Restore settings",
++                Action::HideHud => "Hide HUD",
+             },
+         }
+     }
+@@ -116,7 +122,7 @@
+     pub page: Page,
+     pub cursor: Cursor,
+     history: Vec<(Page, Cursor)>,
+-    saved: [Cursor; 4],
++    saved: [Cursor; 5],
+     release_guard: bool,
+     previous: Controls,
+     repeat: Option<(bool, f64)>,
+@@ -135,7 +141,7 @@
+         self.page = Page::Root;
+         self.cursor = Cursor::default();
+         self.history.clear();
+-        self.saved = [Cursor::default(); 4];
++        self.saved = [Cursor::default(); 5];
+     }
+     pub fn step(&mut self, c: Controls, available: bool, now: f64) -> Option<Action> {
+         let old = self.previous;
+@@ -316,6 +322,8 @@
+         m.step(down, true, 1.51);
+         assert_eq!(m.cursor.selected, 2);
+         m.step(down, true, 1.53);
++        assert_eq!(m.cursor.selected, 3);
++        m.step(down, true, 1.66);
+         assert_eq!(m.cursor.selected, 0);
+         m.step(Controls { up: true, ..down }, true, 2.);
+         assert_eq!(m.cursor.selected, 0);
+diff --git a/crates/console/src/practice_tests.rs b/crates/console/src/practice_tests.rs
+--- a/crates/console/src/practice_tests.rs
++++ b/crates/console/src/practice_tests.rs
+@@ -38,6 +38,7 @@
+     a.add_plugins(InputPlugin)
+         .insert_resource(Time::<()>::default())
+         .init_resource::<Practice>()
++        .init_resource::<frame::GameplayHud>()
+         .insert_resource(RuntimeRole::Listen)
+         .insert_resource(AuthorityWorld(world))
+         .insert_resource(WorldGeneration(Some(1)))
+@@ -408,3 +409,184 @@
+         .install_content(content.finish());
+     assert_eq!(run(&mut a, true), None);
+ }
++
++#[test]
++fn practice_hide_hud_keyboard_round_trip_and_input_isolation() {
++    let mut a = app();
++    assert!(!a.world().resource::<frame::GameplayHud>().hidden);
++    open(&mut a);
++    tap(&mut a, KeyCode::ArrowUp); // Wrap to Appearance through the actual menu.
++    tap(&mut a, KeyCode::Enter);
++    assert_eq!(a.world().resource::<Practice>().menu.page, Page::Appearance);
++    key(&mut a, KeyCode::Enter, true);
++    assert!(a.world().resource::<frame::GameplayHud>().hidden);
++    key(&mut a, KeyCode::KeyJ, true);
++    key(&mut a, KeyCode::Space, true);
++    a.world_mut().resource_mut::<ButtonInput<MouseButton>>().press(MouseButton::Left);
++    for _ in 0..3 {
++        a.update();
++        assert!(a.world().resource::<frame::GameplayHud>().hidden); // No held repeat.
++        assert!(!a.world().resource::<frame::SkateMode>().toggle_requested);
++        assert!(a.world().resource::<net::ClientActionInput>().client.keys.iter().all(|k| k.down == 0));
++    }
++    tap(&mut a, KeyCode::Escape);
++    assert!(!a.world().resource::<Practice>().menu.open);
++    assert!(a.world().resource::<Practice>().captured);
++    for k in [KeyCode::Enter, KeyCode::KeyJ, KeyCode::Space] { key(&mut a, k, false); }
++    a.world_mut().resource_mut::<ButtonInput<MouseButton>>().release(MouseButton::Left);
++    a.update(); a.update();
++    assert!(!a.world().resource::<Practice>().captured);
++    open(&mut a);
++    assert_eq!(a.world().resource::<Practice>().menu.page, Page::Appearance);
++    tap(&mut a, KeyCode::Enter);
++    assert!(!a.world().resource::<frame::GameplayHud>().hidden);
++    assert_eq!(a.world().resource::<Practice>().status, "HUD visible.");
++}
++
++#[test]
++fn practice_hide_hud_pad_navigation_and_hold_isolation() {
++    let mut a = app();
++    let pad = a.world_mut().spawn(Gamepad::default()).id();
++    a.world_mut().resource_mut::<frame::ActivePad>().0 = Some(pad);
++    fn buttons(a: &mut App, pad: Entity, buttons: &[B]) {
++        let mut p = a.world_mut().get_mut::<Gamepad>(pad).unwrap();
++        p.digital_mut().reset_all();
++        for &b in buttons { p.digital_mut().press(b); }
++        drop(p);
++        a.world_mut().run_system_once(input).unwrap();
++    }
++    for bs in [&[B::LeftTrigger2, B::RightThumb][..], &[], &[B::DPadUp], &[], &[B::South], &[], &[B::West]] {
++        buttons(&mut a, pad, bs);
++    }
++    assert_eq!(a.world().resource::<Practice>().menu.page, Page::Appearance);
++    assert!(a.world().resource::<frame::GameplayHud>().hidden);
++    for _ in 0..3 { a.update(); }
++    assert!(a.world().resource::<frame::GameplayHud>().hidden);
++    buttons(&mut a, pad, &[]);
++    buttons(&mut a, pad, &[B::LeftTrigger2, B::RightThumb, B::RightTrigger2, B::South, B::LeftThumb]);
++    a.update();
++    assert!(!a.world().resource::<Practice>().menu.open);
++    assert!(a.world().resource::<Practice>().captured);
++    assert!(!a.world().resource::<frame::SkateMode>().toggle_requested);
++    assert!(a.world().resource::<net::ClientActionInput>().client.keys.iter().all(|k| k.down == 0));
++    buttons(&mut a, pad, &[]); a.update();
++    buttons(&mut a, pad, &[B::LeftTrigger2, B::RightThumb]);
++    buttons(&mut a, pad, &[]);
++    buttons(&mut a, pad, &[B::South]);
++    assert!(!a.world().resource::<frame::GameplayHud>().hidden);
++}
++
++#[test]
++fn practice_hide_hud_survives_transitions_and_resets_for_new_session() {
++    let mut a = app(); open(&mut a); page(&mut a, Page::Appearance, 0);
++    tap(&mut a, KeyCode::Enter);
++    for active in [true, false, true] {
++        a.world_mut().resource_mut::<frame::SkateMode>().active = active;
++        a.update();
++        assert!(a.world().resource::<frame::GameplayHud>().hidden);
++    }
++    *a.world_mut().resource_mut::<AppScreen>() = AppScreen::ClassSelect;
++    a.update();
++    assert!(a.world().resource::<frame::GameplayHud>().hidden);
++    assert!(!a.world().resource::<Practice>().menu.open);
++    *a.world_mut().resource_mut::<AppScreen>() = AppScreen::InGame;
++    a.update();
++    assert!(a.world().resource::<frame::GameplayHud>().hidden);
++    a.world_mut().resource_mut::<ConsoleState>().open = true;
++    a.update(); // Recovery UI must not reset the preference.
++    assert!(a.world().resource::<frame::GameplayHud>().hidden);
++    a.world_mut().resource_mut::<WorldGeneration>().0 = Some(2);
++    a.update();
++    assert!(!a.world().resource::<frame::GameplayHud>().hidden);
++    a.world_mut().resource_mut::<frame::GameplayHud>().hidden = true;
++    *a.world_mut().resource_mut::<AppScreen>() = AppScreen::MainMenu;
++    a.update();
++    assert!(!a.world().resource::<frame::GameplayHud>().hidden);
++    assert!(!app().world().resource::<frame::GameplayHud>().hidden);
++}
++
++#[test]
++fn practice_hide_hud_layers_keep_class_loading_and_recovery_visible() {
++    let mut a = app();
++    a.init_resource::<ui::UiDraw>().init_resource::<ui::UiLayers>();
++    a.world_mut().resource_mut::<frame::GameplayHud>().hidden = true;
++    for screen in [AppScreen::InGame, AppScreen::ClassSelect, AppScreen::MainMenu, AppScreen::Loading] {
++        *a.world_mut().resource_mut::<AppScreen>() = screen;
++        a.world_mut().run_system_once(ui::sync_ui_layers).unwrap();
++        let layers = a.world().resource::<ui::UiLayers>();
++        assert!(layers.is_visible(ui::UiLayer::Overlay));
++        assert_eq!(layers.is_visible(ui::UiLayer::Hud), screen == AppScreen::ClassSelect);
++        assert_eq!(layers.is_visible(ui::UiLayer::Shell), screen == AppScreen::MainMenu);
++        assert_eq!(layers.is_visible(ui::UiLayer::Loading), screen == AppScreen::Loading);
++    }
++    // Broad developer ui 0 is independent and retains its historical behavior.
++    a.world_mut().resource_mut::<ui::UiDraw>().0 = false;
++    *a.world_mut().resource_mut::<AppScreen>() = AppScreen::ClassSelect;
++    a.world_mut().run_system_once(ui::sync_ui_layers).unwrap();
++    assert!(!a.world().resource::<ui::UiLayers>().is_visible(ui::UiLayer::Hud));
++}
++
++#[test]
++fn practice_hide_hud_clears_gpu_geometry_and_native_nodes_but_keeps_menu() {
++    use hud::gameplay_visibility::{GameplayHudRoot, suppress_gameplay_hud};
++    let mut a = app();
++    a.init_resource::<hud::HudTessGpuFrame>();
++    a.init_resource::<MenuView>();
++    a.insert_resource(ui::GameUiFont(Handle::default()));
++    let native = a.world_mut().spawn((GameplayHudRoot, Node::default())).id();
++    let recovery = a.world_mut().spawn(Node::default()).id();
++    open(&mut a); page(&mut a, Page::Appearance, 0); tap(&mut a, KeyCode::Enter);
++    a.world_mut().resource_mut::<hud::HudTessGpuFrame>().indices = vec![0, 1, 2];
++    a.world_mut().run_system_once(suppress_gameplay_hud).unwrap();
++    assert!(a.world().resource::<hud::HudTessGpuFrame>().indices.is_empty());
++    assert_eq!(a.world().get::<Node>(native).unwrap().display, Display::None);
++    assert_eq!(a.world().get::<Node>(recovery).unwrap().display, Display::Flex);
++    a.world_mut().run_system_once(publish_view).unwrap();
++    assert!(a.world().resource::<MenuView>().hide_hud);
++    a.world_mut().run_system_once(crate::practice_ui::render).unwrap();
++    assert_eq!(a.world_mut().query_filtered::<Entity, With<crate::practice_ui::MenuRoot>>().iter(a.world()).count(), 1);
++    tap(&mut a, KeyCode::Enter);
++    a.world_mut().resource_mut::<hud::HudTessGpuFrame>().indices = vec![0, 1, 2];
++    a.world_mut().run_system_once(suppress_gameplay_hud).unwrap();
++    assert_eq!(a.world().resource::<hud::HudTessGpuFrame>().indices, vec![0, 1, 2]);
++    assert_eq!(a.world().get::<Node>(native).unwrap().display, Display::Flex);
++}
++
++#[test]
++fn practice_hide_hud_skating_banner_preserves_actionable_prompts() {
++    use crate::skate_overlay::{SkateHud, update_skate_overlay};
++    let mut a = app();
++    a.world_mut().resource_mut::<frame::GameplayHud>().hidden = true;
++    let banner = a.world_mut().spawn((SkateHud, Text::default(), Visibility::Visible)).id();
++    {
++        let mut mode = a.world_mut().resource_mut::<frame::SkateMode>();
++        mode.active = true; mode.preloaded = true; mode.controller = Some(0);
++    }
++    a.world_mut().run_system_once(update_skate_overlay).unwrap();
++    assert_eq!(*a.world().get::<Visibility>(banner).unwrap(), Visibility::Hidden);
++    a.world_mut().resource_mut::<frame::SkateMode>().controller = None;
++    a.world_mut().run_system_once(update_skate_overlay).unwrap();
++    assert_eq!(*a.world().get::<Visibility>(banner).unwrap(), Visibility::Visible);
++    assert!(a.world().get::<Text>(banner).unwrap().contains("Connect a controller"));
++    {
++        let mut mode = a.world_mut().resource_mut::<frame::SkateMode>();
++        mode.active = false; mode.preloaded = false; mode.entering = true; mode.preload_pending = true;
++    }
++    a.world_mut().run_system_once(update_skate_overlay).unwrap();
++    assert_eq!(*a.world().get::<Visibility>(banner).unwrap(), Visibility::Visible);
++    assert!(a.world().get::<Text>(banner).unwrap().contains("J: cancel"));
++    {
++        let mut mode = a.world_mut().resource_mut::<frame::SkateMode>();
++        mode.entering = false; mode.preload_pending = false; mode.status = "Synthetic missing assets".into();
++    }
++    a.world_mut().run_system_once(update_skate_overlay).unwrap();
++    assert_eq!(*a.world().get::<Visibility>(banner).unwrap(), Visibility::Visible);
++    assert!(a.world().get::<Text>(banner).unwrap().contains("Skate unavailable"));
++    {
++        let mut mode = a.world_mut().resource_mut::<frame::SkateMode>();
++        mode.preloaded = true; mode.active = true; mode.controller = Some(0); mode.status.clear();
++    }
++    a.world_mut().resource_mut::<frame::GameplayHud>().hidden = false;
++    a.world_mut().run_system_once(update_skate_overlay).unwrap();
++    assert_eq!(*a.world().get::<Visibility>(banner).unwrap(), Visibility::Visible);
++}
+diff --git a/crates/console/src/practice_ui.rs b/crates/console/src/practice_ui.rs
+--- a/crates/console/src/practice_ui.rs
++++ b/crates/console/src/practice_ui.rs
+@@ -12,6 +12,7 @@
+     pub offset: usize,
+     pub frozen: bool,
+     pub aim_lock: bool,
++    pub hide_hud: bool,
+     pub pad: bool,
+     pub status: String,
+ }
+@@ -86,6 +87,7 @@
+                             Entry::Submenu(_) => ">",
+                             Entry::Action(Action::FreezeBots) => if view.frozen { "ON" } else { "OFF" },
+                             Entry::Action(Action::AimLock) => if view.aim_lock { "ON" } else { "OFF" },
++                            Entry::Action(Action::HideHud) => if view.hide_hud { "ON" } else { "OFF" },
+                             _ => "",
+                         };
+                         row.spawn((Text::new(suffix), text_font(17.), TextColor(if selected { dark } else { cyan })));
+diff --git a/crates/console/src/skate_overlay.rs b/crates/console/src/skate_overlay.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/console/src/skate_overlay.rs
+@@ -0,0 +1,24 @@
++use bevy::prelude::*;
++
++#[derive(Component)]
++pub(crate) struct SkateHud;
++
++pub(crate) fn update_skate_overlay(
++    mode: Res<frame::SkateMode>,
++    setting: Res<frame::GameplayHud>,
++    screen: Res<frame::AppScreen>,
++    mut hud: Query<(&mut Text, &mut Visibility), With<SkateHud>>,
++) {
++    let failed = !mode.preloaded && !mode.preload_pending && !mode.status.is_empty();
++    let preparing = mode.entering && !mode.preloaded;
++    let needs_controller = (mode.active || mode.entering) && mode.controller.is_none();
++    let visible = failed || preparing || needs_controller
++        || ((mode.active || mode.entering) && !setting.hidden_in(*screen));
++    for (mut text, mut visibility) in &mut hud {
++        *visibility = if visible { Visibility::Visible } else { Visibility::Hidden };
++        **text = if failed { format!("Skate unavailable: {}", mode.status) }
++        else if preparing { "Skate is finishing map preparation... | J: cancel".into() }
++        else if needs_controller { "SKATE | Connect a controller | J: return to MW2".into() }
++        else { "SKATE | Original controller controls | Start: pause | J: return to MW2".into() };
++    }
++}
+diff --git a/crates/frame/src/lib.rs b/crates/frame/src/lib.rs
+--- a/crates/frame/src/lib.rs
++++ b/crates/frame/src/lib.rs
+@@ -26,7 +26,7 @@
+     Headless, HostClassLoadouts, HostClassSlot, HudInputView, LaunchIdentity, LaunchReport,
+     LifeEndCause, LifeEnded, LifeStartReason, LifeStarted, LocalLoadKey, MapLoadApproved,
+     MapLoadFailed, MatchInstalled, MatchKey, MatchTornDown, ReturnedToMenu, RuntimeRole,
+-    TeardownReason, UiCamera, UiDraw, ViewSubject, WorldGeneration, WorldProducts,
++    TeardownReason, UiCamera, UiDraw, GameplayHud, ViewSubject, WorldGeneration, WorldProducts,
+ };
+ pub use settings::{DisplayResolution, GameSettings};
+ pub use ui::{
+diff --git a/crates/frame/src/session.rs b/crates/frame/src/session.rs
+--- a/crates/frame/src/session.rs
++++ b/crates/frame/src/session.rs
+@@ -42,6 +42,17 @@
+ impl Default for UiDraw {
+     fn default() -> Self {
+         Self(true)
++    }
++}
++
++/// Local presentation only. Never persisted or sent to another player.
++#[derive(Resource, Debug, Clone, Copy, Default)]
++pub struct GameplayHud {
++    pub hidden: bool,
++}
++impl GameplayHud {
++    pub fn hidden_in(&self, screen: AppScreen) -> bool {
++        self.hidden && screen == AppScreen::InGame
+     }
+ }
+ 
+diff --git a/crates/frame/src/ui/mod.rs b/crates/frame/src/ui/mod.rs
+--- a/crates/frame/src/ui/mod.rs
++++ b/crates/frame/src/ui/mod.rs
+@@ -11,7 +11,8 @@
+ };
+ 
+ pub fn register_ui_contracts(app: &mut App) {
+-    app.init_resource::<UiMenuDvars>()
++    app.init_resource::<crate::GameplayHud>()
++        .init_resource::<UiMenuDvars>()
+         .init_resource::<UiBindingCapture>()
+         .init_resource::<UiPartyState>()
+         .add_message::<UiBindRequest>()
+diff --git a/crates/hud/src/gameplay_visibility.rs b/crates/hud/src/gameplay_visibility.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/hud/src/gameplay_visibility.rs
+@@ -0,0 +1,24 @@
++//! Gameplay geometry is emitted before recovery/menu surfaces.
++use bevy::prelude::*;
++use frame::{AppScreen, GameplayHud};
++use crate::HudTessGpuFrame;
++
++#[derive(Component)]
++pub struct GameplayHudRoot;
++
++/// Run after gameplay HUD tessellation and before inventory/script-menu tessellation.
++/// Keep cached geometry intact so turning the HUD back on restores static surfaces.
++pub fn suppress_gameplay_hud(
++    setting: Res<GameplayHud>,
++    screen: Res<AppScreen>,
++    mut geometry: ResMut<HudTessGpuFrame>,
++    mut roots: Query<&mut Node, With<GameplayHudRoot>>,
++) {
++    let hidden = setting.hidden_in(*screen);
++    if hidden {
++        geometry.clear_geometry();
++    }
++    for mut node in &mut roots {
++        node.display = if hidden { Display::None } else { Display::Flex };
++    }
++}
+diff --git a/crates/hud/src/lib.rs b/crates/hud/src/lib.rs
+--- a/crates/hud/src/lib.rs
++++ b/crates/hud/src/lib.rs
+@@ -8,6 +8,7 @@
+ mod flash;
+ mod font_overlay;
+ mod gaps;
++pub mod gameplay_visibility;
+ mod gpu_list;
+ mod hud_elems;
+ mod hudelem;
+diff --git a/crates/hud/src/plugin.rs b/crates/hud/src/plugin.rs
+--- a/crates/hud/src/plugin.rs
++++ b/crates/hud/src/plugin.rs
+@@ -146,8 +146,9 @@
+                     flush_use_hint_tess,
+                     flush_hud_elems_tess,
+                     flush_targetmap_tess,
++                    flush_blood_tess,
++                    crate::gameplay_visibility::suppress_gameplay_hud,
+                     flush_minecraft_tess,
+-                    flush_blood_tess,
+                     flush_script_menus_tess,
+                 )
+                     .chain()
+@@ -324,6 +325,10 @@
+             Visibility::Hidden,
+         ))
+         .with_children(|root| {
++            root.spawn((crate::gameplay_visibility::GameplayHudRoot, Node {
++                position_type: PositionType::Absolute,
++                width: percent(100), height: percent(100), ..default()
++            })).with_children(|root| {
+             crate::font_overlay::spawn_overlay(root, crate::overhead_names::OverheadNamesRaster);
+             spawn_reticle(root);
+             spawn_iris(root);
+@@ -341,6 +346,7 @@
+             crate::font_overlay::spawn_overlay(root, crate::use_hint::UseHintRaster);
+             spawn_hud_elems(root);
+             spawn_targetmap(root);
++            });
+             crate::menus::spawn_script_menus(root);
+             crate::font_overlay::spawn_overlay(root, crate::minecraft_inventory::MinecraftRaster);
+         });
+@@ -639,6 +645,9 @@
+ 
+ fn flush_minecraft_tess(
+     surface: Res<crate::surface::Hud2dSurface>,
++    gameplay_hud: Res<frame::GameplayHud>,
++    screen: Res<AppScreen>,
++    minecraft: Res<frame::MinecraftUi>,
+     mut pass: ResMut<HudTessPass>,
+     mut hud_images: ResMut<HudImages>,
+     mut images: ResMut<Assets<Image>>,
+@@ -653,6 +662,10 @@
+         return;
+     }
+     let job = std::mem::take(&mut pass.minecraft);
++    // Inventory is a recovery/control surface; its closed hotbar is gameplay HUD.
++    let job = if gameplay_hud.hidden_in(*screen) && !minecraft.inventory_open {
++        crate::gpu_list::TessJob::Hide
++    } else { job };
+     if let Ok((_, mut node, mut latch)) = host.single_mut() {
+         gpu_list::apply_tess_job(
+             job,
+diff --git a/crates/ui/src/screen.rs b/crates/ui/src/screen.rs
+--- a/crates/ui/src/screen.rs
++++ b/crates/ui/src/screen.rs
+@@ -23,10 +23,11 @@
+ pub fn sync_ui_layers(
+     screen: Res<AppScreen>,
+     ui_draw: Res<UiDraw>,
++    gameplay_hud: Res<frame::GameplayHud>,
+     loading: Option<Res<LoadingScreen>>,
+     mut layers: ResMut<UiLayers>,
+ ) {
+-    let set = layers_for_screen(*screen, ui_draw.0, loading.is_some());
++    let set = layers_for_screen(*screen, ui_draw.0 && !gameplay_hud.hidden_in(*screen), loading.is_some());
+     layers.show_only(set.iter().copied());
+ }
+ 

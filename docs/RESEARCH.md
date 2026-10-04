@@ -104,7 +104,7 @@ Publisher terms can change; refresh the applicable sources before making a relea
 decision. If affordable rights cannot be established, evaluate original/licensed
 content as a different pilot rather than silently changing the promise.
 
-## Skate acquisition follow-up — 2026-10-03
+## Skate acquisition follow-up — 2026-10-03 (historical; superseded)
 
 The owner previously confirmed they do not own Skate 3. MW2 Multiplayer is now
 confirmed installed. Skating became the immediate priority on 2026-10-03. The [official
@@ -154,7 +154,7 @@ copy/backup and hardware first; do not recommend a purchase based only on that l
 No asset source or extraction route has been verified for this owner.
 
 
-## Free-content search and readiness follow-up — 2026-10-03
+## Free-content search and readiness follow-up — 2026-10-03 (historical; superseded)
 
 **Result: no verified compatible free Skate asset package acquired.** This does not
 mean free listings do not exist. Searches found third-party full-game/XEX listings,
@@ -255,3 +255,22 @@ on-foot launcher on Rust as the smallest separately testable step. A larger
 Minecraft stunt arena can later reuse the selected runtime's documented block
 building, bullet damage and grenade destruction; cross-mode acceptance still
 needs observation. No binaries/assets downloaded or launched for this research.
+
+## Current shortcut and conversion trace — 2026-10-04
+
+The current **Combine Skate Audio** shortcut targets `skate-audio-dev/iw4l.exe`
+with `map mp_rust`; its SHA-256 matches the recorded audio build
+`2319178a836247efaff4b99852eebaf920e0697e1b894a7310739a0c06470807`.
+Its working-directory configuration selects that trial's converted Skate assets.
+All four converter-required outputs match the original `mw2-skate` conversion
+byte-for-byte (SHA-256 comparisons). The preparation metadata records converter
+exit 0, 41.53 seconds and required outputs present on October 3. Synergy and
+older Trickshot shortcuts also remain, pointing to their recorded builds.
+
+This traces today's audio shortcut to the previously converted Xbox data. It does
+not establish demo versus full-game edition or distribution provenance. No edition
+manifest was found at the assets root; do not infer edition from a folder name.
+Earlier demo-acquisition and missing-input guidance above is superseded for this
+prepared setup. Preserve the historical evidence and all local files; no new demo,
+asset acquisition or reconversion is needed for Hide HUD. Private paths and raw
+configuration remain outside Git; redacted trace is local under `.private/hide-hud`.

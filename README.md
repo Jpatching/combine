@@ -1,15 +1,23 @@
 # Combine
 
-Combine explores controller-friendly trickshot practice in the existing
-MW2 / Skate 3 / Minecraft mashup. The current change replaces the rejected text
-panel with a compact **Synergy-derived native menu** around our local practice
-actions. This is a development patch, awaiting replacement acceptance.
+Combine explores a controller-friendly trickshot menu in the existing
+MW2 / Skate 3 / Minecraft mashup. The destination is the **proper Synergy menu
+plus trickshot hit radius**, without Combine-specific practice additions.
+The existing development build below has Synergy-derived presentation around
+earlier practice actions; it does not yet provide the full Synergy menu.
+See the [menu requirements and coverage](docs/TRICKSHOT_MENU.md).
+
+The agreed destination includes sniper near-pass assistance (Off by default,
+0.25–5 metres, Normal/One-shot damage with ordinary cover rules), Frag No Clip
+and host-controlled private-player options. These requirements are recorded;
+the development build below does not yet implement them. The first implementation
+slice is equipping the Intervention through Synergy's weapon hierarchy.
 
 The owner reports that Minecraft and skating work in the upstream Windows trial.
 Recovery, replay and a possible freeze still need investigation. A successful
 build or synthetic test does not establish gameplay.
 
-## Practice menu
+## Existing development build (earlier practice menu)
 
 The menu starts hidden and leaves no banner or aim-lock overlay when closed.
 It uses the game's proportional font, cyan selection, seven row slots and
@@ -63,7 +71,8 @@ python3 scripts/check_recipe.py recipes/mw2-skate.json
 ```
 
 On Windows use `py -3`. These commands check metadata and recipes; they do not
-install or launch games. See [BACKLOG.md](BACKLOG.md) for status,
+install or launch games. See the [private phase board](https://github.com/users/Jpatching/projects/5/views/4)
+for status, [BACKLOG.md](BACKLOG.md) for history,
 [HANDOFF.md](docs/HANDOFF.md) for current evidence, and
 [RESEARCH.md](docs/RESEARCH.md) for upstream limitations.
 

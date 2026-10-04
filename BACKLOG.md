@@ -1,3 +1,31 @@
+# Historical backlog and current board
+
+Active status moved on October 4, 2026 to the private
+[Combine phase board](https://github.com/users/Jpatching/projects/5/views/4).
+Use **Now** for the current phase/skill/next action, **Milestones** for outcomes,
+and **Needs you** for decisions and trials. Git remains the source authority.
+This file is a frozen historical record, not a second active task list.
+
+The destination is the proper Synergy menu plus trickshot hit radius, without
+Combine-specific practice additions. Hide HUD work is preserved and deferred;
+it is not a prerequisite. Source coverage, agreed requirements and the first slice
+contract are in [the menu guide](docs/TRICKSHOT_MENU.md). The board owns their
+current phase and next action; the archived snapshot below is not a resume plan.
+
+Migration checked 17 private drafts, their values and dependency links, board
+privacy and actual results of all three view filters. Requirements, decisions
+and technical evidence remain in existing local files. If GitHub is unavailable,
+record intended changes as sync pending in the handoff; do not revive this list.
+See [tracker operations](docs/agents/issue-tracker.md).
+
+---
+
+## Archived snapshot — superseded October 4, 2026
+
+Everything below records earlier status and scope. Its old authority claims,
+HUD-first ordering and Combine-additions destination are superseded by the
+board and D-012. Completed historical deliverables retain their original evidence.
+
 # Local issue tracker
 
 This file is the status authority. `done` means the stated deliverable exists and
@@ -5,7 +33,10 @@ was checked, not owner acceptance or release. There is no remote issue tracker.
 
 ## Where we are — Now / Next / Later
 
-**Goal: repeat skating trickshot attempts with a controller-friendly practice menu.** Issue numbers are reference labels, not steps you
+**Goal: the full Synergy-derived trickshot menu plus Combine's practice controls,
+so players can repeat skating trickshot attempts.** Hide HUD alone does not satisfy
+this goal; the menu guide's full feature inventory defines the milestone.
+Issue numbers are reference labels, not steps you
 must memorise. **C-003 means “test the existing mashup on Windows”**; its letters
 identify parts of that larger test. “Baseline” means our first recorded test.
 
@@ -46,6 +77,7 @@ Supplied local Xbox data passed conversion; its distribution provenance is unres
 | C-008 | pending C-003/C-005/C-006 | lead | Specify and implement only the smallest demonstrated usability improvement. Before code, record trigger, interfaces, measurable outcome and acceptance checks. |
 | C-010 | needs reproduction | owner + runtime | **Investigate possible freeze.** Owner reports Minecraft worked but believes startup/gameplay froze. Exact stage, duration, recovery and repeatability unknown. Record those before changing versions or settings. |
 | C-009 | pending study | owner + lead | Complete continue/change/stop decision in docs/DECISIONS.md using real results; do not fabricate missing measurements. |
+| C-015 | setup verified; experience review pending | lead | **Use a repeatable workflow across projects.** Nine pinned Matt Pocock skills plus a Codex router installed globally; custom grill-me preserved. Installed-file validation, manual routing checks and the repository gate passed (16 tests, two recipes, 14-document links). Combine retains its tracker, requirements and release rules. See [workflow guidance](docs/WORKFLOW.md) and [validation](research/results/2026-10-04-matt-workflow.md). Owner asked to leave Hide HUD alone; its proposed workflow pilot is excluded. Two-slice experience review remains future work. |
 
 ## Baseline follow-up — Skate in the mashup (C-003b)
 

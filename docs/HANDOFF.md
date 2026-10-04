@@ -1,3 +1,53 @@
+# Handoff — requirements settled; Intervention ready, 2026-10-04
+
+The full Synergy menu plus near-pass hit radius now has an agreed contract and
+acceptance examples in [the menu guide](TRICKSHOT_MENU.md). D-013 records the
+noclip/private-player scope changes; [source coverage](../research/results/2026-10-04-menu-coverage.md)
+shows why Trickshot Dummy's impact-distance logic does not prove near-pass behavior.
+Native compatibility, bullet/cover integration, noclip cleanup and private-session
+synchronisation remain explicit implementation research. No runtime code changed.
+
+The private [Project](https://github.com/users/Jpatching/projects/5/views/4) is the
+status authority. C-017 is Done; to-spec published the C-011 contract; to-tickets
+finalised C-016 as the sole Now item, ready for Phase 5 implementation. Bodies and
+fields were read back; the milestone stays open. No owner input is needed until
+the slice is ready for its isolated Windows trial. The card requires an exact
+launch command/shortcut, binary hash and short checklist at that point.
+
+Branch `slice/hide-hud`; HEAD/base `bfcb6073a829cb7b7f1b314a66c7006213ef0917`.
+Inherited dirty work remains; no commit, source remote, PR, merge or release.
+Menu/audio/Hide HUD patches are untouched. Deferred Hide HUD SHA-256 remains
+`31568ed152da16aecd4a93194c602e9a8fe05af29744a52e45936e7dbf3e780a`.
+`git ls-remote` refreshed runtime HEAD/v0.4.0 and Synergy HEAD/main; both still
+match their unchanged pins. Source publication still requires explicit replacement
+acceptance; assets, recordings, private logs and settings remain outside Git.
+
+Board detail: 17 drafts and the extra roadmap view (View 5) were preserved. The
+standard helper stopped before writes because it requires exactly three views.
+A reviewed temporary `/tmp/combine-c017-update.py` used the shared helper's
+snapshot/mutation functions to update only C-017, C-011 and C-016, checking private
+visibility, bodies/fields and unchanged unrelated drafts/views. JSON read-backs
+are `/tmp/combine-c017-{decision,spec,tickets}-readback.json`; these are temporary
+reproduction artifacts, not another tracker. No roadmap dates are configured.
+
+Verification: `python3 scripts/verify.py` passed (16 tests, two recipes, lock
+structure and links in 14 documents); `git diff --check` passed. Additional
+local-link checks covered all nine edited documents, including research/tracker
+files outside the gate's link scan. Final board refresh confirmed 17 private
+drafts, only C-011/C-016/C-017 changed, unchanged fields/four views, and field-filter
+counts Now 1, Milestones 2, Needs you 4. Menu/audio/Hide HUD hashes match prior
+evidence; archived backlog text is unchanged.
+No native build, gameplay or new owner verdict is claimed. Inherited baseline
+recovery/replay, possible freeze and audio listening evidence remain incomplete.
+
+Next: implement the finalised Intervention contract through the existing typed
+weapon path; pass its behavior/build/preview checks, then prepare a fresh trial
+and supply launch instructions. Demonstrate equip/fire and input-release behavior
+before asking the owner to accept it. Keep hit radius and other options outside
+that first slice, and keep Hide HUD deferred.
+
+---
+
 # Handoff — skating audio and private highlights, 2026-10-03
 
 October 4 follow-up: the owner supplied a local Even Flow MP3 after requesting

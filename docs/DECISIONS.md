@@ -159,3 +159,105 @@ three repeatable on-foot attempts on Rust are its future acceptance criterion.
 Project instructions now point to one player guide, one reproduction guide and
 one evidence/status source per purpose. Do not replicate controls or setup in
 handoffs or add formulaic what/where/why headings to player docs.
+
+## D-010: full menu milestone and gameplay-only Hide HUD — 2026-10-04
+
+The selected plan makes the full controller-friendly menu M1, beginning with Hide
+HUD. The pinned MW2 inventory and slice contract are in TRICKSHOT_MENU.md. M2
+covers stronger skating atmosphere, M3 private sessions, and M4 independently
+repeatable curated setups. Red Dead is research only; edition/bridge unestablished.
+
+Checkpoint inherited work before coding: `bfcb6073a829cb7b7f1b314a66c7006213ef0917`,
+then branch `slice/hide-hud`. This is a local checkpoint, not owner acceptance.
+The new feature remains uncommitted pending the owner's verdict, following the
+plan's review → accept → commit sequence. No remote/publication is configured.
+
+Use session-local gameplay visibility and existing native HUD/layer machinery.
+Broad `ui 0` also hides class selection, so it is unsuitable. Keep recovery/menu
+surfaces separate from gameplay geometry and preserve actionable skating prompts.
+New map/session or main menu resets the setting; ordinary menu/skating/class/
+respawn transitions preserve it. No network, recipe, movement or audio changes.
+A third patch preserves the checkpoint menu/audio artifacts and their evidence.
+
+## D-011: shared workflow, repository-specific authority — 2026-10-04
+
+Install Matt Pocock's nine requested/dependency skills from the single source pin
+`24fe0ef7737efae15c87225755e9f6f5965e4888`, preserving supporting files and MIT
+attribution. Preserve the custom `grill-me`; Matt's version is `matt-grill-me`.
+A small global `matt-workflow` router and shared Codex adaptation translate
+invocation, tracker, review and commit defaults without replacing Matt's content.
+
+The reusable standard is outcome → one usable slice → checks → review/demo →
+owner verdict, scaled down for trivial changes. Per-project configuration keeps
+existing requirements, checks, status and release authority. Combine uses
+BACKLOG.md, TRICKSHOT_MENU.md and DECISIONS.md; no parallel tracker or PRD is added.
+Routine authorized implementation continues autonomously. Failed/missing required
+checks block technical completion; green checks do not imply owner acceptance.
+
+The owner clarified that the goal is the full trickshot menu plus Combine practice
+controls, then asked to leave Hide HUD alone. Stop the proposed Hide HUD workflow
+pilot and leave its implementation untouched. This setup implements no gameplay
+feature and grants no publication, deployment, asset upload or external messaging
+authority. Keep one lead and local verification. Assess demonstrated friction
+after two completed owner-reviewed slices before adding Sandcastle or automation.
+
+See [workflow configuration](WORKFLOW.md) and
+[installation/validation evidence](../research/results/2026-10-04-matt-workflow.md).
+
+## D-012: proper Synergy destination and private board authority — 2026-10-04
+
+The owner selected the proper Synergy menu plus trickshot hit radius, without
+Combine-specific practice additions. This supersedes the earlier D-010/D-011
+HUD-first ordering and practice-controls destination. Preserve existing menu,
+audio and Hide HUD work; Hide HUD is deferred and blocks no current slice.
+Source coverage and a bounded Intervention candidate are recorded in the menu
+guide. Remaining choices must precede final PRD/slicing; a candidate draft does
+not prove those phases complete or authorize invented behavior.
+
+The verified private Combine GitHub Project owns active status. Seventeen draft
+items preserve current/deferred outcomes with named dependency links; completed
+old records remain in the frozen backlog. Requirements, decisions and technical
+evidence retain their existing local authorities. If GitHub is unavailable,
+record sync pending in the handoff rather than create a competing tracker.
+
+The owner explicitly requested a clean seven-phase visualization and confirmed
+that only Combine-specific corrections belong here. Reusable workflow material
+lives in global Codex storage. Private board maintenance is authorized; source
+publication, assets, recordings/logs, outreach, spending and CI/CD are separate.
+Publication still requires explicit acceptance of the replacement menu. No new
+gameplay implementation, gameplay test, commit or source publication occurred.
+
+## D-013: near-pass assistance and full-menu scope — 2026-10-04
+
+The approved C-017 plan settles the remaining product choices in D-012. Keep the
+full reachable pinned Synergy menu plus near-pass hit radius, without Combine
+practice additions. The [menu guide](TRICKSHOT_MENU.md#agreed-behavior--c-017-2026-10-04)
+owns the detailed contract and acceptance examples. A bullet passing near an
+eligible living enemy can qualify independently of its eventual impact; radius
+is extra distance outside the normal damageable body volume. This is neither
+aim movement nor added blast damage. The inspected Trickshot Dummy impact-distance
+implementation does not establish this behavior.
+
+Cover scoped/unscoped sniper bullets, bots and private enemy players; exclude
+self, teammates, dead players and spectators. Assistance starts Off, with Normal
+damage and 0.25 m on first enabling; adjust 0.25–5 m in 0.25 m steps and reset
+assistance to Off for a new match. Normal uses upper-body weapon damage with
+distance/penetration reductions; One-shot is lethal only for a qualifying hit.
+Both respect ordinary reach and cover/penetration. Assist only an otherwise
+missed shot, at most once, selecting the closest eligible enemy; retain ordinary
+direct hits and collateral behavior.
+
+Include Frag No Clip, superseding the earlier C-011 no-noclip exclusion. Restore
+movement/weapons and only temporary invulnerability on exit, with death/map
+cleanup. The native safe-exit policy rejects an exit inside solid geometry with
+feedback until the player moves clear. Include All Players/name display/Kill/
+menu grants/Kick with host administration, personal-only guest grants and host
+Kick protection. Revalidate permissions and connection identity when executing
+actions so stale selections or reused names/slots cannot affect another player.
+
+Synergy supplies behavior references, not proof of native compatibility or
+private-session synchronisation. Those remain explicit implementation research.
+Proceed through to-spec and to-tickets for the agreed Intervention tracer bullet;
+requirements agreement does not establish gameplay, owner acceptance or release.
+Hide HUD stays deferred, and source publication still requires explicit acceptance
+of the replacement menu. No runtime change or new trial is part of C-017.

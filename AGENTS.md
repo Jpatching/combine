@@ -1,15 +1,38 @@
 # Combine project instructions
 
 Global collaboration defaults apply. Read README.md and BACKLOG.md first.
-BACKLOG.md is the local status authority; Git is the source authority. Do not
+The private Combine GitHub Project is the status authority; Git is the source
+authority. BACKLOG.md is the historical record and board pointer. Do not
 claim a commit, remote, gameplay result, acceptance or release without evidence.
 Record consequential decisions in docs/DECISIONS.md.
+
+## Agent skills
+
+Use the globally installed `$matt-workflow` for substantial work, resuming the
+current phase. Small fixes stay lightweight. Read [workflow guidance](docs/WORKFLOW.md).
+The selected plan and existing slice contract satisfy settled setup/design choices;
+do not restart settled discussions. The destination is the proper Synergy menu
+plus trickshot hit radius, without Combine-specific practice additions. C-017's
+approved requirements and the finalised C-016 contract are in the menu guide;
+resume the board's next missing implementation/check, not settled discussion.
+
+### Issue tracker
+
+Private [Combine Project](https://github.com/users/Jpatching/projects/5/views/4),
+using draft items and explicit dependencies. See [tracker configuration](docs/agents/issue-tracker.md).
+Board maintenance is authorized; source publication and CI/CD remain separate.
+
+### Domain docs
+
+Use the existing player/menu guides and `docs/DECISIONS.md`. See
+[domain configuration](docs/agents/domain.md); do not create parallel authorities.
 
 ## Current slice and references
 
 Validate ordinary Windows players configuring, launching and sharing supported
-MW2/Skate/Minecraft mashups. The active bounded slice is the Synergy-derived native
-trickshot menu; broader research/baseline reproduction remains incomplete.
+MW2/Skate/Minecraft mashups. The Intervention slice has a finalised contract;
+native implementation and gameplay evidence remain required. Hide HUD
+is deferred and blocks no active work. Baseline reproduction remains incomplete.
 No universal merger, new engine, marketplace or production launcher is authorized.
 
 - README.md owns the player overview, controls and limitations.

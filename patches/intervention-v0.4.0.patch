@@ -1,0 +1,1498 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 3c242d9..1057a44 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -2206,6 +2206,7 @@ dependencies = [
+  "bots",
+  "diag",
+  "entity_iw4",
++ "fastfile_iw4",
+  "frame",
+  "gamemode_iw4",
+  "hud",
+diff --git a/crates/console/Cargo.toml b/crates/console/Cargo.toml
+index 9a37e90..448d875 100644
+--- a/crates/console/Cargo.toml
++++ b/crates/console/Cargo.toml
+@@ -33,6 +33,7 @@ playerstate_iw4.workspace = true
+ hud_iw4.workspace = true
+ 
+ [dev-dependencies]
++fastfile_iw4.workspace = true
+ gamemode_iw4.workspace = true
+ 
+ [lints]
+diff --git a/crates/console/examples/practice_menu_preview.rs b/crates/console/examples/practice_menu_preview.rs
+index 33d3c42..014068a 100644
+--- a/crates/console/examples/practice_menu_preview.rs
++++ b/crates/console/examples/practice_menu_preview.rs
+@@ -77,27 +77,24 @@ fn advance(
+             },
+             1 => MenuView {
+                 open: true,
+-                page: Page::Aim,
+-                selected: 1,
++                page: Page::Snipers,
++                selected: 0,
+                 pad: true,
+                 ..default()
+             },
+             2 => MenuView {
+                 open: true,
+-                page: Page::Targets,
+-                selected: 1,
+-                status: "No living bot: add a target and wait for it to spawn.".into(),
+-                ..default()
+-            },
+-            _ => MenuView {
+-                aim_lock: true,
++                page: Page::Snipers,
++                selected: 0,
++                status: "Intervention rejected: not alive. Spawn a class and retry.".into(),
+                 ..default()
+             },
++            _ => MenuView { ..default() },
+         };
+     }
+     if p.frame == 60 {
+         assert_eq!(roots.iter().count(), if p.stage == 3 { 0 } else { 1 });
+-        let name = ["root", "aim", "feedback", "closed"][p.stage];
++        let name = ["root", "intervention", "feedback", "closed"][p.stage];
+         let path = format!("{}/{name}.png", p.directory);
+         p.waiting = true;
+         commands
+diff --git a/crates/console/src/lib.rs b/crates/console/src/lib.rs
+index 1d3c626..cda18a1 100644
+--- a/crates/console/src/lib.rs
++++ b/crates/console/src/lib.rs
+@@ -25,7 +25,6 @@ mod feature_dispatch;
+ mod frontend;
+ mod gamepad;
+ mod practice;
+-mod practice_core;
+ mod practice_menu;
+ mod practice_ui;
+ pub mod input;
+diff --git a/crates/console/src/practice.rs b/crates/console/src/practice.rs
+index 9dea3de..11fc56d 100644
+--- a/crates/console/src/practice.rs
++++ b/crates/console/src/practice.rs
+@@ -1,12 +1,10 @@
+-//! Local practice UI. Commands reuse the existing authority queues; no executable injection.
++//! Bounded Synergy weapon slice. Typed actions and correlated simulation feedback.
+ use crate::ConsoleState;
+-use crate::practice_core::{self, Spot};
+ use crate::practice_menu::{Action, Controls, Menu};
+ use crate::practice_ui::MenuView;
+ use bevy::input::gamepad::GamepadButton as B;
+ use bevy::input::keyboard::KeyboardInput;
+ use bevy::prelude::*;
+-use bots::{BotAddQueue, BotHold, BotRoster, BotTpQueue, BotTpRequest, BotTpTarget, BotTpWhere};
+ use frame::{AppScreen, ClientSet, RuntimeRole, WorldGeneration};
+ use net::{
+     ActionRequestIds, AuthorityWorld, ClientActionInbox, LocalPresentClient, PresentedSnapshot,
+@@ -16,46 +14,19 @@ use net::{
+ pub(crate) struct Practice {
+     menu: Menu,
+     pub captured: bool,
+-    available: bool,
+     generation: Option<u64>,
+-    saved: Option<Spot>,
+-    pending_return: Option<(Spot, f32)>,
+-    aim_lock: bool,
+-    locked_bot: Option<u32>,
+-    old_aim: Option<AimSettings>,
++    pending: Option<Pending>,
+     status: String,
+ }
+-#[derive(Clone, Copy)]
+-struct AimSettings {
+-    preset: u8,
+-    sensitivity: f32,
+-    ads: f32,
+-    curve: u8,
+-    acceleration: bool,
+-    deadzone: f32,
++struct Pending {
++    client: sim::ClientId,
++    request: u32,
++    weapon: u32,
++    generation: u64,
++    after_tick: sim::Tick,
++    started: f64,
++    accepted: bool,
+ }
+-impl AimSettings {
+-    fn read(s: &frame::GameSettings) -> Self {
+-        Self {
+-            preset: s.pad_sensitivity_preset,
+-            sensitivity: s.pad_custom_sensitivity,
+-            ads: s.pad_ads_sensitivity,
+-            curve: s.pad_curve,
+-            acceleration: s.pad_acceleration,
+-            deadzone: s.pad_deadzone_right,
+-        }
+-    }
+-    fn apply(self, s: &mut frame::GameSettings) {
+-        s.pad_sensitivity_preset = self.preset;
+-        s.pad_custom_sensitivity = self.sensitivity;
+-        s.pad_ads_sensitivity = self.ads;
+-        s.pad_curve = self.curve;
+-        s.pad_acceleration = self.acceleration;
+-        s.pad_deadzone_right = self.deadzone;
+-        s.revision = s.revision.wrapping_add(1);
+-    }
+-}
+-
+ pub(crate) fn install(app: &mut App) {
+     app.init_resource::<Practice>()
+         .init_resource::<MenuView>()
+@@ -64,37 +35,9 @@ pub(crate) fn install(app: &mut App) {
+             (publish_view, crate::practice_ui::render)
+                 .chain()
+                 .in_set(ClientSet::Ui),
+-        )
+-        .add_systems(
+-            Update,
+-            aim_lock
+-                .after(net::sample_client_input)
+-                .in_set(ClientSet::Input),
+         );
+ }
+ 
+-fn allowed(
+-    role: Option<&RuntimeRole>,
+-    world: Option<&AuthorityWorld>,
+-    snapshot: &PresentedSnapshot,
+-    local: &LocalPresentClient,
+-    bots: &BotRoster,
+-) -> bool {
+-    let Some(s) = snapshot.snapshot() else {
+-        return false;
+-    };
+-    practice_core::permitted(
+-        role == Some(&RuntimeRole::Listen),
+-        world.is_some_and(|w| w.0.cheats_enabled()),
+-        true,
+-        s.meta
+-            .clients
+-            .iter()
+-            .any(|(id, _)| *id != local.0 && !bots.is_bot(*id)),
+-    )
+-}
+-
+-/// Runs before both gamepad menu navigation and gameplay publication.
+ pub(crate) fn input(
+     mut state: ResMut<Practice>,
+     keyboard: (
+@@ -116,24 +59,12 @@ pub(crate) fn input(
+         Res<PresentedSnapshot>,
+         Res<LocalPresentClient>,
+     ),
+-    bots: (
+-        Res<BotRoster>,
+-        ResMut<BotAddQueue>,
+-        ResMut<BotHold>,
+-        ResMut<BotTpQueue>,
+-    ),
+-    mut skate: ResMut<frame::SkateMode>,
+-    mut settings: ResMut<frame::GameSettings>,
+-    actions: (
+-        Option<ResMut<ClientActionInbox>>,
+-        ResMut<ActionRequestIds>,
+-        ResMut<net::LookState>,
+-    ),
++    weapons: Option<Res<assets::PreparedWeapons>>,
++    actions: (Option<ResMut<ClientActionInbox>>, ResMut<ActionRequestIds>),
+     time: Res<Time>,
+ ) {
+     let (role, world, generation, snapshot, local) = context;
+-    let (roster, mut add, mut hold, mut tp) = bots;
+-    let (mut inbox, mut requests, mut look) = actions;
++    let (mut inbox, mut requests) = actions;
+     // Keep physical state independently: gameplay isolation resets ButtonInput.
+     let (mut events, mut keys, mouse) = keyboard;
+     keys.clear();
+@@ -174,281 +105,160 @@ pub(crate) fn input(
+                     || p.get(B::RightTrigger2).unwrap_or(0.) > 0.1
+             }),
+     };
++
+     if state.generation != generation.0 {
+         state.generation = generation.0;
+-        state.saved = None;
+-        state.pending_return = None;
+-        state.aim_lock = false;
+-        state.locked_bot = None;
++        state.pending = None;
+         state.menu.reset();
+-        state.status = "New map: starting spot cleared; aim lock off.".into();
++        state.status = "Intervention trial. Other options are unavailable.".into();
+     }
+-    let usable = allowed(
+-        role.as_deref(),
+-        world.as_deref(),
+-        &snapshot,
+-        &local,
+-        &roster,
+-    );
+-    state.available = usable && *screen == AppScreen::InGame;
+-    let available = state.available
++    // Navigation remains usable for recoverable world/death/catalogue failures.
++    let available = *screen == AppScreen::InGame
+         && devices.focused
+         && !console.open
+         && !menus.as_ref().is_some_and(|m| m.captures_input())
+         && !minecraft
+             .as_ref()
+-            .is_some_and(|m| m.active && m.inventory_open)
+-        && snapshot.alive_player(local.0).is_some();
++            .is_some_and(|m| m.active && m.inventory_open);
+     let action = state
+         .menu
+         .step(controls, available, time.elapsed_secs_f64());
+     state.captured = state.menu.captured;
+-    if !available {
+-        state.pending_return = None;
+-        state.locked_bot = None;
+-        if !usable {
+-            state.aim_lock = false;
+-        }
++    state.observe(&snapshot, local.0, generation.0, time.elapsed_secs_f64());
++    let Some(action) = action else {
++        return;
++    };
++    if action == Action::Unavailable {
++        state.status = "Unavailable in this slice. Use Weapon Options for Intervention.".into();
+         return;
+     }
+-    let Some(ps) = snapshot.alive_player(local.0) else {
++    if state.pending.is_some() {
++        state.status = "Intervention request pending; wait for confirmation.".into();
+         return;
+-    };
+-    if let Some((spot, started)) = state.pending_return {
+-        if !spot.valid_for(generation.0) || time.elapsed_secs() - started > 2.0 {
+-            state.pending_return = None;
+-            state.status = "Return cancelled: map changed or skating did not stop.".into();
+-        } else if !skate.active && !skate.entering {
+-            state.pending_return = None;
+-            if let Some(inbox) = inbox.as_deref_mut() {
+-                let request_id = requests.allocate();
+-                match inbox.push(
+-                    local.0,
+-                    sim::ClientAction::Move {
+-                        request_id,
+-                        origin: spot.origin,
+-                        angles: spot.angles,
+-                    },
+-                ) {
+-                    Ok(()) => {
+-                        look.angles = net::look_angles_from_degrees(std::array::from_fn(|i| {
+-                            spot.angles[i] - ps.delta_angles[i]
+-                        }));
+-                        state.status = "Return requested.".into();
+-                    }
+-                    Err(e) => state.status = format!("Cannot return: {e}"),
+-                }
+-            } else {
+-                state.status = "Return unavailable: no local authority.".into();
+-            }
+-        }
+     }
+-    let Some(action) = action else {
++    if role.as_deref() != Some(&RuntimeRole::Listen)
++        || !world.as_ref().is_some_and(|w| w.0.cheats_enabled())
++        || generation.0.is_none()
++        || snapshot.snapshot().is_none()
++    {
++        state.status = "Unavailable: start a local host world with debug actions enabled.".into();
++        return;
++    }
++    if snapshot.alive_player(local.0).is_none() {
++        state.status = "Cannot equip: spawn a class and retry while alive.".into();
++        return;
++    }
++    let Some(weapons) = weapons else {
++        state.status = "Weapon catalogue is not loaded; retry after loading.".into();
+         return;
+     };
+-    match action {
+-        Action::Save => {
+-            state.status = "Cannot save: map or position unavailable.".into();
+-            if let Some(generation) = generation.0 {
+-                let s = Spot {
+-                    generation,
+-                    origin: ps.origin,
+-                    angles: ps.viewangles,
+-                };
+-                if s.valid_for(Some(generation)) {
+-                    state.saved = Some(s);
+-                    state.status = "Starting spot saved for this map.".into();
+-                }
++    let weapon =
++        match crate::weapon_dispatch::resolve_give_id(&weapons.0, "iw4:weapon/cheytac_mp", &[]) {
++            Ok(id) => id,
++            Err(reason) => {
++                state.status = format!("Intervention unavailable: {reason}");
++                return;
+             }
++        };
++    let Some(inbox) = inbox.as_deref_mut() else {
++        state.status = "Cannot equip: local action queue unavailable.".into();
++        return;
++    };
++    let request = requests.allocate();
++    match inbox.push(
++        local.0,
++        sim::ClientAction::GiveWeapon {
++            request_id: request,
++            weapon,
++        },
++    ) {
++        Ok(()) => {
++            state.pending = Some(Pending {
++                client: local.0,
++                request,
++                weapon,
++                generation: generation.0.unwrap(),
++                after_tick: snapshot.snapshot().unwrap().tick,
++                started: time.elapsed_secs_f64(),
++                accepted: false,
++            });
++            state.status = "Intervention requested; waiting for equip confirmation.".into();
+         }
+-        Action::Return => {
+-            if let Some(s) = state.saved.filter(|s| s.valid_for(generation.0)) {
+-                if skate.active || skate.entering {
+-                    skate.toggle_requested = true;
+-                }
+-                state.pending_return = Some((s, time.elapsed_secs()));
+-                state.status = "Leaving skating and returning...".into();
+-            } else {
+-                state.status = "Save a starting spot first.".into();
+-            }
++        Err(error) => state.status = format!("Cannot equip: {error}"),
++    }
++}
++impl Practice {
++    fn observe(
++        &mut self,
++        presented: &PresentedSnapshot,
++        client: sim::ClientId,
++        generation: Option<u64>,
++        now: f64,
++    ) {
++        let Some(p) = self.pending.as_mut() else {
++            return;
++        };
++        if Some(p.generation) != generation || p.client != client {
++            self.pending = None;
++            self.status = "Equip request cancelled: match or player changed.".into();
++            return;
+         }
+-        Action::AddBot => {
+-            if roster.bots.len() >= bots::MAX_HOST_BOTS as usize {
+-                state.status = "Bot limit reached.".into();
+-            } else {
+-                add.push_dummy(1);
+-                state.status = "Bot requested. Place it after spawning.".into();
++        if let Some(snapshot) = presented.snapshot() {
++            for record in &snapshot.meta.journal {
++                if record.audience != sim::EventAudience::Client(p.client)
++                    || record.tick.0 <= p.after_tick.0
++                {
++                    continue;
++                }
++                match record.event {
++                    sim::SimEvent::GiveAccepted { request_id, weapon }
++                        if request_id == p.request && weapon == p.weapon =>
++                    {
++                        p.accepted = true
++                    }
++                    sim::SimEvent::GiveRejected {
++                        request_id,
++                        weapon,
++                        reason,
++                    } if request_id == p.request && weapon == p.weapon => {
++                        self.status = format!(
++                            "Intervention rejected: {}. Retry when ready.",
++                            reason.as_str()
++                        );
++                        self.pending = None;
++                        return;
++                    }
++                    _ => {}
++                }
+             }
+-        }
+-        Action::PlaceBot => {
+-            if let Some(bot) = roster
+-                .bots
+-                .iter()
+-                .rev()
+-                .find(|b| snapshot.alive_player(b.id).is_some())
++            if p.accepted
++                && presented.alive_player(client).is_some_and(|ps| {
++                    ps.weapon == p.weapon && ps.weapons.contains(&(p.weapon as i32))
++                })
+             {
+-                let mut origin = ps.origin;
+-                origin[2] += 10.0;
+-                tp.push(BotTpRequest {
+-                    target: BotTpTarget::Id(bot.id),
+-                    where_: BotTpWhere::Absolute {
+-                        origin,
+-                        yaw: Some(ps.viewangles[1] + 180.),
+-                        pitch: Some(0.),
+-                    },
+-                });
+-                state.status = format!("Bot {} placement requested.", bot.id.0);
+-            } else {
+-                state.status = "No living bot: add a target and wait for it to spawn.".into();
++                self.status =
++                    "Intervention equipped. Close the menu and release buttons to fire on foot."
++                        .into();
++                self.pending = None;
++                return;
+             }
+         }
+-        Action::FreezeBots => {
+-            hold.0 = !hold.0;
+-            state.status = if hold.0 {
+-                "Bots frozen; firing stopped."
+-            } else {
+-                "Bots unfrozen."
+-            }
+-            .into();
+-        }
+-        Action::AimLock => {
+-            state.aim_lock = !state.aim_lock;
+-            state.locked_bot = None;
+-            state.status = if state.aim_lock {
+-                "Aim lock ON: hold aim on foot."
+-            } else {
+-                "Aim lock OFF."
+-            }
+-            .into();
+-        }
+-        Action::SmoothAim => {
+-            if state.old_aim.is_none() {
+-                state.old_aim = Some(AimSettings::read(&settings));
+-            }
+-            AimSettings {
+-                preset: 0,
+-                sensitivity: 1.,
+-                ads: 0.75,
+-                curve: 0,
+-                acceleration: false,
+-                deadzone: 0.05,
+-            }
+-            .apply(&mut settings);
+-            state.status = "Smooth preset applied.".into();
+-        }
+-        Action::RestoreAim => {
+-            if let Some(old) = state.old_aim.take() {
+-                old.apply(&mut settings);
+-                state.status = "Previous aim settings restored.".into();
+-            } else {
+-                state.status = "No preset to restore in this session.".into();
+-            }
++        if now - p.started > 10.0 {
++            self.pending = None;
++            self.status = "Equip not confirmed. Check your weapon before retrying.".into();
+         }
+     }
+ }
+-
+-fn publish_view(
+-    state: Res<Practice>,
+-    hold: Res<BotHold>,
+-    devices: Res<frame::InputDevices>,
+-    mut view: ResMut<MenuView>,
+-) {
++fn publish_view(state: Res<Practice>, active: Res<frame::ActivePad>, mut view: ResMut<MenuView>) {
+     view.set_if_neq(MenuView {
+-        open: state.menu.open && state.available,
++        open: state.menu.open,
+         page: state.menu.page,
+         selected: state.menu.cursor.selected,
+         offset: state.menu.cursor.offset,
+-        frozen: hold.0,
+-        aim_lock: state.aim_lock,
+         pad: devices.pad_prompts,
+         status: state.status.clone(),
+     });
+ }
+-
+-fn aim_lock(
+-    mut state: ResMut<Practice>,
+-    role: Option<Res<RuntimeRole>>,
+-    world: Option<Res<AuthorityWorld>>,
+-    roster: Res<BotRoster>,
+-    snapshot: Res<PresentedSnapshot>,
+-    local: Res<LocalPresentClient>,
+-    skate: Res<frame::SkateMode>,
+-    console: Res<ConsoleState>,
+-    devices: Res<frame::InputDevices>,
+-    screen: Res<AppScreen>,
+-    mut template: ResMut<net::ClientCmdTemplate>,
+-    mut look: ResMut<net::LookState>,
+-) {
+-    state.locked_bot = None;
+-    if !state.aim_lock
+-        || state.captured
+-        || skate.active
+-        || skate.entering
+-        || console.open
+-        || !devices.focused
+-        || *screen != AppScreen::InGame
+-        || !template.ready
+-        || template.cmd.buttons & playerstate_iw4::buttons::ADS == 0
+-        || !allowed(
+-            role.as_deref(),
+-            world.as_deref(),
+-            &snapshot,
+-            &local,
+-            &roster,
+-        )
+-    {
+-        return;
+-    }
+-    let (Some(world), Some(s), Some(ps)) = (
+-        world.as_ref(),
+-        snapshot.snapshot(),
+-        snapshot.alive_player(local.0),
+-    ) else {
+-        return;
+-    };
+-    let eye = [
+-        ps.origin[0],
+-        ps.origin[1],
+-        ps.origin[2] + ps.view_height_current,
+-    ];
+-    let view = std::array::from_fn(|i| {
+-        template.cmd.angles[i] as f32 / input_iw4::ANGLE2SHORT + ps.delta_angles[i]
+-    });
+-    let mine = s.meta.for_client(local.0).map(|m| m.client_state_team);
+-    let mut best: Option<(u32, [f32; 3], f32)> = None;
+-    for bot in &roster.bots {
+-        let Some(target) = snapshot.alive_player(bot.id) else {
+-            continue;
+-        };
+-        if s.meta.kind.is_team() && s.meta.for_client(bot.id).map(|m| m.client_state_team) == mine {
+-            continue;
+-        }
+-        let point = [
+-            target.origin[0],
+-            target.origin[1],
+-            target.origin[2] + target.view_height_current * 0.75,
+-        ];
+-        let Some((angles, error)) = practice_core::target_angles(eye, point, view) else {
+-            continue;
+-        };
+-        let hit = world
+-            .0
+-            .trace_world(eye, point, [0.; 3], [0.; 3], hud_iw4::OVERHEAD_TRACE_MASK);
+-        if hit.startsolid != 0 || hit.fraction < 1.0 {
+-            continue;
+-        }
+-        if best.is_none_or(|(_, _, e)| error < e) {
+-            best = Some((bot.id.0, angles, error));
+-        }
+-    }
+-    if let Some((id, angles, _)) = best {
+-        let command_angles = std::array::from_fn(|i| angles[i] - ps.delta_angles[i]);
+-        template.cmd.angles = net::look_angles_from_degrees(command_angles);
+-        look.angles = template.cmd.angles;
+-        state.locked_bot = Some(id);
+-    }
+-}
+-
+ #[cfg(test)]
+ #[path = "practice_tests.rs"]
+ mod tests;
+diff --git a/crates/console/src/practice_menu.rs b/crates/console/src/practice_menu.rs
+index c5b0917..fb047a6 100644
+--- a/crates/console/src/practice_menu.rs
++++ b/crates/console/src/practice_menu.rs
+@@ -10,65 +10,59 @@ const REPEAT_EVERY: f64 = 0.12;
+ 
+ #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+ pub enum Action {
+-    Save,
+-    Return,
+-    AddBot,
+-    PlaceBot,
+-    FreezeBots,
+-    AimLock,
+-    SmoothAim,
+-    RestoreAim,
++    Intervention,
++    Unavailable,
+ }
+ #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+ pub enum Page {
+     #[default]
+     Root,
+-    Positions,
+-    Targets,
+-    Aim,
++    Weapons,
++    GiveWeapons,
++    Snipers,
+ }
+ #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+ pub enum Entry {
+     Submenu(Page),
+     Action(Action),
++    Unavailable(&'static str),
+ }
+ impl Page {
+     pub fn title(self) -> &'static str {
+         match self {
+-            Self::Root => "TRICKSHOT",
+-            Self::Positions => "POSITIONS",
+-            Self::Targets => "TARGETS",
+-            Self::Aim => "AIM",
++            Self::Root => "SYNERGY",
++            Self::Weapons => "WEAPON OPTIONS",
++            Self::GiveWeapons => "GIVE WEAPONS",
++            Self::Snipers => "SNIPER RIFLES",
+         }
+     }
+     pub fn entries(self) -> &'static [Entry] {
+-        use Action::*;
+-        use Entry::{Action as A, Submenu as S};
++        use Entry::{Action as A, Submenu as S, Unavailable as U};
+         match self {
+-            Self::Root => &[S(Self::Positions), S(Self::Targets), S(Self::Aim)],
+-            Self::Positions => &[A(Save), A(Return)],
+-            Self::Targets => &[A(AddBot), A(PlaceBot), A(FreezeBots)],
+-            Self::Aim => &[A(AimLock), A(SmoothAim), A(RestoreAim)],
++            Self::Root => &[
++                U("Basic Options"),
++                U("Fun Options"),
++                S(Self::Weapons),
++                U("Give Killstreaks"),
++                U("Menu Options"),
++                U("All Players"),
++            ],
++            Self::Weapons => &[S(Self::GiveWeapons)],
++            Self::GiveWeapons => &[S(Self::Snipers)],
++            Self::Snipers => &[A(Action::Intervention)],
+         }
+     }
+ }
+ impl Entry {
+     pub fn label(self) -> &'static str {
+         match self {
+-            Self::Submenu(Page::Root) => "Trickshot",
+-            Self::Submenu(Page::Positions) => "Positions",
+-            Self::Submenu(Page::Targets) => "Targets",
+-            Self::Submenu(Page::Aim) => "Aim",
+-            Self::Action(a) => match a {
+-                Action::Save => "Save starting spot",
+-                Action::Return => "Return to starting spot",
+-                Action::AddBot => "Add stationary bot",
+-                Action::PlaceBot => "Place latest bot here",
+-                Action::FreezeBots => "Freeze bots",
+-                Action::AimLock => "Bot aim lock",
+-                Action::SmoothAim => "Smooth controller preset",
+-                Action::RestoreAim => "Restore settings",
+-            },
++            Self::Submenu(Page::Root) => "Synergy",
++            Self::Submenu(Page::Weapons) => "Weapon Options",
++            Self::Submenu(Page::GiveWeapons) => "Give Weapons",
++            Self::Submenu(Page::Snipers) => "Sniper Rifles",
++            Self::Action(Action::Intervention) => "Intervention",
++            Self::Action(Action::Unavailable) => "Unavailable",
++            Self::Unavailable(label) => label,
+         }
+     }
+ }
+@@ -190,6 +184,7 @@ impl Menu {
+                     self.cursor = self.saved[page as usize];
+                 }
+                 Entry::Action(action) => return Some(action),
++                Entry::Unavailable(_) => return Some(Action::Unavailable),
+             }
+             return None;
+         }
+@@ -245,58 +240,39 @@ mod tests {
+         assert!(!m.open && !m.captured);
+     }
+     #[test]
+-    fn submenu_backtracking_restores_parent_and_child_cursor() {
++    fn hierarchy_backtracks_and_selects_only_intervention() {
+         let mut m = Menu::default();
+         open(&mut m);
+-        tap(
+-            &mut m,
+-            Controls {
+-                down: true,
+-                ..Default::default()
+-            },
+-        );
+-        tap(
+-            &mut m,
+-            Controls {
+-                select: true,
+-                ..Default::default()
+-            },
+-        );
+-        assert_eq!(m.page, Page::Targets);
+-        tap(
+-            &mut m,
+-            Controls {
+-                down: true,
+-                ..Default::default()
+-            },
+-        );
+-        assert_eq!(
++        let select = Controls {
++            select: true,
++            ..Default::default()
++        };
++        assert_eq!(tap(&mut m, select), Some(Action::Unavailable));
++        for _ in 0..2 {
+             tap(
+                 &mut m,
+                 Controls {
+-                    select: true,
++                    down: true,
+                     ..Default::default()
+-                }
+-            ),
+-            Some(Action::PlaceBot)
+-        );
+-        assert!(m.open); // Even failed actions leave navigation intact.
+-        tap(
+-            &mut m,
+-            Controls {
+-                back: true,
+-                ..Default::default()
+-            },
+-        );
+-        assert_eq!((m.page, m.cursor.selected), (Page::Root, 1));
+-        tap(
+-            &mut m,
+-            Controls {
+-                select: true,
+-                ..Default::default()
+-            },
+-        );
+-        assert_eq!((m.page, m.cursor.selected), (Page::Targets, 1));
++                },
++            );
++        }
++        for page in [Page::Weapons, Page::GiveWeapons, Page::Snipers] {
++            assert_eq!(tap(&mut m, select), None);
++            assert_eq!(m.page, page);
++        }
++        assert_eq!(tap(&mut m, select), Some(Action::Intervention));
++        for page in [Page::GiveWeapons, Page::Weapons, Page::Root] {
++            tap(
++                &mut m,
++                Controls {
++                    back: true,
++                    ..Default::default()
++                },
++            );
++            assert_eq!(m.page, page);
++        }
++        assert_eq!(m.cursor.selected, 2);
+     }
+     #[test]
+     fn held_navigation_delays_repeats_and_opposites_cancel() {
+@@ -316,9 +292,9 @@ mod tests {
+         m.step(down, true, 1.51);
+         assert_eq!(m.cursor.selected, 2);
+         m.step(down, true, 1.53);
+-        assert_eq!(m.cursor.selected, 0);
++        assert_eq!(m.cursor.selected, 3);
+         m.step(Controls { up: true, ..down }, true, 2.);
+-        assert_eq!(m.cursor.selected, 0);
++        assert_eq!(m.cursor.selected, 3);
+     }
+     #[test]
+     fn scroll_window_wraps_and_contains_selection() {
+@@ -389,7 +365,7 @@ mod tests {
+             any_down: true,
+             ..Default::default()
+         };
+-        assert_eq!(m.step(c, true, 2.), Some(Action::Save));
++        assert_eq!(m.step(c, true, 2.), Some(Action::Unavailable));
+         assert_eq!(m.step(c, true, 3.), None);
+         m.step(c, false, 4.);
+         assert!(!m.open && m.captured);
+diff --git a/crates/console/src/practice_tests.rs b/crates/console/src/practice_tests.rs
+index dbe289e..76f73cf 100644
+--- a/crates/console/src/practice_tests.rs
++++ b/crates/console/src/practice_tests.rs
+@@ -7,6 +7,7 @@ use bevy::input::{
+     ButtonState, InputPlugin,
+     keyboard::{Key, NativeKey},
+ };
++use bots::{BotAddQueue, BotHold, BotRoster, BotTpQueue};
+ 
+ fn app() -> App {
+     let mut a = App::new();
+@@ -89,11 +90,6 @@ fn tap(a: &mut App, code: KeyCode) {
+     key(a, code, true);
+     key(a, code, false);
+ }
+-fn page(a: &mut App, p: Page, selected: usize) {
+-    let mut s = a.world_mut().resource_mut::<Practice>();
+-    s.menu.page = p;
+-    s.menu.cursor.selected = selected;
+-}
+ fn open(a: &mut App) {
+     tap(a, KeyCode::F6);
+ }
+@@ -133,104 +129,6 @@ fn practice_keyboard_escape_consumed_and_held_keys_blocked_until_release() {
+     assert!(a.world().resource::<frame::SkateMode>().toggle_requested);
+ }
+ #[test]
+-fn practice_missing_save_bot_and_restore_keep_menu_open() {
+-    let mut a = app();
+-    open(&mut a);
+-    for (p, row, expected) in [
+-        (Page::Positions, 1, "Save a starting"),
+-        (Page::Targets, 1, "No living bot"),
+-        (Page::Aim, 2, "No preset"),
+-    ] {
+-        page(&mut a, p, row);
+-        tap(&mut a, KeyCode::Enter);
+-        let s = a.world().resource::<Practice>();
+-        assert!(s.menu.open);
+-        assert!(s.status.starts_with(expected), "{}", s.status);
+-    }
+-    assert_eq!(a.world().resource::<ClientActionInbox>().pending_len(), 0);
+-    assert!(a.world().resource::<BotTpQueue>().0.is_empty());
+-}
+-#[test]
+-fn practice_save_return_exits_skating_then_queues_move_and_map_clears_state() {
+-    let mut a = app();
+-    open(&mut a);
+-    page(&mut a, Page::Positions, 0);
+-    tap(&mut a, KeyCode::Enter);
+-    let saved = a.world().resource::<Practice>().saved.unwrap();
+-    a.world_mut().resource_mut::<frame::SkateMode>().active = true;
+-    page(&mut a, Page::Positions, 1);
+-    tap(&mut a, KeyCode::Enter);
+-    assert!(a.world().resource::<frame::SkateMode>().toggle_requested);
+-    assert_eq!(a.world().resource::<ClientActionInbox>().pending_len(), 0);
+-    a.world_mut().resource_mut::<frame::SkateMode>().active = false;
+-    a.update();
+-    let inbox = a.world().resource::<ClientActionInbox>();
+-    assert!(
+-        matches!(inbox.pending()[0].1, sim::ClientAction::Move { origin, angles, .. } if origin == saved.origin && angles == saved.angles)
+-    );
+-    a.world_mut().resource_mut::<Practice>().aim_lock = true;
+-    a.world_mut().resource_mut::<WorldGeneration>().0 = Some(2);
+-    a.update();
+-    let s = a.world().resource::<Practice>();
+-    assert!(s.saved.is_none() && s.pending_return.is_none() && !s.aim_lock && !s.menu.open);
+-}
+-#[test]
+-fn practice_return_timeout_and_missing_authority_queue_are_visible() {
+-    let mut a = app();
+-    open(&mut a);
+-    page(&mut a, Page::Positions, 0);
+-    tap(&mut a, KeyCode::Enter);
+-    a.world_mut().remove_resource::<ClientActionInbox>();
+-    page(&mut a, Page::Positions, 1);
+-    tap(&mut a, KeyCode::Enter);
+-    assert!(
+-        a.world()
+-            .resource::<Practice>()
+-            .status
+-            .contains("no local authority")
+-    );
+-    a.world_mut().resource_mut::<frame::SkateMode>().active = true;
+-    tap(&mut a, KeyCode::Enter);
+-    a.world_mut()
+-        .resource_mut::<Time>()
+-        .advance_by(std::time::Duration::from_secs(3));
+-    a.update();
+-    let s = a.world().resource::<Practice>();
+-    assert!(s.menu.open && s.pending_return.is_none());
+-    assert!(s.status.contains("Return cancelled"));
+-}
+-#[test]
+-fn practice_bot_queue_freeze_and_preset_restore() {
+-    let mut a = app();
+-    open(&mut a);
+-    page(&mut a, Page::Targets, 0);
+-    tap(&mut a, KeyCode::Enter);
+-    assert!(a.world().resource::<BotAddQueue>().0[0].dummy);
+-    page(&mut a, Page::Targets, 2);
+-    tap(&mut a, KeyCode::Enter);
+-    assert!(a.world().resource::<BotHold>().0);
+-    a.world_mut()
+-        .resource_mut::<frame::GameSettings>()
+-        .pad_ads_sensitivity = 1.23;
+-    page(&mut a, Page::Aim, 1);
+-    tap(&mut a, KeyCode::Enter);
+-    tap(&mut a, KeyCode::Enter);
+-    assert_eq!(
+-        a.world()
+-            .resource::<frame::GameSettings>()
+-            .pad_ads_sensitivity,
+-        0.75
+-    );
+-    page(&mut a, Page::Aim, 2);
+-    tap(&mut a, KeyCode::Enter);
+-    assert_eq!(
+-        a.world()
+-            .resource::<frame::GameSettings>()
+-            .pad_ads_sensitivity,
+-        1.23
+-    );
+-}
+-#[test]
+ fn practice_pad_chord_select_back_and_gameplay_isolation() {
+     let mut a = app();
+     let pad = a.world_mut().spawn(Gamepad::default()).id();
+@@ -249,8 +147,12 @@ fn practice_pad_chord_select_back_and_gameplay_isolation() {
+     buttons(&mut a, pad, &[B::LeftTrigger2, B::RightThumb]);
+     assert!(a.world().resource::<Practice>().menu.open);
+     buttons(&mut a, pad, &[]);
++    buttons(&mut a, pad, &[B::DPadDown]);
++    buttons(&mut a, pad, &[]);
++    buttons(&mut a, pad, &[B::DPadDown]);
++    buttons(&mut a, pad, &[]);
+     buttons(&mut a, pad, &[B::West]);
+-    assert_eq!(a.world().resource::<Practice>().menu.page, Page::Positions);
++    assert_eq!(a.world().resource::<Practice>().menu.page, Page::Weapons);
+     buttons(&mut a, pad, &[]);
+     buttons(&mut a, pad, &[B::RightThumb]);
+     assert_eq!(a.world().resource::<Practice>().menu.page, Page::Root);
+@@ -281,7 +183,7 @@ fn practice_pad_chord_select_back_and_gameplay_isolation() {
+     );
+ }
+ #[test]
+-fn practice_closed_renderer_has_no_entities_even_with_aim_lock_on() {
++fn practice_closed_renderer_has_no_entities() {
+     let mut a = App::new();
+     a.init_resource::<MenuView>()
+         .insert_resource(ui::GameUiFont(Handle::default()))
+@@ -303,108 +205,392 @@ fn practice_closed_renderer_has_no_entities_even_with_aim_lock_on() {
+             .count(),
+         1
+     );
+-    *a.world_mut().resource_mut::<MenuView>() = MenuView {
+-        aim_lock: true,
+-        ..default()
+-    };
++    *a.world_mut().resource_mut::<MenuView>() = MenuView { ..default() };
+     a.update();
+     assert_eq!(a.world_mut().query::<&Node>().iter(a.world()).count(), 0);
+ }
+ 
+-#[test]
+-fn practice_aim_lock_excludes_humans_dead_teammates_and_obstructions() {
++fn catalogue() -> assets::PreparedWeapons {
++    use fastfile_iw4::{Iw4WireFormat, Ptr, WeaponGeometry, ZoneStream};
++    let header = [0u8; 40];
++    let mut blocks: [Vec<u8>; 8] = std::array::from_fn(|_| vec![0; 64]);
++    blocks[3][..11].copy_from_slice(b"cheytac_mp\0");
++    let mut inserts = [0];
++    let mut stream = ZoneStream::new_with_format(
++        &header,
++        blocks.each_mut().map(|b| b.as_mut_slice()),
++        &mut inserts,
++        Iw4WireFormat::X86,
++    )
++    .unwrap();
++    stream.record_weapon(WeaponGeometry {
++        name: Some(Ptr {
++            block: 3,
++            offset: 0,
++        }),
++        fire_time_ms: 600,
++        raise_time_ms: 300,
++        clip_size: 5,
++        start_ammo: 20,
++        max_ammo: 40,
++        damage: 70,
++        min_damage: 50,
++        max_damage_range: 1000.,
++        min_damage_range: 2000.,
++        ..default()
++    });
++    let mut catalogue = asset_game::WeaponCatalog::default();
++    catalogue.capture(&stream);
++    assets::PreparedWeapons(catalogue.into_build().publish().into())
++}
++fn ready() -> App {
++    ready_with_lifecycle(sim::ClientLifecycle::Alive)
++}
++fn ready_with_lifecycle(lifecycle: sim::ClientLifecycle) -> App {
+     let mut a = app();
+-    assert!(!a.world().resource::<Practice>().aim_lock);
+-    let id = a
+-        .world_mut()
+-        .resource_mut::<BotRoster>()
+-        .add_bots(1, &[sim::ClientId(0)], true)[0];
+-    let mut snap = a
++    let weapons = catalogue();
++    let mut content = sim::SimContentBuilder::default();
++    content.set_weapon_combat_table(session::combat_table::from_registry(
++        &weapons.0,
++        Some([1.; 20]),
++    ));
++    content.set_weapon_runnable_table(weapons.0.runnable_table());
++    content.set_weapon_script_names(vec![String::new(), "cheytac_mp".into()]);
++    let mut initial = a
+         .world()
+         .resource::<PresentedSnapshot>()
+         .snapshot()
+         .unwrap()
+         .clone();
+-    let mut target = playerstate_iw4::PlayerState::ZERO;
+-    target.origin = [110., 25., 45.];
+-    target.view_height_current = 60.;
+-    snap.players.push((id, target));
+-    snap.meta.clients.push((
+-        id,
+-        sim::ClientSnapshotMeta {
+-            lifecycle: sim::ClientLifecycle::Alive,
++    initial.meta.clients[0].1.lifecycle = lifecycle;
++    let mut world = a.world_mut().resource_mut::<AuthorityWorld>();
++    world.0.install_content(content.finish());
++    world.0.adopt_snapshot(&initial);
++    let sources = std::collections::BTreeMap::from([("trial".into(), "main() {}".into())]);
++    let program =
++        sim::script::Program::load(&sources, &["trial"], &sim::script::Catalog::iw4()).unwrap();
++    world
++        .0
++        .install_gsc_program(
++            program,
++            sim::script::NativeRegistry::default(),
++            sim::script::LevelData::default(),
++        )
++        .unwrap();
++    world
++        .0
++        .start_gsc("trial::main", sim::script::Value::level(), Vec::new())
++        .unwrap();
++    a.insert_resource(weapons);
++    a
++}
++fn navigate(a: &mut App) {
++    open(a);
++    tap(a, KeyCode::ArrowDown);
++    tap(a, KeyCode::ArrowDown);
++    for expected in [Page::Weapons, Page::GiveWeapons, Page::Snipers] {
++        tap(a, KeyCode::Enter);
++        assert_eq!(a.world().resource::<Practice>().menu.page, expected);
++    }
++}
++fn simulate(a: &mut App) {
++    let actions = a.world().resource::<ClientActionInbox>().pending().to_vec();
++    let snapshot = sim::step(
++        &mut a.world_mut().resource_mut::<AuthorityWorld>().0,
++        sim::Tick(2),
++        &sim::TickInput {
++            actions,
+             ..default()
+         },
+-    ));
++        16,
++        sim::StepReason::AuthorityFrame,
++    );
+     a.world_mut()
+         .resource_mut::<PresentedSnapshot>()
+-        .publish_decoded(snap.clone());
+-    a.world_mut().resource_mut::<Practice>().aim_lock = true;
+-    a.init_resource::<net::ClientCmdTemplate>();
+-    fn run(a: &mut App, ads: bool) -> Option<u32> {
++        .publish_decoded(snapshot);
++    a.update();
++}
++#[test]
++fn practice_keyboard_selection_reaches_simulation_equips_and_keeps_feedback() {
++    let mut a = ready();
++    navigate(&mut a);
++    tap(&mut a, KeyCode::Enter);
++    let state = a.world().resource::<Practice>();
++    assert!(state.status.contains("requested"), "{}", state.status);
++    assert!(state.menu.open);
++    assert_eq!(a.world().resource::<ClientActionInbox>().pending_len(), 1);
++    simulate(&mut a);
++    let state = a.world().resource::<Practice>();
++    assert!(state.status.contains("equipped"), "{}", state.status);
++    assert!(state.menu.open);
++    let snapshot = a.world().resource::<PresentedSnapshot>();
++    assert_eq!(snapshot.held_weapon_id(sim::ClientId(0)), Some(1));
++    let ps = snapshot.alive_player(sim::ClientId(0)).unwrap();
++    assert!(ps.weapons.contains(&1));
++    assert!(ps.ammoclip.iter().any(|v| *v == 5), "standard clip rounds");
++}
++
++#[test]
++fn practice_pad_selection_uses_same_typed_equip_path() {
++    let mut a = ready();
++    let pad = a.world_mut().spawn(Gamepad::default()).id();
++    a.world_mut().resource_mut::<frame::ActivePad>().0 = Some(pad);
++    for buttons in [
++        vec![B::LeftTrigger2, B::RightThumb],
++        vec![],
++        vec![B::DPadDown],
++        vec![],
++        vec![B::DPadDown],
++        vec![],
++        vec![B::South],
++        vec![],
++        vec![B::South],
++        vec![],
++        vec![B::West],
++        vec![],
++        vec![B::South],
++        vec![],
++    ] {
++        let mut p = a.world_mut().get_mut::<Gamepad>(pad).unwrap();
++        p.digital_mut().reset_all();
++        for button in buttons {
++            p.digital_mut().press(button);
++        }
++        drop(p);
++        a.world_mut().run_system_once(input).unwrap();
++    }
++    assert_eq!(a.world().resource::<ClientActionInbox>().pending_len(), 1);
++    simulate(&mut a);
++    assert!(a.world().resource::<Practice>().status.contains("equipped"));
++}
++
++#[test]
++fn practice_unavailable_context_keeps_menu_open_and_allows_retry() {
++    for failure in ["world", "catalogue", "unknown", "dead", "queue", "guest"] {
++        let mut a = ready();
++        navigate(&mut a);
++        let mut snapshot = a
++            .world()
++            .resource::<PresentedSnapshot>()
++            .snapshot()
++            .unwrap()
++            .clone();
++        match failure {
++            "world" => {
++                a.world_mut().remove_resource::<AuthorityWorld>();
++            }
++            "catalogue" => {
++                a.world_mut().remove_resource::<assets::PreparedWeapons>();
++            }
++            "unknown" => {
++                a.insert_resource(assets::PreparedWeapons(std::sync::Arc::new(
++                    asset_game::WeaponRegistry::default(),
++                )));
++            }
++            "dead" => {
++                snapshot.meta.clients[0].1.lifecycle = sim::ClientLifecycle::Dead;
++                a.world_mut()
++                    .resource_mut::<PresentedSnapshot>()
++                    .publish_decoded(snapshot);
++            }
++            "queue" => {
++                a.world_mut().remove_resource::<ClientActionInbox>();
++            }
++            "guest" => {
++                a.insert_resource(RuntimeRole::Client);
++            }
++            _ => unreachable!(),
++        }
++        tap(&mut a, KeyCode::Enter);
++        let state = a.world().resource::<Practice>();
++        assert!(state.menu.open && state.pending.is_none(), "{failure}");
++        assert!(
++            !state.status.contains("equipped") && !state.status.contains("requested"),
++            "{failure}: {}",
++            state.status
++        );
++        // Restore the real resources, retaining navigation and the error feedback.
++        let mut fresh = ready();
++        a.insert_resource(
++            fresh
++                .world_mut()
++                .remove_resource::<AuthorityWorld>()
++                .unwrap(),
++        );
++        a.insert_resource(
++            fresh
++                .world_mut()
++                .remove_resource::<PresentedSnapshot>()
++                .unwrap(),
++        );
++        a.insert_resource(catalogue())
++            .insert_resource(RuntimeRole::Listen)
++            .init_resource::<ClientActionInbox>();
++        tap(&mut a, KeyCode::Enter);
++        simulate(&mut a);
++        assert!(
++            a.world().resource::<Practice>().status.contains("equipped"),
++            "retry {failure}: {}",
++            a.world().resource::<Practice>().status
++        );
++    }
++}
++
++#[test]
++fn practice_queue_full_is_visible_and_does_not_submit_an_extra_action() {
++    let mut a = ready();
++    navigate(&mut a);
++    for request in 100..1000 {
++        if a.world_mut()
++            .resource_mut::<ClientActionInbox>()
++            .push(
++                sim::ClientId(0),
++                sim::ClientAction::GiveWeapon {
++                    request_id: request,
++                    weapon: 1,
++                },
++            )
++            .is_err()
+         {
+-            let mut t = a.world_mut().resource_mut::<net::ClientCmdTemplate>();
+-            t.ready = true;
+-            t.cmd.angles = [0; 3];
+-            t.cmd.buttons = if ads {
+-                playerstate_iw4::buttons::ADS
+-            } else {
+-                0
+-            };
++            break;
+         }
+-        a.world_mut().run_system_once(aim_lock).unwrap();
+-        a.world().resource::<Practice>().locked_bot
+     }
+-    assert_eq!(run(&mut a, true), Some(id.0));
+-    assert_eq!(run(&mut a, false), None);
+-    a.world_mut().resource_mut::<frame::SkateMode>().active = true;
+-    assert_eq!(run(&mut a, true), None);
+-    a.world_mut().resource_mut::<frame::SkateMode>().active = false;
+-    a.world_mut().resource_mut::<Practice>().captured = true;
+-    assert_eq!(run(&mut a, true), None);
+-    a.world_mut().resource_mut::<Practice>().captured = false;
+-    let mut dead = snap.clone();
+-    dead.meta.clients[1].1.lifecycle = sim::ClientLifecycle::Spectating;
+-    a.world_mut()
+-        .resource_mut::<PresentedSnapshot>()
+-        .publish_decoded(dead);
+-    assert_eq!(run(&mut a, true), None);
+-    let mut team = snap.clone();
+-    team.meta.kind = gamemode_iw4::GameModeKind::TeamDeathmatch;
+-    a.world_mut()
+-        .resource_mut::<PresentedSnapshot>()
+-        .publish_decoded(team);
+-    assert_eq!(run(&mut a, true), None);
+-    let mut humans = snap.clone();
+-    humans
+-        .meta
+-        .clients
+-        .push((sim::ClientId(9), sim::ClientSnapshotMeta::default()));
+-    a.world_mut()
+-        .resource_mut::<PresentedSnapshot>()
+-        .publish_decoded(humans);
+-    assert_eq!(run(&mut a, true), None);
++    let before = a.world().resource::<ClientActionInbox>().pending_len();
++    tap(&mut a, KeyCode::Enter);
++    assert_eq!(
++        a.world().resource::<ClientActionInbox>().pending_len(),
++        before
++    );
++    assert!(
++        a.world()
++            .resource::<Practice>()
++            .status
++            .contains("queue full")
++    );
++    assert!(a.world().resource::<Practice>().pending.is_none());
++    a.world_mut().resource_mut::<ClientActionInbox>().clear();
++    tap(&mut a, KeyCode::Enter);
++    simulate(&mut a);
++    assert!(a.world().resource::<Practice>().status.contains("equipped"));
++}
++
++#[test]
++fn practice_simulation_revalidates_alive_and_supported_weapon() {
++    for dead in [true, false] {
++        let mut a = ready();
++        navigate(&mut a);
++        tap(&mut a, KeyCode::Enter);
++        if dead {
++            let mut changed = ready_with_lifecycle(sim::ClientLifecycle::Dead);
++            a.insert_resource(
++                changed
++                    .world_mut()
++                    .remove_resource::<AuthorityWorld>()
++                    .unwrap(),
++            );
++        } else {
++            let mut content = sim::SimContentBuilder::default();
++            content.set_weapon_combat_table(session::combat_table::from_registry(
++                &catalogue().0,
++                Some([1.; 20]),
++            ));
++            content.set_weapon_runnable_table(vec![false, false]);
++            a.world_mut()
++                .resource_mut::<AuthorityWorld>()
++                .0
++                .install_content(content.finish());
++        }
++        simulate(&mut a);
++        let s = a.world().resource::<Practice>();
++        assert!(s.menu.open && s.pending.is_none());
++        assert!(s.status.contains("rejected"), "{}", s.status);
++        assert_ne!(
++            a.world()
++                .resource::<PresentedSnapshot>()
++                .held_weapon_id(sim::ClientId(0)),
++            Some(1)
++        );
++    }
++}
++
++fn reply(a: &mut App, client: u32, request: u32, held: bool) {
++    let mut snapshot = a
++        .world()
++        .resource::<PresentedSnapshot>()
++        .snapshot()
++        .unwrap()
++        .clone();
++    snapshot.tick = sim::Tick(2);
++    snapshot.meta.journal = vec![sim::EventRecord {
++        sequence: sim::EventSequence(1),
++        tick: sim::Tick(2),
++        audience: sim::EventAudience::Client(sim::ClientId(client)),
++        event: sim::SimEvent::GiveAccepted {
++            request_id: request,
++            weapon: 1,
++        },
++    }];
++    if held {
++        snapshot.players[0].1.weapon = 1;
++        snapshot.players[0].1.weapons[0] = 1;
++    }
+     a.world_mut()
+         .resource_mut::<PresentedSnapshot>()
+-        .publish_decoded(snap);
+-    // A synthetic solid slab between the local eye and the target.
+-    let mut content = sim::SimContentBuilder::default();
+-    content.set_clip_brushes(vec![sim::SimBrush {
+-        planes: vec![
+-            [1., 0., 0., 60.],
+-            [-1., 0., 0., -40.],
+-            [0., 1., 0., 100.],
+-            [0., -1., 0., 100.],
+-            [0., 0., 1., 200.],
+-            [0., 0., -1., 0.],
+-        ],
+-        contents: 1,
+-        plane_surface_flags: vec![0; 6],
+-        glass_encoded: 0,
+-    }]);
++        .publish_decoded(snapshot);
++    a.update();
++}
++#[test]
++fn practice_repeats_and_unrelated_replies_cannot_claim_equip() {
++    let mut a = ready();
++    navigate(&mut a);
++    tap(&mut a, KeyCode::Enter);
++    tap(&mut a, KeyCode::Enter);
++    tap(&mut a, KeyCode::Enter);
++    assert_eq!(a.world().resource::<ClientActionInbox>().pending_len(), 1);
++    reply(&mut a, 1, 1, true);
++    assert!(a.world().resource::<Practice>().pending.is_some());
++    reply(&mut a, 0, 99, true);
++    assert!(a.world().resource::<Practice>().pending.is_some());
++    reply(&mut a, 0, 1, true);
++    assert!(a.world().resource::<Practice>().status.contains("equipped"));
++}
++#[test]
++fn practice_acknowledgement_alone_is_not_equip_and_times_out_honestly() {
++    let mut a = ready();
++    navigate(&mut a);
++    tap(&mut a, KeyCode::Enter);
++    reply(&mut a, 0, 1, false);
++    assert!(a.world().resource::<Practice>().pending.is_some());
++    assert!(!a.world().resource::<Practice>().status.contains("equipped"));
+     a.world_mut()
+-        .resource_mut::<AuthorityWorld>()
+-        .0
+-        .install_content(content.finish());
+-    assert_eq!(run(&mut a, true), None);
++        .resource_mut::<Time>()
++        .advance_by(std::time::Duration::from_secs(11));
++    a.update();
++    assert!(
++        a.world()
++            .resource::<Practice>()
++            .status
++            .contains("not confirmed")
++    );
++    reply(&mut a, 0, 1, true);
++    assert!(
++        a.world()
++            .resource::<Practice>()
++            .status
++            .contains("not confirmed")
++    );
++}
++#[test]
++fn practice_teardown_discards_pending_old_match_feedback() {
++    let mut a = ready();
++    navigate(&mut a);
++    tap(&mut a, KeyCode::Enter);
++    a.world_mut().resource_mut::<WorldGeneration>().0 = None;
++    a.update();
++    reply(&mut a, 0, 1, true);
++    let s = a.world().resource::<Practice>();
++    assert!(s.pending.is_none() && !s.menu.open && !s.status.contains("equipped"));
++    a.world_mut().resource_mut::<WorldGeneration>().0 = Some(2);
++    a.update();
++    assert!(!a.world().resource::<Practice>().status.contains("equipped"));
+ }
+diff --git a/crates/console/src/practice_ui.rs b/crates/console/src/practice_ui.rs
+index 1d75a26..5c598ce 100644
+--- a/crates/console/src/practice_ui.rs
++++ b/crates/console/src/practice_ui.rs
+@@ -1,7 +1,7 @@
+ // SPDX-License-Identifier: GPL-3.0-only
+ // Synergy MW2 presentation adapted for Combine, 2026-10-03.
+ // See COMBINE-NOTICE.md for the source revision, authors and modifications.
+-use crate::practice_menu::{Action, Entry, Page, VISIBLE_ROWS};
++use crate::practice_menu::{Entry, Page, VISIBLE_ROWS};
+ use bevy::prelude::*;
+ 
+ #[derive(Resource, Default, PartialEq, Clone)]
+@@ -10,8 +10,6 @@ pub(crate) struct MenuView {
+     pub page: Page,
+     pub selected: usize,
+     pub offset: usize,
+-    pub frozen: bool,
+-    pub aim_lock: bool,
+     pub pad: bool,
+     pub status: String,
+ }
+@@ -84,8 +82,7 @@ pub(crate) fn render(
+                         row.spawn((Text::new(entry.label()), text_font(17.), TextColor(if selected { dark } else { light })));
+                         let suffix = match entry {
+                             Entry::Submenu(_) => ">",
+-                            Entry::Action(Action::FreezeBots) => if view.frozen { "ON" } else { "OFF" },
+-                            Entry::Action(Action::AimLock) => if view.aim_lock { "ON" } else { "OFF" },
++                            Entry::Unavailable(_) => "N/A",
+                             _ => "",
+                         };
+                         row.spawn((Text::new(suffix), text_font(17.), TextColor(if selected { dark } else { cyan })));
+@@ -94,7 +91,7 @@ pub(crate) fn render(
+             }
+             panel.spawn((Node { min_height: px(44. * scale), padding: UiRect::all(px(10. * scale)),
+                 border: UiRect::top(px(scale)), ..default() }, BorderColor::all(Color::srgba(0.05, 0.85, 0.95, 0.3)),
+-            )).with_child((Text::new(if view.status.is_empty() { "Local bot practice" } else { &view.status }), text_font(14.), TextColor(light)));
++            )).with_child((Text::new(if view.status.is_empty() { "Intervention trial; other options unavailable" } else { &view.status }), text_font(14.), TextColor(light)));
+             let controls = if view.pad {
+                 "D-pad / L2 R2: move   Cross / Square: select\nCircle / R3: back   L2 + R3: close"
+             } else { "Arrows: move   Enter: select   Backspace: back\nF6 / Esc: close" };

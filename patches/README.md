@@ -25,3 +25,11 @@ interface. Existing runtime licences/notices remain in force. The music cue
 starts on entering skating or Christ Air and never overlaps itself. See the
 [audio result record](../research/results/2026-10-03-skate-audio-highlights.md) for
 setup, tests and the still-unverified listening assignment.
+
+`intervention-v0.4.0.patch` applies **after menu, then audio**, without Hide HUD.
+It replaces the earlier practice pages with the six Synergy root sections and
+one enabled path: Weapon Options → Give Weapons → Sniper Rifles → Intervention.
+It uses the existing typed catalogue/action/simulation interfaces and standard
+ammo, with correlated feedback and retained input release barriers. The earlier
+patches remain unchanged. Other Synergy behavior, including 999-round clips,
+is outside this slice. See the [Intervention contract](../docs/TRICKSHOT_MENU.md#first-demonstrable-slice--equip-intervention-from-the-menu-c-016).

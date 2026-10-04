@@ -4,9 +4,21 @@ param(
     [Parameter(Mandatory=$true)][string]$Binary,
     [Parameter(Mandatory=$true)][string]$Destination,
     [Parameter(Mandatory=$true)][ValidatePattern('^[0-9a-fA-F]{64}$')][string]$ExpectedSha256,
+    [string]$ReviewDirectory,
+    [string]$EvidenceFile,
+    [string]$ChecklistFile,
+    [string]$WorkflowDirectory,
     [switch]$Launch
 )
 $ErrorActionPreference = 'Stop'
+if ($ReviewDirectory) {
+    if (!$EvidenceFile -or !$ChecklistFile -or !$WorkflowDirectory) { throw 'Review preparation requires evidence, checklist and shared workflow directory.' }
+    if (Test-Path -LiteralPath $ReviewDirectory) { throw 'Review destination exists; refusing to overwrite.' }
+    foreach ($path in @($EvidenceFile, $ChecklistFile, (Join-Path $WorkflowDirectory 'review-bundle.ps1'), (Join-Path $WorkflowDirectory 'review-launch.ps1'))) {
+        if (!(Test-Path -LiteralPath $path -PathType Leaf)) { throw 'Required review input missing.' }
+    }
+}
+if ($Launch -and !$ReviewDirectory) { throw 'Launch requires a verified review bundle.' }
 $Source = (Resolve-Path -LiteralPath $Source).Path.TrimEnd('\')
 $Binary = (Resolve-Path -LiteralPath $Binary).Path
 $Destination = [IO.Path]::GetFullPath($Destination).TrimEnd('\')
@@ -29,9 +41,11 @@ if ($settings.Contains($Source) -or $settings.Contains($Source.Replace('\','/'))
 [IO.File]::WriteAllText($settingsPath, $settings, (New-Object Text.UTF8Encoding($false)))
 if ((Get-FileHash -LiteralPath (Join-Path $Source 'iw4l.exe') -Algorithm SHA256).Hash -ne $originalHash) { throw 'Source executable changed.' }
 if ((Get-FileHash -LiteralPath (Join-Path $Destination 'iw4l.exe') -Algorithm SHA256).Hash -ne $ExpectedSha256) { throw 'Deployed hash mismatch.' }
-$state = 'prepared'
-if ($Launch) {
-    Start-Process (Join-Path $Destination 'iw4l.exe') -WorkingDirectory $Destination -ArgumentList @('map','mp_rust') | Out-Null
-    $state = 'launched'
+if ($ReviewDirectory) {
+    . (Join-Path $WorkflowDirectory 'review-bundle.ps1')
+    New-ReviewBundle -Destination $ReviewDirectory -Executable (Join-Path $Destination 'iw4l.exe') `
+        -ExpectedSha256 $ExpectedSha256 -EvidenceFile $EvidenceFile -ChecklistFile $ChecklistFile `
+        -LaunchLabel 'Test Intervention' -Arguments @('map','mp_rust') | Out-Null
 }
-[PSCustomObject]@{ state=$state; sha256=$ExpectedSha256.ToLowerInvariant(); sourceExecutableUnchanged=$true } | ConvertTo-Json
+if ($Launch) { & (Join-Path $ReviewDirectory 'launch.ps1') }
+[PSCustomObject]@{ state='prepared'; sha256=$ExpectedSha256.ToLowerInvariant(); sourceExecutableUnchanged=$true; acceptance='unaccepted' } | ConvertTo-Json

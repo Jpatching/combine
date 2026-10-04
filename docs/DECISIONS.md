@@ -301,3 +301,42 @@ Intervention is the first observable integration check. Existing full-menu and
 hit-radius requirements remain; gameplay and individual feature support require
 evidence. This does not authorize a universal loader, new engine or production
 launcher. No corrected trial, owner acceptance or source publication occurred.
+
+
+## D-016: menu completion, Fortnite qualification and reviewed source branches — 2026-10-04
+
+The owner supplied the plan “Finish Synergy and add a Fortnite map to the existing
+mashup” for implementation. Finish input isolation and its first trial, then the
+agreed menu inventory and hit radius. Qualify legitimate access and export of
+Windows Fortnite Release-3.1-CL-3917250, starting with one Tilted building and
+surrounding ground; only then implement the existing-world adapter and expand to
+bounded Tilted Towers. The selected build is a research target, not verified local
+data or successful conversion. The plan's defaults and exclusions are preserved
+in docs/WORKFLOW.md; menu requirements remain in docs/TRICKSHOT_MENU.md.
+
+The plan authorizes reviewed source-branch commits and pushes, with private assets,
+original installs and older builds preserved, checks before a versioned trial,
+and a stop at ready for owner test. This supersedes the earlier source-publication
+acceptance condition for these branches. It does not authorize asset distribution,
+merge, release, spending, online services or automatic gameplay acceptance.
+
+## D-017: one resume entry point and bounded model/agent routing — 2026-10-04
+
+The owner requested a workflow that resumes the latest work without remembering
+skill order or repeatedly choosing /model. Use “Continue Combine” and the existing
+matt-workflow router; reconcile live Git, the current board card and concise
+handoff before selecting the next missing check. Load targeted current context;
+archives stay historical. Record failed sync explicitly and read back writes.
+
+Personal model/agent configuration and reusable policy stay in global Codex
+storage. Start with Sol medium as lead, bounded read-only scout/reviewer/specialist
+roles, one writer and at most two helpers when independent work justifies them.
+This is an initial policy, not a measured speed guarantee. No background worker
+or automatic change of the current conversation model is claimed.
+
+After a newly supplied AGENTS repeated the old restrictions, Codex asked whether
+to allow reviewed source pushes and bounded helpers or retain those restrictions.
+The owner replied “allow - reviewed source branch proceed”. Apply the selected
+routing policy and reviewed branch publication; retain explicit owner-test,
+merge/release and private-data boundaries. Skill/helper selection is the lead's
+job. A missing asset/access/verdict remains a real dependency, not a model problem.

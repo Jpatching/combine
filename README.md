@@ -9,6 +9,8 @@ progress. The earlier Intervention build is preserved and unaccepted; it is not
 the requested replacement. No new owner trial is ready. This is experimental,
 not a complete menu or production launcher.
 See the [menu requirements and coverage](docs/TRICKSHOT_MENU.md).
+To resume, say **Continue Combine**; the [workflow](docs/WORKFLOW.md) follows current
+evidence through the menu work, then Fortnite map qualification.
 
 The agreed destination includes sniper near-pass assistance (Off by default,
 0.25–5 metres, Normal/One-shot damage with ordinary cover rules), Frag No Clip
@@ -103,6 +105,7 @@ The adapted code is [GPLv3](licenses/Synergy-GPL-3.0.md); the
 No generic GSC loader, public-match assistance, firing while skating, new game
 integration, launcher product or marketplace is implemented. The stunt launcher
 is a [separate proposal](docs/STUNT_LAUNCHER_PROPOSAL.md). Publication to
-Jpatching/combine is authorized only after the owner accepts this replacement.
+Jpatching/combine is authorized for reviewed source branches; owner acceptance,
+merge and release remain separate (D-016/D-017).
 Game assets, OBS/recordings, private logs and local settings stay outside Git.
 Source licensing does not settle asset rights or publisher terms.

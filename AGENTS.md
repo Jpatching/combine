@@ -56,9 +56,10 @@ Review source licences, asset rights and publisher terms separately. Open source
 or ownership of a game does not grant blanket distribution/commercial clearance.
 Do not implement DRM/anti-cheat bypasses or run unreviewed plugins/scripts.
 Publishing, redistribution, spending and outreach need task-specific authority.
-The current plan permits source publication to Jpatching/combine only after the
-owner accepts the replacement menu. Read-only research and reversible local work
-within the slice are authorized.
+D-016/D-017 record reviewed source-branch publication to Jpatching/combine before
+menu acceptance. Keep assets/private data excluded; verify remote commit and board
+read-back. Owner acceptance, merge and release remain separate. Reversible local
+work on the selected menu-then-Fortnite plan is authorized.
 
 Recipes remain strict data, never shell commands, paths or download URLs. Reuse
 verified upstream capabilities; each new integration needs its own evidence.
@@ -79,8 +80,9 @@ Menu Rust/native-render checks are in docs/TRICKSHOT_MENU.md. Windows gameplay
 uses the baseline runbook and templates/baseline-result.md. Build upstream only
 when needed, recording exact tools; upstream's moving `stable` is not a pin.
 
-Use one lead agent. docs/AGENT_ROLES.md describes bounded work packages, not an
-automatic delegation instruction. Delegate only when requested. Research agents
-cannot declare legal clearance. Finish with evidence, remaining limitations and
+Use one lead/writer. D-017 authorizes bounded read-only helpers selected through
+the shared routing policy; docs/AGENT_ROLES.md supplies project task briefs. Use at
+most two helpers when independent work justifies them; follow stricter session
+restrictions. Research agents cannot declare legal clearance. Finish with evidence, remaining limitations and
 one concrete next step, distinguishing implementation, verification, acceptance
 and release. Preserve unrelated work and keep explanations proportional.

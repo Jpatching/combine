@@ -1,43 +1,31 @@
-# Agent work packages
+# Combine agent task briefs
 
-One lead agent owns the backlog and integration. These are reusable task briefs,
-not an automated agent configuration. Use them sequentially by default; ask for
-delegation only when independent work would help. No specialist agents were spawned
-to create this foundation.
+One lead owns implementation, integration, Git and the private board. Personal
+agent/model definitions live in `~/.codex/agents/`; their shared selection policy
+lives in `~/.codex/workflows/solo-development/ROUTING.md`. Reuse those definitions
+instead of creating a permanent team for every feature. D-017 records the owner's
+bounded routing authorization, subject to session restrictions.
 
-| Responsibility | Inputs | Required output | Completion check |
-| --- | --- | --- | --- |
-| Research/product | Pinned sources; consented, redacted observations | Evidence matrix, actual user friction, competitor comparison and demand findings | Every factual claim has a dated source or observation; hypotheses and missing evidence are labelled |
-| Runtime integration | Exact locked release, Windows test machine, locally owned files | Completed baseline report, failure reproductions, supported configuration boundaries | Archive hash recorded; both candidates exercised; timings and inherited defects separated |
-| Independent review | Proposed change plus exact revision and validation results | Reproduction review, provenance gaps, data-safety and release blockers | Checks original installs are untouched, recipes carry no code/assets, and claims match evidence |
+| Responsibility | Combine task | Required result |
+| --- | --- | --- |
+| Lead | Finish actual Synergy input isolation, capture runtime changes in patches, test and synchronize | Reproducible revision, explicit check results, current board and exact next action |
+| Scout | Bounded source tracing; later, selected Fortnite build/exporter facts | Dated primary-source/file references, verified facts and unresolved dependencies |
+| Reviewer | Inspect one revision against the menu contract and project boundaries | Actionable standards/spec findings with locations; missing gameplay evidence stays missing |
+| Specialist | Diagnose cross-system input/script/simulation failures or a specific collision/export uncertainty | Discriminating checks based on supplied failures; smallest justified change or precise blocker |
 
-For each assigned task include its C-number, allowed files, input revision, exclusions,
-expected artifact and acceptance check. Only the lead edits BACKLOG.md and the lock.
-A reviewer should not simultaneously implement the change being reviewed. When a
-separate reviewer is unavailable, label self-review accurately.
+The lead writes source; helpers are read-only. Use at most two helpers concurrently
+when their tasks are independent and shorten the path to a verified result.
+Simple edits stay with the lead. A missing game build or owner verdict is not
+solved by assigning a stronger model. No helper publishes, edits tracker status,
+launches gameplay, spawns another agent or declares acceptance/legal clearance.
 
-No role may certify legal clearance from a README alone. The owner obtains suitable
-rights advice or permissions before distribution/commercialisation where unresolved.
-No role may recruit or message participants without explicit authorization.
+Each brief gives the player outcome, current card, exact revision/dirty diff,
+allowed evidence and paths, exclusions, specific question, expected result and
+stop condition. Send only relevant context. The lead checks returned evidence;
+code review does not substitute for gameplay. If the lead reviews alone, record
+self-review rather than independent review.
 
-## Owner checkpoints and "proceed"
-
-Before starting a new product slice, describe its player outcome, inputs, steps,
-output, exclusions, acceptance checks and any cost/external action. Give one concrete
-recommendation with the reason. The owner can authorize it with:
-
-> Proceed with [slice ID] only. Implement and test it, then show the result, failures,
-> limitations and next recommendation before starting another slice.
-
-Within that authorized slice, continue routine research, edits and tests without
-repeated confirmation. At handoff show what changed, how the owner can try it,
-measured results, what failed, and what remains unverified. Ask a decision only when
-the next step changes agreed scope, crosses an external-write/spend boundary, or
-needs information that cannot be discovered. Sandbox approvals are a separate
-environment requirement, not evidence that GitHub authentication is missing.
-
-For this project the checkpoints are: baseline evidence → choose the smallest useful
-product slice → review its end-to-end result → decide on the next slice. Publication,
-spending and outreach need their own concrete authorization. A proposed reusable
-skill would guide this process; scripts enforce repeatable checks. No custom skill,
-MCP server or plugin has been created or installed by this work.
+Use the [agreed order](WORKFLOW.md) and current card to choose work. A completed
+Intervention path does not establish all Synergy options are complete. Fortnite
+qualification precedes adapter implementation and needs actual lawful local data.
+Keep original installs, game files and private diagnostics isolated.

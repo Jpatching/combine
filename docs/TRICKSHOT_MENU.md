@@ -66,8 +66,8 @@ The [Intervention checklist](../templates/intervention-checklist.txt) replaces t
 earlier practice sense-check for this trial. Report keyboard/controller equip,
 fire, input release, relaunch and the exact build in chat. Record the verdict
 against that build; revised binaries require a new folder and verdict. No raw
-logs, machine paths or game content go to the Project. Source publication still
-requires replacement acceptance under current project instructions.
+logs, machine paths or game content go to the Project. Reviewed source-branch publication is now authorized by D-016/D-017; owner
+acceptance, merge and release remain separate.
 
 The sections below retain reproduction/history for the earlier menu and the
 agreed full-menu contract. [Current evidence](../research/results/2026-10-04-intervention-review.md)
@@ -177,8 +177,9 @@ At both 1280×720 and 1920×1080:
 6. Change maps: save cleared and aim lock off. Confirm recovery/relaunch.
 
 Record pass/fail/not tested, readability and controller feel in the result record.
-The old panel's rejection is not acceptance. Publish reviewed source and notices
-to **Jpatching/combine only after explicit acceptance of this replacement**.
+The old panel's rejection is not acceptance. D-016/D-017 now authorize reviewed
+source branches and notices on Jpatching/combine before replacement acceptance;
+owner trial, merge and release remain separate.
 
 ## Full menu milestone
 

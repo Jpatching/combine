@@ -3,8 +3,8 @@
 The private [Combine Project](https://github.com/users/Jpatching/projects/5/views/4)
 is the sole active status authority, verified and migrated October 4, 2026.
 BACKLOG.md is a frozen historical record and pointer. Git owns source; there is
-now a public source remote at https://github.com/Jpatching/combine; no source
-has been pushed. Private draft items do not publish source.
+a public source remote at https://github.com/Jpatching/combine. Verify the remote
+branch SHA before claiming a source revision was pushed. Private draft items do not publish source.
 
 - Open Now, read the active draft, phase, current skill, phase exit, next action
   and evidence checklist. Refresh before handoff. Milestones and Needs you give
@@ -19,7 +19,8 @@ has been pushed. Private draft items do not publish source.
 - C-017's approved requirements are recorded; to-spec consolidated the full-menu
   contract and to-tickets finalised C-016. Resume from C-016's next missing check;
   the earlier native implementation is checkpointed and rejected as the replacement.
-  D-015 requires Synergy itself; actual-script compatibility is the next check.
+  D-015 requires Synergy itself; resume input isolation and lifecycle checks
+  from the live C-016 evidence.
   Hide HUD is deferred, not a blocker.
 - Update the board at meaningful phase changes and read back changes. If unavailable,
   report sync pending and preserve intended changes in docs/HANDOFF.md. Do not
@@ -33,7 +34,9 @@ has been pushed. Private draft items do not publish source.
   once on implementation. Targets remain blank. Roadmap date mapping needs a UI
   check; the available API exposes no start/target mapping fields.
 - Tests/builds establish only their coverage. Owner acceptance is explicit;
-  publication to Jpatching/combine remains conditional on replacement acceptance.
+  reviewed source-branch publication to Jpatching/combine is authorized by D-016/D-017
+  before acceptance; merge and release remain separate.
   The selected plan separately authorizes local commits. Board maintenance does
   not authorize source publication, assets/logs,
-  spending, outreach or CI/CD. Use one lead; delegate only when requested.
+  spending, outreach or CI/CD. Use one lead/writer and the bounded helper policy
+  recorded in D-017 and docs/AGENT_ROLES.md.

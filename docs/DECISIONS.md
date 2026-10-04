@@ -261,3 +261,43 @@ Proceed through to-spec and to-tickets for the agreed Intervention tracer bullet
 requirements agreement does not establish gameplay, owner acceptance or release.
 Hide HUD stays deferred, and source publication still requires explicit acceptance
 of the replacement menu. No runtime change or new trial is part of C-017.
+
+
+## D-014: exact-build review handoff and public repository — 2026-10-04
+
+The approved implementation plan selects local checkpoint commits before final
+build/test handoff, one Intervention branch, Windows test/files/checklist
+shortcuts and a local evidence manifest. Shared helpers belong in the existing
+global workflow directory; Combine holds its adapter, checklist and evidence.
+One lead continues; automatic task pickup is deferred until an owner-tested
+handoff works. Failed checks keep the slice in Phase 5. Phase 6 requests Trial,
+not assumed acceptance. Actual starts are recorded; target dates are deliberate.
+
+The owner then requested a public repository to attract users and a public
+repository default for new projects. `Jpatching/combine` was created PUBLIC with
+ADMIN access and connected as origin. Global instructions now carry the default,
+with project privacy overrides and existing private repositories preserved.
+The subsequently refreshed project instructions retain replacement acceptance
+before source publication. Repository creation is complete; source push, PR,
+merge and release remain separate and have not occurred. No game assets, private
+logs, recordings or settings enter the source repository. Later priority: finish
+the usable Windows trial and production evidence before more workflow work.
+
+
+## D-015: execute Synergy itself — 2026-10-04
+
+After seeing native Intervention previews, the owner said "i don't want our menu
+i want that new one", then confirmed "yes synergy its self". This settles the
+identity of the requested replacement: the pinned Synergy GSC menu, including
+its own presentation and options. A Combine-native imitation or labels over the
+old panel is not the requested delivery. The earlier native-port mechanism and
+bounded-menu presentation are superseded; preserve their commits and results.
+
+Check compatibility using the mashup's existing script compiler, runtime and HUD
+support. Synergy's MW2 README requires IW4x, so direct compatibility is not yet
+established. Keep adaptations narrow and traceable to the pinned source; do not
+silently replace its menu with ours. Opening the actual menu and equipping the
+Intervention is the first observable integration check. Existing full-menu and
+hit-radius requirements remain; gameplay and individual feature support require
+evidence. This does not authorize a universal loader, new engine or production
+launcher. No corrected trial, owner acceptance or source publication occurred.

@@ -9,6 +9,70 @@ The [source coverage record](../research/results/2026-10-04-menu-coverage.md)
 rechecks the inventory and supports the first demonstrable slice below. Hide HUD
 is deferred and is not an active slice or prerequisite.
 
+## Owner correction — use Synergy itself, October 4
+
+The owner explicitly confirmed **Synergy itself** after rejecting the custom
+native menu previews. The pinned GSC source must drive the menu's appearance,
+navigation and options. Changing the labels or restyling our practice menu does
+not satisfy that request. Use the existing runtime script engine to establish
+compatibility with Synergy's IW4x requirements; do not assume copying the mod
+folder is enough. D-015 records this correction.
+
+The native-port implementation details and bounded Intervention contract below
+are historical where they conflict with this correction. Preserve their source
+and test evidence, but do not prepare that build as the requested replacement.
+The first integration check remains opening the actual Synergy menu, navigating
+to Intervention and equipping it. The full menu destination and agreed hit-radius
+requirements remain; individual options need execution evidence before claiming
+support. No Synergy-script trial is prepared or gameplay-tested.
+
+## Preserved native Intervention build and review adapter — October 4
+
+Apply `trickshot-v0.4.0.patch`, then `skate-audio-v0.4.0.patch`, then
+`intervention-v0.4.0.patch` to the pinned runtime. Do not apply deferred Hide HUD.
+The new root contains six Synergy sections; only Weapon Options → Give Weapons →
+Sniper Rifles → Intervention is enabled. Requests use the native weapon catalogue
+and simulation acknowledgement; "equipped" also requires the actual held weapon
+and inventory. Previous practice patches/trials are preserved.
+
+Build with the pinned tools below. Run the console tests with `practice`, build
+`launcher --bin iw4l` and `console --example practice_menu_preview`, then run
+720p/1080p previews. The preview now captures root, Intervention, failure and
+closed states. These are synthetic checks, not play or acceptance.
+
+The adapter is verified with synthetic fixtures. The command below documents
+its interface; do not prepare the rejected native build for owner acceptance.
+For a future corrected build, prepare the folder only after required checks pass:
+
+```powershell
+.\scripts\prepare-trickshot-trial.ps1 -Source '<prepared runtime>' `
+  -Binary '<built iw4l.exe>' -Destination '<new versioned trial>' `
+  -ExpectedSha256 '<build SHA-256>' -ReviewDirectory '<new versioned review folder>' `
+  -EvidenceFile '<local evidence.json>' `
+  -ChecklistFile '.\templates\intervention-checklist.txt' `
+  -WorkflowDirectory '<shared solo-development workflow directory>'
+```
+
+Evidence JSON contains `issue`, full `sourceCommit`, `upstreamPins`, ordered
+`patches` (name/hash) and `checks` (command/result, all pass). The shared Windows
+helper creates **Test Intervention**, **Open trial files**, **Read checklist**
+and `evidence.json`, marked prepared/unaccepted. The launcher validates the hash,
+checks for an existing game and holds a mutex through process exit so concurrent
+shortcuts cannot start another trial. Errors are shown explicitly. Launch history
+stays local and never claims gameplay. Do not use `-Launch` for the owner handoff;
+it is an explicit combined operation requiring the review bundle.
+
+The [Intervention checklist](../templates/intervention-checklist.txt) replaces the
+earlier practice sense-check for this trial. Report keyboard/controller equip,
+fire, input release, relaunch and the exact build in chat. Record the verdict
+against that build; revised binaries require a new folder and verdict. No raw
+logs, machine paths or game content go to the Project. Source publication still
+requires replacement acceptance under current project instructions.
+
+The sections below retain reproduction/history for the earlier menu and the
+agreed full-menu contract. [Current evidence](../research/results/2026-10-04-intervention-review.md)
+separates automated checks, preparation, launch and owner acceptance.
+
 ## Existing development build
 
 This slice gives the existing local practice actions a Synergy-derived native
@@ -93,7 +157,7 @@ retains the incomplete folder for inspection. It does not compare every original
 game file; the baseline runbook's post-session hash check remains outstanding.
 
 Close the prior game, then run `iw4l.exe map mp_rust` in the new folder. Optional
-`-Launch` prepares and starts in one operation, refusing if another game is open.
+`-Launch` now requires the review-bundle inputs above and uses its verified launcher.
 Preparation, a started process and successful play are distinct results.
 
 ## Owner sense-check
@@ -226,7 +290,7 @@ No new game integration, public-match assistance, redistribution or general
 GSC-loader implementation is included. Hide HUD remains deferred. Native tests,
 an isolated Windows trial and explicit owner acceptance are separate later gates.
 
-### First demonstrable slice — equip Intervention from the menu (C-016)
+### Earlier native slice contract — equip Intervention (C-016)
 
 The first slice solves one visible gap: a living local host on Rust can equip
 the Intervention through Synergy's weapon hierarchy without console commands.
@@ -234,7 +298,7 @@ It is a tracer bullet: a narrow working path from input through simulation to
 visible feedback, before extending the remaining catalogue. C-017 supplies the
 settled requirements. `to-spec` consolidated the contract and `to-tickets`
 finalised this one independently demonstrable slice. Implementation and its
-acceptance checks remain undone; the [C-016 draft](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=261972158)
+acceptance checks are tracked separately in the current evidence; the [C-016 draft](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=261972158)
 owns active status. C-017 is the completed prerequisite; no other gameplay slice
 blocks starting C-016. The existing plan supplies the agreed granularity and
 test boundary, so no new interview or duplicate ticket is needed.
@@ -442,7 +506,7 @@ not exposed by `menu_option`; they are not silently added to the M1 promise.
 | weapons / light machine guns | MG4 | pending |
 | weapons / light machine guns | AUG HBAR | pending |
 | weapons / light machine guns | M240 | pending |
-| weapons / sniper rifles | Intervention | pending |
+| weapons / sniper rifles | Intervention | implemented; see current Intervention evidence |
 | weapons / sniper rifles | Barrett .50cal | pending |
 | weapons / sniper rifles | WA2000 | pending |
 | weapons / sniper rifles | M21 EBR | pending |

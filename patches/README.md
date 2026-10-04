@@ -1,4 +1,19 @@
-# Native trickshot menu patch
+# Menu source patches
+
+`synergy-gsc-v0.4.0.patch` is the current integration work. Apply it after
+menu, audio and Intervention in the order below. With `COMBINE_SYNERGY_GSC=1`,
+it loads the **actual, unmodified Synergy GSC** through the existing script
+engine and disables our native menu. Default execution remains opt-in until
+verification is complete. `COMBINE_SYNERGY_GSC_PROBE=1` additionally enables a
+state-only diagnostic observer. It does not implement or imitate the menu.
+
+The patch embeds Synergy's pinned source and declares the containing session
+crate GPL-3.0-only, preserving attribution and the existing full licence.
+Game-script dependencies still come from the owner's local game data. It does
+not contain retail scripts, game assets or IW4x binaries. See the
+[current integration record](../research/results/2026-10-04-synergy-gsc.md).
+
+## Preserved earlier patches
 
 `trickshot-v0.4.0.patch` applies to the mashup runtime at
 `f608f85e407ff1b7689d54a9aafdd16e95711ac4`. It carries the local practice actions,
@@ -32,4 +47,5 @@ one enabled path: Weapon Options → Give Weapons → Sniper Rifles → Interven
 It uses the existing typed catalogue/action/simulation interfaces and standard
 ammo, with correlated feedback and retained input release barriers. The earlier
 patches remain unchanged. Other Synergy behavior, including 999-round clips,
-is outside this slice. See the [Intervention contract](../docs/TRICKSHOT_MENU.md#first-demonstrable-slice--equip-intervention-from-the-menu-c-016).
+is outside this slice. The owner rejected this native presentation as the
+replacement and confirmed Synergy itself; see the [menu guide](../docs/TRICKSHOT_MENU.md).

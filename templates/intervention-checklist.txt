@@ -1,0 +1,31 @@
+TEST INTERVENTION
+
+Open "Test Intervention" in this review folder. It opens this exact build on Rust.
+If a game is already running, close it normally first. A missing or changed build
+is refused; keep the old folder and ask Codex to prepare a fresh one.
+
+1. Start a class and stay on foot. Open the menu with F6 (keyboard) or hold L2
+   and press R3 (DualSense), then release the buttons.
+2. Navigate Weapon Options > Give Weapons > Sniper Rifles > Intervention.
+   Keyboard: arrows and Enter. Controller: D-pad or triggers, Cross/Square.
+3. Select Intervention. "Requested" is pending. Wait for "Intervention equipped".
+   If it reports an error, tell Codex the message and what happened just before it.
+4. Close with F6/Escape or L2+R3. Release the buttons, then aim and fire on foot.
+   Confirm it is the Intervention and has usable ammo. Test keyboard and controller.
+5. Reopen, navigate back with Backspace or Circle/R3, and close again. Try holding
+   fire/jump/melee/skate while closing: gameplay should wait until you release them.
+6. Exit normally and use the same shortcut again. Check the menu still works.
+   If practical, repeat at 1280x720 and 1920x1080 and report readability.
+
+Reply in chat with pass/fail/not tested for keyboard, controller, equip/fire,
+input release and relaunch. Include this folder's build identifier from above.
+Say explicitly whether you accept this Intervention slice, or describe the changes
+needed. Acceptance of the full Synergy menu is a separate, later outcome.
+
+Known limits: only Intervention is enabled. Other root sections show N/A.
+Standard runtime ammo is used, not Synergy's delayed 999-round clip.
+Hit radius, noclip, player administration, other weapons and Hide HUD are absent.
+No firing while skating. Earlier practice pages are removed from this build.
+Automated tests and native previews do not prove gameplay. This build is unaccepted.
+Original installations and previous trial folders are preserved. Raw logs and
+machine paths stay local; do not upload game assets or recordings.

@@ -3,21 +3,37 @@
 Combine explores a controller-friendly trickshot menu in the existing
 MW2 / Skate 3 / Minecraft mashup. The destination is the **proper Synergy menu
 plus trickshot hit radius**, without Combine-specific practice additions.
-The existing development build below has Synergy-derived presentation around
-earlier practice actions; it does not yet provide the full Synergy menu.
+The owner confirmed on October 4 that this means **Synergy itself**, running its
+GSC menu source, rather than our custom native panel. That integration is in
+progress. The earlier Intervention build is preserved and unaccepted; it is not
+the requested replacement. No new owner trial is ready. This is experimental,
+not a complete menu or production launcher.
 See the [menu requirements and coverage](docs/TRICKSHOT_MENU.md).
 
 The agreed destination includes sniper near-pass assistance (Off by default,
 0.25–5 metres, Normal/One-shot damage with ordinary cover rules), Frag No Clip
 and host-controlled private-player options. These requirements are recorded;
-the development build below does not yet implement them. The first implementation
-slice is equipping the Intervention through Synergy's weapon hierarchy.
+the Intervention build does not yet implement them.
 
 The owner reports that Minecraft and skating work in the upstream Windows trial.
 Recovery, replay and a possible freeze still need investigation. A successful
 build or synthetic test does not establish gameplay.
 
-## Existing development build (earlier practice menu)
+## Current trial status
+
+There is no prepared Synergy-script trial or new desktop review folder yet.
+Once the actual menu passes its checks, the handoff will include shortcuts to
+its exact build, files and checklist. See the [current handoff](docs/HANDOFF.md).
+
+Developers can reproduce the source patches using the [menu guide](docs/TRICKSHOT_MENU.md).
+This source repository contains no game files, ready-to-play download or installer.
+The private planning board is owner-only; public technical evidence lives here.
+
+## Earlier practice build (preserved trial)
+
+The controls below also apply to the Intervention menu. The Positions, Targets
+and Aim actions described here belong only to the earlier preserved build.
+
 
 The menu starts hidden and leaves no banner or aim-lock overlay when closed.
 It uses the game's proportional font, cyan selection, seven row slots and

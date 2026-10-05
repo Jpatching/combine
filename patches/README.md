@@ -58,3 +58,15 @@ ammo, with correlated feedback and retained input release barriers. The earlier
 patches remain unchanged. Other Synergy behavior, including 999-round clips,
 is outside this slice. The owner rejected this native presentation as the
 replacement and confirmed Synergy itself; see the [menu guide](../docs/TRICKSHOT_MENU.md).
+
+## Standalone Skate world preparation
+
+`skate-standalone-v0.4.0.patch` applies directly to the clean pinned runtime
+`f608f85e407ff1b7689d54a9aafdd16e95711ac4`, in a separate checkout. It is independent
+of the menu/audio/Synergy patch chain. It adds a validated native world input to
+the existing Skate host, a standalone preparation example, integration tests and
+a lockfile for that independently built crate. Existing match callers are unchanged.
+
+This is not a Fortnite decoder, renderer or playable session. Geometry uses the
+host's native coordinates; a real export contract, render lifecycle and full-island
+loading remain subsequent tickets. See [evidence and reproduction](../research/results/2026-10-06-standalone-world.md).

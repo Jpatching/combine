@@ -70,9 +70,11 @@ issues; all corrected and re-reviewed without remaining actionable source findin
 Diagnostic faults from imported modules are retained with private arguments removed;
 statistics exemption requires successful disabled same-build provenance.
 
-Source publication and board read-back are being finalized at this handoff.
-If their remote operations fail, status remains sync pending; local trial readiness
-is already verified. No owner acceptance, local release, merge or public release.
+Source publication read-back verified delivery revision
+`c538565f49fe06b159a946888c74d560cb6256d7`; the existing card was moved to
+Phase 6 and read back, preserving live views and unrelated items. Subsequent
+handoff-only commits do not change trial source or executable; resolve current
+branch HEAD and remote before continuing. No owner acceptance, local release, merge or public release.
 Baseline recovery/freeze, audio listening and original-file comparisons remain
 inherited gaps; no Fortnite adapter/assets are added.
 

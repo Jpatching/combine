@@ -1,8 +1,8 @@
 # Menu source patches
 
-`synergy-gsc-v0.4.0.patch` is the current integration work. Apply it after
+`synergy-gsc-v0.4.0.patch` embeds the actual menu integration. Apply it after
 menu, audio and Intervention in the order below. With `COMBINE_SYNERGY_GSC=1`,
-it loads the **actual, unmodified Synergy GSC** through the existing script
+it loads the **actual pinned Synergy GSC** through the existing script
 engine and disables our native menu. Default execution remains opt-in until
 verification is complete. `COMBINE_SYNERGY_GSC_PROBE=1` additionally enables a
 state-only diagnostic observer. It does not implement or imitate the menu.
@@ -12,6 +12,15 @@ crate GPL-3.0-only, preserving attribution and the existing full licence.
 Game-script dependencies still come from the owner's local game data. It does
 not contain retail scripts, game assets or IW4x binaries. See the
 [current integration record](../research/results/2026-10-04-synergy-gsc.md).
+
+`synergy-input-v0.4.0.patch` applies last, after the GSC patch. The embedded
+Synergy source bytes stay unchanged; a bounded compatibility transform redirects
+its input manager to raw menu buttons and reports open/close state. Its own
+presentation, hierarchy and actions still execute. Gameplay commands and previous
+button fallbacks are suppressed during capture, including the neutral release
+frame; fresh input after release resumes ordinary play. Focus, life, controller
+and world changes require neutral controls. Disconnect removes capture state.
+No generic loader or network input interface is added.
 
 ## Preserved earlier patches
 

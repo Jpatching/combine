@@ -24,7 +24,49 @@ and test evidence, but do not prepare that build as the requested replacement.
 The first integration check remains opening the actual Synergy menu, navigating
 to Intervention and equipping it. The full menu destination and agreed hit-radius
 requirements remain; individual options need execution evidence before claiming
-support. No Synergy-script trial is prepared or gameplay-tested.
+support. The owner reports Intervention worked in the most recent trial, with other
+options missing; exact-build acceptance is not recorded. See the
+[October 5 input evidence](../research/results/2026-10-05-synergy-input.md).
+
+## Actual Synergy input build — October 5
+
+Apply the five source patches in order to runtime
+`f608f85e407ff1b7689d54a9aafdd16e95711ac4`: trickshot, skate-audio,
+Intervention, synergy-gsc, then synergy-input. Do not apply deferred Hide HUD.
+The last patch redirects only the original GSC input manager and reports capture
+state; the embedded pinned menu bytes, presentation and option actions remain
+Synergy's. It blocks gameplay commands and stale button history through the
+neutral release frame. New physical input after release resumes ordinary play.
+
+Build `launcher --bin iw4l` with the pinned Windows tools below. Build the `sim`
+and `console` lib test executables; run sim with `synergy` and console with
+`practice` on Windows. These cover scripted open/close, held Fire, keyboard/pad
+capture, skating shortcuts, focus/reconnect and fresh input. They are synthetic
+integration evidence, separate from owner gameplay.
+
+The reproducible bounded diagnostic uses a fresh copy and quits its own process:
+
+```powershell
+.\scripts\run-synergy-diagnostic.ps1 -Source '<prepared runtime>' `
+  -Binary '<exact iw4l.exe>' -Destination '<new diagnostic runtime>' `
+  -Report '<new private report.json>' -Resolution '1920x1080'
+py -3 scripts/check-synergy-diagnostic.py '<private report.json>' `
+  --baseline '<private Synergy-disabled report.json>'
+```
+
+Use `-Baseline` for the disabled-menu comparison. Keep raw logs/screenshots,
+settings and assets private. Confirm captured PNG pixel dimensions: requested
+resolution alone is insufficient. The checker requires hierarchy, held weapon,
+close and a post-close shot in order, rejects any observed menu-open shot and
+requires normal exit. The fixed runner releases then freshly presses Fire;
+synthetic recovery tests separately exercise the held-close boundary.
+
+Only after required checks pass, prepare a versioned owner review using the
+adapter below with `-Synergy` and `templates/synergy-checklist.txt`. The wrapper
+forces actual Synergy on, observer/console stdin off and no diagnostic commands.
+Use `-VerifyOnly` to verify launch availability without starting the owner trial.
+The trial's manifest identifies source commit, pins, patch hashes and executable.
+Previous builds remain preserved; owner verdict, merge and release are separate.
 
 ## Preserved native Intervention build and review adapter — October 4
 

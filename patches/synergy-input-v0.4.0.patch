@@ -1,0 +1,682 @@
+diff --git a/crates/console/src/lib.rs b/crates/console/src/lib.rs
+--- a/crates/console/src/lib.rs
++++ b/crates/console/src/lib.rs
+@@ -25,6 +25,7 @@
+ mod frontend;
+ mod gamepad;
+ mod practice;
++mod synergy_input;
+ mod practice_menu;
+ mod practice_ui;
+ pub mod input;
+diff --git a/crates/console/src/plugin/mod.rs b/crates/console/src/plugin/mod.rs
+--- a/crates/console/src/plugin/mod.rs
++++ b/crates/console/src/plugin/mod.rs
+@@ -82,6 +82,7 @@
+         app.add_systems(Update, crate::debug_move::update_skate_overlay.in_set(ClientSet::Ui));
+         crate::startup::install_stdin(app);
+         crate::practice::install(app);
++        app.init_resource::<crate::synergy_input::SynergyInput>();
+         app.init_resource::<ConsoleSettings>()
+             .init_resource::<ConsoleState>()
+             .init_resource::<frame::HudInputView>()
+@@ -108,6 +109,7 @@
+                 PreUpdate,
+                 (
+                     crate::gamepad::track_active_pad,
++                    crate::synergy_input::sample,
+                     crate::practice::input,
+                     crate::gamepad::drive_menus_with_pad,
+                 )
+@@ -297,7 +299,7 @@
+     binds: Res<KeyBinds>,
+     mut scripted: ResMut<ConsoleInputState>,
+     console: Res<ConsoleState>,
+-    (script_menus, minecraft): (Option<Res<hud::ScriptMenus>>, Option<Res<frame::MinecraftUi>>),
++    (script_menus, minecraft, synergy): (Option<Res<hud::ScriptMenus>>, Option<Res<frame::MinecraftUi>>, Option<Res<crate::synergy_input::SynergyInput>>),
+     mut hud_input: ResMut<frame::HudInputView>,
+     settings: Res<frame::GameSettings>,
+     mut out: ResMut<ClientActionInput>,
+@@ -352,7 +354,9 @@
+     }
+     let script_menu = script_menus.is_some_and(|menus| menus.captures_input());
+     let inventory_open = minecraft.is_some_and(|ui| ui.active && ui.inventory_open);
+-    skate.input_blocked = console.open || script_menu || practice.captured;
++    let synergy_captured = synergy.is_some_and(|s| s.captured);
++    skate.input_blocked = !devices.focused || console.open || script_menu || practice.captured || synergy_captured;
++    if synergy_captured { skate.toggle_requested = false; }
+     // J, or clicking both sticks in together, toggles skating.
+     let sticks_clicked = pad.is_some_and(|pad| {
+         use bevy::input::gamepad::GamepadButton::{LeftThumb, RightThumb};
+@@ -363,7 +367,7 @@
+     if !skate.input_blocked && (keys.just_pressed(KeyCode::KeyJ) || sticks_clicked) {
+         skate.toggle_requested = true;
+     }
+-    let modal_captured = console.open
++    let modal_captured = synergy_captured || console.open
+         || practice.captured
+         || script_menu
+         || inventory_open
+@@ -2373,3 +2377,9 @@
+         publish_client_action_input,
+     ).chain().after(InputSystems));
+ }
++
++#[cfg(test)]
++pub(crate) fn poll_synergy_test_input(app: &mut App) {
++    use bevy::ecs::system::RunSystemOnce;
++    app.world_mut().run_system_once(publish_client_action_input).unwrap();
++}
+diff --git a/crates/console/src/practice_tests.rs b/crates/console/src/practice_tests.rs
+--- a/crates/console/src/practice_tests.rs
++++ b/crates/console/src/practice_tests.rs
+@@ -247,6 +247,9 @@
+     ready_with_lifecycle(sim::ClientLifecycle::Alive)
+ }
+ fn ready_with_lifecycle(lifecycle: sim::ClientLifecycle) -> App {
++    ready_with_script(lifecycle, "main() {}")
++}
++fn ready_with_script(lifecycle: sim::ClientLifecycle, source: &str) -> App {
+     let mut a = app();
+     let weapons = catalogue();
+     let mut content = sim::SimContentBuilder::default();
+@@ -266,9 +269,17 @@
+     let mut world = a.world_mut().resource_mut::<AuthorityWorld>();
+     world.0.install_content(content.finish());
+     world.0.adopt_snapshot(&initial);
+-    let sources = std::collections::BTreeMap::from([("trial".into(), "main() {}".into())]);
++    let mut sources = std::collections::BTreeMap::from([("trial".into(), source.into())]);
++    let mut roots = vec!["trial"];
++    if source.contains("combineMenuState") {
++        // Match the real player-connect boundary; adopting a snapshot alone
++        // does not emit the GSC notification consumed by this fixture.
++        sources.insert("maps/mp/gametypes/_callbacksetup".into(),
++            "codecallback_playerconnect() { level notify(\"connected\", self); }".into());
++        roots.push("maps/mp/gametypes/_callbacksetup");
++    }
+     let program =
+-        sim::script::Program::load(&sources, &["trial"], &sim::script::Catalog::iw4()).unwrap();
++        sim::script::Program::load(&sources, &roots, &sim::script::Catalog::iw4()).unwrap();
+     world
+         .0
+         .install_gsc_program(
+@@ -594,3 +605,133 @@
+     a.update();
+     assert!(!a.world().resource::<Practice>().status.contains("equipped"));
+ }
++
++
++fn synergy_app() -> App {
++    let mut a = ready_with_script(sim::ClientLifecycle::Alive, r#"
++        main() {
++            level waittill("connected", p);
++            p combineMenuState(0);
++            p thread menu();
++        }
++        menu() {
++            for (;;) {
++                if (self combineMenuButtonPressed("+speed_throw") && self combineMenuButtonPressed("+melee")) self combineMenuState(1);
++                if (self combineMenuButtonPressed("+activate")) self combineMenuState(0);
++                wait .05;
++            }
++        }
++    "#);
++    simulate(&mut a);
++    for tick in 3..10 {
++        let snap=sim::step(&mut a.world_mut().resource_mut::<AuthorityWorld>().0,sim::Tick(tick),&sim::TickInput::default(),16,sim::StepReason::AuthorityFrame);
++        a.world_mut().resource_mut::<PresentedSnapshot>().publish_decoded(snap);
++    }
++    assert!(a.world_mut().resource_mut::<AuthorityWorld>().0.take_script_fault().is_none());
++    a.init_resource::<crate::synergy_input::SynergyInput>();
++    a.add_systems(PreUpdate, crate::synergy_input::sample.before(crate::practice::input).after(bevy::input::InputSystems));
++    a.update(); a.update(); a.update();
++    a
++}
++fn synergy_captured(a: &App) -> bool { a.world().resource::<crate::synergy_input::SynergyInput>().captured }
++fn assert_synergy_gameplay_empty(a: &App) {
++    let out=a.world().resource::<net::ClientActionInput>();
++    assert!(out.client.keys.iter().all(|k| k.down==0));
++    assert_eq!(out.pad_move,[0.;2]);assert_eq!(out.pad_look,[0.;2]);
++    assert_eq!(out.mouse_x,0.);assert_eq!(out.mouse_y,0.);
++    assert!(out.client.weapon_cycles.is_empty());assert!(out.client.action_slots.is_empty());
++    assert!(!a.world().resource::<frame::SkateMode>().toggle_requested);
++}
++#[test]
++fn synergy_keyboard_open_and_all_gameplay_inputs_are_isolated() {
++    let mut a=synergy_app();
++    a.world_mut().resource_mut::<ButtonInput<MouseButton>>().press(MouseButton::Right);
++    key(&mut a,KeyCode::KeyV,true);
++    assert!(synergy_captured(&a));
++    for keycode in [KeyCode::KeyW,KeyCode::Space,KeyCode::KeyC,KeyCode::ControlLeft,KeyCode::KeyR,KeyCode::KeyF,KeyCode::KeyG,KeyCode::KeyE,KeyCode::KeyJ] {
++        key(&mut a,keycode,true);assert_synergy_gameplay_empty(&a);
++    }
++    a.world_mut().resource_mut::<ButtonInput<MouseButton>>().press(MouseButton::Left);
++    a.world_mut().write_message(bevy::input::mouse::MouseMotion {delta:Vec2::new(50.,25.)});
++    a.update();assert_synergy_gameplay_empty(&a);
++    a.world_mut().resource_mut::<frame::InputDevices>().focused=false;
++    a.update();assert_synergy_gameplay_empty(&a);
++    a.world_mut().resource_mut::<frame::InputDevices>().focused=true;
++    a.update();assert!(synergy_captured(&a));assert_synergy_gameplay_empty(&a);
++}
++#[test]
++fn synergy_controller_chord_blocks_skating_and_stick_motion_until_neutral() {
++    let mut a=synergy_app();
++    let sample=a.world_mut().register_system(crate::synergy_input::sample);
++    let pad=a.world_mut().spawn(Gamepad::default()).id();
++    a.world_mut().resource_mut::<frame::ActivePad>().0=Some(pad);
++    // Run the physical adapter directly to preserve synthesized pad state after InputSystems.
++    for _ in 0..3 { a.world_mut().run_system(sample).unwrap(); }
++    {
++        let mut p=a.world_mut().get_mut::<Gamepad>(pad).unwrap();
++        p.digital_mut().press(B::LeftTrigger2);p.digital_mut().press(B::RightThumb);
++        p.digital_mut().press(B::LeftThumb);p.digital_mut().press(B::RightTrigger2);
++        p.analog_mut().set(bevy::input::gamepad::GamepadAxis::LeftStickY,1.);
++        p.analog_mut().set(bevy::input::gamepad::GamepadAxis::RightStickX,1.);
++    }
++    a.world_mut().run_system(sample).unwrap();
++    crate::plugin::poll_synergy_test_input(&mut a);
++    assert!(synergy_captured(&a));assert_synergy_gameplay_empty(&a);
++    a.world_mut().despawn(pad);
++    a.world_mut().resource_mut::<frame::ActivePad>().0=None;
++    a.world_mut().run_system(sample).unwrap();
++    assert!(synergy_captured(&a));
++    let pad=a.world_mut().spawn(Gamepad::default()).id();
++    a.world_mut().resource_mut::<frame::ActivePad>().0=Some(pad);
++    a.world_mut().get_mut::<Gamepad>(pad).unwrap().digital_mut().press(B::RightTrigger2);
++    for _ in 0..3 { a.world_mut().run_system(sample).unwrap(); assert!(synergy_captured(&a)); }
++    *a.world_mut().get_mut::<Gamepad>(pad).unwrap() = Gamepad::default();
++    for _ in 0..4 { a.world_mut().run_system(sample).unwrap(); }
++    crate::plugin::poll_synergy_test_input(&mut a);
++    assert!(!synergy_captured(&a));
++    a.world_mut().get_mut::<Gamepad>(pad).unwrap().digital_mut().press(B::RightTrigger2);
++    a.world_mut().run_system(sample).unwrap();
++    crate::plugin::poll_synergy_test_input(&mut a);
++    assert!(!synergy_captured(&a));
++    assert!(a.world().resource::<net::ClientActionInput>().client.keys.iter()
++        .any(|k| k.down != 0 && input_iw4::command_name(k.binding) == Some("+attack")));
++}
++
++
++fn advance_synergy(a: &mut App, ticks: std::ops::Range<u32>) {
++    for tick in ticks {
++        let snap = sim::step(&mut a.world_mut().resource_mut::<AuthorityWorld>().0,
++            sim::Tick(tick), &sim::TickInput::default(), 16, sim::StepReason::AuthorityFrame);
++        a.world_mut().resource_mut::<PresentedSnapshot>().publish_decoded(snap);
++    }
++    assert!(a.world_mut().resource_mut::<AuthorityWorld>().0.take_script_fault().is_none());
++}
++
++#[test]
++fn synergy_keyboard_script_close_consumes_held_fire_then_fresh_fire_recovers() {
++    let mut a = synergy_app();
++    a.world_mut().resource_mut::<ButtonInput<MouseButton>>().press(MouseButton::Right);
++    key(&mut a, KeyCode::KeyV, true);
++    advance_synergy(&mut a, 10..20);
++    assert_eq!(a.world().resource::<AuthorityWorld>().0.synergy_capture_phase(sim::ClientId(0)), sim::synergy_input::CapturePhase::Menu);
++    a.world_mut().resource_mut::<ButtonInput<MouseButton>>().reset_all();
++    key(&mut a, KeyCode::KeyV, false);
++    a.world_mut().resource_mut::<ButtonInput<MouseButton>>().press(MouseButton::Left);
++    key(&mut a, KeyCode::KeyE, true);
++    advance_synergy(&mut a, 20..30);
++    for _ in 0..5 { a.update(); assert!(synergy_captured(&a)); assert_synergy_gameplay_empty(&a); }
++    a.world_mut().resource_mut::<frame::InputDevices>().focused = false;
++    a.update(); assert_synergy_gameplay_empty(&a);
++    a.world_mut().resource_mut::<frame::InputDevices>().focused = true;
++    a.update(); assert!(synergy_captured(&a)); assert_synergy_gameplay_empty(&a);
++    a.world_mut().resource_mut::<ButtonInput<MouseButton>>().reset_all();
++    key(&mut a, KeyCode::KeyE, false);
++    for _ in 0..4 { a.update(); }
++    assert!(!synergy_captured(&a));
++    a.world_mut().write_message(bevy::input::mouse::MouseButtonInput {
++        button: MouseButton::Left, state: ButtonState::Pressed, window: Entity::PLACEHOLDER,
++    });
++    a.update();
++    assert!(a.world().resource::<net::ClientActionInput>().client.keys.iter()
++        .any(|k| k.down != 0 && input_iw4::command_name(k.binding) == Some("+attack")));
++}
+diff --git a/crates/console/src/synergy_input.rs b/crates/console/src/synergy_input.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/console/src/synergy_input.rs
+@@ -0,0 +1,56 @@
++//! Physical input adapter for the original Synergy script. Gameplay uses the
++//! existing modal capture path; only the menu receives the raw button sample.
++use bevy::prelude::*;
++use bevy::input::mouse::MouseMotion;
++use crate::binds::BindInputs;
++
++#[derive(Resource, Default)]
++pub(crate) struct SynergyInput { pub captured: bool }
++#[derive(Default)]
++pub(crate) struct DeviceBarrier {
++    generation: Option<u64>, pad: Option<Entity>, focused: bool, waiting: bool,
++}
++pub(crate) fn sample(
++    mut state: ResMut<SynergyInput>,
++    mut world: Option<ResMut<net::AuthorityWorld>>,
++    local: Res<net::LocalPresentClient>,
++    snapshot: Res<net::PresentedSnapshot>,
++    generation: Res<frame::WorldGeneration>,
++    devices: Res<frame::InputDevices>,
++    active: Res<frame::ActivePad>,
++    pads: Query<&Gamepad>,
++    keys: Res<ButtonInput<KeyCode>>,
++    mouse: Res<ButtonInput<MouseButton>>,
++    (binds, scripted, console, settings): (Res<crate::KeyBinds>, Res<crate::ConsoleInputState>, Res<crate::ConsoleState>, Res<frame::GameSettings>),
++    (mut motion, mut barrier): (MessageReader<MouseMotion>, Local<DeviceBarrier>),
++) {
++    let pad = active.0.and_then(|id| pads.get(id).ok());
++    let inputs = BindInputs::new(&keys, &mouse).with_pad(pad);
++    let mut raw = 0;
++    for (button, _) in binds.iter() {
++        if inputs.pressed(button) {
++            raw |= binds.binding_name(button).map_or(0, sim::synergy_input::synergy_button_mask);
++        }
++    }
++    let mut scripted_down = false;
++    for id in scripted.ids() {
++        scripted_down = true;
++        if let Some(name) = input_iw4::command_name(id) { raw |= sim::synergy_input::synergy_button_mask(name); }
++    }
++    let mouse_moved = motion.read().any(|e| e.delta != Vec2::ZERO);
++    let neutral = keys.get_pressed().next().is_none() && mouse.get_pressed().next().is_none()
++        && !scripted_down && !mouse_moved
++        && pad.is_none_or(|p| p.get_pressed().next().is_none()
++            && p.get(bevy::input::gamepad::GamepadButton::LeftTrigger2).unwrap_or(0.) < 0.1
++            && p.get(bevy::input::gamepad::GamepadButton::RightTrigger2).unwrap_or(0.) < 0.1
++            && crate::gamepad::sticks(p, &settings) == crate::gamepad::Sticks::default());
++    if barrier.generation != generation.0 || barrier.pad != active.0 || !devices.focused || !barrier.focused {
++        barrier.waiting = true;
++    }
++    barrier.generation = generation.0; barrier.pad = active.0; barrier.focused = devices.focused;
++    let available = devices.focused && !console.open && !barrier.waiting
++        && snapshot.alive_player(local.0).is_some();
++    if devices.focused && neutral { barrier.waiting = false; }
++    let awaiting_device_release = std::env::var("COMBINE_SYNERGY_GSC").as_deref() == Ok("1") && barrier.waiting;
++    state.captured = world.as_deref_mut().is_some_and(|w| w.0.sample_synergy_input(local.0, raw, neutral, available)) || awaiting_device_release;
++}
+diff --git a/crates/session/src/match_apply.rs b/crates/session/src/match_apply.rs
+--- a/crates/session/src/match_apply.rs
++++ b/crates/session/src/match_apply.rs
+@@ -940,7 +940,7 @@
+         }
+         fn read_bytes(&self, module: &str) -> Result<Vec<u8>, String> {
+             if self.1 && module == crate::synergy::MODULE {
+-                Ok(crate::synergy::SOURCE.to_vec())
++                Ok(crate::synergy::compatible_source())
+             } else if self.1 && crate::synergy::probe_enabled() && module == crate::synergy::PROBE_MODULE {
+                 Ok(crate::synergy::PROBE_SOURCE.to_vec())
+             } else {
+diff --git a/crates/session/src/synergy.rs b/crates/session/src/synergy.rs
+--- a/crates/session/src/synergy.rs
++++ b/crates/session/src/synergy.rs
+@@ -15,3 +15,23 @@
+ pub(crate) fn enabled() -> bool {
+     std::env::var("COMBINE_SYNERGY_GSC").as_deref() == Ok("1")
+ }
++
++/// Only adapt the input boundary. Presentation, hierarchy and actions stay upstream.
++pub(crate) fn compatible_source() -> Vec<u8> {
++    let source = std::str::from_utf8(SOURCE).expect("pinned Synergy is UTF-8");
++    let start = source.find("input_manager() {").expect("pinned input manager");
++    let end = start + source[start..].find("\nplayer_connect() {").expect("pinned input manager end");
++    let mut manager = source[start..end].to_owned();
++    for (method, command) in [
++        ("adsButtonPressed()", "+speed_throw"), ("meleeButtonPressed()", "+melee"),
++        ("attackButtonPressed()", "+attack"), ("useButtonPressed()", "+activate"),
++        ("fragButtonPressed()", "+frag"), ("secondaryOffhandButtonPressed()", "+smoke"),
++    ] {
++        assert!(manager.contains(method), "pinned input method missing");
++        manager = manager.replace(method, &format!("combineMenuButtonPressed(\"{command}\")"));
++    }
++    let source = format!("{}{}{}", &source[..start], manager, &source[end..]);
++    let source = source.replace("self.hud_created = true;", "self.hud_created = true;\n\tself combineMenuState(0);");
++    let source = source.replace("self.in_menu = true;", "self.in_menu = true;\n\tself combineMenuState(1);");
++    source.replace("close_menu() {\n\tset_menu_visibility(0);", "close_menu() {\n\tself combineMenuState(0);\n\tset_menu_visibility(0);").into_bytes()
++}
+diff --git a/crates/session/src/synergy/probe.gsc b/crates/session/src/synergy/probe.gsc
+--- a/crates/session/src/synergy/probe.gsc
++++ b/crates/session/src/synergy/probe.gsc
+@@ -12,6 +12,7 @@
+ observe() {
+     self endon("disconnect");
+     level endon("game_ended");
++    self thread observe_shots();
+     previous = "";
+     for (;;) {
+         created = isDefined(self.hud_created) && self.hud_created;
+@@ -37,3 +38,13 @@
+         wait .05;
+     }
+ }
++
++observe_shots() {
++    self endon("disconnect");
++    level endon("game_ended");
++    for (;;) {
++        self waittill("begin_firing");
++        opened = isDefined(self.in_menu) && self.in_menu;
++        logPrint("SYNERGY_PROBE shot menu_open=" + opened + "\n");
++    }
++}
+diff --git a/crates/sim/examples/synergy_probe.rs b/crates/sim/examples/synergy_probe.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/sim/examples/synergy_probe.rs
+@@ -0,0 +1,42 @@
++//! Compile-only compatibility probe. Empty imported modules are diagnostic placeholders.
++//! This does not execute the menu or prove that game-script helpers are implemented.
++use sim::script::{Catalog, Program, SourceResolver};
++use std::collections::BTreeMap;
++
++struct Sources { menu: String, helpers: BTreeMap<String, String> }
++impl SourceResolver for Sources {
++    fn read(&self, module: &str) -> Result<String, String> {
++        if module == "maps/mp/synergy" {
++            Ok(self.menu.clone())
++        } else {
++            Ok(self.helpers.get(module).cloned().unwrap_or_default())
++        }
++    }
++}
++
++fn main() {
++    let path = std::env::args().nth(1).expect("Synergy.gsc path");
++    let bytes = std::fs::read(path).expect("read source");
++    let mut sources = Sources { menu: sim::script::decode_source(&bytes), helpers: BTreeMap::new() };
++    for _ in 0..100 {
++        match Program::load(&sources, &["maps/mp/synergy"], &Catalog::iw4()) {
++            Ok(program) => {
++                println!("PARSE/LINK PROBE ONLY: {} modules, {} functions, {} natives; imported helpers are placeholders, not runtime support", program.modules().len(), program.function_count(), program.native_count());
++                return;
++            }
++            Err(error) => {
++                let name = error.message.split_whitespace().last().unwrap_or("");
++                if !error.message.starts_with("unresolved ") || !name.chars().all(|c| c.is_ascii_alphanumeric() || "_/:".contains(c)) {
++                    eprintln!("COMPATIBILITY FAILURE: {error}"); std::process::exit(1);
++                }
++                println!("EXTERNAL SYMBOL: {name}");
++                let (module, function) = name.split_once("::").unwrap_or(("common_scripts/utility", name));
++                let code = sources.helpers.entry(module.to_owned()).or_default();
++                let declaration = format!("{function}() {{}}\n");
++                assert!(!code.contains(&declaration), "unresolved symbol persisted");
++                code.push_str(&declaration);
++            }
++        }
++    }
++    panic!("diagnostic symbol limit");
++}
+diff --git a/crates/sim/src/carrier.rs b/crates/sim/src/carrier.rs
+--- a/crates/sim/src/carrier.rs
++++ b/crates/sim/src/carrier.rs
+@@ -15,7 +15,7 @@
+ use crate::world::{ClientId, SimState, Tick};
+ 
+ pub struct SimWorld {
+-    ecs: World,
++    pub(crate) ecs: World,
+     state_entity: Entity,
+     schedule: bevy_ecs::schedule::Schedule,
+ }
+diff --git a/crates/sim/src/lib.rs b/crates/sim/src/lib.rs
+--- a/crates/sim/src/lib.rs
++++ b/crates/sim/src/lib.rs
+@@ -38,6 +38,7 @@
+ mod sound_alias_cs;
+ pub mod spawn;
+ mod step;
++pub mod synergy_input;
+ pub mod t5_destructible;
+ mod world;
+ pub mod world_objects;
+diff --git a/crates/sim/src/script/host/registry.rs b/crates/sim/src/script/host/registry.rs
+--- a/crates/sim/src/script/host/registry.rs
++++ b/crates/sim/src/script/host/registry.rs
+@@ -42,6 +42,7 @@
+             runtime.objects.insert(id, BTreeMap::new());
+             Ok(Value::Object(id))
+         });
++        crate::synergy_input::register(&mut registry);
+         natives::iw4::register(&mut registry);
+         super::audio::register(&mut registry);
+         natives::math::register(&mut registry);
+diff --git a/crates/sim/src/script/profile/iw4_catalog.rs b/crates/sim/src/script/profile/iw4_catalog.rs
+--- a/crates/sim/src/script/profile/iw4_catalog.rs
++++ b/crates/sim/src/script/profile/iw4_catalog.rs
+@@ -286,6 +286,8 @@
+     Builtin::new(Method, "addpitch", ScriptMover, false),
+     Builtin::new(Method, "addroll", ScriptMover, false),
+     Builtin::new(Method, "addyaw", ScriptMover, false),
++    Builtin::new(Method, "combinemenubuttonpressed", Player, false),
++    Builtin::new(Method, "combinemenustate", Player, false),
+     Builtin::new(Method, "adsbuttonpressed", Player, false),
+     Builtin::new(Method, "allowads", Player, false),
+     Builtin::new(Method, "allowjump", Player, false),
+diff --git a/crates/sim/src/script/runtime/state.rs b/crates/sim/src/script/runtime/state.rs
+--- a/crates/sim/src/script/runtime/state.rs
++++ b/crates/sim/src/script/runtime/state.rs
+@@ -44,6 +44,7 @@
+     pub(crate) pending_notifies: Vec<(Value, Arc<str>, Vec<Value>)>,
+     pub(crate) signals: Vec<Arc<str>>,
+     pub(crate) engine: host::entities::EngineState,
++    pub(crate) synergy: BTreeMap<u32, crate::synergy_input::MenuInput>,
+     pub(crate) players: BTreeMap<u32, host::players::PlayerSlot>,
+     pub(crate) menu_answers: BTreeMap<u32, VecDeque<host::players::MenuAnswer>>,
+     pub(crate) personal_classes: BTreeMap<(u32, u32), crate::ClassDef>,
+diff --git a/crates/sim/src/step.rs b/crates/sim/src/step.rs
+--- a/crates/sim/src/step.rs
++++ b/crates/sim/src/step.rs
+@@ -36,6 +36,7 @@
+     let mut schedule = Schedule::default();
+     schedule.add_systems(
+         (
++            crate::synergy_input::filter,
+             advance_time_system,
+             expire_transient_events_system,
+             crate::script::apply_disconnects,
+@@ -2205,3 +2206,27 @@
+     seed_ps_ammo_tables(ps, weapon, facts, clip0, clip1, last_hand >= 1, stock);
+     (clip0, stock)
+ }
++
++
++#[cfg(test)]
++mod synergy_capture_tests {
++    #[test]
++    fn synergy_capture_blocks_stale_native_buttons_on_empty_command_tick() {
++        let mut world = crate::SimWorld::new();
++        let client = crate::ClientId(0);
++        let mut capture = crate::synergy_input::MenuInput::default();
++        capture.ready = true;
++        capture.open = true;
++        capture.phase = crate::synergy_input::CapturePhase::Menu;
++        world.ecs.resource_mut::<crate::script::Runtime>().synergy.insert(client.0, capture);
++        crate::frame::FrameWorld::from_world(&mut world.ecs).old_buttons_mut()
++            .push((client, playerstate_iw4::buttons::ATTACK));
++        world.ecs.insert_resource(super::StepRequest {
++            tick: crate::Tick(1), input: crate::TickInput::default(), msec: 16,
++            reason: crate::StepReason::AuthorityFrame, output: None,
++        });
++        crate::synergy_input::filter(&mut world.ecs);
++        assert_eq!(crate::script_player::buttons(
++            &mut crate::frame::FrameWorld::from_world(&mut world.ecs), client), 0);
++    }
++}
+diff --git a/crates/sim/src/synergy_input.rs b/crates/sim/src/synergy_input.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/sim/src/synergy_input.rs
+@@ -0,0 +1,162 @@
++//! Local Synergy compatibility only; no network or general mod input API.
++use crate::{ClientId, SimWorld};
++use crate::script::{NativeRegistry, Namespace, Runtime, Value};
++use crate::script::host::args::string;
++use playerstate_iw4::{buttons, UserCmd};
++
++#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
++pub enum CapturePhase { #[default] Gameplay, Opening, Menu, WaitingForRelease }
++
++#[derive(Clone, Debug, Default)]
++pub(crate) struct MenuInput {
++    pub ready: bool,
++    pub open: bool,
++    pub phase: CapturePhase,
++    raw: u32,
++    available: bool,
++    release_frame: bool,
++}
++impl MenuInput {
++    fn sample(&mut self, raw: u32, neutral: bool, available: bool) -> bool {
++        self.release_frame = false;
++        let available = available && self.ready;
++        if !available || (!self.available && available) {
++            self.phase = CapturePhase::WaitingForRelease;
++        }
++        self.available = available;
++        self.raw = if available { raw } else { 0 };
++        if available {
++            match self.phase {
++                CapturePhase::WaitingForRelease if neutral => {
++                    self.phase = if self.open { CapturePhase::Menu } else { CapturePhase::Gameplay };
++                    self.raw = 0;
++                    self.release_frame = true;
++                    return true; // The release frame is consumed too.
++                }
++                CapturePhase::Gameplay if self.open => self.phase = CapturePhase::Menu,
++                CapturePhase::Gameplay if raw & (buttons::ADS | buttons::MELEE_CHARGE) == (buttons::ADS | buttons::MELEE_CHARGE) => self.phase = CapturePhase::Opening,
++                CapturePhase::Opening if self.open => self.phase = CapturePhase::Menu,
++                CapturePhase::Opening if neutral => self.phase = CapturePhase::WaitingForRelease,
++                CapturePhase::Menu if !self.open => self.phase = CapturePhase::WaitingForRelease,
++                _ => {}
++            }
++        }
++        self.captured()
++    }
++    fn captured(&self) -> bool { self.phase != CapturePhase::Gameplay || self.release_frame }
++    fn raw_buttons(&self) -> u32 {
++        if self.available && self.phase != CapturePhase::WaitingForRelease { self.raw } else { 0 }
++    }
++    fn set_open(&mut self, open: bool) {
++        self.ready = true;
++        self.open = open;
++        if open && self.available { self.phase = CapturePhase::Menu; }
++        else if !open && self.captured() { self.phase = CapturePhase::WaitingForRelease; }
++    }
++}
++
++/// Use configured bindings for both keyboard and controller menu controls.
++pub fn synergy_button_mask(command: &str) -> u32 { crate::script::command_buttons(command) }
++
++impl SimWorld {
++    /// Local input adapter only. `available` includes focus, life and device-release readiness.
++    /// Returns whether gameplay must be blocked before command generation/prediction.
++    pub fn sample_synergy_input(&mut self, client: ClientId, raw: u32, neutral: bool, available: bool) -> bool {
++        let mut runtime = self.ecs.resource_mut::<Runtime>();
++        runtime.synergy.get_mut(&client.0).is_some_and(|s| s.sample(raw, neutral, available))
++    }
++    pub fn synergy_capture_phase(&self, client: ClientId) -> CapturePhase {
++        self.ecs.resource::<Runtime>().synergy.get(&client.0).map_or(CapturePhase::Gameplay, |s| s.phase)
++    }
++}
++
++pub(crate) fn register(registry: &mut NativeRegistry) {
++    registry.register(Namespace::Method, "combinemenustate", |world, receiver, args| {
++        let client = crate::script::host::natives::player::player(world, receiver)?;
++        let open = crate::script::host::args::int(args, 0)? != 0;
++        world.resource_mut::<Runtime>().synergy.entry(client).or_default().set_open(open);
++        Ok(Value::Undefined)
++    });
++    registry.register(Namespace::Method, "combinemenubuttonpressed", |world, receiver, args| {
++        let client = crate::script::host::natives::player::player(world, receiver)?;
++        let command = string(args, 0)?;
++        let mask = synergy_button_mask(&command);
++        if mask == 0 { return Err("unknown Synergy menu button".into()); }
++        let raw = world.resource::<Runtime>().synergy.get(&client).map_or(0, |s| s.raw_buttons());
++        Ok(Value::Int((raw & mask != 0).into()))
++    });
++}
++
++/// Before scheduler/native button readers, command notifications, movement and weapons.
++/// Deliberate GSC weapon switches remain in ScriptControls and apply subsequently.
++pub(crate) fn filter(world: &mut bevy_ecs::world::World) {
++    // Ordinary GSC readers fall back to previous buttons on commandless ticks.
++    // Clear that fallback too; raw navigation remains solely in MenuInput.
++    let captured_clients: Vec<_> = world.resource::<Runtime>().synergy.iter()
++        .filter(|(_, input)| input.captured()).map(|(id, _)| *id).collect();
++    for (id, buttons) in crate::frame::FrameWorld::from_world(world).old_buttons_mut() {
++        if captured_clients.contains(&id.0) { *buttons = 0; }
++    }
++    let commands = world.resource::<crate::step::StepRequest>().input.cmds.clone();
++    let mut filtered = Vec::with_capacity(commands.len());
++    for (id, mut cmd) in commands {
++        let captured = world.resource::<Runtime>().synergy.get(&id.0).is_some_and(MenuInput::captured);
++        if captured {
++            let frame = crate::frame::FrameWorld::from_world(world);
++            if let Some(ps) = frame.player(id) {
++                let stance = if ps.e_flags & playerstate_iw4::eflags::PRONE != 0 { buttons::PRONE }
++                    else if ps.e_flags & playerstate_iw4::eflags::DUCK != 0 { buttons::CROUCH } else { 0 };
++                cmd = UserCmd {
++                    server_time: cmd.server_time,
++                    buttons: stance,
++                    angles: std::array::from_fn(|i| (((ps.viewangles[i] - ps.delta_angles[i]) * movement_iw4::ANGLE2SHORT) as i32) & 65535),
++                    weapon: ps.weapon as u16,
++                    weapon_mapped: ps.weapon as u16,
++                    ..Default::default()
++                };
++            } else { cmd = UserCmd { server_time: cmd.server_time, ..Default::default() }; }
++        }
++        filtered.push((id, cmd));
++    }
++    world.resource_mut::<crate::step::StepRequest>().input.cmds = filtered;
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn ready() -> MenuInput {
++        let mut s=MenuInput::default(); s.set_open(false);
++        s.sample(0,true,true); s.sample(0,true,true); s
++    }
++    #[test]
++    fn synergy_open_navigation_close_waits_for_release() {
++        let mut s=ready();
++        assert!(s.sample(buttons::ADS|buttons::MELEE_CHARGE,false,true));
++        assert_eq!(s.phase,CapturePhase::Opening);
++        s.set_open(true);
++        assert!(s.sample(buttons::ATTACK,false,true));
++        assert_eq!(s.raw_buttons(),buttons::ATTACK);
++        s.set_open(false);
++        for _ in 0..10 { assert!(s.sample(buttons::ATTACK,false,true)); assert_eq!(s.raw_buttons(),0); }
++        assert!(s.sample(0,true,true));
++        assert!(s.captured(), "the simulation must also consume the release frame");
++        assert!(!s.sample(buttons::ATTACK,false,true));
++    }
++    #[test]
++    fn synergy_focus_death_and_reconnect_require_neutral() {
++        let mut s=ready();s.set_open(true);
++        assert!(s.sample(buttons::ATTACK,false,false));assert_eq!(s.raw_buttons(),0);
++        assert!(s.sample(buttons::ATTACK,false,true));assert_eq!(s.raw_buttons(),0);
++        assert!(s.sample(0,true,true));
++        assert!(s.sample(buttons::ATTACK,false,true));assert_eq!(s.raw_buttons(),buttons::ATTACK);
++        s.set_open(false);assert!(s.sample(0,true,false));
++        assert!(s.sample(buttons::ADS|buttons::MELEE_CHARGE,false,true));
++        assert_eq!(s.phase,CapturePhase::WaitingForRelease);
++        s.sample(0,true,true); assert!(!s.sample(0,true,true));
++    }
++    #[test]
++    fn synergy_unacknowledged_open_can_recover() {
++        let mut s=ready();s.sample(buttons::ADS|buttons::MELEE_CHARGE,false,true);
++        s.sample(0,true,true); s.sample(0,true,true);assert!(!s.sample(0,true,true));
++    }
++}
+diff --git a/crates/sim/src/script/host/players.rs b/crates/sim/src/script/host/players.rs
+--- a/crates/sim/src/script/host/players.rs
++++ b/crates/sim/src/script/host/players.rs
+@@ -730,6 +730,7 @@
+     );
+     let mut runtime = world.resource_mut::<Runtime>();
+     runtime.players.remove(&client);
++    runtime.synergy.remove(&client);
+     runtime.menu_answers.remove(&client);
+     runtime.joined.remove(&client);
+     runtime.delete_entity(slot.object);

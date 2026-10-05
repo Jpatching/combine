@@ -34,6 +34,33 @@ marked ready is not owner accepted. Resume from the current card's evidence;
 advance along agreed dependencies rather than inferring readiness from a
 plan, a newer chat topic, a compiled binary or a synthetic fixture.
 
+Continue menu coverage in these owner-selected batches after recording and
+committing the Intervention/input result. Keep one batch active; split only for
+a demonstrated integration problem:
+
+1. Basic loadout: God Mode, infinite ammo/grenades, individual/all perk grant/removal.
+2. Weapons: catalogue, take/drop, attachments and camos.
+3. Presentation/adjustments: position/colours, weapon visibility, visions, camera,
+   speed, gravity and timescale.
+4. Movement: Frag No Clip and Forge Mode, including recovery and cleanup.
+5. Killstreaks/private players: catalogue effects, host permissions, guest access
+   and identity handling.
+6. Trickshot hit radius: the existing geometry, damage and cover contract.
+
+Check effect, reversal, important failures and related-option interactions;
+retain input/lifecycle regressions. Unsupported entries remain full-menu
+requirements while independent entries continue. New ideas go in the board's
+Later view. Hide HUD remains deferred. Each checked trial includes a newly
+working-options list and versioned Launch, Files and Checklist shortcuts.
+
+Source publication means a reviewed branch with its remote revision verified.
+A local trial means an exact checked build is available for review. A local
+release additionally requires the owner's acceptance of that exact build and
+preserves its predecessor. Public full-menu release requires complete coverage
+and hit-radius checks, explicit build acceptance, reproducibility and applicable
+distribution-permission review, then separate publication authority. Earlier
+experimental source snapshots establish none of those release claims.
+
 The Fortnite research target is Windows `Release-3.1-CL-3917250` (Chapter 1
 Season 3), as selected in the owner's plan. Local legitimate access, identity,
 exporter compatibility and conversion remain unverified. Start with one Tilted
@@ -72,3 +99,24 @@ The shared Windows review helpers stay in global storage. Combine's adapter is
 `scripts/prepare-trickshot-trial.ps1`. A checklist for a rejected earlier native
 build cannot establish acceptance of the actual Synergy build. Raw logs, game
 files, settings, recordings and local machine paths stay outside published source.
+
+## Visible progress without extra ceremony
+
+The owner can say **Continue Combine**; Codex selects the next skill from the
+current evidence. Now shows the phase, observable outcome, evidence, blocker and
+next actor/action; Milestones shows larger outcomes and Needs you shows decisions
+or trials. Reuse settled decisions and requirements. Failed checks keep the slice
+in Phase 5; changed assumptions reopen the affected earlier decision. Small fixes
+use the lightweight path rather than creating new planning documents.
+
+At meaningful updates, record the observation date/time and exact build/source
+where available. Implementation start dates are stamped once; target dates stay
+blank unless deliberately scheduled. Test, acceptance, merge and release dates
+are separate verified events; never infer a merge from a passing check. Roadmap
+date mapping still needs a UI check.
+
+During active sessions, flag workflow bloat when documents duplicate an authority,
+a step repeats a settled decision or an expensive check without changed evidence,
+a helper has no bounded question, or process work delays the playable outcome.
+State the redundant step and the simpler next action. These are session warnings,
+not a background monitor. Keep one active slice and concise evidence pointers.

@@ -340,3 +340,25 @@ The owner replied “allow - reviewed source branch proceed”. Apply the select
 routing policy and reviewed branch publication; retain explicit owner-test,
 merge/release and private-data boundaries. Skill/helper selection is the lead's
 job. A missing asset/access/verdict remains a real dependency, not a model problem.
+
+## D-018: useful menu batches and exact-build release states — 2026-10-05
+
+The owner supplied the ordered batch plan now recorded in docs/WORKFLOW.md:
+finish the Intervention/input checkpoint, then basic loadout, weapons,
+presentation/adjustments, complex movement, killstreaks/private players and
+the agreed trickshot hit radius. Keep one batch active. Split only on a
+demonstrated integration problem; unsupported entries remain completion
+requirements while independent entries continue. Hide HUD stays deferred.
+
+Record effects, reversals, failures and interactions against committed source,
+upstream pins, patch and executable hashes. Versioned local reviews supply
+Launch, Files, Checklist and newly working options; preserve predecessors.
+Experimental source publication, checked local trial, exact-build owner-accepted
+local release and public full-menu release are distinct. Public release needs
+complete coverage, hit-radius checks, acceptance, reproducibility/permissions
+review and explicit publication authority; assets remain excluded.
+
+The owner reports on October 5: only Intervention worked in the most recent
+trial; other options were missing. No exact build identity or full-menu
+acceptance was provided. Retain this successful Intervention report separately
+from automated diagnostics and the missing option coverage.

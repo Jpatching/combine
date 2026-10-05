@@ -1,0 +1,28 @@
+TEST SYNERGY - Intervention input trial
+
+Use this exact build. Report "accept this build" or describe what failed.
+Other Synergy options are visible but are outside this trial's verified scope.
+The inherited offline statistics error is recorded separately.
+
+Actual Synergy controls (default bindings; the game's prompts reflect remaps):
+Open: hold Aim + press Melee (DualSense L2+R3; keyboard right mouse + V).
+Up / Down: Aim / Fire (L2 / R2; right / left mouse).
+Select: Use (Square; E).
+Back: Melee (R3; V). Back at the root closes the menu.
+Sliders: Tactical / Frag (L1 / R1; G / F).
+Release the opening chord before navigating. F6 and arrow navigation belong to
+an earlier native menu and are not controls for this Synergy build.
+
+1. Open Synergy. Use Weapon Options > Give Weapons > Sniper Rifles > Intervention.
+   Confirm its original menu is readable and that Intervention becomes held.
+2. Navigate with keyboard and controller. While open, fire/aim/use/jump/melee,
+   movement, camera and J/both-stick skating controls must not affect gameplay.
+3. Back to root and close while holding Fire. Nothing should fire until all
+   controls return to neutral and you press Fire again. Then fire on foot.
+4. Reopen. Change focus and return; disconnect/reconnect the controller. Release
+   controls, then confirm the menu and normal play still recover.
+5. Quit normally and relaunch with Test Synergy. Check 1280x720 and 1920x1080
+   readability, and report any error, lost control, unexpected action or freeze.
+
+The world keeps running while the menu is open. Testing is not acceptance;
+acceptance, source publication, merge and release are recorded separately.

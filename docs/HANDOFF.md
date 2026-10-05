@@ -1,61 +1,86 @@
-# Handoff — resume Synergy input isolation
+# Handoff — actual Synergy trial ready for owner test
 
-The actual pinned Synergy GSC runs in the mashup and automated interaction reached
-Intervention equip/hold and close. Input isolation is unfinished: diagnostic 05
-recorded a shot while the menu was open. No corrected owner trial is ready or
-accepted. Full menu coverage and trickshot hit radius remain, followed by the
-Fortnite qualification and map slices in the [agreed order](WORKFLOW.md).
+The actual pinned Synergy GSC menu runs with its own presentation/options.
+Intervention equip and input isolation passed bounded runtime and synthetic
+checks. A versioned local trial is prepared; owner gameplay testing and exact-build
+acceptance remain separate. Other option effects and trickshot hit radius are
+unverified. The owner reports Intervention worked in the preceding most recent
+trial, with other options missing; its exact build was not identified.
 
-The live [C-016 card](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=261972158)
-was read on 2026-10-04: Phase 5 Implementation, sole Now item, Codex next,
-input isolation first. Its current evidence identifies the statistics error as
-inherited debt reproduced with Synergy disabled; an older section still called
-it the integration blocker. Preserve that distinction when reconciling evidence.
-The board remains status authority; this file is a recovery/evidence pointer.
+Phase 6 owner trial for the input checkpoint; one coverage batch follows, basic
+loadout controls. The supplied six-batch order and release definitions are in
+[WORKFLOW.md](WORKFLOW.md), D-018 and the live private board. Hide HUD stays deferred.
+Fortnite qualification remains after the menu dependencies.
 
 ```text
-Physical input -> actual Synergy script -> menu action
-       | menu captured / held after close -> block gameplay input
-       | released after close -> ordinary gameplay
+Physical input -> actual Synergy GSC -> original menu action
+       | captured / closing / held controls -> block gameplay
+       | neutral release -> fresh input -> ordinary gameplay
        v
-Regression checks -> committed exact build -> owner trial -> explicit verdict
+Exact trial -> owner test/report -> further option batches -> explicit acceptance
 ```
 
-## Source and inherited work
+## Exact trial and source
 
-- Product checkout: branch `slice/synergy-input-isolation`, HEAD
-  `3f2e70d6b9be401251373a61f55cd0616c150a57` at the workflow audit.
-  Actual-script checkpoint is `71d5025d15ebbeb79985f54cc653745922e0bed6`;
-  runtime and Synergy pins remain unchanged in `research/upstream.lock.json`.
-- Four inherited paths remain dirty: `scripts/prepare-trickshot-trial.ps1`,
-  `scripts/check-synergy-diagnostic.py`, `scripts/launch-synergy-trial.ps1`,
-  `templates/synergy-checklist.txt`. They are not validated or included in this
-  workflow-only change.
-- Runtime input edits are in the ignored `.private/intervention/upstream`
-  checkout, including console and simulation `synergy_input.rs`. They are not
-  captured by a Combine commit. Inspect/reproduce before editing, then capture
-  the reviewed source delta as a patch. Private reproduction helpers and
-  diagnostics are under `.private/synergy/`; never publish their raw contents.
-- Workflow repair is isolated on `chore/workflow-routing`, based on `3f2e70d6b9be401251373a61f55cd0616c150a57`
-  in a separate worktree. Resolve its exact commit with Git. Before resuming in
-  the product checkout, bring over this reviewed documentation commit while
-  preserving the four inherited paths and runtime checkout; this is local
-  integration, not a GitHub merge or release.
-- Read [workflow evidence](../research/results/2026-10-04-workflow-routing.md)
-  for installed defaults and verification. Remote branch read on 2026-10-04
-  returned no heads before this repair. Resolve publication and synchronization
-  from the remote branch SHA and latest live card; do not infer them from this file.
+Desktop folder: **Combine Synergy - 2026-10-05 - c591086**. Shortcuts:
+**Test Synergy**, **Open trial files**, **Read checklist**. Source checkpoint
+`c5910860c57b69c7e7c8dc2edae88f3cf99a31f7`, branch
+`slice/synergy-input-isolation`, base
+`b52c28f6fe1a21c81f610a7d96a7e48d7f953650`.
+The subsequent documentation commit records delivery without changing build source.
+Resolve branch HEAD with Git; never infer a merge or release.
 
-## Next check
+Executable SHA-256:
+`e06c7f1fc217523485363fe156fe448ea94b2cba8b14c52cb66a3d4fff5e9268`.
+Review manifest read-back matches source checkpoint, executable, prepared/unaccepted
+state and three shortcuts. `launch.ps1 -VerifyOnly` passes without launching.
+Source runtime executable and settings are preserved; older trials remain.
+The manifest includes all five patch hashes and unchanged runtime/menu pins.
+Input delta is committed as `patches/synergy-input-v0.4.0.patch`; the ignored runtime
+checkout is still intentionally dirty. Private logs/assets/settings remain excluded.
 
-Resume the input regression, covering open/navigation, held release, skating
-shortcuts, focus loss and controller reconnect. Recheck actual Intervention flow,
-fresh closed-menu firing, presentation and relaunch; record failed/missing checks.
-Only then prepare a versioned exact-build trial and stop for the owner to test.
-The native imitation remains rejected; no synthetic check establishes play.
+## Checks and limits
 
-Earlier [actual-script evidence](../research/results/2026-10-04-synergy-gsc.md)
-and [menu requirements](TRICKSHOT_MENU.md) remain relevant. Baseline recovery,
-possible freeze, audio listening and original-file comparisons are inherited gaps.
-Fortnite access/build identity/export remain unverified; no Fortnite assets or
-adapter have been added. Preserve assets, logs, prior trials and original installs.
+[October 5 evidence](../research/results/2026-10-05-synergy-input.md) records commands,
+failed runs and inherited debt. Current successful checks:
+
+- Windows build: pinned Rust 1.95.0 / cargo-xwin / play profile, launcher `iw4l`;
+  hash unchanged after rebuild. Existing compiler attribute/private-interface
+  warnings remain, no new warning repair included.
+- Windows sim `synergy`: 4 passed; console `practice`: 20 passed.
+- Repository gate `python3 scripts/verify.py`: 23 tests, 2 recipes, links in 14 docs.
+- PowerShell log redaction/order fixtures and Synergy review adapter fixtures pass;
+  shared review bundle suite: 14 checks pass.
+- Input patch replays byte-for-byte across 16 runtime files.
+- Corrected diagnostic 13 versus same-build disabled diagnostic 12 passes the
+  strict checker: actual hierarchy/Intervention held/close/fresh shot, no observed
+  open-menu shot, normal exit 0. Statistics/schema fault reproduced disabled.
+- Corrected four PNGs are 1920x1080; preserved 720 captures are 1280x720.
+  Root/Intervention visual inspection finds the original readable Synergy menu.
+
+The 1080 PNG named closed still shows the menu; it does not prove closed
+presentation. The stream records extra reopen/close transitions after the successful
+close/fresh shot. Physical reliable close/reopen is an explicit owner checklist
+item. Automated timed inputs and synthetic focus/reconnect checks do not establish
+physical gameplay. Diagnostics 10 and 11 failed and are preserved privately;
+old report 09 no longer passes the stricter provenance contract.
+
+Independent bounded Standards/Spec review identified four diagnostic-evidence
+issues; all corrected and re-reviewed without remaining actionable source findings.
+Diagnostic faults from imported modules are retained with private arguments removed;
+statistics exemption requires successful disabled same-build provenance.
+
+Source publication and board read-back are being finalized at this handoff.
+If their remote operations fail, status remains sync pending; local trial readiness
+is already verified. No owner acceptance, local release, merge or public release.
+Baseline recovery/freeze, audio listening and original-file comparisons remain
+inherited gaps; no Fortnite adapter/assets are added.
+
+## Next actor and check
+
+Owner can test the game using Test Synergy: open with Aim+Melee, equip Intervention,
+check keyboard/controller capture, close while holding Fire, release then fire,
+focus/reconnect and quit/relaunch. Report this exact folder/build, any failing
+control and which option effects worked. Other sections are available for inspection
+but not verified as working. Codex then continues the basic loadout batch, checking
+effects/reversal/failure/interaction, retaining unsupported entries as requirements.

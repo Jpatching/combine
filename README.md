@@ -4,9 +4,10 @@ Combine explores a controller-friendly trickshot menu in the existing
 MW2 / Skate 3 / Minecraft mashup. The destination is the **proper Synergy menu
 plus trickshot hit radius**, without Combine-specific practice additions.
 The owner confirmed on October 4 that this means **Synergy itself**, running its
-GSC menu source, rather than our custom native panel. That integration is in
-progress. The earlier Intervention build is preserved and unaccepted; it is not
-the requested replacement. No new owner trial is ready. This is experimental,
+GSC menu source, rather than our custom native panel. The actual GSC menu
+is integrated, with Intervention/input checks passing and a versioned local
+trial ready. The earlier native Intervention build is preserved and unaccepted;
+it is not the requested replacement. Other option effects remain unverified. This is experimental,
 not a complete menu or production launcher.
 See the [menu requirements and coverage](docs/TRICKSHOT_MENU.md).
 To resume, say **Continue Combine**; the [workflow](docs/WORKFLOW.md) follows current
@@ -23,9 +24,12 @@ build or synthetic test does not establish gameplay.
 
 ## Current trial status
 
-There is no prepared Synergy-script trial or new desktop review folder yet.
-Once the actual menu passes its checks, the handoff will include shortcuts to
-its exact build, files and checklist. See the [current handoff](docs/HANDOFF.md).
+The October 5 desktop review folder **Combine Synergy - 2026-10-05 - c591086**
+contains **Test Synergy**, **Open trial files** and **Read checklist** shortcuts.
+The actual menu and all its original sections are present; Intervention/input
+is the verified scope. God Mode, ammo/perks and subsequent batches still need
+effect/reversal checks. The agreed hit radius is not implemented.
+The owner can launch this exact local trial; it is prepared and unaccepted. See the [current handoff](docs/HANDOFF.md).
 
 Developers can reproduce the source patches using the [menu guide](docs/TRICKSHOT_MENU.md).
 This source repository contains no game files, ready-to-play download or installer.

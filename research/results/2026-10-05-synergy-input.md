@@ -76,7 +76,13 @@ The world's existing offline statistics/schema fault is inherited debt, but its
 exemption now requires a successful disabled run of the same executable.
 
 Raw logs, machine paths, captures, game assets and local settings remain private.
-Diagnostic launch is a bounded test and supplies no owner verdict. Exact review preparation is pending the source checkpoint and repository gate.
+Diagnostic launch is a bounded test and supplies no owner verdict. Source checkpoint `c5910860c57b69c7e7c8dc2edae88f3cf99a31f7` was committed.
+The repository gate passes: 23 tests, 2 recipes, 14 linked documents. The pinned
+Windows launcher rebuild succeeds with the same executable hash; inherited
+compiler attribute/private-interface warnings remain. The versioned desktop
+review folder **Combine Synergy - 2026-10-05 - c591086** is prepared and
+unaccepted. Read-back verifies source/hash/three shortcuts; `-VerifyOnly` passes
+without starting the owner game. Its checklist states the closed-capture gap.
 The 1080 capture labelled closed still shows the menu open; it cannot establish
 closed presentation. The chronological stream proves an earlier close and fresh
 shot; synthetic capture tests cover close/release and closed native rendering.

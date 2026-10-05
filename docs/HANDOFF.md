@@ -1,3 +1,195 @@
+# Handoff — full-island spec published; first Rust preparation slice implemented
+
+The full selected Fortnite island + Skate-only specification and eight dependent
+tickets are published on the private board. A new source patch validates native
+world geometry and prepares the existing Skate host without MW match startup.
+No Fortnite decoder, rendered standalone session, real-data preparation or play
+is claimed. Actual Synergy trial and hit radius remain separate and unchanged.
+
+[Specification](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=262165772) ·
+[Preparation slice](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=263192627) ·
+[Source qualification](../research/results/2026-10-06-fortnite-adapter-qualification.md) ·
+[Implementation/reproduction](../research/results/2026-10-06-standalone-world.md).
+
+```text
+Validated native world -> existing Skate host preparation (source slice)
+  -> standalone render/input/lifecycle -> real export adapter -> full-island travel
+Authentic selected-build input -> exporter witness/census --^
+Invalid geometry -> explicit error before assets/physics
+```
+
+## Current evidence and Git boundary
+
+Branch `slice/separate-mashup-qualification`, starting/base commit
+`a5593d671142f31653d45caeaad7b926d40ff855`. Local checkpoints: `b5a2d7a` preserves inherited scaffolding; `82ea441` records
+the specification/docs; `adf769c33756380456a2a7267798f5f16908a3d5` records the
+verified runtime source. Final handoff/patch-context correction is a separate
+documentation checkpoint; resolve branch HEAD for its exact revision.
+No push, merge or release.
+Owner explicitly invoked implement after requesting clearer branch-to-main
+handling; local reviewable commits resume. Inherited scaffolding was checkpointed separately as unfinished directory
+preparation; its original two file hashes are unchanged.
+
+Remote refreshed October 6: only chore/workflow-routing and
+slice/synergy-input-isolation exist. No remote main; local main is nine historical
+commits behind the starting revision. Review the complete baseline before
+publishing a main target/PR; do not silently merge stacked unrelated work.
+
+Runtime pin unchanged: `f608f85e407ff1b7689d54a9aafdd16e95711ac4`; remote HEAD/tag
+still match. New source-only patch `patches/skate-standalone-v0.4.0.patch` applies
+directly to a clean pin, independently of the Synergy patch chain. Its SHA-256 is
+`0c9ee1c9d295c3508d95fe067ceb4b6bae13fba2ebeb208372d507e36df11c3c`.
+Original dirty runtime and existing trials remain untouched. Public CUE4Parse
+source downloaded/inspected at `e4ea4ba8ec2b88d08b2066dfb8962863dccb36cc`, not run.
+No verified local Fortnite build or export; no game archive downloaded.
+
+## Checks
+
+- Native Linux Rust 1.95.0 public host-boundary tests: 13 passed, 0 failed.
+- Standalone example validates synthetic world without loading assets or starting
+  host/gameplay; missing assets and invalid CLI arguments exit 1.
+- Patch replay: all 5 files byte-identical in a clean pinned checkout. The
+  packaging diff uses one context line to avoid a whitespace diagnostic on a
+  blank context line inside the patch; runtime source bytes are unchanged.
+- Broader Skate-host `--all-targets` test build FAILED on upstream missing
+  `src/tests/map_startup.rs`; full host suite remains unverified. Three inherited
+  compiler warnings preserved. No Windows build or physical gameplay this slice.
+- Repository gate: PASS, 27 tests (including 4 inherited scaffolding tests),
+  2 recipes and links in 17 documents. `git diff --check`: PASS.
+- Independent Standards and Spec review: both arithmetic findings fixed and
+  re-reviewed; no remaining actionable findings in this source slice.
+
+## Board and next actor
+
+C-019 specification and C-023 through C-030 tickets read back successfully;
+duplicate historical paragraphs consolidated earlier, full-island destination
+corrected, fields/views/unrelated drafts preserved. Readiness and named blockers
+are body text because private drafts lack labels/native dependency links.
+Final read-back PASS: C-023 Done for its bounded source contract; C-025 Todo/Now
+as the next implementation; C-019 remains In Progress for the full integration.
+All views/fields preserved. Phase 5 source slice complete | current slice branch
+with local checkpoints above | unpushed | focused/gate pass, inherited host-suite
+failure | board synced | Codex next: C-025 asset check and standalone rendering.
+
+Next Codex: [render/control an isolated Skate session (C-025)](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=263192734),
+after confirming the local Skate asset setup. It must use standalone input/pose/
+camera ownership and exclude MW startup/UI/combat; test failure/exit without
+claiming Fortnite play. C-024 independently requires legitimate selected-build
+input and an inspected export before freezing serialization. Full-island
+residency/streaming stays undecided until census and performance measurements.
+
+---
+
+## Preserved earlier handoff history (superseded current status/order)
+
+ Handoff — reconciled guidance; Fortnite + Skate-only wayfinding started
+
+The owner first selected hit radius before other menu batches (D-019), then
+requested Fortnite + Skate-only qualification and a substantial open-source
+roadmap/player hub (D-020). Fortnite has no MW2 combat or Synergy. Actual pinned
+Synergy remains a separate experience; hit radius is still first within its menu
+implementation work. The exact Synergy physical trial stays prepared/unaccepted.
+No gameplay code, adapter, game assets, commits, pushes, promotion or release were
+produced in this session.
+
+```text
+Live board + requirements + latest correction + evidence -> one missing check
+  | Fortnite + Skate-only -> access/export + Rust importer qualification
+  | separate actual Synergy -> hit-radius integration; owner input trial pending
+  v
+Source checks -> exact build ready to try -> physical test -> explicit acceptance
+```
+
+## Source and preserved work
+
+Branch `slice/separate-mashup-qualification`; HEAD/base
+`a5593d671142f31653d45caeaad7b926d40ff855`.
+Correction remains uncommitted/unpushed. Tracked changes: README, AGENTS, workflow,
+menu guide, helper/tracker guidance, decisions, source metadata and this handoff.
+New docs: ROADMAP, REPRODUCING, GROWTH; new redacted evidence: hit-radius source
+trace and Fortnite wayfinding. Exact final dirty state is available via
+`git status --short`; no remote-publication result is claimed.
+
+Inherited untracked `scripts/prepare_experience.py` and `tests/test_experiences.py`
+are preserved, excluded from the correction and not playable progress. SHA-256:
+script `b0ae2b3c2a43e0c8be720846dc44ee4a22e7976e56d800ecb95d1d673e32dbda`;
+test `cf50480ac0749048f66b91d132d5552dffca837d55fd33abaa7bdaee76d4bcd5`.
+Full gate discovers inherited tests; report their coverage separately.
+
+## Changed guidance and checks
+
+README describes separate experiences and actual Synergy controls; native-menu
+procedures remain explicitly historical in the menu guide. Source metadata keeps
+historical menu_port unchanged and separately records actual menu_execution.
+D-019/D-020 preserve previous decisions and explain superseding order/composition.
+Roadmap describes destinations; board owns detailed status. Reproduction guide
+separates public checks, pinned Rust build and private-data trial prerequisites.
+Growth recommendations cite GitHub guidance; no keywords/settings were applied
+remotely. Rust owns runtime gameplay; GSC owns Synergy menu; Python/PowerShell
+validate data and prepare trials. Existing adapted engineering setup verified:
+AGENTS tracker/domain pointers exist; triage is absent, so no label setup needed.
+
+Approved global edits changed only existing ROUTING.md and matt-workflow/SKILL.md.
+Shared `python3 -B ~/.codex/workflows/solo-development/test_workflow.py`: 15 pass.
+Skill validator: valid. Reminder hook/config hashes unchanged:
+`5ef1f4c0069771ef7346d76529511dc4c066b48fe15f2730fb57c4db3219ffc8` /
+`3e154e61c17258b933abeb8a43bb4cf2f8c4967b7372b3fd3a844b51defe738c`.
+No new hook/dashboard/automatic pickup/skill upgrade. Static reminder does not
+synchronize status or check documentation.
+
+Upstream `git ls-remote` refreshed October 5: runtime HEAD/v0.4.0 match
+`f608f85e407ff1b7689d54a9aafdd16e95711ac4`; Synergy HEAD/main match
+`33bcc80f5446e7543a2eb68b17c798e29d3f27c4`. Pins unchanged.
+Repository gate `python3 scripts/verify.py`: PASS, 27 tests (23 existing + 4
+inherited scaffolding tests), 2 recipes, links in 17 documents. No inherited
+failures; historical runtime/statistics and physical-play gaps remain unchanged.
+`git diff --check`: PASS. Owner answer round resolved: first hub is a GitHub catalogue; community-tested
+means exact build plus participant results (minimum count undecided); additional
+game candidates wait until Fortnite + Skate first playable milestone. C-021 is
+resolved and read back; C-022 pilot threshold remains open.
+
+Cold document/board resume check by a read-only helper passed the required
+distinctions: actual GSC, hit-radius-first within menu work, pending c591086
+physical verdict, preserved unfinished scaffolding, Fortnite + Skate-only
+Phase 1 and compatibility prerequisites. It found an old menu-then-Fortnite
+phrase in AGENTS; corrected to a pointer to current board/latest decisions.
+Historical ordering is explicitly labelled in the preserved appendix/card.
+This checks a fresh helper read, not a new Codex client or hook operation. No Rust rebuild or gameplay required/claimed for documentation changes.
+
+## Board and next step
+
+Reconciliation of existing menu milestone/input trial and static overview read
+back successfully; unrelated drafts, fields and all views preserved. Helper
+initially rejected existing live columns/filter before writes; temporary update
+validation retained the live layout rather than resetting it.
+Wayfinding chart read-back PASS: existing Fortnite qualification is reused,
+new map and two decisions created; unrelated drafts, fields and all views preserved.
+[Map](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=263154297),
+[Fortnite qualification](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=262165772),
+[hub readiness](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=263160968),
+[traction pilot](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=263161021).
+The map and qualification are Phase 1/Now; separate menu milestone is Next;
+C-016 remains Phase 6/Now with owner Trial input. API parsing errors during charting
+left a partial map draft; it was repaired in place without duplicate maps.
+Final C-019/C-020 evidence/blocker/next-check update read-back PASS; all unrelated
+state preserved. Pending source/access evidence remains a blocker, not a playable claim.
+
+The pinned runtime gives concrete adapter precedent: its Minecraft loader/render
+loop streams custom collision into sim::voxel while the Skate and Minecraft
+systems coexist. See the updated [Fortnite qualification evidence](../research/results/2026-10-05-fortnite-wayfinding.md). It demonstrates an extension pattern, not Fortnite format compatibility.
+Skate consumes `ClipCollision`, extracts solid triangles from meshes/brushes/static models and detects rails from walkable edges; Minecraft has a separate voxel-face bridge. Fortnite should qualify a static `ClipCollision` path first. Critical unknown: standard proxy-map session setup may retain MW2 weapons/combat/Synergy. Next compatibility check must find an explicit no-MW2 match configuration before implementation. Source-only tracing can proceed while access/export is unresolved. A lawful,
+identified selected-build export witness is required before genuine conversion
+or gameplay. See [Fortnite evidence](../research/results/2026-10-05-fortnite-wayfinding.md).
+For the separate menu slice, next qualification is forward penetration intervals,
+body pose producers and target-side cover witness, per the
+[hit-radius source trace](../research/results/2026-10-05-hit-radius-qualification.md).
+
+## Preserved exact Synergy trial evidence
+
+The following earlier handoff retains its build/evidence and historical next-action
+ordering. Its basic-loadout-first instructions are superseded by D-019/D-020 and
+the live board. Never infer a new physical verdict or rebuild from this history.
+
 # Handoff — actual Synergy trial ready for owner test
 
 The actual pinned Synergy GSC menu runs with its own presentation/options.

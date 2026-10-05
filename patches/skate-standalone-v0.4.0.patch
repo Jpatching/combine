@@ -3371,9 +3371,7 @@ diff --git a/skate/crates/skate-host/src/lib.rs b/skate/crates/skate-host/src/li
 index d844700..88a879a 100644
 --- a/skate/crates/skate-host/src/lib.rs
 +++ b/skate/crates/skate-host/src/lib.rs
-@@ -17,3 +17,6 @@ mod tuning;
- pub use physics::bridge;
- 
+@@ -19 +19,4 @@ pub use physics::bridge;
  mod session_marker;
 +
 +/// Validated world-only session preparation, independent of MW match startup.

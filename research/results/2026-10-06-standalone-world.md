@@ -88,7 +88,7 @@ not returned in the new public preparation error.
   and native triangle constructor; regression cases now pass.
 - Final patch replays byte-for-byte across all 5 changed files in a clean pinned
   checkout. SHA-256:
-  `a2cf76d651be1fa3c1a75d4d66ee439b611caa39e229e7eb9d57baea6177eaae`.
+  `0c9ee1c9d295c3508d95fe067ceb4b6bae13fba2ebeb208372d507e36df11c3c`.
 - Three inherited Linux compile warnings: unused input capability cache and two
   private-interface warnings. No unrelated cleanup included.
 

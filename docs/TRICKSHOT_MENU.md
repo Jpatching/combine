@@ -6,7 +6,7 @@ launcher additions. Existing patches and trials are preserved as earlier work.
 They do not establish feature parity or acceptance of this destination.
 
 The [source coverage record](../research/results/2026-10-04-menu-coverage.md)
-rechecks the inventory and supports the first demonstrable slice below. Hide HUD
+rechecks the inventory and preserves earlier source coverage. Hide HUD
 is deferred and is not an active slice or prerequisite.
 
 ## Owner correction — use Synergy itself, October 4
@@ -21,8 +21,8 @@ folder is enough. D-015 records this correction.
 The native-port implementation details and bounded Intervention contract below
 are historical where they conflict with this correction. Preserve their source
 and test evidence, but do not prepare that build as the requested replacement.
-The first integration check remains opening the actual Synergy menu, navigating
-to Intervention and equipping it. The full menu destination and agreed hit-radius
+The original integration checkpoint was opening actual Synergy, navigating
+to Intervention and equipping it; its automated evidence is preserved. The full menu destination and agreed hit-radius
 requirements remain; individual options need execution evidence before claiming
 support. The owner reports Intervention worked in the most recent trial, with other
 options missing; exact-build acceptance is not recorded. See the
@@ -38,9 +38,14 @@ state; the embedded pinned menu bytes, presentation and option actions remain
 Synergy's. It blocks gameplay commands and stale button history through the
 neutral release frame. New physical input after release resumes ordinary play.
 
-Build `launcher --bin iw4l` with the pinned Windows tools below. Build the `sim`
-and `console` lib test executables; run sim with `synergy` and console with
-`practice` on Windows. These cover scripted open/close, held Fire, keyboard/pad
+Build with Rust 1.95.0, cargo-xwin 0.23.1, Clang/LLVM 19.1.1 and rust-lld,
+using the existing Windows SDK/CRT cache and unchanged Cargo.lock:
+
+```sh
+cargo +1.95.0 xwin build --locked --profile play --target x86_64-pc-windows-msvc -p launcher --bin iw4l
+cargo +1.95.0 xwin test --locked --profile play --target x86_64-pc-windows-msvc -p sim -p console --lib --no-run
+```
+Run sim with `synergy` and console with `practice` on Windows. These cover scripted open/close, held Fire, keyboard/pad
 capture, skating shortcuts, focus/reconnect and fresh input. They are synthetic
 integration evidence, separate from owner gameplay.
 
@@ -61,194 +66,35 @@ close and a post-close shot in order, rejects any observed menu-open shot and
 requires normal exit. The fixed runner releases then freshly presses Fire;
 synthetic recovery tests separately exercise the held-close boundary.
 
+Actual controls and physical checks are in the [Synergy checklist](../templates/synergy-checklist.txt).
+Prepare with the trial adapter's Source/Binary/Destination/ExpectedSha256,
+ReviewDirectory/EvidenceFile/ChecklistFile/WorkflowDirectory parameters and `-Synergy`.
+Evidence JSON contains issue, full sourceCommit, upstreamPins, ordered patches
+(name/hash) and checks (command/result, all pass). Launch/files/checklist shortcuts
+use the exact checked build; use `-VerifyOnly` to check availability without launch.
+
 Only after required checks pass, prepare a versioned owner review using the
-adapter below with `-Synergy` and `templates/synergy-checklist.txt`. The wrapper
+[trial adapter](../scripts/prepare-trickshot-trial.ps1) with `-Synergy` and `templates/synergy-checklist.txt`. The wrapper
 forces actual Synergy on, observer/console stdin off and no diagnostic commands.
 Use `-VerifyOnly` to verify launch availability without starting the owner trial.
 The trial's manifest identifies source commit, pins, patch hashes and executable.
 Previous builds remain preserved; owner verdict, merge and release are separate.
 
-## Preserved native Intervention build and review adapter — October 4
-
-Apply `trickshot-v0.4.0.patch`, then `skate-audio-v0.4.0.patch`, then
-`intervention-v0.4.0.patch` to the pinned runtime. Do not apply deferred Hide HUD.
-The new root contains six Synergy sections; only Weapon Options → Give Weapons →
-Sniper Rifles → Intervention is enabled. Requests use the native weapon catalogue
-and simulation acknowledgement; "equipped" also requires the actual held weapon
-and inventory. Previous practice patches/trials are preserved.
-
-Build with the pinned tools below. Run the console tests with `practice`, build
-`launcher --bin iw4l` and `console --example practice_menu_preview`, then run
-720p/1080p previews. The preview now captures root, Intervention, failure and
-closed states. These are synthetic checks, not play or acceptance.
-
-The adapter is verified with synthetic fixtures. The command below documents
-its interface; do not prepare the rejected native build for owner acceptance.
-For a future corrected build, prepare the folder only after required checks pass:
-
-```powershell
-.\scripts\prepare-trickshot-trial.ps1 -Source '<prepared runtime>' `
-  -Binary '<built iw4l.exe>' -Destination '<new versioned trial>' `
-  -ExpectedSha256 '<build SHA-256>' -ReviewDirectory '<new versioned review folder>' `
-  -EvidenceFile '<local evidence.json>' `
-  -ChecklistFile '.\templates\intervention-checklist.txt' `
-  -WorkflowDirectory '<shared solo-development workflow directory>'
-```
-
-Evidence JSON contains `issue`, full `sourceCommit`, `upstreamPins`, ordered
-`patches` (name/hash) and `checks` (command/result, all pass). The shared Windows
-helper creates **Test Intervention**, **Open trial files**, **Read checklist**
-and `evidence.json`, marked prepared/unaccepted. The launcher validates the hash,
-checks for an existing game and holds a mutex through process exit so concurrent
-shortcuts cannot start another trial. Errors are shown explicitly. Launch history
-stays local and never claims gameplay. Do not use `-Launch` for the owner handoff;
-it is an explicit combined operation requiring the review bundle.
-
-The [Intervention checklist](../templates/intervention-checklist.txt) replaces the
-earlier practice sense-check for this trial. Report keyboard/controller equip,
-fire, input release, relaunch and the exact build in chat. Record the verdict
-against that build; revised binaries require a new folder and verdict. No raw
-logs, machine paths or game content go to the Project. Reviewed source-branch publication is now authorized by D-016/D-017; owner
-acceptance, merge and release remain separate.
-
-The sections below retain reproduction/history for the earlier menu and the
-agreed full-menu contract. [Current evidence](../research/results/2026-10-04-intervention-review.md)
-separates automated checks, preparation, launch and owner acceptance.
-
-## Existing development build
-
-This slice gives the existing local practice actions a Synergy-derived native
-menu. [README](../README.md) is the player guide; this document owns developer
-reproduction and acceptance steps. No console commands are needed to use the menu.
-
-```text
-Physical buttons -> menu state (page, history, cursor, repeat, release barrier)
-                          | closed / unavailable -> no menu UI
-                          | open
-                          +-> native proportional-font panel
-                          +-> typed action -> local-host checks -> existing queues
-                                                  | unavailable -> menu feedback
-After closing -> wait for physical release -> gameplay controls resume
-```
-
-Navigation and practice actions are separate. The native panel has seven row
-slots (unused slots remain blank). Action results remain visible until the next
-action; an accepted queue request is labelled requested, not completed.
-
-## Pinned source and build
-
-Use runtime `f608f85e407ff1b7689d54a9aafdd16e95711ac4` (v0.4.0) and
-Synergy `33bcc80f5446e7543a2eb68b17c798e29d3f27c4`. The pins and observed source
-hashes are in [upstream.lock.json](../research/upstream.lock.json).
-The patch contains the prior local practice implementation and its replacement
-UI. Apply it to a clean checkout of the selected runtime, not over the old patch:
-
-```sh
-git apply --check /path/to/combine/patches/trickshot-v0.4.0.patch
-git apply /path/to/combine/patches/trickshot-v0.4.0.patch
-cargo +1.95.0 xwin build --locked --profile play --target x86_64-pc-windows-msvc -p launcher
-```
-
-Established cross-build tools: Rust 1.95.0, cargo-xwin 0.23.1, Clang/LLVM 19.1.1
-for native dependencies, and Rust's bundled rust-lld linker. The Windows SDK and
-CRT are the existing cargo-xwin cache; retain Cargo.lock. Upstream's moving
-`stable` is not the reproduction pin. No upstream updater is built or published.
-See the [result record](../research/results/2026-10-03-synergy-menu.md) for exact
-local build commands, hashes, verification results and inherited warnings.
-
-## Focused verification
-
-The two pure Rust modules can be tested without dependencies or game assets:
-
-```sh
-rustc +1.95.0 --edition 2024 --test crates/console/src/practice_menu.rs -o /tmp/menu-tests
-/tmp/menu-tests
-rustc +1.95.0 --edition 2024 --test crates/console/src/practice_core.rs -o /tmp/practice-tests
-/tmp/practice-tests
-```
-
-Build the actual input/action integration tests, then run the resulting console
-test executable on Windows with the `practice` filter:
-
-```sh
-cargo +1.95.0 xwin test --locked --profile play --target x86_64-pc-windows-msvc -p console --lib --no-run
-cargo +1.95.0 xwin build --locked --profile play --target x86_64-pc-windows-msvc -p console --example practice_menu_preview
-```
-
-The preview executable takes `width height fresh-output-directory`. Run it once
-at `1280 720` and once at `1920 1080`. It renders the production UI on a plain
-background, captures root/Aim/error/closed states and exits. It loads no game
-assets or profile and opens no network interface. Keep generated images local.
-This verifies native rendering, not gameplay or owner acceptance.
-
-## Fresh Windows trial
-
-Build `target/x86_64-pc-windows-msvc/play/iw4l.exe`, calculate SHA-256, and use
-[scripts/prepare-trickshot-trial.ps1](../scripts/prepare-trickshot-trial.ps1):
-
-```powershell
-.\scripts\prepare-trickshot-trial.ps1 -Source '<prepared baseline runtime>' `
-  -Binary '<built iw4l.exe>' -Destination '<fresh development folder>' `
-  -ExpectedSha256 '<64-character build hash>'
-```
-
-The script refuses an existing destination or a mismatched binary, copies the
-prepared baseline, rewrites internal runtime references, verifies the deployed
-hash and checks the source executable remained unchanged. Failed preparation
-retains the incomplete folder for inspection. It does not compare every original
-game file; the baseline runbook's post-session hash check remains outstanding.
-
-Close the prior game, then run `iw4l.exe map mp_rust` in the new folder. Optional
-`-Launch` now requires the review-bundle inputs above and uses its verified launcher.
-Preparation, a started process and successful play are distinct results.
-
-## Owner sense-check
-
-At both 1280×720 and 1920×1080:
-
-1. Launch on Rust: no practice panel/banner. Open with L2+R3 and F6; confirm the
-   right-side layout and readable proportional text, arrows and cyan selection.
-2. Enter each submenu and go back. Hold D-pad and triggers; selection repeats
-   without firing. Cross/Square select; Circle/R3 go back. Escape closes only this menu.
-3. Hold fire/jump/melee/skate buttons while closing: gameplay waits for release.
-   Close with aim lock enabled: no practice overlay remains.
-4. Try Return before saving and Place before adding a bot: error inside menu,
-   menu stays open. Save, move, return; repeat while skating and confirm exit first.
-5. Add/place/freeze a bot. Apply and restore the controller preset. Enable aim
-   lock deliberately, verify release stops it, then turn it off.
-6. Change maps: save cleared and aim lock off. Confirm recovery/relaunch.
-
-Record pass/fail/not tested, readability and controller feel in the result record.
-The old panel's rejection is not acceptance. D-016/D-017 now authorize reviewed
-source branches and notices on Jpatching/combine before replacement acceptance;
-owner trial, merge and release remain separate.
-
 ## Full menu milestone
 
 ### Problem and solution
 
-The existing build gives players a Synergy-looking menu around earlier practice
-actions, so selecting the familiar Synergy loadout, fun or player options is not
-yet possible. Port the reachable pinned menu and add the agreed near-pass control
-so a player can configure the supported private mashup through controller or
-keyboard. Keep unfinished native capabilities explicit until demonstrated.
-
-Port the reachable pinned Synergy menu: Basic Options, Fun Options, Weapon
-Options, Give Killstreaks, Menu Options and All Players, plus a separately
-specified trickshot hit-radius control. Port native behavior in small slices;
-do not infer that an option works because its name appears in a menu.
-
-The current native build implements presentation/navigation and earlier Combine
-practice actions. It does not implement this full menu. Catalogue identifiers
-must resolve against the pinned runtime; unsupported entries need explicit
-feedback and remain gaps in parity. Death streaks are declared but unreachable
-in the pinned menu and are outside the source-parity promise.
+Run the reachable pinned Synergy GSC menu through the existing runtime, preserving
+its own presentation/options, and add the agreed near-pass control. Each option
+requires effect, reversal, failure and lifecycle evidence; visibility is insufficient.
+D-019 puts hit radius first. The board owns progress; the current exact input trial
+and pending physical verdict are in [HANDOFF.md](HANDOFF.md).
 
 ### Agreed behavior — C-017, 2026-10-04
 
 The owner-approved requirements settle the hit-radius, noclip and private-player
 scope. [D-013](DECISIONS.md#d-013-near-pass-assistance-and-full-menu-scope--2026-10-04)
-records the consequential changes. These are requirements for the native port;
+records the consequential changes. These are requirements for actual Synergy and the runtime extension;
 source inspection and this document do not establish implemented behavior.
 
 | Area | Required behavior |
@@ -312,7 +158,7 @@ the body's damageable surface; avoid relying on visual estimates for boundaries.
 ### Implementation research still required
 
 These tasks remain under the full-menu milestone; they do not reopen the agreed
-product choices or block the bounded Intervention slice below.
+product choices or assert runtime feasibility.
 
 - **Native compatibility:** map every reachable option/catalogue entry to pinned
   runtime support; demonstrate effect, failure and lifecycle cleanup. An unsupported
@@ -332,82 +178,6 @@ product choices or block the bounded Intervention slice below.
 No new game integration, public-match assistance, redistribution or general
 GSC-loader implementation is included. Hide HUD remains deferred. Native tests,
 an isolated Windows trial and explicit owner acceptance are separate later gates.
-
-### Earlier native slice contract — equip Intervention (C-016)
-
-The first slice solves one visible gap: a living local host on Rust can equip
-the Intervention through Synergy's weapon hierarchy without console commands.
-It is a tracer bullet: a narrow working path from input through simulation to
-visible feedback, before extending the remaining catalogue. C-017 supplies the
-settled requirements. `to-spec` consolidated the contract and `to-tickets`
-finalised this one independently demonstrable slice. Implementation and its
-acceptance checks are tracked separately in the current evidence; the [C-016 draft](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=261972158)
-owns active status. C-017 is the completed prerequisite; no other gameplay slice
-blocks starting C-016. The existing plan supplies the agreed granularity and
-test boundary, so no new interview or duplicate ticket is needed.
-
-#### User stories
-
-1. As a player, I want the six Synergy root sections so the menu matches the
-   promised destination, with unfinished options clearly unavailable.
-2. As a controller player, I want to reach Weapon Options → Give Weapons →
-   Sniper Rifles → Intervention using the existing controls.
-3. As a keyboard player, I want the same path and result without the console.
-4. As a living local host, I want the selection to grant and equip `cheytac_mp`
-   with supported ammo so I can close the menu and fire it on foot.
-5. As a player, I want feedback to distinguish a queued request from a completed
-   grant so an unavailable or rejected action cannot report false success.
-6. As a player, I want an unavailable world, dead state or unsupported weapon
-   to explain failure inside the still-open menu so I can recover and retry.
-7. As a player, I want repeated selections and late replies to refer to the
-   correct action, and a map change to discard pending old-session feedback.
-8. As a player, I want selecting and closing the menu to suppress held gameplay
-   inputs until release so equipping does not accidentally fire, jump or skate.
-9. As the owner, I want a separate reproducible Windows trial and explicit
-   controller/keyboard verdict before the replacement is accepted or published.
-
-#### Implementation decisions
-
-Reuse the native menu/input capture, typed weapon catalogue/request and matching
-simulation result interfaces. The menu issues a typed action, never a console
-string. Revalidate availability at dispatch and use authoritative rejection on
-state changes between request and execution. Correlate replies with the requesting
-player, request and current match; unrelated or late replies cannot claim success.
-Verify the held weapon as well as the acknowledgement before claiming equip.
-
-Implementation entry points: native `practice_menu.rs` navigation,
-`weapon_dispatch.rs` catalogue resolution and `ClientAction::GiveWeapon`, with
-simulation acknowledgement through `apply_give_weapon`. Reuse inventory checks.
-The runtime/menu pins and isolated build/trial procedure are existing prerequisites.
-Synergy's delayed 999-round clip fill remains a named follow-on parity gap;
-this slice uses standard supported ammo/inventory behavior.
-
-#### Testing decisions and acceptance evidence
-
-Test the highest existing behavior boundary: physical menu input → typed action
-→ simulation result → held weapon and menu feedback. Existing pure menu/policy
-tests and Windows input/action integration tests provide prior art; only add
-lower-level cases where integration cannot isolate a boundary. Do not test source
-text or infer success from a queued request. Implementation must provide:
-
-- Controller and keyboard reach the specified hierarchy, grant/equip the
-  Intervention and keep useful feedback in the open menu. Only this weapon
-  action is enabled; the six root sections are present with unfinished paths
-  clearly unavailable and without the earlier Combine practice pages.
-- Missing world/catalogue, dead player, unsupported weapon, queue failure and
-  simulation rejection do not equip or claim success; a later valid retry works.
-- Repeat selections, unrelated/out-of-order replies and map teardown do not
-  duplicate actions or apply stale feedback to a new match.
-- Input capture and release barriers pass; Windows build/hash and native previews
-  at 720p/1080p pass; the full repository gate passes at the handoff revision.
-- In a fresh isolated Rust trial, the owner selects, equips and fires on foot with
-  keyboard and controller, checks recovery and confirms that closing leaks no input.
-  Record actual results and the explicit verdict separately from automated checks.
-
-Out of scope: the other catalogue entries and menu actions, delayed 999-round
-clip parity, hit radius, noclip, private-player administration/synchronisation,
-Hide HUD, skating fire, new audio, assets and publication. Full-menu acceptance
-examples above belong to later slices and do not expand this first slice.
 
 ### Historical Hide HUD contract — C-014 (deferred)
 
@@ -437,6 +207,33 @@ Before coding, the Hide HUD contract is:
   network changes. Record failed/missing prerequisites explicitly. Publication
   remains conditional on owner acceptance. This historical contract is inactive.
 
+### Hit-radius vertical slice — D-019
+
+Outcome: open actual Synergy → enable/adjust hit radius → close → fire an eligible
+sniper near miss → observe qualifying damage → disable → ordinary shooting resumes.
+Inputs are captured Synergy controls, match/session authority, an accepted sniper
+shot, lag-compensated body volumes and ordinary penetration/cover facts. Output is
+at most one ordinary damage attempt after an otherwise missed shot qualifies.
+
+Qualification work belongs inside this slice: trace authoritative path segments,
+body volumes and units; damage ordering; cover from path to target; private-session
+eligibility; and the actual GSC-to-simulation setting seam. Record missing capability
+precisely before implementation. Use the [initial source trace](../research/results/2026-10-05-hit-radius-qualification.md)
+as evidence navigation, not proof of feasibility. No impact-distance substitute.
+
+Keep the defaults, boundaries and examples above. Verify Off/first enable/steps/
+match reset; scoped/unscoped snipers; living enemy bots/private players and excluded
+targets; Normal/One-shot; permitted/blocked cover and reach; direct-hit/collateral
+preservation; closest target/ties; and menu input isolation. Unsupported settings
+must report failure without activating assistance; stale/dead/session-invalid
+requests must apply nothing. Public matches, skating fire, aim movement, added
+explosions, Combine practice additions and new menu candidates are excluded.
+
+After simulation and input checks pass, build an isolated Windows trial and a
+separate versioned Launch, Files and Checklist review folder with exact source,
+ordered patch hashes, upstream pins and executable hash. Physical gameplay and
+owner acceptance remain separate. Preserve the current Synergy trial.
+
 ### Pinned MW2 Synergy feature inventory
 
 Source: `MW2/Synergy/maps/mp/Synergy.gsc` at
@@ -448,7 +245,7 @@ Catalogs: `initial_variables` lines 19–90. Reachable features: `menu_option`
 This is a source/technical coverage snapshot dated October 4, 2026, not a second
 status tracker. **pending**: no native implementation evidenced; **implemented**: code exists, checks
 remain; **verified**: named technical checks pass, owner play verdict still needed;
-**blocked**: scope/dependency stated. No feature is owner accepted or published.
+**blocked**: scope/dependency stated. This historical snapshot does not establish acceptance or current publication status.
 Each grouped row's state applies to every named feature. Existing upstream class
 selection alone does not establish Synergy loadout-menu parity.
 
@@ -635,3 +432,242 @@ not exposed by `menu_option`; they are not silently added to the M1 promise.
 | killstreaks | AC-130 | pending |
 | killstreaks | EMP | pending |
 | killstreaks | Nuke | pending |
+
+## Historical native-menu reproduction — inactive
+
+These procedures reproduce earlier native practice/Intervention work only.
+For actual Synergy use the active five-patch procedure above and the actual
+[Synergy checklist](../templates/synergy-checklist.txt); F6, arrows, Cross and
+practice actions below are not the actual-GSC player path.
+
+## Preserved native Intervention build and review adapter — October 4
+
+Apply `trickshot-v0.4.0.patch`, then `skate-audio-v0.4.0.patch`, then
+`intervention-v0.4.0.patch` to the pinned runtime. Do not apply deferred Hide HUD.
+The new root contains six Synergy sections; only Weapon Options → Give Weapons →
+Sniper Rifles → Intervention is enabled. Requests use the native weapon catalogue
+and simulation acknowledgement; "equipped" also requires the actual held weapon
+and inventory. Previous practice patches/trials are preserved.
+
+Build with the pinned tools below. Run the console tests with `practice`, build
+`launcher --bin iw4l` and `console --example practice_menu_preview`, then run
+720p/1080p previews. The preview now captures root, Intervention, failure and
+closed states. These are synthetic checks, not play or acceptance.
+
+The adapter is verified with synthetic fixtures. The command below documents
+its interface; do not prepare the rejected native build for owner acceptance.
+For a future corrected build, prepare the folder only after required checks pass:
+
+```powershell
+.\scripts\prepare-trickshot-trial.ps1 -Source '<prepared runtime>' `
+  -Binary '<built iw4l.exe>' -Destination '<new versioned trial>' `
+  -ExpectedSha256 '<build SHA-256>' -ReviewDirectory '<new versioned review folder>' `
+  -EvidenceFile '<local evidence.json>' `
+  -ChecklistFile '.\templates\intervention-checklist.txt' `
+  -WorkflowDirectory '<shared solo-development workflow directory>'
+```
+
+Evidence JSON contains `issue`, full `sourceCommit`, `upstreamPins`, ordered
+`patches` (name/hash) and `checks` (command/result, all pass). The shared Windows
+helper creates **Test Intervention**, **Open trial files**, **Read checklist**
+and `evidence.json`, marked prepared/unaccepted. The launcher validates the hash,
+checks for an existing game and holds a mutex through process exit so concurrent
+shortcuts cannot start another trial. Errors are shown explicitly. Launch history
+stays local and never claims gameplay. Do not use `-Launch` for the owner handoff;
+it is an explicit combined operation requiring the review bundle.
+
+The [Intervention checklist](../templates/intervention-checklist.txt) replaces the
+earlier practice sense-check for this trial. Report keyboard/controller equip,
+fire, input release, relaunch and the exact build in chat. Record the verdict
+against that build; revised binaries require a new folder and verdict. No raw
+logs, machine paths or game content go to the Project. Reviewed source-branch publication is now authorized by D-016/D-017; owner
+acceptance, merge and release remain separate.
+
+The sections below retain reproduction/history for the earlier menu and the
+agreed full-menu contract. [Current evidence](../research/results/2026-10-04-intervention-review.md)
+separates automated checks, preparation, launch and owner acceptance.
+
+## Existing development build
+
+This slice gives the existing local practice actions a Synergy-derived native
+menu. [README](../README.md) is the player guide; this document owns developer
+reproduction and acceptance steps. No console commands are needed to use the menu.
+
+```text
+Physical buttons -> menu state (page, history, cursor, repeat, release barrier)
+                          | closed / unavailable -> no menu UI
+                          | open
+                          +-> native proportional-font panel
+                          +-> typed action -> local-host checks -> existing queues
+                                                  | unavailable -> menu feedback
+After closing -> wait for physical release -> gameplay controls resume
+```
+
+Navigation and practice actions are separate. The native panel has seven row
+slots (unused slots remain blank). Action results remain visible until the next
+action; an accepted queue request is labelled requested, not completed.
+
+## Pinned source and build
+
+Use runtime `f608f85e407ff1b7689d54a9aafdd16e95711ac4` (v0.4.0) and
+Synergy `33bcc80f5446e7543a2eb68b17c798e29d3f27c4`. The pins and observed source
+hashes are in [upstream.lock.json](../research/upstream.lock.json).
+The patch contains the prior local practice implementation and its replacement
+UI. Apply it to a clean checkout of the selected runtime, not over the old patch:
+
+```sh
+git apply --check /path/to/combine/patches/trickshot-v0.4.0.patch
+git apply /path/to/combine/patches/trickshot-v0.4.0.patch
+cargo +1.95.0 xwin build --locked --profile play --target x86_64-pc-windows-msvc -p launcher
+```
+
+Established cross-build tools: Rust 1.95.0, cargo-xwin 0.23.1, Clang/LLVM 19.1.1
+for native dependencies, and Rust's bundled rust-lld linker. The Windows SDK and
+CRT are the existing cargo-xwin cache; retain Cargo.lock. Upstream's moving
+`stable` is not the reproduction pin. No upstream updater is built or published.
+See the [result record](../research/results/2026-10-03-synergy-menu.md) for exact
+local build commands, hashes, verification results and inherited warnings.
+
+## Focused verification
+
+The two pure Rust modules can be tested without dependencies or game assets:
+
+```sh
+rustc +1.95.0 --edition 2024 --test crates/console/src/practice_menu.rs -o /tmp/menu-tests
+/tmp/menu-tests
+rustc +1.95.0 --edition 2024 --test crates/console/src/practice_core.rs -o /tmp/practice-tests
+/tmp/practice-tests
+```
+
+Build the actual input/action integration tests, then run the resulting console
+test executable on Windows with the `practice` filter:
+
+```sh
+cargo +1.95.0 xwin test --locked --profile play --target x86_64-pc-windows-msvc -p console --lib --no-run
+cargo +1.95.0 xwin build --locked --profile play --target x86_64-pc-windows-msvc -p console --example practice_menu_preview
+```
+
+The preview executable takes `width height fresh-output-directory`. Run it once
+at `1280 720` and once at `1920 1080`. It renders the production UI on a plain
+background, captures root/Aim/error/closed states and exits. It loads no game
+assets or profile and opens no network interface. Keep generated images local.
+This verifies native rendering, not gameplay or owner acceptance.
+
+## Fresh Windows trial
+
+Build `target/x86_64-pc-windows-msvc/play/iw4l.exe`, calculate SHA-256, and use
+[scripts/prepare-trickshot-trial.ps1](../scripts/prepare-trickshot-trial.ps1):
+
+```powershell
+.\scripts\prepare-trickshot-trial.ps1 -Source '<prepared baseline runtime>' `
+  -Binary '<built iw4l.exe>' -Destination '<fresh development folder>' `
+  -ExpectedSha256 '<64-character build hash>'
+```
+
+The script refuses an existing destination or a mismatched binary, copies the
+prepared baseline, rewrites internal runtime references, verifies the deployed
+hash and checks the source executable remained unchanged. Failed preparation
+retains the incomplete folder for inspection. It does not compare every original
+game file; the baseline runbook's post-session hash check remains outstanding.
+
+Close the prior game, then run `iw4l.exe map mp_rust` in the new folder. Optional
+`-Launch` now requires the review-bundle inputs above and uses its verified launcher.
+Preparation, a started process and successful play are distinct results.
+
+## Owner sense-check
+
+At both 1280×720 and 1920×1080:
+
+1. Launch on Rust: no practice panel/banner. Open with L2+R3 and F6; confirm the
+   right-side layout and readable proportional text, arrows and cyan selection.
+2. Enter each submenu and go back. Hold D-pad and triggers; selection repeats
+   without firing. Cross/Square select; Circle/R3 go back. Escape closes only this menu.
+3. Hold fire/jump/melee/skate buttons while closing: gameplay waits for release.
+   Close with aim lock enabled: no practice overlay remains.
+4. Try Return before saving and Place before adding a bot: error inside menu,
+   menu stays open. Save, move, return; repeat while skating and confirm exit first.
+5. Add/place/freeze a bot. Apply and restore the controller preset. Enable aim
+   lock deliberately, verify release stops it, then turn it off.
+6. Change maps: save cleared and aim lock off. Confirm recovery/relaunch.
+
+Record pass/fail/not tested, readability and controller feel in the result record.
+The old panel's rejection is not acceptance. D-016/D-017 now authorize reviewed
+source branches and notices on Jpatching/combine before replacement acceptance;
+owner trial, merge and release remain separate.
+
+
+### Earlier native slice contract — equip Intervention (C-016)
+
+The first slice solves one visible gap: a living local host on Rust can equip
+the Intervention through Synergy's weapon hierarchy without console commands.
+It is a tracer bullet: a narrow working path from input through simulation to
+visible feedback, before extending the remaining catalogue. C-017 supplies the
+settled requirements. `to-spec` consolidated the contract and `to-tickets`
+finalised this one independently demonstrable slice. Implementation and its
+acceptance checks are tracked separately in the current evidence; the [C-016 draft](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=261972158)
+owns active status. C-017 is the completed prerequisite; no other gameplay slice
+blocks starting C-016. The existing plan supplies the agreed granularity and
+test boundary, so no new interview or duplicate ticket is needed.
+
+#### User stories
+
+1. As a player, I want the six Synergy root sections so the menu matches the
+   promised destination, with unfinished options clearly unavailable.
+2. As a controller player, I want to reach Weapon Options → Give Weapons →
+   Sniper Rifles → Intervention using the existing controls.
+3. As a keyboard player, I want the same path and result without the console.
+4. As a living local host, I want the selection to grant and equip `cheytac_mp`
+   with supported ammo so I can close the menu and fire it on foot.
+5. As a player, I want feedback to distinguish a queued request from a completed
+   grant so an unavailable or rejected action cannot report false success.
+6. As a player, I want an unavailable world, dead state or unsupported weapon
+   to explain failure inside the still-open menu so I can recover and retry.
+7. As a player, I want repeated selections and late replies to refer to the
+   correct action, and a map change to discard pending old-session feedback.
+8. As a player, I want selecting and closing the menu to suppress held gameplay
+   inputs until release so equipping does not accidentally fire, jump or skate.
+9. As the owner, I want a separate reproducible Windows trial and explicit
+   controller/keyboard verdict before the replacement is accepted or published.
+
+#### Implementation decisions
+
+Reuse the native menu/input capture, typed weapon catalogue/request and matching
+simulation result interfaces. The menu issues a typed action, never a console
+string. Revalidate availability at dispatch and use authoritative rejection on
+state changes between request and execution. Correlate replies with the requesting
+player, request and current match; unrelated or late replies cannot claim success.
+Verify the held weapon as well as the acknowledgement before claiming equip.
+
+Implementation entry points: native `practice_menu.rs` navigation,
+`weapon_dispatch.rs` catalogue resolution and `ClientAction::GiveWeapon`, with
+simulation acknowledgement through `apply_give_weapon`. Reuse inventory checks.
+The runtime/menu pins and isolated build/trial procedure are existing prerequisites.
+Synergy's delayed 999-round clip fill remains a named follow-on parity gap;
+this slice uses standard supported ammo/inventory behavior.
+
+#### Testing decisions and acceptance evidence
+
+Test the highest existing behavior boundary: physical menu input → typed action
+→ simulation result → held weapon and menu feedback. Existing pure menu/policy
+tests and Windows input/action integration tests provide prior art; only add
+lower-level cases where integration cannot isolate a boundary. Do not test source
+text or infer success from a queued request. Implementation must provide:
+
+- Controller and keyboard reach the specified hierarchy, grant/equip the
+  Intervention and keep useful feedback in the open menu. Only this weapon
+  action is enabled; the six root sections are present with unfinished paths
+  clearly unavailable and without the earlier Combine practice pages.
+- Missing world/catalogue, dead player, unsupported weapon, queue failure and
+  simulation rejection do not equip or claim success; a later valid retry works.
+- Repeat selections, unrelated/out-of-order replies and map teardown do not
+  duplicate actions or apply stale feedback to a new match.
+- Input capture and release barriers pass; Windows build/hash and native previews
+  at 720p/1080p pass; the full repository gate passes at the handoff revision.
+- In a fresh isolated Rust trial, the owner selects, equips and fires on foot with
+  keyboard and controller, checks recovery and confirms that closing leaks no input.
+  Record actual results and the explicit verdict separately from automated checks.
+
+Out of scope: the other catalogue entries and menu actions, delayed 999-round
+clip parity, hit radius, noclip, private-player administration/synchronisation,
+Hide HUD, skating fire, new audio, assets and publication. Full-menu acceptance
+examples above belong to later slices and do not expand this first slice.

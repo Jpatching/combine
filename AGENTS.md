@@ -15,9 +15,9 @@ do not restart settled discussions. D-015 records the owner's correction:
 execute the actual pinned Synergy GSC menu through the existing runtime engine,
 with its own presentation and options. A native imitation is not the replacement.
 The destination also includes the agreed trickshot hit radius, without Combine
-practice additions. The menu guide owns requirements; its earlier native C-016
-mechanism is historical where superseded by D-015. Resume the same board item's
-next missing integration/check.
+practice additions. The menu guide owns requirements; earlier native mechanisms
+are historical where superseded by D-015. Read the live board, relevant requirements,
+latest owner correction and handoff; reconcile conflicts before selecting work.
 
 ### Issue tracker
 
@@ -30,13 +30,12 @@ Board maintenance is authorized; source publication and CI/CD remain separate.
 Use the existing player/menu guides and `docs/DECISIONS.md`. See
 [domain configuration](docs/agents/domain.md); do not create parallel authorities.
 
-## Current slice and references
+## Scope and authoritative references
 
 Validate ordinary Windows players configuring, launching and sharing supported
-MW2/Skate/Minecraft mashups. The current slice integrates Synergy itself;
-automated Intervention navigation/equip is observed, with input, presentation
-and owner gameplay evidence still required. Hide HUD
-is deferred and blocks no active work. Baseline reproduction remains incomplete.
+MW2/Skate/Minecraft mashups as separate experiences. Obtain the current slice,
+phase, evidence gaps and next actor from the live board and handoff. Hide HUD
+is deferred and blocks no active work. Baseline gameplay uses its own runbook.
 No universal merger, new engine, marketplace or production launcher is authorized.
 
 - README.md owns the player overview, controls and limitations.
@@ -59,7 +58,8 @@ Publishing, redistribution, spending and outreach need task-specific authority.
 D-016/D-017 record reviewed source-branch publication to Jpatching/combine before
 menu acceptance. Keep assets/private data excluded; verify remote commit and board
 read-back. Owner acceptance, merge and release remain separate. Reversible local
-work on the selected menu-then-Fortnite plan is authorized.
+work within owner-selected experience contracts is authorized. Obtain current
+priority/composition from the live board and latest decisions.
 
 Recipes remain strict data, never shell commands, paths or download URLs. Reuse
 verified upstream capabilities; each new integration needs its own evidence.

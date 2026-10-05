@@ -362,3 +362,89 @@ The owner reports on October 5: only Intervention worked in the most recent
 trial; other options were missing. No exact build identity or full-menu
 acceptance was provided. Retain this successful Intervention report separately
 from automated diagnostics and the missing option coverage.
+
+## D-019: hit radius first and resume reconciliation — 2026-10-05
+
+The owner-supplied reconciliation plan puts hit-radius assistance first,
+superseding D-018's batch order where it put hit radius last. Preserve D-013's
+geometry, damage and cover contract and D-015's actual pinned Synergy execution.
+The existing exact-build physical input trial remains prepared and unaccepted;
+Codex can qualify the hit-radius integration independently of that verdict.
+Rainy remains a research candidate: the preceding source investigation reported
+IW4x/Bot Warfare dependencies and unsupported function replacement. It has not
+been installed, launched or gameplay-tested; this session has not re-inspected
+Rainy source and does not claim runtime compatibility.
+
+Reconcile the board, current requirements, evidence and latest owner correction
+before selecting one missing check. Persistent guidance describes responsibilities
+and authorities; current work stays on the board and exact-build evidence in the
+handoff. Keep separate mashup experiences and their evidence distinct.
+
+Preserve inherited unfinished scripts/prepare_experience.py and
+tests/test_experiences.py outside this correction. No commits or pushes are
+authorized for this work. Amend the existing global router/policy using filesystem
+approval; keep the static reminder hook unchanged. Defer new hooks, dashboards,
+automatic task pickup and skill upgrades. Passing checks do not confer acceptance,
+publication, merge or release.
+
+## D-020: Fortnite with Skate only and an open-source experience hub — 2026-10-05
+
+The owner requests starting Fortnite-with-Skate work, a polished README and clear
+reproduction guide, and a substantial open-source project with a compelling
+multi-game roadmap and a tested player hub. The owner explicitly selects
+**Fortnite + Skate only**: no MW2 combat or Synergy in this experience. This
+supersedes the earlier Fortnite composition in D-016/WORKFLOW.md; actual Synergy
+and hit-radius work remain a separate experience, incomplete and unaccepted.
+
+Start wayfinding/qualification now on the existing private board. Reuse the
+previously selected Windows build and one Tilted building + ground scope until
+source access/export evidence justifies a change. Reuse the existing Rust engine
+where suitable, while explicitly isolating inherited combat/UI. No adapter or
+playable Fortnite build exists. The unfinished scaffolding does not settle
+architecture or prove progress. No universal merger, new engine, marketplace,
+asset redistribution, outreach, spending, site publication, commits or pushes
+are authorized by this planning request.
+
+The roadmap should distinguish research candidates, prepared exact builds and
+play-tested experiences. A hub means a player-facing catalogue with prerequisites,
+reproduction/launch instructions, evidence, limitations and recovery for each
+experience, rather than a claim all combinations work. Its implementation,
+hosting and public status workflow require a later bounded spec; current work is
+planning. Traction means measurable player success/repeat use and contributor
+reproducibility, not a promised audience or download total. Source/community
+publication remains separate from game-data rights and owner acceptance.
+
+
+## D-021: GitHub catalogue and evidence before roadmap expansion — 2026-10-05
+
+The owner selected the GitHub experience catalogue as the first player hub. An
+experience may be called community-tested only with an identified exact build
+and recorded participant results; no minimum participant count or statistical
+claim is settled. Add additional game candidates to the public roadmap after
+Fortnite + Skate reaches its first playable milestone. Fortnite + Skate remains
+a separate Skate movement experience without MW2 combat or Synergy. These answers
+resolve the hub-format/readiness portion of C-021; the pilot threshold remains open
+in C-022. The private board is the detailed status authority.
+
+## D-022: full Fortnite island and a source-backed adapter specification — 2026-10-06
+
+The owner's supplied implementation plan makes the full selected Fortnite island
+the destination, with Skate movement and no MW2 combat or Synergy. The earlier
+one-building destination/expansion gate is superseded: smaller areas are test
+cases within the island integration. Keep `Release-3.1-CL-3917250` and runtime
+`f608f85e407ff1b7689d54a9aafdd16e95711ac4`; a Fortnite version change needs an explicit
+decision. Spatial streaming is a qualification question, not excluded from the
+destination and not yet justified by measurements.
+
+This bounded deliverable is the source-backed adapter specification, ordered
+implementation work, and precise input/startup blockers. It permits independent
+runtime research when input access is missing, not invented export formats or
+playable claims. Parser/exporter components can be reused without a finished
+third-party mashup. Preserve actual Synergy, its physical trial and hit-radius
+requirements separately. See the [qualification report](../research/results/2026-10-06-fortnite-adapter-qualification.md).
+
+The supplied plan excluded commits/pushes; the owner's later concern about dirty
+work and request for a clear branch/merge workflow supersede that for local
+reviewable checkpoints. Record actual Git results in the handoff; no push/merge
+result or broad auto-merge authority is inferred. Board maintenance remains
+authorized; publication, owner acceptance and release remain separate.

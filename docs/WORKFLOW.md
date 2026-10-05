@@ -15,37 +15,28 @@ load only relevant sections and the skill for the current check.
 
 ## Agreed order and evidence boundaries
 
-The owner's selected plan continues the same menu work, then qualifies a Fortnite
-map inside the existing runtime. Preserve actual pinned Synergy, its presentation,
+D-016 originally scheduled the menu then Fortnite. D-020 starts Fortnite + Skate-only
+wayfinding now, while the separate menu work and owner trial remain incomplete. Preserve actual pinned Synergy, its presentation,
 options and agreed trickshot hit radius; Hide HUD stays deferred.
 
+Read the live board and latest owner correction for the current priority. D-019
+supersedes D-018's hit-radius-last ordering: hit-radius qualification/implementation
+comes first while the prepared Synergy physical trial remains pending independently.
+The remaining batches retain their requirements: basic loadout, weapons,
+presentation/adjustments, movement and killstreaks/private players. Their current
+order and progress belong on the board.
+
 ```text
-Input isolation -> first Synergy trial -> remaining menu coverage + hit radius
-       | failed checks -> fix                  | incomplete -> continue
-                                               v
-                    Fortnite access/build/export qualification
-                         | unavailable -> record exact blocker
-                         v
-             one building + ground -> adapter -> bounded Tilted trial
+Live card + requirements + evidence + latest owner correction
+  -> reconcile -> one missing check -> one observable outcome
+  -> verify behavior + affected instructions -> board + handoff -> read back
+Pending exact-build owner trial -> physical verdict (separate from Codex checks)
+Fortnite input + session qualification -> adapter -> regional tests -> full-island trial
 ```
 
-Opening Synergy or equipping Intervention is not full menu completion. A trial
-marked ready is not owner accepted. Resume from the current card's evidence;
-advance along agreed dependencies rather than inferring readiness from a
-plan, a newer chat topic, a compiled binary or a synthetic fixture.
-
-Continue menu coverage in these owner-selected batches after recording and
-committing the Intervention/input result. Keep one batch active; split only for
-a demonstrated integration problem:
-
-1. Basic loadout: God Mode, infinite ammo/grenades, individual/all perk grant/removal.
-2. Weapons: catalogue, take/drop, attachments and camos.
-3. Presentation/adjustments: position/colours, weapon visibility, visions, camera,
-   speed, gravity and timescale.
-4. Movement: Frag No Clip and Forge Mode, including recovery and cleanup.
-5. Killstreaks/private players: catalogue effects, host permissions, guest access
-   and identity handling.
-6. Trickshot hit radius: the existing geometry, damage and cover contract.
+Opening Synergy or equipping Intervention is not full menu completion. Hit-radius
+research is part of its slice; an unsupported capability needs a precise blocker.
+The [menu guide](TRICKSHOT_MENU.md) owns that slice's behavior and acceptance matrix.
 
 Check effect, reversal, important failures and related-option interactions;
 retain input/lifecycle regressions. Unsupported entries remain full-menu
@@ -61,16 +52,37 @@ and hit-radius checks, explicit build acceptance, reproducibility and applicable
 distribution-permission review, then separate publication authority. Earlier
 experimental source snapshots establish none of those release claims.
 
-The Fortnite research target is Windows `Release-3.1-CL-3917250` (Chapter 1
-Season 3), as selected in the owner's plan. Local legitimate access, identity,
-exporter compatibility and conversion remain unverified. Start with one Tilted
-building and surrounding ground before a map adapter or broader area. The route
-is static geometry/materials/placements/collision/spawns into existing
-`LoadedWorld`/`PreparedWorld` and `ClipCollision`, reusing grind-rail detection.
-Require observed scale, axes, solid surfaces, walking/skating/jump/grind/recovery,
-Intervention equip/on-foot shooting, menu isolation and exit/relaunch. No Fortnite
-building/editing, destruction, full-island streaming or online services in this slice.
-Keep all game assets and converted data private. Do not invent a map from absent data.
+The Fortnite destination is the **full selected island + Skate movement only**,
+using Windows `Release-3.1-CL-3917250` and the pinned Rust runtime. Smaller areas,
+including a Tilted building and surrounding ground, are test cases within that
+integration, not the destination. D-022 records the latest correction.
+The [adapter qualification and specification](../research/results/2026-10-06-fortnite-adapter-qualification.md)
+owns the source trace, proposed interfaces, ordered implementation work and exact
+input/startup blockers. Do not choose an interchange schema without an inspected
+selected-build export. Full-island loading/streaming must be assessed from counts
+and measurements before promising performance. No MW2 combat, class selection,
+weapon HUD, Synergy or visible/collidable proxy map belongs in this session.
+
+Fortnite qualification proceeds independently of the separate Synergy trial and
+hit-radius requirements. Keep game assets and converted data private. No Fortnite
+building/editing, destruction or online services; no new engine or asset
+redistribution. Source specification is not adapter implementation or playability.
+
+## Implementation language and existing setup
+
+Gameplay, collision, damage and authoritative menu integration use the existing
+Rust runtime. Synergy's original GSC remains its menu source; Rust supplies its
+runtime capabilities and the hit-radius extension. Python checks research data
+and local preparation metadata; PowerShell prepares and verifies Windows trials.
+Neither helper layer substitutes for playable runtime implementation.
+
+The engineering-skill setup already exists: AGENTS.md points to the private
+Project tracker and existing domain/decision documents through docs/agents/.
+`triage` is not installed, so no triage-label configuration is required. Reuse
+this adapted setup rather than creating another tracker, glossary or ADR store.
+`ask-matt` routes the settled contract to qualification within the slice, then
+`implement`/behavior tests and review. No new interview is required for the
+already agreed menu or hit-radius behavior.
 
 ## Checks, synchronization and delivery
 
@@ -120,3 +132,34 @@ a step repeats a settled decision or an expensive check without changed evidence
 a helper has no bounded question, or process work delays the playable outcome.
 State the redundant step and the simpler next action. These are session warnings,
 not a background monitor. Keep one active slice and concise evidence pointers.
+
+## Branch to main workflow
+
+Use one `slice/<outcome>` branch for each reviewable outcome. Refresh origin and
+inspect the merge base before starting; checkpoint inherited work separately,
+label unfinished scaffolding honestly, and never mix private assets into commits.
+Source inspection/specification can be a completed source deliverable even when
+its eventual game integration is not playable.
+
+```text
+main -> slice branch -> focused commits -> review + required gate -> PR
+                           ^                      | failure: revise
+                           +----------------------+
+PR + review + authorized merge -> main
+Exact game build -> owner trial -> acceptance -> separately authorized release
+```
+
+Before proposing a merge: inspect the entire diff from current `origin/main`, not
+only the newest commit; identify stacked prerequisites; resolve conflicts; run
+`python3 scripts/verify.py` once on the handoff revision, plus relevant runtime
+checks for runtime changes. Attach evidence and limitations to the PR. Do not
+merge unfinished ancestors just to clean a worktree. A local checkpoint is cheap
+and reversible; publishing, merging and release retain their own authority.
+After authorized merge, read back the PR/remote main SHA and board. Create the next
+slice from refreshed main. No automatic merge/CI setup is implied.
+
+The owner challenged the accumulated dirty work on October 6 and requested a
+clear branch/merge workflow. Resume local reviewable checkpoints; keep this slice
+unpushed and unmerged until its complete branch diff and target are reviewed.
+The earlier plan's no-commit instruction is superseded for local checkpoints by
+that correction; it does not establish publication or merge completion.

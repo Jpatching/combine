@@ -145,5 +145,30 @@
     },
     "gameplay": "listening-and-gameplay-pending",
     "music": "Even Flow - Pearl Jam; owner-supplied MP3 mixed into private comedy export; ten-second local cue installed and startup decoding confirmed; audible gameplay pending"
+  },
+  "menu_execution": {
+    "repository": "https://github.com/SyndiShanX/Synergy-GSC-Menu",
+    "commit": "33bcc80f5446e7543a2eb68b17c798e29d3f27c4",
+    "kind": "actual-pinned-gsc-through-existing-runtime-script-engine",
+    "source_files": [
+      {
+        "path": "MW2/Synergy/maps/mp/Synergy.gsc",
+        "sha256": "2c7be615f2e435c34ad7e1ee4bc9d1b1682ff08b909dea911abc6819e4a484d9"
+      },
+      {
+        "path": "LICENSE.md",
+        "sha256": "5220a7ab700b568136ff65182b41e9658f1a980c50fba36425f0ede86ac68652"
+      },
+      {
+        "path": "README.md",
+        "sha256": "782fe8e228126a577f272700fee71e522d76e9a5395791a37d30bc911b83eb6b"
+      }
+    ],
+    "patches": [
+      "patches/synergy-gsc-v0.4.0.patch",
+      "patches/synergy-input-v0.4.0.patch"
+    ],
+    "evidence": "research/results/2026-10-05-synergy-input.md",
+    "scope": "Intervention/input automated evidence; physical trial unaccepted; other effects and hit radius unverified"
   }
 }

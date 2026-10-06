@@ -11,6 +11,11 @@ The [existing contract](2026-10-06-fortnite-adapter-qualification.md) owns requi
 Any qualified interactive island is acceptable. Building, editing and destruction
 remain essential; static scenery and a replacement Skate implementation are excluded.
 
+**Current priority (D-029):** [assess the actual native Skate connection first](#actual-skate-connection-assessment--owner-choice-a-2026-10-06).
+The earlier movement-only experiment below is retained as a conditional later
+probe, not the next implementation task. A viable connection to the existing
+simulation must be established before spending effort on that diagnostic.
+
 ## Evidence levels and inputs
 
 - **Documented:** upstream guidance/README claims, explicitly identified below.
@@ -100,7 +105,7 @@ threads from cross-process transport. This table is a gap analysis, not a new AP
 Session availability does not prove a stable native ABI or Unreal interoperability.
 No bridge library, generic IPC protocol or rendering substitute is selected.
 
-## First live experiment — defined, blocked, not run
+## Earlier live-read experiment — deferred behind D-029 connection qualification
 
 **Question:** can a permitted extension observe a real player or camera value
 changing with movement in the identified Fortnite client?
@@ -188,7 +193,113 @@ They do not establish gameplay. This research changes documentation only; inheri
 exporter/native test debts remain separate. The prior rail correction is already
 in the starting Git revision and is not a new result of this investigation.
 
-**Next actor: Codex, when new host-access evidence exists.** Require a documented,
+**Earlier next step, superseded by D-029 below:** require a documented,
 reviewable client launch and extension route compatible with project boundaries,
 then perform the live-value experiment above. Re-running the rejected launchers,
 adding a universal framework or switching to IPC does not resolve that prerequisite.
+
+## Actual Skate connection assessment — owner choice A, 2026-10-06
+
+The owner chose to assess a route to the existing Skate simulation before building
+an observation-only Fortnite diagnostic. This preserves actual Skate movement,
+tricks and grinds; neither a Verse recreation nor static scenery satisfies it.
+D-029 records the decision. This follow-up examines official runtime extension,
+transport, collision, input and presentation evidence against that requirement.
+
+**Result: no supported connection established by the inspected sources.** UEFN
+has usable gameplay APIs, but none of the inspected pages establishes an island
+creator's ability to load/call our native Rust Session. A remote service API or
+editor automation endpoint does not establish that connection either. This is a
+bounded documentation conclusion, not an experimental failure or a proof about
+all unpublished/private capabilities. Do not install a diagnostic just to obtain
+coordinates while this prerequisite is missing.
+
+### Universal Modder example search
+
+A read-only helper refreshed `main` at unchanged
+`76b9c7e77ead5fd2d5f1b7613c6a7ed591b01c70`, cloned public source to temporary
+storage and searched knowledge index/JSON, examples, skills, README, agent
+instructions and scanner source. It found no Fortnite-specific demonstration in
+that scope. Fortnite appears in the generic Unreal exclusion and the scanner's
+`ONLINE_ONLY` list. Its Minecraft/GTA and Minecraft/Portal examples are other
+hosts; the IW4L/Skate example supports our existing architecture, not Fortnite
+compatibility. [Knowledge index](https://github.com/rehan-remade/universal-modder/blob/76b9c7e77ead5fd2d5f1b7613c6a7ed591b01c70/knowledge/INDEX.md),
+[scanner](https://github.com/rehan-remade/universal-modder/blob/76b9c7e77ead5fd2d5f1b7613c6a7ed591b01c70/um/scan.py#L400),
+[examples](https://github.com/rehan-remade/universal-modder/tree/76b9c7e77ead5fd2d5f1b7613c6a7ed591b01c70/examples).
+GitHub issue search returned no Fortnite/Skate matches; targeted PR search failed
+network access and the general PR listing was truncated. No exhaustive PR/fork
+or internet-wide absence claim is made. None of the cloned code was executed.
+
+### Official Fortnite capabilities versus the required connection
+
+Sources below were read on 2026-10-06. Epic's documentation is moving, without
+an immutable revision exposed by these reads. No local UEFN/client version was
+installed or qualified in this follow-up. Recheck these pages and pin an actual
+client/tool build before any future execution.
+
+| Candidate mechanism | Documented capability | What it does not establish for existing Skate |
+| --- | --- | --- |
+| UEFN custom gameplay | Verse devices; UEFN differs from full Unreal Engine, including unavailable gameplay Blueprint visual scripting | Creator-native DLL loading, Rust/C++ FFI or WASM execution is not documented by the inspected pages. Full UE plugin capabilities cannot be assumed for Fortnite islands |
+| Verse `native` annotations | Definitions implemented in C++ | An API annotation is not a documented creator build/load mechanism for our native library |
+| Verse WebAPI | Licensed users define a `client_id` mapped through backend configuration; the inspected Verse client documents `Get` | No demonstrated creator entitlement, arbitrary loopback/socket/shared-memory access, or connection to the player's local Skate process. A hosted backend would be a different, unqualified architecture, not same-process reuse |
+| UEFN MCP | Local HTTP tools in the editor for Verse, entities, devices and play-session management | No documented live client callback that advances Skate or transfers current collision and poses. Editor automation is not the runtime simulation connection |
+| Player/view reads | `GetTransform`, `GetViewLocation`, `GetViewRotation` | Observation alone neither executes Skate nor grants movement/render ownership |
+| Scene Graph sweeps | `FindSweepHits` returns collision contacts for swept entities/volumes | Contacts are not the triangle/rail vectors accepted by Session's current collision builder. Complete current terrain/build/edit/destroy geometry and lifecycle transfer remain unqualified |
+| Input Trigger | Press/release events and input consumption; documented round-trip latency may approach a second depending on connection | No demonstrated raw dual-stick sample stream with timing suitable for existing Skate gestures. This warning applies to this device, not every Fortnite input path |
+| Skeletal animation | `PlaySkeletalAnimation` plays asset-derived animation; this documented Scene Graph feature requires an experimental flag and currently prevents island publication. Imported-animation workflows also exist | The inspected pages do not provide a demonstrated sink for Session's arbitrary live bone matrices/root/camera output |
+
+Primary references for the corresponding rows:
+
+- [UEFN versus UE](https://dev.epicgames.com/documentation/en-us/fortnite/uefn-vs-ue-in-unreal-editor-for-fortnite),
+  [Verse programming](https://dev.epicgames.com/documentation/fortnite/programming-with-verse-in-unreal-editor-for-fortnite),
+  [native specifier](https://dev.epicgames.com/documentation/en-us/fortnite/native).
+- [Verse WebAPI](https://dev.epicgames.com/documentation/en-us/fortnite/verse-api/unrealenginedotcom/webapi),
+  [Verse client Get](https://dev.epicgames.com/documentation/en-us/fortnite/verse-api/unrealenginedotcom/webapi/client/get).
+  Do not substitute similarly named full Unreal C++ WebAPI documentation as UEFN
+  capability evidence. Neither latency/throughput nor account access was tested.
+- [UEFN MCP](https://dev.epicgames.com/documentation/fortnite/uefn-mcp).
+  The editor documentation explicitly distinguishes play-in-client from Unreal's
+  play-in-editor; a local editor connection does not place our code in Fortnite.
+- [fort_character](https://dev.epicgames.com/documentation/fortnite/verse-api/fortnitedotcom/characters/fort_character),
+  [GetTransform](https://dev.epicgames.com/documentation/fortnite/verse-api/fortnitedotcom/game/positional/gettransform).
+- [FindSweepHits](https://dev.epicgames.com/documentation/fortnite/verse-api/versedotorg/scenegraph/findsweephits-2),
+  [component collision-query tutorial](https://dev.epicgames.com/documentation/fortnite/creating-your-own-component-using-verse-in-unreal-editor-for-fortnite).
+- [Input Trigger](https://dev.epicgames.com/documentation/en-us/fortnite/using-input-trigger-devices-in-fortnite-creative).
+- [Scene Graph skeletal animation](https://dev.epicgames.com/documentation/fortnite/skeletal-animation-in-scene-graph-in-fortnite),
+  [imported animation](https://dev.epicgames.com/documentation/fortnite/import-and-play-mesh-animations-in-unreal-editor-for-fortnite).
+
+### Connection decision and stopping rule
+
+```text
+Existing native Skate Session
+  -> permitted in-client call path?       NOT ESTABLISHED for inspected UEFN docs
+  -> permitted local external transport? NOT ESTABLISHED by Verse WebAPI
+  -> usable controls + current collision + pose/render ownership? GAPS REMAIN
+Reboot/Era native launch leads -> earlier protection/dependency blockers remain
+Result: no qualified route -> no movement-only demo or speculative bridge code
+```
+
+Same-process reuse remains preferred. Documentation gaps are not an observed
+runtime constraint that selects IPC. Reboot/Era/Rift's prior findings remain
+source evidence; their binaries and client startup were not rerun in this
+follow-up. Moving native code into another process does not automatically solve
+Fortnite-side access, input, collision or rendering.
+
+**Next prerequisite:** a primary-source, build-specific example of a permitted
+Fortnite runtime extension that calls a creator-provided native library, or a
+supported transport to the existing local simulation with its execution context
+identified. First establish that seam without private assets, then qualify the
+collision/input/pose gaps above before adapting Session. A declaration that a
+client is offline, an editor MCP connection, or a camera log does not pass.
+
+Reproduction: read the linked official pages, compare their declared input/output
+and execution context with the pinned Session table above, and distinguish full
+Unreal Engine APIs from UEFN/Verse runtime APIs. Searches included UEFN native
+C++/plugin/FFI support, Verse WebAPI, Scene Graph sweeps, input-trigger timing and
+skeletal animation. No successful native-call example was found in this bounded
+source set. Missing proof is reported as unestablished, not categorical absence.
+
+No executable code or new tests are needed for this documentation finding. No
+Windows launch, runtime probe, game-data upload, tool installation, hosted service,
+protection change, merge or release occurred. Review, repository checks and source
+publication are recorded separately in the current handoff and board.

@@ -28,7 +28,7 @@ Fortnite keeps world behaviour; Skate supplies skating. This division is a
 hypothesis to qualify. Server construction handlers alone cannot establish
 client collision access, Skate movement ownership or skater rendering.
 
-Latest bounded follow-up: [Universal Modder and candidate qualification](2026-10-06-fortnite-guidance-qualification.md) pins the selected guidance, rechecks Reboot, compares Rift/Era only for missing prerequisites, and defines the blocked live-value experiment. No candidate qualified; D-028 records the tooling role.
+Latest bounded follow-up: [Universal Modder and candidate qualification](2026-10-06-fortnite-guidance-qualification.md) pins the selected guidance, rechecks Reboot, compares Rift/Era only for missing prerequisites, and defines the blocked live-value experiment. No candidate qualified; D-028 records the tooling role. D-029 now prioritizes establishing an actual connection to the existing Skate simulation before a movement-only diagnostic; see the report’s connection assessment. The live-value check remains conditional on that connection evidence.
 
 ## User Stories
 

@@ -1,3 +1,47 @@
+# Handoff — assess actual Skate connection before a Fortnite diagnostic
+
+**Owner decision/phase:** option A, recorded in D-029. Phase 1 source research:
+qualify a connection to the existing Skate simulation before building a
+movement-only diagnostic. Actual Skate physics, interactive island behavior and
+same-process preference remain fixed.
+
+**Result:** [connection assessment](../research/results/2026-10-06-fortnite-guidance-qualification.md#actual-skate-connection-assessment--owner-choice-a-2026-10-06)
+finds useful official observation, collision-query and animation APIs, but no
+established creator-native call path to Rust Session. Verse WebAPI does not
+establish local simulation access; MCP runs in the editor. Input, current
+triangle/rail collision and live bone/pose rendering gaps remain explicit.
+Universal Modder's checked examples contain no Fortnite-specific demonstration;
+its PR search was incomplete. Prior community launch blockers remain unchanged.
+No diagnostic, adapter, replacement physics or runtime execution was performed.
+
+**Source:** branch `slice/fortnite-skate-connection`, clean starting revision
+`3482d4d9f3f00aca493938c535f494adde35c977`; final revision is Git HEAD.
+Only the qualification reports, decisions and handoff change. Runtime
+remote HEAD remains `f608f85e407ff1b7689d54a9aafdd16e95711ac4`; pin unchanged.
+
+**Checks:** independent Standards review found stale diagnostic-first wording;
+corrected by a prominent D-029 notice and explicit historical labels. Spec review
+found no actionable issue. Added the documented experimental/publication limit
+for Scene Graph skeletal animation. Reviewer confirmed both corrections: no
+remaining Standards or Spec findings. Repository gate PASS: 34 tests, two recipes,
+links in 17 documents; report local links and `git diff --check` PASS.
+C-019/C-020/C-024 updates read back successfully; unrelated cards, fields and
+views preserved. They retain phase 1 and record D-029 and the runtime-seam blocker.
+Source publication/remote verification and final revision attachment follow.
+Existing native broad-suite missing-test and exporter rebuild/analyzer debts
+remain inherited; no new runtime checks waive them.
+
+**Next:** require a build-specific, primary-source example of a permitted native
+extension or supported transport to the existing local simulation. Then qualify
+input, changing collision and pose/render ownership before adapting Session.
+Do not count a camera log or editor connection as the missing bridge. Later
+build/skate/jump/grind/edit/destroy/recover/relaunch acceptance remains required.
+No owner gameplay acceptance, merge or release is claimed.
+
+---
+
+## Previous qualification handoff (historical status)
+
 # Handoff — Fortnite route qualification remains blocked by host access
 
 **Objective/phase:** interactive Fortnite world with existing Skate simulation;

@@ -609,3 +609,25 @@ No runtime API or universal framework is introduced. Extract scripts only for
 proven repetition; create a reusable skill after success on a second case, in
 global storage. D-027 publication policy remains; no merge/release or gameplay
 acceptance follows from source research or passing repository checks.
+
+## D-029: actual Skate connection before observation-only diagnostics — 2026-10-06
+
+During grill-with-docs the owner selected option A: assess whether a Fortnite route
+can actually connect to the existing Skate simulation before spending effort on
+an observation-only diagnostic. Reading player/camera coordinates alone is not
+sufficient progress toward this selected outcome. Preserve actual Skate physics,
+the interactive island and same-process preference; no substitute simulation or
+static-world route is selected.
+
+The [connection assessment](../research/results/2026-10-06-fortnite-guidance-qualification.md#actual-skate-connection-assessment--owner-choice-a-2026-10-06)
+compares official UEFN native/transport/editor APIs and input/collision/animation
+capabilities with the pinned Session. Documented observation and editor automation
+do not establish a creator-provided native runtime call path. No supported native
+or local-transport connection was established in the inspected sources. This is
+a documentation result, not a universal impossibility claim or an observed
+constraint selecting IPC. Existing Reboot/Era protection/dependency blockers remain.
+
+Continue only on concrete primary-source evidence for the missing runtime seam;
+do not create a coordinate-only demo, speculative bridge, hosted backend or
+rewritten skating system to conceal the gap. Existing acceptance sequence and
+publication/asset/merge/release boundaries remain unchanged.

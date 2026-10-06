@@ -35,7 +35,15 @@ fields and unrelated cards preserved. Shared helper initially refused the custom
 Now columns before mutation; direct validated field/body updates preserved that
 configuration. Cards record source research complete with precise host-access
 blocker, live experiment defined/not run, and existing acceptance sequence.
-Final source revision/publication evidence will be appended after remote verification.
+Qualification report revision `66f850634819cd69d5b6f054abe2d68c4c4d043d`
+was pushed; `git ls-remote origin refs/heads/slice/fortnite-guidance-qualification`
+matched local HEAD exactly. This subsequent handoff update records that verified
+publication. Final handoff revision is Git HEAD; the board carries the final
+remote-verified SHA. No PR merge or release performed.
+
+**Compact state:** phase 1 blocked qualification | `slice/fortnite-guidance-qualification`
+| report `66f8506` pushed/remote verified | 34 tests + recipes/links PASS |
+board read-back verified | Codex: permitted host route before live-value experiment.
 
 **Next:** Codex resumes only when a reviewable permitted client launch/extension
 route is identified; first demonstrate a host player/camera value changing with

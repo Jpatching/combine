@@ -66,7 +66,9 @@ qualification slice active; retain the existing map/dependencies and park
 route-dependent implementation. Full-island coverage and performance require
 identified Windows hardware and measured evidence. Separate Synergy requirements
 remain preserved. No protection bypass, gameplay recreation, multiplayer,
-redistribution, spending, publication, merge or release in this slice.
+redistribution, spending, merge or release in this slice. D-027 authorizes
+reviewed source-branch publication before gameplay acceptance. Prefer same-process
+Skate reuse; add IPC only when an observed host constraint requires it.
 
 ## Implementation language and existing setup
 
@@ -102,7 +104,10 @@ already agreed menu or hit-radius behavior.
 - D-016/D-017 authorize reviewed source-branch pushes to Jpatching/combine before
   owner acceptance. Review the source list and reachable history, commit only
   the slice and verify the remote branch SHA after pushing. Keep failed/missing
-  checks visible. A push is not owner acceptance, merge or release.
+  checks visible. At every completed authorized slice, commit and push the reviewed
+  branch, verify its remote SHA and synchronize the tracker. Report a concrete
+  blocker or explicit no-push instruction instead of silently accumulating commits.
+  A push is not owner acceptance, merge or release.
 - Before requesting an owner trial, pass required checks and prepare a fresh
   versioned review folder identifying commit, pins, patch hashes, executable hash,
   launch/files/checklist shortcuts and limitations. Preserve previous builds.

@@ -198,6 +198,12 @@
       "repository": "https://github.com/jwhazy/instigator",
       "commit": "c033c1c2693194a5948a760cc365d6821c5caae5",
       "result": "normal launch starts/suspends EAC; not permitted under project boundary"
-    }
+    },
+    "architecture_reference": {
+      "repository": "https://github.com/justbustin/minecraft-crossover-bridge",
+      "commit": "d1723873ec8f370389cf19f74fac455b9e581321",
+      "scope": "pinned README and architecture documentation inspected; source-reference only, not reproduced"
+    },
+    "process_preference": "same-process Skate reuse; IPC only after demonstrated host constraint"
   }
 }

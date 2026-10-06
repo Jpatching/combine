@@ -65,5 +65,7 @@ Pin an accessible client; establish a permitted host extension route; read one
 host value; connect controls/pose/camera to the existing Skate Session; qualify
 collision geometry/rails and live structure lifecycle; demonstrate on-foot build,
 skate, edit/destroy, recover and relaunch. A reusable host/guest bridge is the
-method; process placement and transport follow inspected interfaces. No universal
+method. Prefer same-process reuse as in the existing runtime; introduce IPC only
+when a demonstrated host constraint requires it. Test one method at a time per
+game, record observed results and advance the next missing live seam. No universal
 framework is selected. Stock-client startup alone cannot qualify this bridge.

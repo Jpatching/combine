@@ -560,3 +560,25 @@ are revised in place; conflicting static requirements become historical.
 The [current specification](../research/results/2026-10-06-fortnite-adapter-qualification.md)
 owns requirements and acceptance. D-026 supersedes conflicting static-world
 scope in D-020 through D-025, not their recorded observations or unresolved debt.
+
+
+## D-027: same-process adapter reuse and source-publication policy — 2026-10-06
+
+The owner asks to establish the existing integration architecture, try methods
+per game, and use same-process reuse unless required otherwise. Pinned source
+shows IW4L hosts MW2, Skate and Minecraft in one Bevy app; Skate uses internal
+thread channels, not cross-process IPC. The separate public Minecraft crossover
+uses two programs and shared memory. Neither supplies a qualified Fortnite host
+adapter. Prefer the existing Skate Session inside the selected host process.
+Only introduce IPC after a demonstrated host constraint justifies the change;
+keep one measured live-host experiment active and retain explicit blockers.
+The current specification and linked process-model evidence own the details.
+
+The owner also directs reviewed source branch publication and saving a global
+default that avoids accumulating local commits. At each completed authorized
+slice, review, run required checks, commit, push the branch, verify remote SHA
+and synchronize the tracker. Pending gameplay acceptance alone does not hold
+experimental source locally. This supersedes D-026's slice-specific no-publication
+restriction. Private data/assets remain excluded; acceptance, merge and release
+remain separate. Global Codex instructions now favor the smallest useful workflow
+and an explicitly requested skill rather than chaining unrelated workflows.

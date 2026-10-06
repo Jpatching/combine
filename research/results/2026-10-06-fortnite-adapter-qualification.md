@@ -1,6 +1,6 @@
 # Interactive Fortnite with Skate: qualification and specification — 2026-10-06
 
-## Current contract (D-026)
+## Current contract (D-026, refined by D-027)
 
 The owner wants Fortnite's interactive world with Skate's reverse-engineered
 movement, tricks and grinds. Static scenery does not satisfy building, editing
@@ -28,24 +28,28 @@ Fortnite keeps world behaviour; Skate supplies skating. This division is a
 hypothesis to qualify. Server construction handlers alone cannot establish
 client collision access, Skate movement ownership or skater rendering.
 
-## User outcomes
+## User Stories
 
-1. Explore the island using Skate movement.
-2. Perform authentic Skate tricks and grinds.
-3. Retain interactive Fortnite terrain and buildings.
-4. Build a ramp and skate it.
-5. Follow edited structure shapes with matching skating collision.
-6. Remove destroyed structures from skating collision; no invisible support.
-7. Switch between on-foot interaction and skating.
-8. Recover reliably after a fall.
-9. Exit and relaunch repeatably.
-10. Reuse suitable existing implementations.
-11. Record exact versions and reproduction evidence.
-12. Report explicit blockers; preparation and launch do not establish play.
-13. Preserve original installations and private game data.
-14. Deliver the complete selected island after the small live demonstration.
+1. As a player, I want to explore the full selected Fortnite island using Skate movement, so that the experience combines both games.
+2. As a player, I want to perform Skate tricks and grinds, so that skating keeps its original behavior.
+3. As a player, I want to retain Fortnite terrain and live buildings, so that the world remains interactive.
+4. As a player, I want to build a ramp on foot and skate it, so that construction changes my route.
+5. As a player, I want to skate the current edited structure shape, so that visible and physical surfaces agree.
+6. As a player, I want to remove collision when a structure is destroyed, so that invisible support does not remain.
+7. As a player, I want to switch between on-foot interaction and skating, so that I can construct and ride obstacles.
+8. As a player, I want to recover from a fall, so that a failed trick does not end the session.
+9. As a player, I want to exit and relaunch reliably, so that play is repeatable.
+10. As a owner, I want to reuse the existing Skate simulation in the host process first, so that we avoid an unnecessary second process and protocol.
+11. As a owner, I want to introduce IPC only for a demonstrated host constraint, so that added complexity solves a measured problem.
+12. As a owner, I want to test integration methods one at a time against each selected game, so that real results determine the route.
+13. As a owner, I want to pin executable and source identities, so that each experiment can be reproduced.
+14. As a owner, I want to see explicit failures and blockers, so that preparation is never mistaken for gameplay.
+15. As a owner, I want to preserve original installations and private game data, so that experiments remain isolated.
+16. As a owner, I want to verify a live host value before building a larger adapter, so that we establish actual client access early.
+17. As a player, I want to stop safely when collision or input ownership becomes invalid, so that stale state cannot continue controlling the skater.
+18. As a owner, I want to keep per-game details in the host adapter, so that usable simulation code can be reused without rebuilding Fortnite.
 
-## Qualification and implementation boundaries
+## Implementation Decisions
 
 Inspect and pin Reboot's client requirements, launcher dependencies, structure
 placement/edit/destruction handlers and client extension points before any
@@ -82,11 +86,15 @@ Pinned Fortnite build -> permitted host extension -> read one host value
 Missing host seam -> explicit blocker before bridge implementation
 ```
 
-This is the reusable adapter method at the architectural level. It does not
-establish that the existing MW2 implementation uses two processes, nor select
-shared memory, sockets, a public protocol, renderer composition or a universal
-framework. Choose process placement/transport only after inspecting usable host
-and guest interfaces. The existing Skate seam takes triangle collision and rails;
+Pinned source now establishes that the existing MW2/Skate/Minecraft runtime
+uses one process with internal worker threads. The owner selects **same-process
+Skate reuse first** for Fortnite and subsequent per-game experiments. Introduce
+a separate process and IPC only if a demonstrated host constraint requires it;
+record the failing same-process experiment and reason before changing method.
+Shared memory, sockets, a public protocol, renderer composition and a universal
+framework remain unselected. A permitted Fortnite extension is still required
+for either process model; selecting the preference does not establish feasibility.
+See the [source architecture evidence](2026-10-06-adapter-process-model.md). The existing Skate seam takes triangle collision and rails;
 host raycasts alone are not proven sufficient for its authentic contacts/grinds.
 Build identity checks, coordinate/unit checks, neutral input ownership, current
 collision replacement and safe shutdown are qualification gates. Start by reading
@@ -95,7 +103,7 @@ damage and depth composition are conditional on the selected experience; combat
 parity remains out of scope. Public crossovers described by the owner are design
 references, not independently reproduced evidence for this repository.
 
-## Highest-level acceptance seam
+## Testing Decisions — highest-level acceptance seam
 
 The player interacts with a live Fortnite structure while Skate consumes its
 collision. Record pass/fail/blocked/not tested for each step against exact builds:
@@ -113,6 +121,13 @@ must prevent stale asynchronous collision results from restoring destroyed or
 edited geometry and must stop skating explicitly when valid current collision
 cannot be installed. These are required failure outcomes, not a selected API.
 
+For each method trial, record the hypothesis, exact host/build, inspected extension
+point, input/action, observed output, pass/fail/blocker and next change. Start with
+a real host player or camera value that responds to movement; synthetic IPC traffic
+or process launch alone does not pass. Confirm axis/scale and a 90-degree turn
+before pose control; then test collision replacement on edit/destroy. A process
+change requires observed evidence, not the existence of a reusable protocol elsewhere.
+
 Record exact client/source identities, hardware, tools, commands, omissions,
 manual repairs and reproduction. Distinguish source-inspected, prepared, launched,
 gameplay-tested and owner-accepted. Standards/Spec review and
@@ -120,13 +135,15 @@ gameplay-tested and owner-accepted. Standards/Spec review and
 Full-island acceptance additionally requires content coverage and measured load
 time, memory, frame times and regional travel on identified Windows hardware.
 
-Out of scope: universal merger, replacement engine, recreation of Fortnite
+## Out of Scope
+
+Universal merger, replacement engine, recreation of Fortnite
 building/gameplay, complete combat/AI parity, multiplayer integration, mandatory
-Combine hosting/Blender, protection bypass, redistribution, spending, source
-publication, merge and release. Keep private inputs, assets, settings and logs
+Combine hosting/Blender, protection bypass, redistribution, spending, merge and release. Reviewed source-branch publication is authorized by the
+latest owner direction (D-027), separately from gameplay acceptance. Keep private inputs, assets, settings and logs
 outside Git; source licences do not establish asset or publisher clearance.
 
-## Existing map and dependencies
+## Further Notes — existing map and dependencies
 
 Keep C-019 as specification, C-020 as wayfinder map, and C-024 as the bounded
 qualification decision. `ready-for-agent` is a draft-body marker for that bounded

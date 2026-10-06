@@ -1,45 +1,48 @@
-# Handoff — Fortnite + Skate first; input blocked, asset tree located
+# Handoff — Fortnite input diagnosed; export route blocked
 
-**Usable today:** existing Windows mashup has owner-reported skating/Minecraft
-play. Replay/recovery remain unverified. Actual Synergy has a prepared,
-unaccepted input trial: **Combine Synergy - 2026-10-05 - c591086**, with
-**Test Synergy / Open trial files / Read checklist** shortcuts. Hit radius and
-full menu option coverage remain unfinished. No playable Fortnite adapter exists.
+**Outcome:** reproduced 3.1 mount failure twice: 0/10 containers, zero worlds.
+Fresh container hashes match recorded references. Independent v4 footer checks
+confirm ten encrypted-index flags and valid ranges; pinned parser skips mounting
+these before decoding. No supported compatibility correction or qualified
+replacement was established. Payload encryption itself remains untested.
+[Diagnosis and reproduction](../research/results/2026-10-06-fortnite-input-diagnosis.md).
 
-**Now — qualify Fortnite input (C-024, Phase 1):** identify a mountable island,
-export and collision witness. Recorded 3.1 parser attempts mount 0/10 containers
-and find no worlds; cause is not established. Replacement input is authorized,
-but no replacement selected. **Codex acts next**, without bypass or asset upload.
+**Next actor/action: Codex**, initialize the pinned Skate host against the existing
+prepared private assets in isolation (C-025); require a loaded/rejected result
+before renderer work. The prior presence check located `skate-data/assets`, manifest
+version 1, safe scene/action/motion references, stock input, skeletons, collections
+and OnBoard/OffBoard banks. Presence is not host-loading proof. C-024 remains
+blocked/open: replacement must be identified and yield a real island/export/collision
+witness before substitution. Full island + Skate-only destination remains.
 
-**Fallback — standalone skating (C-025):** today's bounded check located the
-existing Windows trial's `skate-data/assets` tree. Its configured root matches;
-manifest version 1, scene/action/motion references, stock input, skeletons,
-collections and OnBoard/OffBoard banks are present. This corrects the earlier
-search result; it does not verify host loading. Next check: initialize the pinned
-host against these private assets in an isolated setup before renderer work.
-The inherited missing `src/tests/map_startup.rs` still blocks the broad host suite.
+**Source:** local branch `slice/fortnite-input-diagnosis`, base
+`397f535a952014b3b706fb4b1d52450331298da2`; resolve final checkpoint with Git.
+Only new read-only header diagnostic/tests and this evidence/handoff are included.
+Inherited exporter source/lock remain untracked, unchanged and preserved.
+No Git integration review, push, merge or release. Original installations,
+archive, private reports and earlier trials remain; no game bytes/keys/raw logs
+uploaded and no protection bypass attempted.
 
-Start with **Continue Combine**. The [live board](https://github.com/users/Jpatching/projects/5/views/4)
-owns status; the [workspace tour and check](../research/results/2026-10-06-workspace-orientation.md)
-explains what each folder/script does. [Fortnite qualification](../research/results/2026-10-06-fortnite-adapter-qualification.md)
-owns the integration route; [menu guide](TRICKSHOT_MENU.md) owns Synergy requirements.
-At the next return, check that usable / current task / blocker + next actor /
-next instruction are clear with this reminder. Owner usability verdict pending.
+**Checks:** seven focused header tests and ten inherited runner CLI checks pass.
+Full repository gate PASS: 34 tests, two recipes, local links in 17 documents.
+Fresh exporter compilation is blocked
+by missing inherited NuGet cache/analyzer files after correcting the read-only
+.NET first-use cache; reproduction uses the recorded inherited DLL, not a newly
+built runner. No world export, runtime build, game launch or gameplay acceptance.
+Inherited broad Skate host suite still lacks `src/tests/map_startup.rs`.
+Upstream remote reads confirm parser master remains e4ea4ba and runtime HEAD/tag
+v0.4.0 remain f608f85; pins unchanged.
 
-**Source:** `docs/project-orientation`, based on refreshed `origin/main`
-`a5593d671142f31653d45caeaad7b926d40ff855`, retaining prerequisite
-`chore/resume-summary` at `ad8b793adb4b3095884ccec1c694d10216313c5c`.
-Orientation-only review base is `ad8b793`; resolve final HEAD with Git.
-[PR #1](https://github.com/Jpatching/combine/pull/1) remains OPEN at `b399c55`,
-with zero attached automated checks; accumulated outcomes need separate merge
-review. Local main remains nine commits behind remote main. Untracked exporter
-work is preserved. This orientation is local/unpushed; no merge or release.
+**Board:** C-024 body/fields updated and read back; Phase 1 stays blocked/open.
+Reproduced skip policy, fresh hashes, independent headers, missing rebuild cache
+and no replacement recorded; next action is isolated C-025 host loading. Shared
+helper initially rejected owner-visible columns before writes; retry validated
+the existing live layout and preserved all views/unrelated items. No new tracker. [Live input task](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=263192669).
 
-**Checks:** repository gate and whitespace results are in the linked orientation
-evidence. No runtime changes/build/launch/gameplay or owner acceptance this slice.
-Board evidence/read-back is recorded there; private assets and settings stay local.
-Historical source/trial/check records below remain accessible; their ordering is
-superseded by the live board and this summary.
+**Usable today:** existing Windows mashup has owner-reported skating/Minecraft;
+recovery/replay remain unverified. Actual Synergy exact c591086 trial is prepared
+and unaccepted. Hit radius/menu coverage remain unfinished. No playable Fortnite
+adapter exists. Those separate trials and requirements are preserved.
 
 ---
 

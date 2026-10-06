@@ -18,7 +18,7 @@ PowerShell support validation and Windows trial preparation.
 | Skate on MW2 Rust with MW2 combat | Owner reports skating worked; baseline recovery/replay incomplete | [Windows baseline](docs/WINDOWS_BASELINE.md) |
 | Minecraft world with MW2 combat and skating | Owner reports Minecraft worked; skating on changed terrain and replay unverified | [Windows baseline](docs/WINDOWS_BASELINE.md) |
 | Actual Synergy trickshot menu in the existing mashup | Original GSC menu integrated; Intervention/input checks recorded; exact-build physical trial unaccepted | [Menu guide](docs/TRICKSHOT_MENU.md), [trial evidence](docs/HANDOFF.md) |
-| Full Fortnite island + Skate only | Specification and tickets published; standalone world validation implemented; no playable adapter | [Qualification](research/results/2026-10-06-fortnite-adapter-qualification.md) |
+| Full Fortnite island + Skate only | Reuse qualification blocked on a real terrain/building export; existing map reader assessed; no playable adapter | [Qualification](research/results/2026-10-06-fortnite-adapter-qualification.md) |
 
 Recipes are strict research metadata. The Python checker does not prepare or
 launch these experiences. Unfinished preparation scaffolding is not playable progress.

@@ -1,17 +1,206 @@
 # Full Fortnite island + Skate: adapter qualification — 2026-10-06
 
-The deliverable is a source-backed implementation specification and ordered work,
-not a playable adapter. Destination: the full selected Windows Fortnite island,
+Current objective: reuse existing export/map tools to prove a repeatable Fortnite
+area with Skate movement, then deliver the complete selected island. This file
+owns the qualification/specification; source inspection alone does not prove play. Destination: the full selected Windows Fortnite island,
 `Release-3.1-CL-3917250`, with Skate movement only. Smaller areas are validation
 cases, not a replacement destination. D-022 supersedes older building-only scope.
 Actual Synergy and hit radius remain separate and incomplete.
 
-Resume update (2026-10-06): specification and ticket slicing are
-complete; eight dependent implementation tickets remain tracked and integration is incomplete. C-024 input comes first, then C-025
-rendering after its asset prerequisite check. Local metadata now identifies the
+Resume update (2026-10-06, owner-supplied reuse plan): assess existing exporters
+and Skate map tools before extending the custom adapter. Qualification must end
+with an evidenced route or a precise blocker. Existing eight tickets are retained;
+route-dependent implementation is parked until a real terrain/building witness.
+PR #1 rail repair remains required before merge. Local metadata now identifies the
 selected 3.1 input, but recorded parser attempts mount no containers and find no
 worlds. The bounded discovery below is historical. See [current handoff](../../docs/HANDOFF.md)
 for fresh publication/input evidence and D-023 for authorized version choice.
+
+## Agreed observable outcomes
+
+1. Recognizable Fortnite scenery with Skate controls, camera and movement.
+2. Solid ground, walls and stairs, plus suitable grind paths.
+3. Fall recovery and return to a safe location.
+4. Exit and relaunch the same isolated setup.
+5. Complete selected island after the real-area checkpoint.
+6. Clear preparation errors identifying missing prerequisites.
+7. Original installations and earlier trials preserved.
+8. Pinned tools, exact input/output identities and reproducible commands.
+9. Existing implementations assessed before new conversion code.
+10. Source-safe tests/diagnostics with no distributed game data.
+11. Each supported experience declares inputs, adapter, checks and limitations.
+12. Shared interfaces derived from working integrations; no arbitrary compatibility promise.
+13. One active outcome and an exact next actor/action.
+
+The first area's acceptance requires prepare/load/control/recover/close, jump,
+collision, a representative grind and relaunch. Full-island acceptance adds
+content coverage, regional travel, safe loading and measured performance on
+identified Windows hardware. Malformed geometry, unsupported versions, missing
+dependencies and excessive inputs must fail before a partial session is
+installed. Existing public validation regressions remain required. Synthetic
+tests/builds/process launch do not satisfy physical gameplay or owner acceptance.
+
+## Reuse qualification result — 2026-10-06
+
+**Precise blocker; no route selected.** The recorded 3.1 parser runs mounted
+0/10 containers and found zero worlds. All ten version-4 footers carry an
+encrypted-index flag; the inspected parser skips mounting them. These are
+[reproduced prior observations](2026-10-06-fortnite-input-diagnosis.md), not new
+export attempts here. No accessible replacement, terrain/building export or
+collision witness was established. This does not prove every exporter fails.
+It prevents any candidate from meeting the owner's real-data qualification gate.
+
+Qualification inputs: current board/specification, recorded input diagnosis,
+pinned runtime and public tool source. Output: comparison below and an explicit
+open input prerequisite. No tool/plugin was installed or run against game data,
+no input/key was changed, and no private assets or logs were uploaded.
+
+### Existing runtime reuse, source-inspected
+
+The runtime already includes a [SKATE01–15 reader](https://github.com/chasmlol/2010-rust-rewrite-mashup/blob/f608f85e407ff1b7689d54a9aafdd16e95711ac4/skate/crates/skate-data/src/skate_map.rs).
+It parses visual geometry, materials/textures, separate collision and rails;
+newer versions fail explicitly. The [world adapter](https://github.com/chasmlol/2010-rust-rewrite-mashup/blob/f608f85e407ff1b7689d54a9aafdd16e95711ac4/skate/crates/skate-host/src/skate_world.rs)
+rejects absent collision, authored doors and external texture placeholders,
+and rejects unsupported required extensions. Some retained lighting/material
+features have explicit limitations. The [public bridge](https://github.com/chasmlol/2010-rust-rewrite-mashup/blob/f608f85e407ff1b7689d54a9aafdd16e95711ac4/skate/crates/skate-host/src/physics/bridge.rs)
+constructs a collision-only in-memory SkateMap from triangles/rails and loads
+stock assets/graphs/physics. Its public constructor does not load a `.skate`
+render package or own a standalone display session.
+
+Thus a compatible existing map pipeline could reuse parsing and physics; it
+still needs qualified presentation/session wiring in Combine. A matching suffix
+or supported version is insufficient. Source inspected via `git show` at the
+exact pin; remote HEAD/v0.4.0 refreshed and still match. No runtime changed.
+
+### Conditional comparison
+
+| Candidate route | Existing capability / evidence | Work and qualification still required |
+| --- | --- | --- |
+| CUE4Parse/FModel world export → existing Blender/map tools → pinned host | Pinned CUE4Parse WorldExporter walks actors, landscapes and streaming levels into USDA; instance transforms/material overrides are represented | Real legacy-build decode, all required sublayers, no dummy meshes, authoritative collision, Blender import/material conversion and exact `.skate` compatibility; Combine render/session bridge |
+| FortnitePorting → Blender → existing Skate map exporter | Candidate map/asset import path; tool assessment below | Selected-build support and terrain/building witness, shader conversion, collision semantics, transform/axes measurements and compatible exporter output; same Combine session gap |
+| Complete Combine custom export adapter → native world/host | Existing native validation/preparation patch and host triangle/rail API; source tests only | Export prerequisite remains identical; additional format decoding, material/instance conversion and rendering/lifecycle work; no custom serialization justified yet |
+| Another Skate map runtime | Existing tooling may target a different host | Exact feature/performance/access comparison and explicit owner runtime decision; not selected or executed |
+
+CUE4Parse pin is `e4ea4ba8ec2b88d08b2066dfb8962863dccb36cc`.
+Its [world exporter](https://github.com/FabianFG/CUE4Parse/blob/e4ea4ba8ec2b88d08b2066dfb8962863dccb36cc/CUE4Parse-Conversion/Exporters/WorldExporter.cs)
+and [USD writer](https://github.com/FabianFG/CUE4Parse/blob/e4ea4ba8ec2b88d08b2066dfb8962863dccb36cc/CUE4Parse-Conversion/Formats/World/UsdWorldFormat.cs)
+include dummy-cube fallbacks and streaming-level handling; successful export
+status alone does not establish complete island content. No collision export
+witness exists. FModel/Blender tools are alternatives to qualify, not locally
+verified substitutions.
+
+### Public tool pins and online reuse leads
+
+Public refs recorded October 6 with `git ls-remote`; selected runtime unchanged.
+Source/documentation downloaded only to temporary local inspection files, not
+installed or executed:
+
+| Tool | Exact observed reference | Source assessment |
+| --- | --- | --- |
+| SK8-Engine Blender map exporter | preview.15 tag object `98bef0c339f1761c7c9900901dd522f5e087fa7e`, commit `59614c8a0039395f1575e8bf08ed7ad82a554fa4` | Existing `.blend` adoption, embedded materials/textures, independent collision, named grind paths and spawn; v15 candidate |
+| FortnitePorting | v4.3.3/main `4c13c7907ad1f7804b7affc6c86a737e8e70285d` | Installed/custom/on-demand asset access, Blender extension; pinned map source sets actor/foliage/landscape export flags |
+| BlenderUmap2 | better-materials `87ae84e70f706356945c8152a407108262a41897` | UE4/5 `.umap` and Fortnite replay actor import; Blender 3+, .NET 6, PSK/PSA importer dependencies |
+
+The pinned [SK8 exporter guide](https://github.com/SK8-ENGINE/SK8-Engine/blob/59614c8a0039395f1575e8bf08ed7ad82a554fa4/tools/blender_owned_map/README.md)
+can adopt visible meshes as presentation plus collision and convert/bake selected
+shader inputs. That default does not preserve Fortnite's source solid-surface
+semantics automatically. Complex materials, foliage/decals and collider groups
+need inspection. Use existing authored rails/edge algorithms, then test actual
+grinds; generated paths are candidates. Its optional agent-assisted classification
+workflow must not receive private game images/assets. Manual local classification
+is available. A failed exact format-spec URL was not used as compatibility proof.
+
+Pinned FortnitePorting [README](https://github.com/h4lfheart/FortnitePorting/blob/4c13c7907ad1f7804b7affc6c86a737e8e70285d/README.md)
+requires Windows x64 and Blender 4.2+ for live import. Search-cached moving
+documentation says Blender 5.0+; use exact-version compatibility evidence, not
+that contradictory cache. Its [map code](https://github.com/h4lfheart/FortnitePorting/blob/4c13c7907ad1f7804b7affc6c86a737e8e70285d/src/FortnitePorting/Models/Map/WorldPartitionMap.cs)
+exports selected grid worlds with actor/landscape flags but skips a null world
+without establishing completeness. Collision fidelity remains unverified.
+Its [provider](https://github.com/h4lfheart/FortnitePorting/blob/4c13c7907ad1f7804b7affc6c86a737e8e70285d/src/FortnitePorting/Services/CUE4ParseService.cs)
+uses manifest-backed on-demand downloads and key submission; this is an access
+lead requiring review under the existing no-bypass boundary, not permission
+to fetch keys or run it. Logged-in exports can submit map-path identifiers;
+keep account/export sharing disabled for a private trial. No such requests made.
+The pinned [BlenderUmap2 README](https://github.com/MinshuG/BlenderUmap2/blob/87ae84e70f706356945c8152a407108262a41897/README.md)
+does not establish collision or `.skate` preservation.
+
+Owner follow-up requests online/downloadable examples rather than depending
+only on supplied input. Bounded searches found:
+
+- [Sxlar3d's map-import tutorial](https://www.youtube.com/watch?v=Ne6YgsB7Rjo)
+  (2022-10-22) documents replay/map import through BlenderUmap, FModel and PSK/PSA
+  tools, including position and texture repairs. Only its published description
+  was inspected; no independent viewing/reproduction or Skate play is claimed.
+- [Minshu's whole-map release post](https://www.patreon.com/minshug/posts/beta-with-lights-75676254)
+  documents Asteria_Terrain WorldPartition import (2022-12-08). Historical
+  Blender-world support does not qualify the selected build or collision.
+- [HeightLayerMaps](https://github.com/jasn7135/HeightLayerMaps) offers extracted
+  3.6/9.10 terrain height/layer maps and import metadata. It supplies no building
+  placement/collision witness, so downloading terrain alone cannot close C-024.
+  Author claims of source accuracy and usage permission were not independently
+  verified; no game data downloaded.
+- [Skate 3 University in Fortnite](https://www.fortnite.com/@chillsam2/3105-1199-7249)
+  is an island listing for the reverse scenery direction. It provides neither
+  the selected Fortnite island nor a downloadable Skate-runtime package.
+
+No inspected source supplies a ready full Fortnite-island `.skate` package or
+a reproduced end-to-end Fortnite→Combine session. Best candidate to test first
+**(recommendation, not route selection)**: FortnitePorting → Blender → pinned
+SK8 map exporter → pinned Combine reader/host. Reusing the exporter does not
+require adopting its separate C++/Skate3Recomp runtime. The decision-changing
+unknowns are accessible supported input, collision preservation and complete
+terrain/building export—not whether a new generic decoder can be designed.
+
+### What seamless Fortnite scenery with Skate movement requires
+
+Fortnite supplies the scene: terrain/buildings, exact instance transforms,
+material bindings/textures and lighting. Skate supplies controls, movement,
+animations, board contact/grinds and camera. Map preparation connects them
+through correct units/axes, solid collision, rails and safe spawn/recovery.
+Session ownership connects input, rendering, loading, recovery and teardown.
+Visual import alone proves none of the movement/collision/lifecycle behavior.
+Some original shader/lighting effects may need baking or adaptation; exact
+pixel parity is unverified. Original Fortnite gameplay is excluded.
+
+### Qualification exit and next action
+
+```text
+Identified accessible input or existing private export
+  -> reviewed pinned exporter -> terrain + building + collision witness
+       | missing/unsupported -> explicit blocker, preserve prior setup
+       v
+Compare actual Blender/map output with pinned reader/host
+  -> select route and revise C-025/C-027 -> prepare/load/control/recover/close
+  -> real-area physical checks -> measured full-island implementation
+```
+
+Next actor: Codex qualifies an accessible input/export for the recommended
+pinned toolchain under the existing access boundaries; the owner explicitly
+requested online sources rather than depending only on supplied input. No
+qualified download was established. Local location/build/tool identity and
+private game files remain separate from source. Required
+witness records root/sublevel identity, terrain plus a building, placements,
+materials, source collision/missing content, hashes and commands. Then measure
+landmark scale/axes/winding, instances, terrain seams and playable collision/grind
+behavior. Until then C-024 stays open, and route-dependent C-025–C-030 work is
+parked. No new decoder, output schema, alternate runtime or universal interface
+is selected. Full residency/streaming waits for census and Windows measurements.
+
+### Preserved work and repair obligation
+
+The four inherited exporter files remain untracked and unchanged. They are
+research scaffolding, not the chosen conversion route; preserve them pending
+a real-data assessment. SHA-256 at this qualification:
+
+- FortniteExport.csproj: `4b6849a56dd41bea271059cfa99c687dd2fc85cce490e4fefc76616665b841a2`
+- Program.cs: `94ef40797e3f24cf2c400e433f0e3dd1fa1033bf4d9f5e815ac70570f7f67fcf`
+- check_runner.py: `50ea295a7151421c78d5a263351cbddb916a4dd835ff7c798e346324ef603f91`
+- packages.lock.json: `3b16ccc3e8d3eec25573cb5d7718384ae893b755ca55c1e41960d61edd9c39cc`
+
+No exporter rebuild is claimed; inherited missing NuGet/analyzer cache remains.
+PR #1's [reproduced rail defect](2026-10-06-pr1-review.md) remains unfixed and
+blocks merge. Parked does not waive its regression/fix obligation. Synergy and
+other trials/commits remain preserved; global router retirement is separate.
 
 ## Evidence and reproducibility
 
@@ -192,7 +381,7 @@ moving player. No full-map performance promise or invented object count is made.
 Track this work in existing C-019 under C-020, with named dependency edges in the
 body. This list is implementation order, not a second status tracker.
 
-1. **Standalone Skate session tracer.** Depends on this source specification and
+1. **Standalone Skate session tracer (route-dependent work parked during reuse qualification).** Depends on this source specification and
    reviewed Skate asset setup, not on Fortnite files. Separate world/session entry
    from MW match boot; render a clearly labelled synthetic fixture and use the
    existing host. Verify no common_mp/gametype/GSC/weapon/class dependencies, input
@@ -204,7 +393,9 @@ body. This list is implementation order, not a second status tracker.
    building and instance test cases to inspect actual fields/collision. Publish
    only redacted identity/tool/count/error evidence. Freeze the interchange
    contract only after this passes; record exact incompatibilities otherwise.
-3. **Rust adapter end-to-end.** Depends on 1 and 2. Translate witnessed map data
+3. **Real-area integration through the qualified route.** Depends on 1 and 2
+plus recorded route selection. Reuse existing map parsing/preparation where
+compatible; custom Rust conversion addresses only witnessed gaps. Translate map data
    through bounded validation to render/collision/placements/spawn. Verify known
    axis/scale distances, transform round trips/winding, rotated/scaled instances,
    terrain holes/seams, building interiors/roofs/stairs, solid walls and grindable

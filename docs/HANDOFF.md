@@ -1,3 +1,57 @@
+# Handoff — existing map tools assessed; real Fortnite export still blocked
+
+**Objective:** recognizable Fortnite scenery with Skate controls, collision,
+grinds and repeatable recovery/exit/relaunch, then the complete selected island.
+Owner-supplied reuse plan recorded as D-024; current phase is qualification.
+[Comparison, exact tool refs and online examples](../research/results/2026-10-06-fortnite-adapter-qualification.md).
+
+**Result:** pinned Combine already parses SKATE01–15 and has world physics
+handling; its public bridge constructs collision-only maps and does not supply
+a standalone full-world file/render session. Best candidate to test is pinned
+FortnitePorting → Blender → SK8 map exporter → pinned Combine reader/host.
+This is a recommendation, not a qualified route or a runtime switch. Public
+source/docs were downloaded for inspection; no exporter/game/plugin was run.
+Published Blender map-import examples and heightmap downloads were found,
+but no inspected complete Fortnite `.skate` package or end-to-end gameplay.
+
+**Precise blocker:** prior 3.1 runs mounted 0/10 containers, zero worlds; no
+real terrain/building/source-collision export or qualified replacement exists.
+No fresh input reproduction is claimed. FortnitePorting on-demand access
+uses manifest downloads and key submission; its data-access path remains
+unqualified under the no-bypass boundary. Terrain-only downloads lack buildings
+and collision evidence. Full-island content/memory/loading measurements absent.
+
+```text
+Accessible identified input -> reviewed exporter -> terrain/building/collision witness
+  | unavailable: explicit blocker, preserve previous setup
+  v
+Compare actual output -> select route -> real-area session -> measured full island
+```
+
+**Source:** branch `slice/fortnite-reuse-qualification`, base/inherited checkpoint
+`86a2c6e` (only the inherited interview follow-up). Parent `da2cd99`; refreshed
+remote main `a5593d6`. Review the stacked ancestry separately; no push/merge
+authorized by this checkpoint. Four inherited exporter files remain untracked
+and byte-preserved, hashes recorded in qualification. Existing patches/trials
+unchanged. PR #1 rail defect remains unfixed and holds merge. Global custom-router
+retirement is separate. Synergy/menu owner trial remains preserved separately.
+
+**Verification and board:** final results recorded below after execution.
+Native/runtime tests not rerun: no runtime/source patch change; the prior 13
+native tests do not waive the reproduced failing rail regression or inherited
+missing `src/tests/map_startup.rs`. No Windows build/launch/gameplay/acceptance.
+No private data/assets/logs uploaded, keys fetched, installation changed,
+spending/outreach, publication, merge or release.
+
+**Next concrete check:** Codex qualifies an accessible input for the pinned
+FortnitePorting→Blender→SK8 candidate under the existing access boundaries.
+Acceptance: actual terrain plus building, transforms/materials/source collision
+and omissions, tool/build/input/output identities and reproducible private commands.
+Only then select the route and revise parked C-025–C-030; retain C-023 rail repair.
+No further general research without a named choice-changing question.
+
+---
+
 # Handoff — PR #1 review found a validation blocker
 
 Only one open PR was returned: #1, base `a5593d6`, head `b399c55`.

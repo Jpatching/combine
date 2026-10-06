@@ -168,9 +168,10 @@ that correction; it does not establish publication or merge completion.
 
 For a concise live resume, run `python3 ~/.codex/workflows/solo-development/projects.py
 summary 5 /path/to/combine` (one shell line). It reads Git and the board;
-it does not fetch or synchronize them. C-024 input qualification precedes C-025
-standalone rendering; if input is externally blocked, record the exact blocker and
-check C-025 Skate assets. Planning/slicing complete does not mean integration complete.
+it does not fetch or synchronize them. D-024 reuse qualification precedes more route-dependent adapter/rendering work.
+C-024 needs a real terrain/building export before route selection; stop with a
+precise blocker if unavailable. C-023 rail repair remains required before PR #1
+merge. C-025 asset loading/rendering remains a preserved conditional task. Planning/slicing complete does not mean integration complete.
 
 ## Session orientation
 

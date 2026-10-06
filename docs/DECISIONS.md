@@ -471,3 +471,28 @@ and qualification source publication are verified; PR #1 remains open with local
 checks and no attached automated checks. Full diff review precedes any merge
 proposal. No CI, protection, automatic merge or deployment in this slice. Check
 resume usefulness at the next two returns and retire the helper if it adds friction.
+
+
+## D-024: qualify existing tools before custom Fortnite conversion — 2026-10-06
+
+The owner's supplied plan makes reuse assessment the next bounded outcome.
+Compare existing Fortnite exporters, Blender importers and Skate map pipelines
+with completing Combine's adapter; source claims do not establish local
+compatibility. Require an identified private export with terrain and a building,
+placements, materials and collision evidence before choosing serialization or
+writing a custom decoder. Qualification ends with an evidenced route or precise
+blocker; further research needs a named question that changes that choice.
+
+The full selected island remains the destination. First prove movement, jump,
+solid collision, a representative grind, recovery, exit and relaunch in one real
+area. Measure content/resource costs before choosing full residency or streaming.
+Keep the pinned runtime and existing skater. Another runtime requires comparison
+and an explicit owner decision. No Fortnite/MW combat, Synergy, character
+retargeting, new engine, asset redistribution or protection bypass.
+
+Update existing C-019 specification, C-020 map and dependent tickets; park
+route-dependent custom work pending qualification. Preserve inherited commits,
+patches and exporter scaffolding. The reproduced PR #1 rail validation defect
+remains a repair obligation before merge. Separate Synergy requirements/trial
+are preserved and parked outside this active milestone. Global custom-router
+retirement remains separate. See the [qualification](../research/results/2026-10-06-fortnite-adapter-qualification.md).

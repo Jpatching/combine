@@ -1,17 +1,15 @@
 # Combine workflow configuration
 
-Start with **Continue Combine**, or explicitly invoke `$matt-workflow`.
-Codex reads [Combine — Now](https://github.com/users/Jpatching/projects/5/views/4),
-the [handoff](HANDOFF.md) and current Git state, then resumes the first missing
-check. The owner does not need to remember skill order or select a model for
-each task. A status question alone does not authorize new execution.
+Matt’s original skills are installed globally. Use `$ask-matt` for his original
+flow map. The custom global router, adaptation policy and reminder were retired
+at the owner’s request on October 6, 2026; they are no longer prerequisites.
 
-The private board owns status, Git owns source, and the handoff points to current
-evidence. [BACKLOG](../BACKLOG.md) is historical. Reusable resume/model/agent rules
-live in `~/.codex/workflows/solo-development/ROUTING.md`, reached by the global
-router; this file holds Combine's project choices. [Tracker operations](agents/issue-tracker.md)
-describe updates and offline recovery. Read project-required files once, then
-load only relevant sections and the skill for the current check.
+To resume Combine, read [Combine — Now](https://github.com/users/Jpatching/projects/5/views/4),
+the [handoff](HANDOFF.md), current Git state and latest owner decisions. The
+private board owns status, Git owns source, and the handoff points to evidence.
+[BACKLOG](../BACKLOG.md) is historical. [Tracker operations](agents/issue-tracker.md)
+describe project updates and offline recovery. Existing project requirements,
+acceptance boundaries and publication permissions remain in force.
 
 ## Agreed order and evidence boundaries
 
@@ -82,7 +80,7 @@ Neither helper layer substitutes for playable runtime implementation.
 The engineering-skill setup already exists: AGENTS.md points to the private
 Project tracker and existing domain/decision documents through docs/agents/.
 `triage` is not installed, so no triage-label configuration is required. Reuse
-this adapted setup rather than creating another tracker, glossary or ADR store.
+this project configuration rather than creating another tracker, glossary or ADR store.
 `ask-matt` routes the settled contract to qualification within the slice, then
 `implement`/behavior tests and review. No new interview is required for the
 already agreed menu or hit-radius behavior.
@@ -93,8 +91,7 @@ already agreed menu or hit-radius behavior.
   Baseline recovery: [Windows runbook](WINDOWS_BASELINE.md).
   Full repository gate: `python3 scripts/verify.py`.
 - Keep one lead/writer and one implementation slice; [task briefs](AGENT_ROLES.md)
-  assign bounded helpers. Saved defaults govern new supported local sessions;
-  an existing session may retain its explicit model choice.
+  assign bounded helpers, subject to current session restrictions.
 - Preserve inherited dirty work. Runtime edits in ignored checkouts must be
   captured as reviewed reproducible source patches before claiming Git contains
   them. A Combine commit alone does not checkpoint an ignored runtime checkout.

@@ -1,9 +1,8 @@
 # Combine agent task briefs
 
 One lead owns implementation, integration, Git and the private board. Personal
-agent/model definitions live in `~/.codex/agents/`; their shared selection policy
-lives in `~/.codex/workflows/solo-development/ROUTING.md`. Reuse those definitions
-instead of creating a permanent team for every feature. D-017 records the owner's
+agent/model definitions live in `~/.codex/agents/`. The custom global routing
+policy has been retired; these project briefs remain available. D-017 records the owner's
 bounded routing authorization, subject to session restrictions.
 
 | Responsibility | Combine task | Required result |

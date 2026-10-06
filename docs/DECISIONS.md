@@ -631,3 +631,19 @@ Continue only on concrete primary-source evidence for the missing runtime seam;
 do not create a coordinate-only demo, speculative bridge, hosted backend or
 rewritten skating system to conceal the gap. Existing acceptance sequence and
 publication/asset/merge/release boundaries remain unchanged.
+
+
+## D-030 Original Matt skills restored — 2026-10-06
+
+The owner requested Matt’s original skills and Ask Matt flow map globally,
+removing the custom workflow layer. Restore the existing 21 skills unchanged
+from upstream v1.3.1 (`24fe0ef7737efae15c87225755e9f6f5965e4888`), including
+supporting files and invocation settings. Retire the custom `matt-workflow`
+router, adaptation rules, shared routing policy and automatic reminder.
+This supersedes earlier requirements to use that custom layer.
+
+The original archive checksum and all 62 restored files were verified. A complete
+pre-restoration backup is retained outside active skill discovery. Standalone
+board/review utilities, project records and unrelated personal preferences remain.
+Combine’s tracker, gameplay requirements and acceptance/publication boundaries
+are unchanged. Fresh-session skill discovery remains a separate check.

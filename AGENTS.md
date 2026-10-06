@@ -8,8 +8,8 @@ Record consequential decisions in docs/DECISIONS.md.
 
 ## Agent skills
 
-Use the globally installed `$matt-workflow` for substantial work, resuming the
-current phase. Small fixes stay lightweight. Read [workflow guidance](docs/WORKFLOW.md).
+Matt’s original skills are installed globally; `$ask-matt` provides his flow map.
+Read [project workflow guidance](docs/WORKFLOW.md). Small fixes stay lightweight.
 The selected plan and existing contracts satisfy settled setup/design choices;
 do not restart settled discussions. D-015 records the owner's correction:
 execute the actual pinned Synergy GSC menu through the existing runtime engine,
@@ -80,8 +80,8 @@ Menu Rust/native-render checks are in docs/TRICKSHOT_MENU.md. Windows gameplay
 uses the baseline runbook and templates/baseline-result.md. Build upstream only
 when needed, recording exact tools; upstream's moving `stable` is not a pin.
 
-Use one lead/writer. D-017 authorizes bounded read-only helpers selected through
-the shared routing policy; docs/AGENT_ROLES.md supplies project task briefs. Use at
+Use one lead/writer. D-017 authorizes bounded read-only helpers;
+docs/AGENT_ROLES.md supplies project task briefs. Use at
 most two helpers when independent work justifies them; follow stricter session
 restrictions. Research agents cannot declare legal clearance. Finish with evidence, remaining limitations and
 one concrete next step, distinguishing implementation, verification, acceptance

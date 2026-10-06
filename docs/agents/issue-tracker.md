@@ -24,8 +24,8 @@ branch SHA before claiming a source revision was pushed. Private draft items do 
 - Update the board at meaningful phase changes and read back changes. If unavailable,
   report sync pending and preserve intended changes in docs/HANDOFF.md. Do not
   maintain a second local status list or claim failed writes landed.
-- The global router's GitHub reference and helper live under
-  `~/.codex/skills/matt-workflow/` and `~/.codex/workflows/solo-development/`.
+- The preserved standalone board helper is
+  `~/.codex/workflows/solo-development/projects.py`; it does not require the retired router.
   Local requirements, decisions and technical evidence stay in their existing docs.
 - The extra roadmap view (View 5) is preserved. The shared helper validates the
   three required views while allowing extras; use its `update --body-file` with

@@ -647,3 +647,20 @@ pre-restoration backup is retained outside active skill discovery. Standalone
 board/review utilities, project records and unrelated personal preferences remain.
 Combine’s tracker, gameplay requirements and acceptance/publication boundaries
 are unchanged. Fresh-session skill discovery remains a separate check.
+
+## D-031: isolated Fortnite 12.41 acquisition before startup review — 2026-10-06
+
+The owner selected the supplied plan to download Windows 12.41 **CL12905909**
+from the reachable 42.5 GB archive into ignored private Linux storage. Download
+authorization is explicit. Preserve the working mashup and existing Fortnite
+copies; check extraction size, safe paths, ZIP integrity, exact-build manifest
+file hashes and executable version/signature in a fresh isolated directory.
+Stop on corruption or identity mismatch and retain diagnostics privately.
+
+This slice ends at downloaded/integrity-checked files. It authorizes no game
+launch, account login, protection changes, public asset upload or runtime API
+changes, and establishes neither playability nor ban safety. After successful
+verification, review the matching local-server startup path before preparing
+a gameplay trial. The [acquisition evidence](../research/results/2026-10-06-fortnite-12-41-preparation.md)
+records exact provenance, checks and limitations. Existing qualification,
+source-publication, owner-acceptance, merge and release boundaries remain separate.

@@ -1,4 +1,48 @@
-# Handoff — narrowed native-loading check and observed client exit
+# Handoff — Fortnite 12.41 downloaded; executable integrity failed
+
+**Result:** the authorized Windows CL12905909 archive downloaded completely,
+but preparation **stopped on the shipping executable's manifest mismatch**.
+Windows independently reports Authenticode **HashMismatch**; version fields are
+empty. Nothing was launched. Existing mashup/Fortnite copies and runtime APIs
+are preserved. [Full evidence](../research/results/2026-10-06-fortnite-12-41-preparation.md)
+records the source, manifest pin, hashes, commands and limitations; D-031 records
+the owner's bounded authorization.
+
+**Private output:** ignored `.private/fortnite-12.41/archive.rejected.zip`,
+42,516,907,454 bytes, SHA-256
+`490125c6c81b0a85908a4542c31ad642ed9818d2a88ae99544664afd270281de`.
+Only the shipping executable was extracted into `extracted-unaccepted/`.
+Diagnostics and helpers remain beside it. Do not launch this copy or treat it as
+a verified installation. No game files, private logs or settings are published.
+
+**Checks:** all 398 manifest filenames are present with matching declared sizes;
+zero missing names and 39 extras. One checked manifest file differs, zero content
+matches were verified before stop, and 397 manifest files plus 39 extras remain
+unchecked. The executable's ZIP CRC passed and Linux/Windows disk hashes agree.
+Full ZIP CRC/extraction/readback intentionally stopped at the failure; the
+complete archive SHA-256 pass is finished. Safe-path/space preflight and focused
+helper rejection checks passed. This is a failed preparation result, not
+playability, ban safety, owner acceptance or release.
+
+**Source:** `slice/fortnite-12-41-preparation`, base
+`93f4b0c28d10bcc9ae3860090d8f1d3f02ac4e0f`; final revision is Git HEAD.
+Only redacted acquisition evidence, D-031 and this handoff change. Source and
+specification self-review completed against private evidence. Repository gate
+**PASS: 34 tests, two recipes, local links in 17 documents**; `git diff --check`
+passed. Final source publication/remote SHA and private-board read-back are
+recorded on the live card after commit. Inherited native
+missing-test/exporter rebuild/analyzer debts remain; no runtime suite was rerun
+for this documentation-only result. The verified c591086 backup remains preserved.
+
+**Next actor/action:** Codex must resolve the modified executable or obtain a
+manifest-matching CL12905909 package before continuing preparation. Only after
+successful verification should the matching local-server startup path be
+reviewed. No trial, login, protection change, merge or release follows from this
+download. A second full archive read cannot override the observed mismatch.
+
+---
+
+# Previous handoff — narrowed native-loading check and observed client exit
 
 **Outcome:** owner permits reverse engineering and building missing adapters;
 pre-existing loaders/SDKs/collision/rendering code are not prototype entry gates.

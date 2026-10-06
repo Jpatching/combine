@@ -1,3 +1,52 @@
+# Handoff — Fortnite route qualification remains blocked by host access
+
+**Objective/phase:** interactive Fortnite world with existing Skate simulation;
+phase 1 research. The [new qualification report](../research/results/2026-10-06-fortnite-guidance-qualification.md)
+contains pinned Universal Modder guidance, Reboot-first source checks, bounded
+Rift/Era comparison, Session interface gaps, reproducible hashes and the first
+live-value experiment. D-028 records the tooling role. Same-process remains
+preferred; no measured reason for IPC and no runtime API added.
+
+**Result:** no inspected launch/extension route qualifies. Reboot suspends EAC;
+Era requests protection-disabling options and an unreviewed DLL; Rift's package
+catalogue does not establish a native extension or supported client launch.
+Universal Modder's Unreal guide explicitly excludes Fortnite's protected route.
+No tools installed, game data uploaded, game launched or gameplay accepted here.
+Existing 3.1 stock/direct startup failures are inherited, not newly reproduced.
+
+**Source:** `slice/fortnite-guidance-qualification`, starting/base revision
+`02d3b8a9c11dc8b67c07720d31cf16f104ccf37c`; this slice's final
+revision is Git HEAD. The starting tree was clean. Its inherited rail correction
+`b45d878` and merge `02d3b8a` are preserved; the prior handoff's next-step rail-fix
+instruction is stale. [Rail evidence](../research/results/2026-10-06-rail-validation-fix.md)
+records the prior focused regression checks. No merge performed by this slice.
+
+**Verification:** independent Standards and Spec review found no actionable
+issues; all eight report hashes matched inspected source copies.
+`python3 scripts/verify.py` PASS: 34 tests, two recipes, local links in 17
+documents. `git diff --check` PASS. No runtime changes in this slice.
+Runtime remote HEAD refreshed at unchanged
+`f608f85e407ff1b7689d54a9aafdd16e95711ac4`. Inherited broader native missing-test
+and exporter rebuild/NuGet analyzer debt remain; documentation checks cannot
+waive them or prove Fortnite play.
+
+**Tracker:** C-019/C-020/C-024 updated and read back successfully; live views,
+fields and unrelated cards preserved. Shared helper initially refused the custom
+Now columns before mutation; direct validated field/body updates preserved that
+configuration. Cards record source research complete with precise host-access
+blocker, live experiment defined/not run, and existing acceptance sequence.
+Final source revision/publication evidence will be appended after remote verification.
+
+**Next:** Codex resumes only when a reviewable permitted client launch/extension
+route is identified; first demonstrate a host player/camera value changing with
+movement. Process startup or synthetic samples do not pass. Later acceptance
+still requires build → skate/jump/grind → edit/collision → destroy/removal →
+recover/relaunch. Owner gameplay acceptance, merge and release remain separate.
+
+---
+
+## Previous same-process source handoff (superseded status, retained evidence)
+
 # Handoff — same-process Fortnite adapter selected; source publication and rail fix
 
 The owner selects same-process Skate reuse unless an observed host constraint

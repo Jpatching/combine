@@ -582,3 +582,30 @@ experimental source locally. This supersedes D-026's slice-specific no-publicati
 restriction. Private data/assets remain excluded; acceptance, merge and release
 remain separate. Global Codex instructions now favor the smallest useful workflow
 and an explicitly requested skill rather than chaining unrelated workflows.
+
+
+## D-028: selected modding guidance informs qualification, not runtime authority — 2026-10-06
+
+The owner's supplied plan uses research to qualify an interactive Fortnite route,
+Reboot first, retaining the existing Skate Session and same-process preference.
+Any qualified interactive island is acceptable. Universal Modder reconnaissance,
+Unreal and mashup guidance is pinned and read as reference material; installing
+its tools or following its generic injection instructions is not part of this
+slice. Review tools before installation/execution. Its Unreal reference itself
+excludes Fortnite's EAC/BattlEye route. The guidance does not override project
+boundaries or establish a permitted host extension.
+
+The [qualification report](../research/results/2026-10-06-fortnite-guidance-qualification.md)
+records fresh source evidence: Reboot's inspected launcher suspends EAC; Era's
+inspected launcher requests protection-disabling options and an unreviewed DLL;
+Rift's inspected catalogue establishes packaging, not a qualified native host.
+No candidate selected for execution. Unknown exact compatible clients/dependencies
+stay explicit. Offline status or removed protection is insufficient qualification.
+
+First live experiment remains a real player/camera value correlated with movement,
+after a permitted client/extension route is established. Preserve build ramp →
+skate/jump/grind → edit/collision → destroy/removal → recover/relaunch acceptance.
+No runtime API or universal framework is introduced. Extract scripts only for
+proven repetition; create a reusable skill after success on a second case, in
+global storage. D-027 publication policy remains; no merge/release or gameplay
+acceptance follows from source research or passing repository checks.

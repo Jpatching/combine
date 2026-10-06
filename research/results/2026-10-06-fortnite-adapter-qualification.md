@@ -28,6 +28,8 @@ Fortnite keeps world behaviour; Skate supplies skating. This division is a
 hypothesis to qualify. Server construction handlers alone cannot establish
 client collision access, Skate movement ownership or skater rendering.
 
+Latest bounded follow-up: [Universal Modder and candidate qualification](2026-10-06-fortnite-guidance-qualification.md) pins the selected guidance, rechecks Reboot, compares Rift/Era only for missing prerequisites, and defines the blocked live-value experiment. No candidate qualified; D-028 records the tooling role.
+
 ## User Stories
 
 1. As a player, I want to explore the full selected Fortnite island using Skate movement, so that the experience combines both games.

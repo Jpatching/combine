@@ -35,3 +35,7 @@ Thumbs.db
 *.mov
 *.webm
 *.iw4ldemo
+
+# Generated .NET exporter build output; retain only source/dependency metadata.
+/tools/fortnite-export/bin/
+/tools/fortnite-export/obj/

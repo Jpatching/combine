@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <CueRoot Condition="'$(CueRoot)' == ''">$(MSBuildThisFileDirectory)../../.private/fortnite-qualification/CUE4Parse</CueRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Patched Base64Url decoder; upstream currently brings 9.0.0 transitively. -->
+    <PackageReference Include="Microsoft.Bcl.Memory" Version="9.0.14" />
+    <ProjectReference Include="$(CueRoot)/CUE4Parse/CUE4Parse.csproj" />
+    <ProjectReference Include="$(CueRoot)/CUE4Parse-Conversion/CUE4Parse-Conversion.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,3 +1,48 @@
+# Handoff — narrowed native-loading check and observed client exit
+
+**Outcome:** owner permits reverse engineering and building missing adapters;
+pre-existing loaders/SDKs/collision/rendering code are not prototype entry gates.
+The [new loading report](../research/results/2026-10-06-fortnite-loading-gate.md)
+records the narrowed check and updates the [current contract](../research/results/2026-10-06-fortnite-adapter-qualification.md).
+The no-DRM/anti-cheat-bypass boundary remains. Generic hooking/session emulation
+alone does not prove such a bypass. Keep alternatives; no host selected yet.
+
+**New evidence:** FortExternalServer implementation now pinned/inspected at
+`b45f939b612ba75ff41f38b0952410336b6b0b19` for a different CL (4019403).
+It has actual startup/hook code; session changes require classification, not
+an unsupported claim of OS anti-cheat bypass. README/source engine versions
+conflict. Core's public 3.1 issue names CL3915963, not our CL3917250, and supplies
+no reproducible loading setup. Detailed source links/hashes are in the report.
+
+**Actual run:** unchanged isolated CL3917250 shipping client exited in 2.812
+seconds, code `0 / 0x00000000`; original executable unchanged, zero original
+config changes/new config files. Probe returns failure because it closed before
+the 20-second observation. Local output classifier detected launcher/exit terms;
+the cause remains unknown. The ignored `probe-startup-v2.py` preserves originals
+and private logs and refuses existing Fortnite processes/output. No loader,
+injection, auth override, game download or protection change was performed.
+No gameplay, genuine Skate tick, collision or rendered-pose success is claimed.
+
+**Source/checks:** branch `slice/fortnite-loading-gate`, clean base
+`f0d1facf87d1f8f817ee8b5c4c8b757be15c3770`; final revision is Git HEAD.
+Only loading evidence, current contract clarification and handoff change.
+Lead source/diff self-review; report links and three source hashes passed.
+Repository gate PASS: 34 tests, two recipes, links in 17 documents. Final source
+revision/publication and board read-back are recorded on the live cards after
+commit and remote-SHA verification; resolve this slice with Git HEAD. Inherited native missing-test and exporter rebuild/analyzer debts remain.
+The verified c591086 Downloads backup is preserved unchanged below.
+
+**Next:** reverse-engineer/review the retained client's launcher/startup contract,
+using redacted diagnostics, and identify the specific missing prerequisite.
+If it can run/load reviewed code without DRM/anti-cheat changes, build the smallest
+real-surface Skate adapter, then ramp edit/destruction. If an observed required
+change violates that boundary, switch candidates. No broad new comparison,
+rewritten Fortnite engine, merge, release or owner acceptance is implied.
+
+---
+
+## Previous Core comparison and verified backup
+
 # Handoff — Core source qualification; existing mashup backup
 
 **Objective/result:** establish whether Core can connect the existing Fortnite

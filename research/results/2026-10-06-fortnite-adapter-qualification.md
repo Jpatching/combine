@@ -1,5 +1,15 @@
 # Interactive Fortnite with Skate: qualification and specification — 2026-10-06
 
+**Owner clarification, 2026-10-06:** narrow the prototype entry gate to usable
+startup and reviewed native execution, preserving the no-DRM/anti-cheat-bypass
+boundary. Game files and reverse engineering are valid starting points; an
+official SDK, pre-existing loader or finished collision/rendering/Rust adapter
+is not required. Missing adapter code is prototype work. Keep the candidate
+shortlist, then demonstrate actual Skate movement on one real surface before
+adding ramp editing/destruction. This supersedes earlier wording that demanded
+complete bridge qualification before any experiment; final interactive-world
+acceptance remains unchanged. [Loading check and observed early exit](2026-10-06-fortnite-loading-gate.md).
+
 ## Current contract (D-026, refined by D-027)
 
 The owner wants Fortnite's interactive world with Skate's reverse-engineered

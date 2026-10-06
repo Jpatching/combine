@@ -60,7 +60,9 @@ installed, launched or gameplay-tested and does not replace Synergy.
 
 To resume, say **Continue Combine**. Codex reads the
 [private board](https://github.com/users/Jpatching/projects/5/views/4), requirements,
-latest decisions and [handoff](docs/HANDOFF.md). The board owns current work;
+latest decisions and [handoff](docs/HANDOFF.md). The
+[workspace tour](research/results/2026-10-06-workspace-orientation.md) explains
+source, scripts and private trials. The board owns current work;
 [BACKLOG.md](BACKLOG.md) preserves history.
 
 ```sh

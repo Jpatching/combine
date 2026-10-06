@@ -171,3 +171,17 @@ summary 5 /path/to/combine` (one shell line). It reads Git and the board;
 it does not fetch or synchronize them. C-024 input qualification precedes C-025
 standalone rendering; if input is externally blocked, record the exact blocker and
 check C-025 Skate assets. Planning/slicing complete does not mean integration complete.
+
+## Session orientation
+
+Start with what is usable, today's bounded finish line, why it matters and who
+acts next. Explain any script before using it: input, processing, output and
+failure behavior. Work one bounded task, then explain the result. Use chat plus
+HANDOFF as the starting point; reuse this board and the Fortnite map. Create a
+decision ticket only when a precise unanswered question changes the route.
+
+At return, check whether the reminder makes usable/current/blocker/next instruction
+clear. The [workspace orientation](../research/results/2026-10-06-workspace-orientation.md)
+classifies existing tools; it is evidence, not a new status dashboard. Finish:
+“We did __. We checked __. Next is __.” Passing checks remains separate from
+owner acceptance, publication, merge and release.

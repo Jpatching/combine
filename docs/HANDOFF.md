@@ -1,3 +1,80 @@
+# Handoff — check Fortnite input, then render standalone skating
+
+**Now:** Check Fortnite island input — C-024. Full-island specification and ticket slicing
+are complete; eight dependent implementation tickets remain tracked. Integration is incomplete. C-023 preparation
+and C-021 GitHub hub-format decision stay Done. **Next:** Render standalone skating
+— C-025, after the local Skate asset prerequisite check. **Needs you:** the exact-build
+Synergy physical trial remains pending; C-022 pilot threshold is a deferred decision.
+No replacement Fortnite version decision is required: the owner permits a suitable
+accessible alternative, but the actual choice must be recorded before substitution.
+
+Read the live board and Git together with this read-only terminal command:
+
+```sh
+python3 ~/.codex/workflows/solo-development/projects.py summary 5 /path/to/combine
+```
+
+It observes current state, prints a UTC observation time, and reports missing remote
+branches, unavailable reads and contradictory current pointers. It does not fetch,
+write Git/board state, launch games or print raw diagnostics/private asset paths.
+At the next two returns, time whether Now, Next and Needs you are clear within one
+minute; record the verdict in the existing board. Retire the helper if it adds friction.
+Those two owner experience checks have not happened.
+
+Remote observation on 2026-10-06: `main` is
+`a5593d671142f31653d45caeaad7b926d40ff855`; published qualification branch is
+`b399c55b3abff6fc864fd3158f7df36b17906eac`. [PR #1](https://github.com/Jpatching/combine/pull/1)
+is OPEN, with recorded local checks and zero attached automated checks. Review its
+entire diff against remote main before proposing merge. Local `main` remains
+`bfcb607`, nine commits behind remote main and zero ahead. Reconciliation branch:
+`chore/resume-summary`, base `b399c55`; resolve current HEAD with the summary command.
+This reconciliation remains local; no merge, CI, branch protection or deployment.
+Untracked `tools/fortnite-export/` is preserved and excluded from this slice.
+
+C-024 resumed through a [bounded metadata check](../research/results/2026-10-06-resume-reconciliation.md): local identity records
+`++Fortnite+Release-3.1-CL-3917250-Windows`, 3,323 reference/archive files with no
+missing/extra files, and matching shipping executable hashes. This is recorded
+identity evidence, not a new complete file rehash or rights clearance. Recorded
+parser attempts mount 0 of 10 containers, report incomplete inventory and find
+zero worlds; one inventory declares all ten encrypted/unmounted. No export,
+collision witness or gameplay is verified. No replacement version selected, no
+bypass attempted, no game assets/logs uploaded, and the untracked exporter was not run.
+C-025 prerequisite discovery found the earlier extracted Xbox data, but no expected
+runtime `private/stock` asset directory in the bounded project search; original
+Windows trial assets may exist outside this search. Confirm the prepared Skate
+asset root and its stock input/config/graphs before starting standalone rendering.
+
+Inherited verification debt: upstream `physics.rs` references absent
+`src/tests/map_startup.rs`, so the broader Skate-host all-target test build fails
+before tests execute. Next required check before claiming broader runtime
+verification: inspect a reviewed upstream correction or restore the intended test
+source, then rerun the full host suite; do not delete the reference to hide debt.
+The recorded 13 focused Rust tests establish synthetic world validation and host
+boundary error behavior. The repository gate checks Python research/scaffolding,
+recipes and document links. Neither establishes Windows rendering, controller
+behavior, collision in real island data, recovery, performance or physical gameplay.
+Those require exact-build trials and explicit owner acceptance separately.
+
+Reconciliation verification: repository gate PASS (27 tests, 2 recipes, links in
+17 documents); global workflow tests PASS (15), summary tests PASS (7), diff
+whitespace check PASS. Independent Standards/Spec findings corrected with focused
+regressions. Installed global helper/test hashes and exact reproduction are in the
+linked evidence. Runtime tests were not rerun for this documentation/helper slice.
+Upstream HEAD/v0.4.0 still match the pin. Board fields/titles/views read-back PASS;
+final evidence update is recorded on the live C-020/C-024/C-025 cards.
+
+Phase 5 reconciliation verified | chore/resume-summary, base b399c55 (resolve HEAD
+with summary) | local/unpushed | gate 27, global 15+7 PASS | board read-back checked |
+next Codex: locate and validate the prepared Skate asset root for C-025.
+
+Next actor: Codex. Record the C-024 container/parser blocker; check C-025's prepared
+Skate assets, then implement the standalone renderer while preserving the full-island
+destination. Release and Synergy acceptance remain separate.
+
+---
+
+## Preserved preparation handoff (historical state; current summary above supersedes it)
+
 # Handoff — full-island spec published; first Rust preparation slice implemented
 
 The full selected Fortnite island + Skate-only specification and eight dependent

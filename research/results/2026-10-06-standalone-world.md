@@ -97,5 +97,7 @@ Repository gate: PASS, 27 tests (4 inherited scaffolding tests), 2 recipes and
 actionable findings. `git diff --check`: PASS. A local source checkpoint is not publication, merge, release or
 owner acceptance. Next: render/input/camera ownership through the standalone
 session (C-025), after local Skate prerequisites are verified; C-024 independently
-needs the authentic selected-build export witness. No remote main existed at the
-last refresh; review the accumulated baseline before publishing a merge target.
+needs the authentic selected-build export witness. That earlier remote observation is superseded: remote main a5593d6 and the
+qualification branch b399c55 are published, with PR #1 open and unmerged. See the
+[current handoff](../../docs/HANDOFF.md); C-024 input is current, C-025 follows its
+asset prerequisite check. Review the complete PR diff before proposing merge.

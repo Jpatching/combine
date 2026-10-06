@@ -6,6 +6,13 @@ not a playable adapter. Destination: the full selected Windows Fortnite island,
 cases, not a replacement destination. D-022 supersedes older building-only scope.
 Actual Synergy and hit radius remain separate and incomplete.
 
+Resume update (2026-10-06): specification and ticket slicing are
+complete; eight dependent implementation tickets remain tracked and integration is incomplete. C-024 input comes first, then C-025
+rendering after its asset prerequisite check. Local metadata now identifies the
+selected 3.1 input, but recorded parser attempts mount no containers and find no
+worlds. The bounded discovery below is historical. See [current handoff](../../docs/HANDOFF.md)
+for fresh publication/input evidence and D-023 for authorized version choice.
+
 ## Evidence and reproducibility
 
 Runtime source inspected with `git show f608f85:<path>` in the existing ignored
@@ -35,7 +42,8 @@ bytes, authorized redistribution or successful decoding. Epic's
 [installation instructions](https://www.epicgames.com/help/en-US/c-Category_SaveTheWorld/a000084906)
 describe the current launcher route, not the selected legacy build. No verified
 publisher-authorized legacy download was established; no game archive downloaded.
-Keep the selected CL; do not silently substitute a nearby 3.1 changelist.
+The owner now permits a suitable accessible version (D-023); record the actual
+selected build and identity before substitution. No alternative is selected.
 
 ## Reusable runtime interfaces and required changes
 

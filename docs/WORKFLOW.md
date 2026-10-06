@@ -53,7 +53,9 @@ distribution-permission review, then separate publication authority. Earlier
 experimental source snapshots establish none of those release claims.
 
 The Fortnite destination is the **full selected island + Skate movement only**,
-using Windows `Release-3.1-CL-3917250` and the pinned Rust runtime. Smaller areas,
+currently identified as Windows `Release-3.1-CL-3917250` with the pinned Rust runtime.
+The live board permits a suitable accessible replacement (D-023); record its actual
+selected build/identity before substitution. No replacement is selected. Smaller areas,
 including a Tilted building and surrounding ground, are test cases within that
 integration, not the destination. D-022 records the latest correction.
 The [adapter qualification and specification](../research/results/2026-10-06-fortnite-adapter-qualification.md)
@@ -163,3 +165,9 @@ clear branch/merge workflow. Resume local reviewable checkpoints; keep this slic
 unpushed and unmerged until its complete branch diff and target are reviewed.
 The earlier plan's no-commit instruction is superseded for local checkpoints by
 that correction; it does not establish publication or merge completion.
+
+For a concise live resume, run `python3 ~/.codex/workflows/solo-development/projects.py
+summary 5 /path/to/combine` (one shell line). It reads Git and the board;
+it does not fetch or synchronize them. C-024 input qualification precedes C-025
+standalone rendering; if input is externally blocked, record the exact blocker and
+check C-025 Skate assets. Planning/slicing complete does not mean integration complete.

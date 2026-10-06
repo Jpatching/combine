@@ -448,3 +448,26 @@ work and request for a clear branch/merge workflow supersede that for local
 reviewable checkpoints. Record actual Git results in the handoff; no push/merge
 result or broad auto-merge authority is inferred. Board maintenance remains
 authorized; publication, owner acceptance and release remain separate.
+
+
+## D-023: concise live resume and input-first reconciliation — 2026-10-06
+
+The owner's implementation plan retains the existing full-island specification
+and eight dependency-linked slices; planning/slicing are complete, integration is
+not. Keep C-021 and C-023 Done, and preserve the pending Synergy physical trial.
+Check Fortnite island input (C-024) first, then render standalone skating (C-025)
+after its asset prerequisite check when input is externally blocked. Broader
+ambitions remain milestones; later dependent work stays Later.
+
+Fresh board evidence records permission to choose a suitable accessible Fortnite
+build. This supersedes D-022's requirement for another version-choice approval;
+record the actual selected build and identity before changing requirements. Local
+metadata still identifies Release-3.1-CL-3917250; no replacement has been selected.
+No bypass or redistribution authority follows from version-choice permission.
+
+The existing global Projects helper gains a read-only live summary, not another
+saved status list. Preserve untracked exporter work and local main. Remote main
+and qualification source publication are verified; PR #1 remains open with local
+checks and no attached automated checks. Full diff review precedes any merge
+proposal. No CI, protection, automatic merge or deployment in this slice. Check
+resume usefulness at the next two returns and retire the helper if it adds friction.

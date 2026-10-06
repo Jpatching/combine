@@ -3378,10 +3378,10 @@ index d844700..88a879a 100644
 +pub mod standalone;
 diff --git a/skate/crates/skate-host/src/standalone.rs b/skate/crates/skate-host/src/standalone.rs
 new file mode 100644
-index 0000000..c3737d5
+index 0000000..1b7746f
 --- /dev/null
 +++ b/skate/crates/skate-host/src/standalone.rs
-@@ -0,0 +1,206 @@
+@@ -0,0 +1,213 @@
 +//! World-only preparation for the existing Skate host. No MW match is required.
 +//!
 +//! Coordinates and heading already use the host's native convention. This is
@@ -3556,9 +3556,16 @@ index 0000000..c3737d5
 +                check(point)?;
 +            }
 +            if rail.windows(2).any(|p| {
++                // Match spline::build_rails and decoded_from_blob: the host
++                // reconstructs D -> (A+B)+(C+D) with f32 coefficients. A
++                // finite f64 endpoint distance can hide overflow in that chord.
 +                let length_squared = (0..3)
-+                    .map(|i| (p[1][i] as f64 - p[0][i] as f64).powi(2))
-+                    .sum::<f64>() as f32;
++                    .map(|i| {
++                        let delta = p[1][i] - p[0][i];
++                        let end = (-2.0 * delta + 3.0 * delta) + (0.0 + p[0][i]);
++                        (end - p[0][i]).powi(2)
++                    })
++                    .sum::<f32>();
 +                !length_squared.is_normal()
 +            }) {
 +                return Err(WorldError::InvalidRail);
@@ -3590,10 +3597,10 @@ index 0000000..c3737d5
 +}
 diff --git a/skate/crates/skate-host/tests/standalone_world.rs b/skate/crates/skate-host/tests/standalone_world.rs
 new file mode 100644
-index 0000000..80f3d02
+index 0000000..8105025
 --- /dev/null
 +++ b/skate/crates/skate-host/tests/standalone_world.rs
-@@ -0,0 +1,237 @@
+@@ -0,0 +1,268 @@
 +use skate_host::standalone::{Limits, World, WorldError};
 +
 +fn limits() -> Limits {
@@ -3829,5 +3836,36 @@ index 0000000..80f3d02
 +            World::validate(vec![triangle], vec![], [0.; 3], 0., limits()).unwrap_err(),
 +            WorldError::DegenerateTriangle
 +        );
++    }
++}
++
++#[test]
++fn rejects_rail_chord_overflow_before_asset_initialization() {
++    // Review witness: direct f64 distance cast to f32 is finite, but the
++    // pinned host's reconstructed f32 spline chord overflows.
++    let end = [
++        5.350520105300132e17_f32,
++        8.585608013744701e18_f32,
++        1.6318191816916599e19_f32,
++    ];
++    let mut l = limits();
++    l.coordinate_magnitude = f32::MAX;
++    assert_eq!(
++        World::validate(floor(), vec![vec![[0.; 3], end]], [0.; 3], 0., l)
++            .unwrap_err(),
++        WorldError::InvalidRail
++    );
++}
++
++#[test]
++fn accepts_normal_and_large_stable_rail_chords() {
++    let mut l = limits();
++    l.coordinate_magnitude = f32::MAX;
++    for rail in [
++        vec![[2., 1., -3.], [4., 1., 5.]],
++        vec![[0.; 3], [1e18, 1e18, 0.]],
++        vec![[1e10, 0., 0.], [1e10 + 1e4, 0., 0.]],
++    ] {
++        assert!(World::validate(floor(), vec![rail], [0.; 3], 0., l).is_ok());
 +    }
 +}

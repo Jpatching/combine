@@ -1,3 +1,70 @@
+# Handoff — Core source qualification; existing mashup backup
+
+**Objective/result:** establish whether Core can connect the existing Fortnite
+CL-3917250 client to genuine Skate simulation. The [pinned Core report](../research/results/2026-10-06-core-cl3917250-qualification.md)
+ends with a precise blocker. Core client initialization does not start gameplay;
+listen mode waits for an already authoritative world. No permitted startup/DLL
+loading route is established. Core server session/challenge validation changes
+are a separate concern from OS anti-cheat; no OS bypass is inferred. Current
+collision export/lifecycle, C++/Rust callable boundary and skater rendering
+remain unimplemented. Exact-CL compatibility is unverified; no 7.40 download.
+
+**Source:** `slice/core-client-qualification`, clean starting/base revision
+`064f65f1bf609c45bc0b1ced9a787d7494f7b4e4`; final revision is Git HEAD.
+Core pin `6dc0e9a0ff91d619b49b0d3772308ff41cb51cd0`; limited Lawin backend
+inspection `7f0f26d7a772c6122c42b1783fd75f497e86d3a9`. Existing Rust pin and refreshed remote HEAD remain
+`f608f85e407ff1b7689d54a9aafdd16e95711ac4`. Public source only was fetched;
+no dependency installation, compilation, game launch or private asset upload.
+Prior client identity/startup results are inherited, not retested.
+
+**Owner follow-up:** package the existing mashup as a private Downloads folder
+and ZIP; owner selected latest prepared Synergy c591086. Completed folder and
+ZIP are named **Combine MW2 Skate Minecraft - c591086 - 2026-10-06** in Windows
+Downloads. Root shortcuts: **Play MW2 and Skate.cmd** and **Play Minecraft and
+Skate.cmd**. Both resolve sibling copied data; original path-specific settings
+are excluded. Read the packaged README before launching. Originals and the
+already running, different trial were preserved; no game was launched here.
+
+Backup verification: 28,701 copied files plus four generated helpers; input
+12,620,655,566 bytes; ZIP 12,327,689,936 bytes. All copied-file and ZIP-member
+SHA256 checks passed, including source-change checks during copying. Portable
+launcher settings and required data paths passed static checks. Original
+executable retains expected `e06c7f1fc217523485363fe156fe448ea94b2cba8b14c52cb66a3d4fff5e9268`.
+ZIP SHA256: `cfb28e2aaddc8ae426a065a634a3d76044a87206490f6000d607887ee9430e4d`;
+a `.zip.sha256` sidecar is alongside it. Elapsed 805.2 seconds. Reproduction
+uses the ignored `.private/package-c591086/package.py` with native Windows
+Python: inventory by default, `--execute` creates new destinations and
+fails on existing output or mismatch. Local paths and detailed file manifest
+remain private. Logs, recordings and generated render cache are excluded.
+This backup includes game data; it is not authorized for public distribution.
+Prepared/verified does not establish fresh play, acceptance or release.
+
+**Verification:** lead source review checked client/listen control flow and
+all five recorded source hashes; final report references/local links and
+`git diff --check` passed. This is lead self-review, not independent review.
+Packaging checks above passed. C-019/C-020/C-024 comparison updates were read
+back successfully, preserving unrelated items, fields and views. Repository
+gate `python3 scripts/verify.py` PASS: 34 tests, two recipes, links in 17
+documents. Final source revision/publication is recorded on the live cards
+after commit and remote-SHA verification; resolve this slice with Git HEAD.
+Inherited native broad-suite missing-test and exporter rebuild/analyzer debts
+remain; no new runtime work waives them.
+
+**Owner correction/next:** four combinations compared in the report: Core
+with existing CL-3917250, Core with conditional 7.40, FortExternalServer 3.6,
+and official current Fortnite/UEFN. None qualifies yet; FortExternalServer
+implementation retrieval was incomplete and its row is documented-only.
+The recommendation to diagnose the existing client first is superseded. Existing CL-3917250 remains a candidate, not a commitment. Obtain
+build-specific evidence of permitted startup/loading and local world creation
+for the strongest route. Then use a bounded prototype to advance genuine Session ticks,
+apply pose and replace current collision; coordinate-only logs are insufficient.
+Existing build/skate/jump/grind/edit/destroy/recover/relaunch acceptance remains.
+No merge, release or owner gameplay acceptance is claimed.
+
+---
+
+## Previous connection assessment (historical status)
+
 # Handoff — assess actual Skate connection before a Fortnite diagnostic
 
 **Owner decision/phase:** option A, recorded in D-029. Phase 1 source research:

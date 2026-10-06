@@ -1,4 +1,18 @@
-# Handoff — Fortnite input diagnosed; export route blocked
+# Handoff — PR #1 review found a validation blocker
+
+Only one open PR was returned: #1, base `a5593d6`, head `b399c55`.
+Independent Standards review: no distinct actionable findings. Spec review:
+one P2 rail validation defect, reproduced in a temporary Rust integration test.
+[Review and exact reproduction](../research/results/2026-10-06-pr1-review.md).
+PR-head repository gate: 27 tests pass; clean runtime patch replay and 13 existing
+native tests pass; the new rejection regression fails (validation returns Ok).
+Hold merge pending a fix matching the host's f32 spline/chord arithmetic.
+Next recommended actor/action: Codex fixes that boundary and carries the regression
+into the source slice, then reruns focused checks and the updated PR-head gate.
+This review made no PR code changes, merge, publication, game launch or acceptance.
+Inherited exporter files and the prior process-interview edit remain preserved.
+
+# Preserved runtime handoff — Fortnite input diagnosed; export route blocked
 
 **Outcome:** reproduced 3.1 mount failure twice: 0/10 containers, zero worlds.
 Fresh container hashes match recorded references. Independent v4 footer checks

@@ -188,9 +188,10 @@ is selected. Full residency/streaming waits for census and Windows measurements.
 
 ### Preserved work and repair obligation
 
-The four inherited exporter files remain untracked and unchanged. They are
-research scaffolding, not the chosen conversion route; preserve them pending
-a real-data assessment. SHA-256 at this qualification:
+The four inherited exporter files were reviewed and preserved unchanged in a
+separate local source checkpoint after the owner requested a clean Git worktree.
+They remain unfinished research scaffolding, not the chosen conversion route.
+Default .NET bin/obj output is ignored; no private reports/assets were staged. SHA-256 at this qualification:
 
 - FortniteExport.csproj: `4b6849a56dd41bea271059cfa99c687dd2fc85cce490e4fefc76616665b841a2`
 - Program.cs: `94ef40797e3f24cf2c400e433f0e3dd1fa1033bf4d9f5e815ac70570f7f67fcf`

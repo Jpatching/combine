@@ -31,12 +31,27 @@ Compare actual output -> select route -> real-area session -> measured full isla
 **Source:** branch `slice/fortnite-reuse-qualification`, base/inherited checkpoint
 `86a2c6e` (only the inherited interview follow-up). Parent `da2cd99`; refreshed
 remote main `a5593d6`. Review the stacked ancestry separately; no push/merge
-authorized by this checkpoint. Four inherited exporter files remain untracked
-and byte-preserved, hashes recorded in qualification. Existing patches/trials
+authorized by this checkpoint. Four inherited exporter files were reviewed for source-safe contents and
+checkpointed unchanged as `62cff9a` at the owner’s clean-repo request; hashes
+recorded in qualification. Generated .NET bin/obj output is ignored. Existing patches/trials
 unchanged. PR #1 rail defect remains unfixed and holds merge. Global custom-router
 retirement is separate. Synergy/menu owner trial remains preserved separately.
 
-**Verification and board:** final results recorded below after execution.
+**Verification and board:** qualification source checkpoint
+`7b43d11acf0f6e58f7d39ea5293f3525d5b896ad`; final evidence/checkpoint resolved
+with Git HEAD. `python3 scripts/verify.py`: PASS, 34 tests, two recipes and
+links in 17 documents; `git diff --check`: PASS. Exporter source hashes match
+the initial qualification hashes. Source packaging does not establish a new
+.NET build; missing inherited analyzer/cache debt remains.
+
+C-019 specification, C-020 map, C-024 input and C-023 repair priority updated
+and read back; C-025–C-030 parked with dependency/acceptance contracts retained.
+Final unrelated-item/field/view preservation PASS. Qualification ends in a
+precise blocker; Fortnite input/export acceptance stays unchecked.
+
+Phase 1 | slice/fortnite-reuse-qualification | local/unpushed | repository gate
+PASS, exporter/native debts retained | board synced | Codex next: qualify the
+accessible input for pinned tools and obtain real terrain/building/collision proof.
 Native/runtime tests not rerun: no runtime/source patch change; the prior 13
 native tests do not waive the reproduced failing rail regression or inherited
 missing `src/tests/map_startup.rs`. No Windows build/launch/gameplay/acceptance.

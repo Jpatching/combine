@@ -1,3 +1,538 @@
+# Interactive Fortnite with Skate: qualification and specification — 2026-10-06
+
+## Current contract (D-026)
+
+The owner wants Fortnite's interactive world with Skate's reverse-engineered
+movement, tricks and grinds. Static scenery does not satisfy building, editing
+or destruction. Combine, Blender and a particular Fortnite version are optional;
+the destination remains the complete selected island. Actual Synergy and its
+hit radius remain separate, preserved requirements.
+
+One active slice: **qualify the Fortnite gameplay base and integration path**.
+Investigate [Project Reboot 3.0](https://github.com/Milxnor/Project-Reboot-3.0)
+first. Reboot is a candidate, not a qualified base. Success for this bounded
+slice is either a qualified base and evidence-backed bridge experiment, or a
+precise missing prerequisite with evidence. It does not mean the mashup is playable.
+
+```text
+Accessible compatible Fortnite client + reviewed gameplay base
+  -> live terrain / building / editing / destruction
+        <-> controls / collision / player pose <-> Skate simulation
+  -> build ramp on foot -> switch to skating -> ride / jump / grind
+  -> edit: changed collision -> destroy: removed collision
+  -> recover -> exit -> relaunch
+Missing client, permitted launch or client seam -> explicit blocker
+```
+
+Fortnite keeps world behaviour; Skate supplies skating. This division is a
+hypothesis to qualify. Server construction handlers alone cannot establish
+client collision access, Skate movement ownership or skater rendering.
+
+## User outcomes
+
+1. Explore the island using Skate movement.
+2. Perform authentic Skate tricks and grinds.
+3. Retain interactive Fortnite terrain and buildings.
+4. Build a ramp and skate it.
+5. Follow edited structure shapes with matching skating collision.
+6. Remove destroyed structures from skating collision; no invisible support.
+7. Switch between on-foot interaction and skating.
+8. Recover reliably after a fall.
+9. Exit and relaunch repeatably.
+10. Reuse suitable existing implementations.
+11. Record exact versions and reproduction evidence.
+12. Report explicit blockers; preparation and launch do not establish play.
+13. Preserve original installations and private game data.
+14. Deliver the complete selected island after the small live demonstration.
+
+## Qualification and implementation boundaries
+
+Inspect and pin Reboot's client requirements, launcher dependencies, structure
+placement/edit/destruction handlers and client extension points before any
+experiment. Identify an accessible compatible client through a supported
+acquisition route. Public server source is insufficient. Qualify an isolated
+launch route within the no-protection-bypass boundary; unsupported requirements
+are blockers. Review dependencies before running them. No client/game asset
+acquisition, protection changes, unreviewed plugin execution or launch is implied
+by source inspection.
+
+Prefer the existing pinned Skate Session interface: controls, simulation ticks,
+pose output and collision replacement. Qualify Fortnite-side collision geometry,
+structure lifecycle notifications, movement ownership and rendering before bridge
+implementation. Derive any native bridge contract from inspected interfaces; no
+new public API, file format or universal integration framework is selected.
+
+The first demonstration builds/edits on foot, then switches to skating.
+Simultaneous building while skating is deferred. Blender/exporters are conditional
+conversion tools, not the gameplay solution. Existing static work remains useful
+historical evidence but cannot close interactive acceptance.
+
+## Adapter method — owner clarification
+
+Use a host adapter for Fortnite and the existing Skate Session as the guest-side
+integration seam. The bridge translates controls, pose/camera and current world
+collision; Fortnite retains its building/edit/destruction behavior. Keep
+build-specific host details out of the shared simulation interface.
+
+```text
+Pinned Fortnite build -> permitted host extension -> read one host value
+  -> controls / pose / camera -> collision + structure lifecycle
+  <-> thin bridge <-> existing Skate Session
+  -> build ramp / skate / edit / destroy / recover / relaunch
+Missing host seam -> explicit blocker before bridge implementation
+```
+
+This is the reusable adapter method at the architectural level. It does not
+establish that the existing MW2 implementation uses two processes, nor select
+shared memory, sockets, a public protocol, renderer composition or a universal
+framework. Choose process placement/transport only after inspecting usable host
+and guest interfaces. The existing Skate seam takes triangle collision and rails;
+host raycasts alone are not proven sufficient for its authentic contacts/grinds.
+Build identity checks, coordinate/unit checks, neutral input ownership, current
+collision replacement and safe shutdown are qualification gates. Start by reading
+one host value before attempting camera control or full interaction. Entities,
+damage and depth composition are conditional on the selected experience; combat
+parity remains out of scope. Public crossovers described by the owner are design
+references, not independently reproduced evidence for this repository.
+
+## Highest-level acceptance seam
+
+The player interacts with a live Fortnite structure while Skate consumes its
+collision. Record pass/fail/blocked/not tested for each step against exact builds:
+
+- [ ] Load real Fortnite terrain and a building.
+- [ ] Build a ramp on foot; switch to skating; ride and jump from it.
+- [ ] Perform a representative grind on suitable geometry.
+- [ ] Edit the ramp; skating follows its changed shape.
+- [ ] Destroy it; obsolete collision and grind support disappear.
+- [ ] Recover from a fall, exit and relaunch.
+
+Use focused regression checks for changed controls, coordinate conversion and
+collision lifecycle. Reuse existing Session/collision seams. A proposed bridge
+must prevent stale asynchronous collision results from restoring destroyed or
+edited geometry and must stop skating explicitly when valid current collision
+cannot be installed. These are required failure outcomes, not a selected API.
+
+Record exact client/source identities, hardware, tools, commands, omissions,
+manual repairs and reproduction. Distinguish source-inspected, prepared, launched,
+gameplay-tested and owner-accepted. Standards/Spec review and
+`python3 scripts/verify.py` are required at handoff; preserve inherited debts.
+Full-island acceptance additionally requires content coverage and measured load
+time, memory, frame times and regional travel on identified Windows hardware.
+
+Out of scope: universal merger, replacement engine, recreation of Fortnite
+building/gameplay, complete combat/AI parity, multiplayer integration, mandatory
+Combine hosting/Blender, protection bypass, redistribution, spending, source
+publication, merge and release. Keep private inputs, assets, settings and logs
+outside Git; source licences do not establish asset or publisher clearance.
+
+## Existing map and dependencies
+
+Keep C-019 as specification, C-020 as wayfinder map, and C-024 as the bounded
+qualification decision. `ready-for-agent` is a draft-body marker for that bounded
+slice only; it does not label the full mashup as qualified. Preserve identities,
+named dependency links and historical evidence:
+
+| Existing record | Current role / prerequisite |
+| --- | --- |
+| C-023 native world validation | Historical source slice; rail repair still required before PR #1 merge |
+| C-024 input/export decision | Qualify live gameplay base, compatible client, permitted launch and client seams |
+| C-025 session presentation | Conditional: live Fortnite input/pose/render ownership after C-024; static standalone task archived |
+| C-026 recovery/relaunch | Depends on C-025; on-foot/skating switches, fall and teardown checks |
+| C-027 real area | Depends on C-024/C-026; live build/skate/edit/destroy demonstration |
+| C-028 full-island measurement | Depends on C-027; content/load/memory/frame-time measurements in selected host |
+| C-029 full-island travel | Depends on C-028; regional collision/lifecycle and safe recovery |
+| C-030 exact Windows trial | Depends on C-029; exact build, shortcuts/checklist, separate owner verdict |
+
+No route-dependent code starts until the new C-024 prerequisites are established.
+Do not automatically resume export/static-map integration. Existing dependencies
+are retained as a planning map, not a commitment to implement the old host.
+
+## Phase evidence
+
+- [ ] 1 Research/prototype: live base/client/launch/bridge qualification; see current result below.
+- [x] 2 Grill: supplied owner plan settles the interactive goal and initial on-foot/skating split.
+- [x] 3 PRD: this current contract replaces conflicting static-world requirements.
+- [x] 4 Slice: bounded C-024 qualification; other existing slices conditional and preserved.
+- [ ] 5 Implementation: no live bridge or gameplay demonstrated.
+- [ ] 6 Human review: no Fortnite owner acceptance.
+- [ ] 7 Deploy/monitor: excluded from this slice.
+
+## Interactive qualification result and version decision — 2026-10-06
+
+**Bounded result: precise blocker; no qualified live bridge.** Reboot has actual
+server construction/edit handlers, but the inspected launcher route manipulates
+EasyAntiCheat processes. No reviewed isolated launch route satisfying this
+project's no-protection-bypass boundary is established. Compatible client access
+and a client-side collision/movement/rendering bridge also remain unqualified.
+No new game files were acquired or server compiled. The later stock-launcher
+trial below reached BattlEye installation; the game did not start.
+This rejects the inspected route under our constraint, not every possible route.
+
+### Source identities and reproducible inspection
+
+| Component | Inspected revision | Observation |
+| --- | --- | --- |
+| Project Reboot 3.0 | `3f6417ee6b07063bb6f83902ad3971f998888bab` | README plus building/controller/damage/DLL source inspected; not claimed latest |
+| Milxnor Reboot Launcher | `64dc971da499f1856f40af992d0068c5801e344b` | README, client build catalogue, dependency download and injection helpers inspected |
+| Auties00 Reboot Launcher | `d53a577f0b88f73a29ba7424306221ea45e6c724` | Scout inspected normal launch entry and game constants for protection-process behaviour |
+| Existing Skate host | `f608f85e407ff1b7689d54a9aafdd16e95711ac4` | Existing Session controls/ticks/pose/collision replacement source inspected; pin unchanged |
+
+Public reads used GitHub raw URLs at the exact revisions and GitHub REST
+`repos/Milxnor/Project-Reboot-3.0/git/trees/<revision>?recursive=1` and
+`repos/Milxnor/Project-Reboot-3.0/commits/master`. Current master read-back was
+`10c659028ad9d6816f78226483f11a884bf81f57`; inspected pin stayed fixed.
+Public source files were fetched with Python urllib into temporary inspection
+folders, not installed or executed. Sandbox DNS failed; approved external
+read succeeded. Initial web code-page fetches failed; raw-source reads succeeded.
+No private game data was used. Reproduce by fetching the linked pinned text files,
+then searching the named functions; these are inspection steps, not launch instructions.
+
+The actual lead commands were `python3 /tmp/fetch-reboot-public.py`,
+`python3 /tmp/fetch-launcher-public.py` and
+`python3 /tmp/fetch-launch-controller.py`: temporary urllib-only fetch scripts
+with no subprocess execution of fetched content. Reboot/controller fetches used
+fixed revisions; the launcher script resolved `master` at observation time and
+fetched its files at the returned `64dc971da499f1856f40af992d0068c5801e344b`
+revision. That returned SHA is now the recorded inspection pin.
+They fetched the named public files and printed sizes/SHA-256. The initial
+sandbox Reboot fetch failed DNS; approved network retry succeeded. Temporary
+scripts are not durable project tools. Representative source read-backs:
+
+```text
+README.md (Reboot)               1534 bytes  483f538f17c29ad5c0a4eb07bc2584d90976bdf446b58f22e793dbfffdcf29f3
+FortPlayerController.cpp       68708 bytes  1cfe6bb2ddcf2bf5fa225995767eed156b9b6a4f1f1ea7f16f873b16c871e56e
+build.dart (Milxnor launcher)  20842 bytes  9c5a6904f9e7ca447fbcede493bd2d75eeb84d4b0deb80a3522f835ed441cb60
+```
+
+Portable reproduction for the controller source (read-only public download;
+run with network access, retain it in a temporary folder):
+
+```sh
+python3 - <<'INSPECT'
+from pathlib import Path
+from urllib.request import urlopen
+from hashlib import sha256
+url = ('https://raw.githubusercontent.com/Milxnor/Project-Reboot-3.0/'
+       '3f6417ee6b07063bb6f83902ad3971f998888bab/'
+       'Project%20Reboot%203.0/FortPlayerController.cpp')
+data = urlopen(url, timeout=25).read()
+Path('/tmp/reboot-controller-inspection.cpp').write_bytes(data)
+print(len(data), sha256(data).hexdigest())
+INSPECT
+rg -n 'ServerCreateBuildingActorHook|ServerEditBuildingActorHook|ReplaceBuildingActor' /tmp/reboot-controller-inspection.cpp
+```
+
+Expected: 68,708 bytes and the controller hash above; definitions at lines 846
+and 1742 and replacement at 1777–1780. This reproduction command is provided
+for the same source bytes; the actual inspection used the temporary scripts
+above plus `rg -n` against their downloaded files. Original game files are not
+inputs to these commands.
+
+### Fortnite gameplay and client boundary
+
+[FortPlayerController.cpp](https://github.com/Milxnor/Project-Reboot-3.0/blob/3f6417ee6b07063bb6f83902ad3971f998888bab/Project%20Reboot%203.0/FortPlayerController.cpp)
+contains `ServerCreateBuildingActorHook`, begin/edit/end handlers and repair.
+Creation checks placement/classes, spawns a building and updates resources/team.
+Edit calls Fortnite's `ReplaceBuildingActor`; it is not a static-mesh export.
+[dllmain.cpp](https://github.com/Milxnor/Project-Reboot-3.0/blob/3f6417ee6b07063bb6f83902ad3971f998888bab/Project%20Reboot%203.0/dllmain.cpp)
+registers the handlers. DLL process attachment starts the server logic; network
+mode hooks force dedicated-server behavior. This does not provide a Skate-enabled
+rendering client.
+
+[BuildingActor.cpp](https://github.com/Milxnor/Project-Reboot-3.0/blob/3f6417ee6b07063bb6f83902ad3971f998888bab/Project%20Reboot%203.0/BuildingActor.cpp)
+handles damage/resource rewards and calls the original damage function.
+Inference: destruction depends on Fortnite's original damage/health behavior;
+live removal and client collision changes have not been observed. No inspected
+handler publishes Fortnite collision triangles/rails to Skate or applies Skate
+bone/camera output to the client. Client movement authority, animation bindings,
+terrain/structure collider extraction and change notifications remain unknown.
+
+The pinned [Skate Session bridge](https://github.com/chasmlol/2010-rust-rewrite-mashup/blob/f608f85e407ff1b7689d54a9aafdd16e95711ac4/skate/crates/skate-host/src/physics/bridge.rs)
+already provides `new`, `collect`/`advance` or `tick`, `pose`, `activate`,
+`suspend_input`, `collision_builder` and `install_collision`. Its collision
+replacement installs the world and rebinds grind data. These are reusable seams,
+not a Fortnite integration. Fortnite-side transforms, tick scheduling, input
+ownership and rendering need inspected interfaces and live evidence before coding.
+
+### Launch and acquisition blocker
+
+The server [README](https://github.com/Milxnor/Project-Reboot-3.0/blob/3f6417ee6b07063bb6f83902ad3971f998888bab/README.md)
+says S3–S15, build with Visual Studio 2022, run with Reboot Launcher. It does
+not pin a known-good client patch. The author-fork [launcher README](https://github.com/Milxnor/Reboot-Launcher/blob/64dc971da499f1856f40af992d0068c5801e344b/README.md)
+claims GUI S0–S14. Their documented overlap is S3–S14; that is a shortlist,
+not per-patch gameplay verification. Its catalogue extends beyond the README
+range, so a listed download alone must not be interpreted as supported play.
+
+The inspected upstream launcher [launch entry](https://github.com/Auties00/Reboot-Launcher/blob/d53a577f0b88f73a29ba7424306221ea45e6c724/gui/lib/src/button/game_start_button.dart)
+creates and suspends an EAC process and tracks it for later termination. The
+[constants](https://github.com/Auties00/Reboot-Launcher/blob/d53a577f0b88f73a29ba7424306221ea45e6c724/common/lib/src/game/game_constants.dart)
+identify the EAC executable. We cannot run this route under the no-bypass
+boundary. The author's fork additionally uses
+[moving dependency downloads](https://github.com/Milxnor/Reboot-Launcher/blob/64dc971da499f1856f40af992d0068c5801e344b/common/lib/src/util/dll.dart)
+and a [DLL injection helper](https://github.com/Milxnor/Reboot-Launcher/blob/64dc971da499f1856f40af992d0068c5801e344b/common/lib/src/util/process.dart).
+Direct inspection of the pinned author-fork
+[launch entry](https://github.com/Milxnor/Reboot-Launcher/blob/64dc971da499f1856f40af992d0068c5801e344b/gui/lib/src/widget/game/game_start_button.dart)
+confirms calls to `_createPausedProcess` for `version.eacExecutable` at line 218,
+and `suspend(pid)` inside that helper at line 318. The helper returns null for
+an absent executable; this is not proof of a supported launch configuration
+without protection manipulation. Download read-back: 27,685 bytes, SHA-256
+`8d8b04393eb408609da6d3066c8142d489261a9223479834df833c48501cf6b6`.
+The actual command used a urllib read of that pinned raw URL into
+`/tmp/reboot-launcher-public/game_start_button.dart`; `rg -n` located the calls.
+No dependency binary was obtained or reviewed; injection alone is not evidence
+of protection bypass. Reboot's `anticheat.h` is a custom unfinished warning stub,
+not evidence about EAC.
+
+[Epic's installation guide](https://dev.epicgames.com/documentation/fortnite/install-and-launch-fortnite-creative-and-unreal-editor-for-fortnite)
+provides official current Fortnite/UEFN acquisition. It does not establish
+historical Reboot client delivery. [Verse documentation](https://dev.epicgames.com/documentation/en-us/fortnite/programming-with-verse-in-unreal-editor-for-fortnite)
+provides devices/game rules/NPC programming; these pages do not establish a native
+Rust Skate extension route. UEFN is not selected as a replacement and no claim
+that all official extension routes are impossible is made.
+
+### How we choose an exact Fortnite version
+
+Choose the first candidate that passes all prerequisites, then pin its actual
+Windows executable/build identity and source revisions. Prefer an already
+identified accessible client before introducing another archive or toolchain.
+Do not rank versions by novelty, scenery alone or a download flag.
+
+| Candidate | Why inspect it | Missing evidence / decision |
+| --- | --- | --- |
+| 3.1 / CL-3917250 | Existing exact metadata; 3.1 is listed in pinned launcher catalogue and falls in documented season overlap | First **qualification candidate**, not selected playable build. Executable verified and isolated copy prepared; stock launcher waits at BattlEye installation; provenance and playable permitted route unqualified; prior encrypted-container export failure proves neither play nor unplayability |
+| 7.40 | Explicit source catalogue entry within documented overlap | Fallback only if accessible through reviewed supported route; exact CL/client hashes, structure behavior and bridge compatibility missing |
+| 10.40 | Explicit source catalogue entry within documented overlap | Same gates; no claim it is more stable or already Skate-enabled |
+| Current official Fortnite/UEFN | Official acquisition documented | Not within Reboot README support; native Skate/client bridge unestablished; no automatic substitution |
+
+Catalogue evidence: [build.dart](https://github.com/Milxnor/Reboot-Launcher/blob/64dc971da499f1856f40af992d0068c5801e344b/common/lib/src/util/build.dart).
+It marks third-party archives available. Reachability, integrity and authorization
+were not checked; these are leads, not supported acquisition evidence. No download
+was requested. The owner previously said there is no additional local input; we
+do not assume a complete runnable client from existing metadata.
+
+Selection gates, in order:
+1. Supported acquisition/access and exact executable/CL identity.
+2. Pinned reviewed client/server/launcher/dependencies with a permitted isolated
+   launch route; reject protection manipulation or unsupported requirements.
+3. On-foot terrain/build/edit/destroy/recovery/relaunch witnessed on that build.
+4. Client-side collision/lifecycle, movement ownership and rendering interfaces
+   qualified for the existing Skate Session. Then run the small live seam.
+
+No exact version is **required** by the architecture or verified for this mashup.
+3.1 is first to investigate because it avoids inventing another initial identity;
+it is not permission to obtain a third-party archive or run the rejected launcher.
+Version switching cannot resolve the protection-route blocker by itself.
+
+### Existing mashup/version search — owner follow-up
+
+The owner asks for the version used by an existing Skate 3 + Fortnite mashup so
+we can reproduce its method instead of guessing. Bounded web searches on October
+6 used `"skate 3" "fortnite" mashup`, `"Fortnite" "SK8-Engine"`,
+`"Fortnite" "skate-3-rust-engine"`, `"skate 3 in fortnite"`,
+`"fortnite in skate 3"` and related engine/creator queries.
+
+The concrete result is [Sam Tabor's January 22, 2025 video](https://www.youtube.com/watch?v=w_i5nms1hRA),
+whose description identifies the University District port and code
+`3105-1199-7249`. The [creator's official island listing](https://www.fortnite.com/@chillsam2/3105-1199-7249)
+describes the University port and instructs players to use Fortnite's island
+search. This establishes a map port; neither description establishes the
+reverse-engineered Skate simulation or live building/edit collision bridge.
+The listing directs players to the current Fortnite client, not a historical
+Reboot build. We did not watch/test the video or island and cannot assign its
+historical executable version from its upload date.
+
+No matching creator source/instructions or exact client version for the requested
+live simulation mashup was identified in this search. This is a bounded negative
+result, not proof nobody has made it. A creator/video/repository link is needed
+to trace that particular demonstration. The 3.1/7.40/10.40 shortlist above is
+our candidate research, not versions attributed to someone else's mashup.
+No archive download or version installation is justified by these results.
+
+### Client found locally — latest owner-directed check
+
+**Use Fortnite 3.1 / CL-3917250 as the first client compatibility-test input.**
+The existing private archive is 9,902,525,829 bytes and has 3,403 ZIP entries,
+including one `FortniteClient-Win64-Shipping.exe` (83,333,008 bytes), 68 `.pak`
+entries and five `.exe` entries. Freshly streaming the shipping executable out
+of the archive produced SHA-1 `b017f433b1238c0eed9f43fdb80df3ea1d90361e`, matching
+the inherited reference. No second client download is needed for this input check.
+An earlier bounded loose-file search found no extracted shipping executable;
+that did not check inside this archive. This archive inspection corrects that gap.
+
+The [current archive catalogue](https://github.com/n6617x/Fortnitebuilds#season-3)
+also lists CL-3917250, but labels its download 3.1.1; its other 3.1 entry is
+CL-3915963. Use the exact CL identity rather than the filename/version shorthand.
+No external game archive was downloaded this session. Existing input provenance
+and archive-wide completeness are inherited, not freshly established rights or
+full-file integrity evidence. Client selection is for qualification, not a claim
+that Reboot or the Skate integration works with it.
+
+Actual check: Python `zipfile.ZipFile` enumerated entries; the single shipping
+member was read through `z.open` into `hashlib.file_digest(..., 'sha1')`; its
+result was compared with the private identity record. Portable equivalent with
+the existing archive path supplied privately:
+
+```sh
+python3 - "$COMBINE_CLIENT_ARCHIVE" <<'CHECK'
+import sys, zipfile, hashlib
+from pathlib import PurePosixPath
+with zipfile.ZipFile(sys.argv[1]) as z:
+    files = [i for i in z.infolist()
+             if PurePosixPath(i.filename).name.lower()
+             == 'fortniteclient-win64-shipping.exe']
+    assert len(files) == 1, 'Expected one Windows shipping executable'
+    with z.open(files[0]) as f:
+        digest = hashlib.file_digest(f, 'sha1').hexdigest()
+    assert digest == 'b017f433b1238c0eed9f43fdb80df3ea1d90361e'
+    print('PASS: selected client executable matches recorded reference')
+CHECK
+```
+
+This archive-only observation was followed by the isolated startup trial below.
+The inspected Reboot launch route still fails the project boundary; a permitted
+runnable client/host route and a live bridge remain prerequisites. No assets were uploaded.
+
+The existing runtime also cannot simply launch this client: at pin `f608f85`,
+`crates/asset_core/src/zone_game.rs` and `crates/assets/src/lane/mod.rs` enumerate
+IW4/T5/IW5 loaders; README launch uses IW4L. `docs/SKATE.md` describes extraction
+of Skate assets for the Rust runtime, not a universal process bridge. Read-only
+`git show` and targeted `git grep` confirmed these paths; no Fortnite entry
+point was found there. This bounded code search is not an exhaustive claim
+about every upstream file. No existing Fortnite loader was executed.
+
+### Isolated Windows startup trial — owner-directed follow-up
+
+The owner selected this existing client for the first test using the existing
+reuse-first method. No alternative build or replacement engine was introduced.
+
+**Prepared:** validated archive paths against traversal, absolute/drive paths,
+symlinks and duplicates, then extracted all 3,323 files into a fresh ignored
+private folder. ZIP CRC checks passed for every extracted member; uncompressed
+size 20,625,927,880 bytes. This verifies archive integrity, not provenance or
+compatibility. Extraction took 123.77 seconds. Copied the client to a new native
+Windows trial directory with `robocopy /E /COPY:DAT /DCOPY:T /R:0 /W:0` (exit 1:
+files copied), then verified the shipping executable SHA-1 again. Originals were
+preserved. Both extraction and native preparation refuse an existing destination.
+
+**Machine:** Windows 11 Pro 10.0.26200, NVIDIA GeForce RTX 5060 Ti, Windows
+PowerShell 5.1.26100.9444. Authenticode checks returned Valid for the shipping
+client and original `_BE.exe` launcher (Epic Games Inc.) and bundled
+`BEService_x64.exe` (BattlEye Innovations e.K.). Signature validity is not a
+finding that this historical build remains supported on this machine.
+
+**Executed:** original `FortniteClient-Win64-Shipping_BE.exe` from the trial copy,
+with `-NOHOMEDIR -NOINI -windowed -ResX=1280 -ResY=720`. No injected DLL, Reboot
+launcher, authentication override, protection suspension or bypass was used.
+Existing Fortnite processes were absent before launch. Existing user config was
+backed up if present; the 20-second observation reported zero original config
+files changed and zero new config files. The stock launcher may perform its own
+normal service installation; no manual service change was made. The documented
+[UE switches](https://dev.epicgames.com/documentation/en-us/unreal-engine/command-line-arguments?application_version=4.27)
+request no INI updates/home-directory override; full profile isolation in this
+older shipping build has not been demonstrated.
+
+**Observed:** at 20 seconds, only the isolated BattlEye launcher was present,
+with a visible responding window. UI Automation subsequently read its status as
+`Installing BattlEye Service`; no shipping game process was observed. At 105
+seconds the test requested ordinary window closure, which succeeded; no trial
+Fortnite processes remained. The BattlEye service was Stopped and a Windows
+`consent` process was present at the final observation. An administrator prompt
+is a possible cause, not a verified attribution of that process. No error code
+was found in the observed window. No terrain, building or skating was tested.
+
+Private local commands (reviewed scripts, not committed product tools):
+`python3 .private/fortnite-client-test/prepare.py`, `prepare-native.py`,
+`launch-stock.py`, `observe-stock.py`, `finish-stock.py` (last four in the same
+directory). Preparation, launch and finish JSON plus diagnostic logs remain
+private there; native root is recorded in `native-root.txt`. Do not rerun
+preparation over its existing folders. Reproduction uses the existing archive,
+a fresh isolated Windows copy with matching hash/signatures, the stock launcher
+and arguments above, a bounded observation, and clean closure. Never substitute
+the rejected Reboot launcher. The initial unsigned PowerShell script on the WSL
+UNC path was rejected by execution policy; reviewed `-Command` invocation worked
+without changing policy. Windows calls required sandbox approval.
+
+**Headless follow-up:** owner confirmed terminal-only access and requested an
+administrator trial. Read-only Windows checks returned a non-administrator token,
+`EnableLUA=1`, `PromptOnSecureDesktop=1`, `ConsentPromptBehaviorAdmin=5`;
+BattlEye remained Stopped and the consent process had exited. Linux `sudo` does
+not elevate the Windows token. No UAC settings were changed and no unattended
+consent was attempted. The stock route now needs a normally elevated Windows
+session or interactive Windows desktop access before retrying. This does not
+prove the earlier consent window belonged to BattlEye.
+
+**Optional startup diagnostic prerequisite:** normal Windows elevation would be
+needed to repeat the bounded stock test and observe whether the game starts.
+Owner follow-up asks for the MW2/Skate/Minecraft method: BattlEye is anti-cheat,
+not an integration route. Prioritize qualifying actual Fortnite client extension
+points against the existing Skate Session; do not treat administrator setup as
+progress on that missing bridge. No consent was
+auto-clicked. Even successful
+stock startup would not qualify Reboot gameplay or the missing Fortnite client
+collision/pose/render bridge to the existing Skate Session.
+
+### Direct executable and archived/offline follow-up
+
+The owner asks whether archived/offline clients avoid the stock BattlEye route.
+Our existing 3.1 archive is already the selected historical client input; a local
+backend/gameplay server and reviewed client connection route remain separate.
+Tested the unmodified, validly signed `FortniteClient-Win64-Shipping.exe` directly
+from the isolated native copy with the same five profile/window arguments above.
+No protection override, fake authentication arguments or injection was supplied.
+At 20 seconds the launched process had exited and no trial Fortnite processes
+remained. The recorded exit code was null, so no success/error code is inferred.
+Zero original configuration changes/new config files were reported. Later window
+inspection found no trial window. Cause is unestablished; this result does not
+prove BattlEye is mandatory. Private commands were `launch-direct.py` and
+`observe-direct.py` under the same private trial directory.
+
+A new [Instigator launcher lead](https://github.com/jwhazy/instigator) documents
+headless operation and Reboot compatibility. Its tested-version list includes
+4.1, 5.30, 6.21, 7.30, 7.40, 8.30, 8.51, 10.40 and 12.41, not 3.1. It advertises
+launch without anti-cheat and links a separate SSL-bypass dependency; README
+claims alone do not qualify its actual mechanism against the project boundary.
+No launcher/dependency was installed or run. Follow-up pinned source inspection
+at `c033c1c2693194a5948a760cc365d6821c5caae5` found that
+[main.rs](https://github.com/jwhazy/instigator/blob/c033c1c2693194a5948a760cc365d6821c5caae5/src/main.rs#L277-L317)
+calls `start_ac` and `start_launcher`; [process.rs](https://github.com/jwhazy/instigator/blob/c033c1c2693194a5948a760cc365d6821c5caae5/src/process.rs#L38-L101)
+starts and suspends EAC/launcher threads. The source also offers redirect/server/
+console DLL injection. Thus its normal route is not a solution under the
+no-protection-bypass boundary. Pin read with `git ls-remote` for master, public
+README/main/process files read at that revision; no fetched code executed. [LawinServer](https://github.com/Lawin0129/LawinServer)
+is another local backend lead; its README separately requires request redirection
+and a gameplay server for matches. A backend/lobby is not proof of live building
+or a Skate bridge. No different game archive was acquired.
+
+### Qualification exit and next actor
+
+C-024 has delivered the permitted precise-blocker outcome for this bounded
+inspection; the overall route decision stays open in Phase 1. No bridge experiment
+was started because prerequisite gates failed. The next concrete action is to
+qualify a permitted Fortnite client extension route for live collision/lifecycle,
+movement and rendering against the existing Skate Session. The stock-startup
+retest would require normal Windows elevation but cannot establish that bridge.
+A successful permitted Reboot route remains independently unqualified. Only
+a route passing those gates can proceed to on-foot gameplay and live bridge
+qualification. If no such route exists, retain the blocker; do not implement a
+Fortnite recreation or replace the goal with static scenery.
+
+All six live acceptance steps remain **not tested**. Client preparation and stock
+launcher execution are established; game launch, gameplay and owner acceptance
+remain unestablished. The integration blocker is the unqualified permitted host/client bridge route.
+Stock startup stopped at BattlEye installation; direct startup exited without a
+known cause. Those diagnostics do not mandate using the BattlEye route. Historical exporter
+rebuild/NuGet debt, missing `src/tests/map_startup.rs` and PR #1 rail repair remain.
+Repository/source reviews validate this qualification record, not those runtimes.
+
+## Historical static-world specification and evidence
+
+Everything below retains prior observations and superseded proposals. Static
+acceptance, mandatory host/version and exclusions of building/editing/destruction
+do not apply to the current contract above. Historical failures remain failures.
+
+---
+
 # Full Fortnite island + Skate: adapter qualification — 2026-10-06
 
 Current objective: reuse existing export/map tools to prove a repeatable Fortnite

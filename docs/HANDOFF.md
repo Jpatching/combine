@@ -1,3 +1,103 @@
+# Handoff — interactive Fortnite + Skate qualification blocked on launch/client seams
+
+The current goal retains Fortnite building/editing/destruction with Skate's
+movement, tricks and grinds, across the complete selected island. Static exports
+cannot satisfy it. Combine, Blender and a particular version are optional.
+D-026 and the [current specification/evidence](../research/results/2026-10-06-fortnite-adapter-qualification.md)
+supersede conflicting static assumptions; separate Synergy remains preserved.
+
+**Phase 1 bounded outcome:** pinned Reboot source has server building/edit hooks;
+its original damage path is retained (destruction behavior inferred, not tested).
+The inspected launcher starts/suspends an EasyAntiCheat process, so its normal
+route fails the no-protection-bypass boundary. No permitted launch route or live client collision/movement/render bridge is
+qualified. A local client input has now been verified as described below.
+No new game assets acquired or binaries built. Reviewed private preparation and
+stock-launcher trial executed; Fortnite itself and physical gameplay not reached. No owner acceptance, publication, merge or release.
+
+```text
+Compatible accessible Fortnite client + permitted launch + client seams
+  -> on-foot build/edit -> Skate controls/tick/pose + current collision
+  -> ride/jump/grind -> edit/destroy collision -> recover/exit/relaunch
+Current prerequisite failure -> precise blocker; no static substitute
+```
+
+**Client found:** choose existing Fortnite 3.1 / CL-3917250 as first compatibility-
+test input. Private archive is 9,902,525,829 bytes, includes one 83,333,008-byte
+Windows shipping client. Fresh SHA-1 matches the recorded reference
+`b017f433b1238c0eed9f43fdb80df3ea1d90361e`. No new download needed. Archive has
+3,403 entries, including 68 PAKs and five EXEs. All 3,323 files extracted with
+ZIP CRC checks, copied into a fresh native Windows trial and shipping hash
+rechecked. Provenance remains inherited. Original Epic executable signatures Valid. Catalogues can call
+this build 3.1.1; use exact CL rather than filenames. Reboot source documentation
+covers S3–15; launcher claims S0–14. Neither proves this patch's gameplay.
+
+**Startup tested:** on Windows 11 Pro 10.0.26200 / RTX 5060 Ti, original signed
+BattlEye launcher opened but remained at `Installing BattlEye Service`; no game
+process observed. Closed cleanly after 105 seconds; no trial processes remained.
+Service Stopped; Windows consent process present, attribution unverified. Owner
+confirmed headless access. Windows token is non-admin; UAC secure-desktop approval
+is enabled. Linux sudo cannot elevate it. No consent auto-clicked,
+no bypass/injection. At 20 seconds, zero original config changes/new config files.
+Private scripts/results in `.private/fortnite-client-test`; native-root.txt locates
+trial. Do not repeat extraction over existing destinations.
+
+**Direct test:** unmodified signed shipping EXE also tested with no protection
+overrides. It exited before 20 seconds; no trial process remained, exit code
+not captured, cause unknown. No configuration changes reported. This does not
+prove BattlEye mandatory. Archived/offline route remains the candidate; Instigator
+source at c033c1c2693194a5948a760cc365d6821c5caae5 also starts/suspends EAC
+threads; its normal route fails the same boundary. README tested versions exclude
+3.1. No loader/dependency installed.
+
+Owner asks to reproduce the existing repo/mashup method and find a test client.
+The existing runtime loader handles IW4/T5/IW5 and launches IW4L; no Fortnite
+client bridge was found in those paths. Source searches and University map/video
+listing have not identified the exact live Skate+Fortnite demo the owner recalls.
+The selected client is our test input, not a version attributed to that demo.
+
+**Source:** branch `slice/fortnite-interactive-qualification`; base/inherited
+checkpoint `70f35198619b514bb28b34b0b6518255aac7e168` preserves four incoming docs.
+This slice changes requirements/evidence/source pins only; runtime/exporter
+code remains unchanged. Resolve Git HEAD for final local revision. Origin
+refreshed: `origin/main` remains `a5593d671142f31653d45caeaad7b926d40ff855`.
+Stacked history still needs review before any publication/merge. This plan
+excludes publication. Public Reboot master read-back differs from inspected pin;
+pin not moved. See upstream.lock.json for exact inspection revisions.
+
+**Checks:** repository gate passed (34 tests, two recipes, links in 17 documents).
+Independent Standards/Spec review found two evidence-description gaps; corrected
+with fetch commands/hashes and resolved-versus-fixed pin wording. Latest local
+client evidence includes isolated preparation and a stock-launcher startup test;
+Standards/Spec review completed; stale execution summaries corrected. Inherited debts remain: fresh exporter rebuild/NuGet analyzer cache;
+broad native suite missing `src/tests/map_startup.rs`; PR #1 rail regression
+unfixed before merge; Windows/full-island performance and physical trials absent.
+No native rebuild needed for the documentation-only change.
+
+**Tracker:** nine existing records C-019/C-020/C-024/C-025–C-030 updated and
+read back, with views/fields/unrelated items preserved. Current interactive
+requirements replace static assumptions; historical contracts and named edges
+remain visible. `ready-for-agent` marks only C-024 bounded qualification.
+Latest test evidence synchronized to C-019/C-020/C-024 and read back; final
+adapter-method/Instigator findings synchronization recorded at handoff.
+C-024 route stays open despite a valid bounded blocker outcome. Other route-
+dependent implementation is conditional; rail repair remains separate debt.
+
+**Method:** host adapter + existing Skate Session + thin bridge. First read one
+host value; then controls/camera and collision/lifecycle. No IPC/public protocol
+is selected; raycasts alone are not proven sufficient for Skate geometry/rails.
+
+**Next:** qualify an actual Fortnite client extension route for live collision,
+structure lifecycle, movement and rendering against the existing Skate Session.
+The owner asks for the existing MW2/Skate/Minecraft method; BattlEye is not that
+integration method. Normal Windows elevation is needed only if we repeat the
+stock-startup diagnostic; that repeat is not the next mashup milestone. Existing
+IW4L cannot consume a Fortnite client directly. No more static adapter work
+resumes. Owner acceptance remains separate.
+
+---
+
+## Preserved historical static-route handoffs (superseded by D-026)
+
 # Handoff — public island leads found; asset access and real-data qualification open
 
 **Objective:** full Fortnite island with the pinned Skate runtime, solid ground,

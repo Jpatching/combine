@@ -86,17 +86,16 @@ Missing tools/data/check failure -> stop that stage, record exact prerequisite
 
 ## Fortnite with Skate: qualification comes before reproduction
 
-There is no Fortnite adapter or playable build to reproduce yet. The previously
-selected source target is the full `Release-3.1-CL-3917250` island; a Tilted building
-and surrounding ground are test cases within that integration. The live board owns the new wayfinding decisions about
-legitimate local access, export compatibility and the route to a tested player
-experience. The owner selected Fortnite scenery + Skate only, without MW2
-combat or Synergy. The existing runtime may be reused internally, but inherited
-combat/input/UI must be explicitly excluded from that experience.
-The unfinished preparation script only scaffolds directories; it is not an adapter.
+There is no playable interactive Fortnite + Skate integration to reproduce yet.
+[D-026 and the current specification](../research/results/2026-10-06-fortnite-adapter-qualification.md)
+require Fortnite building/editing/destruction with Skate movement/tricks/grinds.
+Qualify Project Reboot first; identify a compatible accessible client and reviewed
+isolated launch route, then live collision/lifecycle, controls/pose and rendering
+seams. A particular version, Combine and Blender are not mandatory. Earlier
+static exports and preparation scaffolding do not satisfy this contract.
 
-A future reproduction guide must identify lawful input requirements, exact build,
-exporter version, axis/scale/material/collision conversion, reproducible Rust
-adapter and observed walk/skate/jump/grind/recovery/relaunch results. Only then
-can that experience have a player launch checklist. No game assets, converted
-maps, binaries, settings or private logs belong in public source.
+A future guide must record exact client/server/Skate revisions, lawful private
+input requirements, reviewed dependencies, coordinate/collision conversion and
+observed build/skate/jump/grind/edit/destroy/recovery/relaunch results. Full-island
+checks add coverage and identified-hardware measurements. Owner verdict remains
+separate. No game assets, binaries, settings or private logs belong in source.

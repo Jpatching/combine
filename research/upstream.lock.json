@@ -170,5 +170,34 @@
     ],
     "evidence": "research/results/2026-10-05-synergy-input.md",
     "scope": "Intervention/input automated evidence; physical trial unaccepted; other effects and hit radius unverified"
+  },
+  "interactive_fortnite_qualification": {
+    "observed_on": "2026-10-06",
+    "evidence": "research/results/2026-10-06-fortnite-adapter-qualification.md",
+    "reboot": {
+      "repository": "https://github.com/Milxnor/Project-Reboot-3.0",
+      "commit": "3f6417ee6b07063bb6f83902ad3971f998888bab",
+      "observed_master": "10c659028ad9d6816f78226483f11a884bf81f57"
+    },
+    "launcher_author_fork": {
+      "repository": "https://github.com/Milxnor/Reboot-Launcher",
+      "commit": "64dc971da499f1856f40af992d0068c5801e344b"
+    },
+    "launcher_launch_inspection": {
+      "repository": "https://github.com/Auties00/Reboot-Launcher",
+      "commit": "d53a577f0b88f73a29ba7424306221ea45e6c724"
+    },
+    "status": "source-inspected; permitted launch route and client-side Skate bridge unqualified",
+    "selected_client": {
+      "build": "++Fortnite+Release-3.1-CL-3917250-Windows",
+      "state": "isolated-windows-copy-verified; stock-BE-launcher-blocked-and-closed; direct-shipping-executable-exited-by-20s; no-gameplay",
+      "shipping_sha1": "b017f433b1238c0eed9f43fdb80df3ea1d90361e"
+    },
+    "gameplay": "not-tested",
+    "instigator_inspection": {
+      "repository": "https://github.com/jwhazy/instigator",
+      "commit": "c033c1c2693194a5948a760cc365d6821c5caae5",
+      "result": "normal launch starts/suspends EAC; not permitted under project boundary"
+    }
   }
 }

@@ -18,7 +18,7 @@ PowerShell support validation and Windows trial preparation.
 | Skate on MW2 Rust with MW2 combat | Owner reports skating worked; baseline recovery/replay incomplete | [Windows baseline](docs/WINDOWS_BASELINE.md) |
 | Minecraft world with MW2 combat and skating | Owner reports Minecraft worked; skating on changed terrain and replay unverified | [Windows baseline](docs/WINDOWS_BASELINE.md) |
 | Actual Synergy trickshot menu in the existing mashup | Original GSC menu integrated; Intervention/input checks recorded; exact-build physical trial unaccepted | [Menu guide](docs/TRICKSHOT_MENU.md), [trial evidence](docs/HANDOFF.md) |
-| Full Fortnite island + Skate only | Reuse qualification blocked on a real terrain/building export; existing map reader assessed; no playable adapter | [Qualification](research/results/2026-10-06-fortnite-adapter-qualification.md) |
+| Interactive Fortnite island + Skate | Gameplay base/client/bridge qualification; building/editing/destruction required; no playable integration | [Qualification](research/results/2026-10-06-fortnite-adapter-qualification.md) |
 
 Recipes are strict research metadata. The Python checker does not prepare or
 launch these experiences. Unfinished preparation scaffolding is not playable progress.
@@ -48,8 +48,8 @@ trial. Other original sections are visible; their effects are not verified.
 
 The destination is actual pinned Synergy plus the agreed sniper near-pass hit
 radius, without Combine practice additions. **Hit radius was selected first for the menu**, per [D-019](docs/DECISIONS.md#d-019-hit-radius-first-and-resume-reconciliation--2026-10-05).
-The later request starts Fortnite-with-Skate wayfinding: Fortnite scenery and
-Skate movement only, with no MW2 combat or Synergy in that experience. Hit radius is not implemented: Off by default, first enable 0.25 metres, steps to 5 metres,
+The later request starts Fortnite-with-Skate wayfinding: Fortnite’s interactive world and
+Skate movement, tricks and grinds, with no MW2 combat or Synergy in that experience. Hit radius is not implemented: Off by default, first enable 0.25 metres, steps to 5 metres,
 Normal/One-shot damage after ordinary cover/reach qualification. The
 [menu guide](docs/TRICKSHOT_MENU.md) owns the complete contract.
 Rainy remains a research candidate with IW4x/Bot Warfare and function-replacement

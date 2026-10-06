@@ -535,3 +535,28 @@ The standalone Rust Engine and SK8 Custom Engine Layer are documented candidates
 ReSkate's author-documented GTA III map port is an existing cross-game example
 for the newer skate. game, not a verified Skate 3 substitution. Final host
 selection remains open; no universal-runtime architecture is selected.
+
+
+## D-026: interactive Fortnite world with Skate simulation — 2026-10-06
+
+The owner's implementation plan corrects the export-first approach: retain
+Fortnite building, editing and destruction while Skate supplies movement,
+tricks and grinds. Static scenery is insufficient. Combine, Blender and a
+particular Fortnite version are not mandatory. The complete selected island
+remains the destination; the first demonstration builds/edits on foot then
+switches to skating. Simultaneous building while skating is deferred.
+
+Investigate Project Reboot 3.0 first, pin inspected source, establish accessible
+compatible client and a reviewed isolated launch route without protection
+bypass, then qualify live collision/lifecycle, controls/pose and rendering seams.
+Server functionality alone is insufficient. Reuse existing Skate Session seams
+where compatible; no generic bridge API/schema is selected. The bounded slice
+may finish with a precise evidence-backed prerequisite blocker. No static
+substitution, gameplay recreation, multiplayer, spending, redistribution,
+publication, merge or release is authorized. Preserve original/private data and
+separate Synergy requirements. Existing C-019/C-020/C-024 and dependency records
+are revised in place; conflicting static requirements become historical.
+
+The [current specification](../research/results/2026-10-06-fortnite-adapter-qualification.md)
+owns requirements and acceptance. D-026 supersedes conflicting static-world
+scope in D-020 through D-025, not their recorded observations or unresolved debt.

@@ -31,7 +31,7 @@ Live card + requirements + evidence + latest owner correction
   -> reconcile -> one missing check -> one observable outcome
   -> verify behavior + affected instructions -> board + handoff -> read back
 Pending exact-build owner trial -> physical verdict (separate from Codex checks)
-Fortnite input + session qualification -> adapter -> regional tests -> full-island trial
+Fortnite client/base/seams -> live structure skating -> regional tests -> full-island trial
 ```
 
 Opening Synergy or equipping Intervention is not full menu completion. Hit-radius
@@ -52,28 +52,27 @@ and hit-radius checks, explicit build acceptance, reproducibility and applicable
 distribution-permission review, then separate publication authority. Earlier
 experimental source snapshots establish none of those release claims.
 
-The Fortnite destination is the **full selected island + Skate movement only**,
-currently identified as Windows `Release-3.1-CL-3917250` with the pinned Rust runtime.
-The live board permits a suitable accessible replacement (D-023); record its actual
-selected build/identity before substitution. No replacement is selected. Smaller areas,
-including a Tilted building and surrounding ground, are test cases within that
-integration, not the destination. D-022 records the latest correction.
-The [adapter qualification and specification](../research/results/2026-10-06-fortnite-adapter-qualification.md)
-owns the source trace, proposed interfaces, ordered implementation work and exact
-input/startup blockers. Do not choose an interchange schema without an inspected
-selected-build export. Full-island loading/streaming must be assessed from counts
-and measurements before promising performance. No MW2 combat, class selection,
-weapon HUD, Synergy or visible/collidable proxy map belongs in this session.
+The Fortnite destination is the **complete selected interactive island with
+Skate movement, tricks and grinds** (D-026). Qualify Project Reboot first,
+including compatible client acquisition, permitted isolated launch and live
+collision/lifecycle, controls/pose and rendering access. Combine, Blender and
+a particular Fortnite version are optional; no base or bridge is qualified yet.
+Build and edit on foot, then switch to skating for the first demonstration.
 
-Fortnite qualification proceeds independently of the separate Synergy trial and
-hit-radius requirements. Keep game assets and converted data private. No Fortnite
-building/editing, destruction or online services; no new engine or asset
-redistribution. Source specification is not adapter implementation or playability.
+The [current qualification/specification](../research/results/2026-10-06-fortnite-adapter-qualification.md)
+owns acceptance and preserves prior export evidence as historical. Static
+scenery cannot satisfy building/editing/destruction. Keep one bounded C-024
+qualification slice active; retain the existing map/dependencies and park
+route-dependent implementation. Full-island coverage and performance require
+identified Windows hardware and measured evidence. Separate Synergy requirements
+remain preserved. No protection bypass, gameplay recreation, multiplayer,
+redistribution, spending, publication, merge or release in this slice.
 
 ## Implementation language and existing setup
 
-Gameplay, collision, damage and authoritative menu integration use the existing
-Rust runtime. Synergy's original GSC remains its menu source; Rust supplies its
+Existing MW2/Minecraft/Skate gameplay, collision, damage and menu integration
+use the pinned Rust runtime. The interactive Fortnite host and native bridge
+language remain conditional on inspected client interfaces. Synergy's original GSC remains its menu source; Rust supplies its
 runtime capabilities and the hit-radius extension. Python checks research data
 and local preparation metadata; PowerShell prepares and verifies Windows trials.
 Neither helper layer substitutes for playable runtime implementation.
@@ -168,14 +167,11 @@ that correction; it does not establish publication or merge completion.
 
 For a concise live resume, run `python3 ~/.codex/workflows/solo-development/projects.py
 summary 5 /path/to/combine` (one shell line). It reads Git and the board;
-it does not fetch or synchronize them. D-024 reuse qualification precedes more route-dependent adapter/rendering work.
-D-025 records the owner’s questions about runtime necessity and directs research
-into existing hosts per experience. Combine remains the source baseline; final
-Fortnite trial-host choice is open. Matching source build is required only for
-a fair exporter comparison; Blender is not a gameplay-runtime requirement.
-C-024 needs a real terrain/building export before route selection; stop with a
-precise blocker if unavailable. C-023 rail repair remains required before PR #1
-merge. C-025 asset loading/rendering remains a preserved conditional task. Planning/slicing complete does not mean integration complete.
+it does not fetch or synchronize them. D-026 interactive gameplay qualification supersedes the static export route.
+C-024 must establish compatible client access, a permitted launch route and live
+client bridge seams before C-025–C-030 implementation resumes. Preserve C-023
+rail repair before PR #1 merge and inherited source/export failures. Planning
+and source inspection do not mean integration is implemented or playable.
 
 ## Session orientation
 

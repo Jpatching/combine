@@ -496,3 +496,42 @@ patches and exporter scaffolding. The reproduced PR #1 rail validation defect
 remains a repair obligation before merge. Separate Synergy requirements/trial
 are preserved and parked outside this active milestone. Global custom-router
 retirement remains separate. See the [qualification](../research/results/2026-10-06-fortnite-adapter-qualification.md).
+
+
+## D-025: separate playable-map needs from exporter-comparison needs — 2026-10-06
+
+The owner confirms no additional local Fortnite build/export is available and
+asks us to find online input, then challenges whether a matching build and
+Blender are needed for the goal. Neither is a runtime requirement. Preserve the
+pinned Skate host and full-island destination; assess a public world package by
+actual content, dimensions, placements, materials and usable collision. A
+particular Fortnite build is not required merely to inspect a model.
+
+The proposed paired-export experiment requires the same source world/build for
+a fair comparison; a pre-exported mesh cannot prove either upstream exporter's
+fidelity. Blender is a conversion/authoring tool for the proposed SK8 pipeline,
+not part of gameplay. Another converter is possible but unqualified. Newly
+authored collision must be labelled and tested, never called preserved source
+collision. No route or replacement is selected by this clarification.
+
+Public Chapter 1/Tilted/Chapter 6 listings are concrete leads; their metadata is
+available, but anonymous official download checks return 401 and content has
+not been inspected. No account action, asset acquisition or spending occurred.
+Keep the paired comparison conditional on accessible raw input and the
+downstream package assessment distinct. Evidence and exact source conditions:
+[qualification follow-up](../research/results/2026-10-06-fortnite-adapter-qualification.md#paired-route-follow-up--2026-10-06).
+
+The owner's subsequent question also reopens whether Combine is necessary.
+Upstream SK8 documents a complete custom-map load/render/collision/grind/session
+path; it is a candidate to assess rather than implementing that bridge anew.
+This is a recommendation from source/documentation, not a runtime switch or
+Fortnite gameplay result. Owner host selection remains pending; preserve Combine
+and its separate Synergy work. See the qualification's runtime-necessity section.
+
+The owner then requests GitHub examples and asks whether different runtimes
+should serve different experiences. Investigate existing standalone map hosts
+before new Combine session work; preserve the full island + Skate-only outcome.
+The standalone Rust Engine and SK8 Custom Engine Layer are documented candidates.
+ReSkate's author-documented GTA III map port is an existing cross-game example
+for the newer skate. game, not a verified Skate 3 substitution. Final host
+selection remains open; no universal-runtime architecture is selected.

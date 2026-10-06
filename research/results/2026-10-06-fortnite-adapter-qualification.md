@@ -186,6 +186,236 @@ behavior. Until then C-024 stays open, and route-dependent C-025–C-030 work is
 parked. No new decoder, output schema, alternate runtime or universal interface
 is selected. Full residency/streaming waits for census and Windows measurements.
 
+### Paired-route follow-up — 2026-10-06
+
+**Result: source gaps narrowed; both real-data experiments blocked before export.**
+The owner confirms no additional local build/export is available and directs us
+to find online input. No route selection is requested until actual comparison
+results exist. Keep the same pinned Combine runtime and full-island destination.
+The existing C-024 decision remains open; no replacement map is created.
+
+#### Online input assessment
+
+Public model metadata was read directly from Sketchfab's model API on October 6.
+The following listings are input leads, not selected replacements or verified
+collision packages. No model bytes, archive, game installer or credentials were
+acquired. Listing licence labels alone do not establish rights to underlying
+game assets; distribution remains excluded.
+
+| Named public input | Observed metadata | Missing decision-changing evidence |
+| --- | --- | --- |
+| [Chapter 1 Map](https://sketchfab.com/3d-models/chapter-1-map-0b1bf7ca3d6f44269705f95709d70e0f) | Downloadable; 2,097,152 faces; description identifies Chapter 1; CC Attribution label | Building/interior coverage, units, materials and usable collision; source build/world needed only for exporter comparison |
+| [Tilted Towers](https://sketchfab.com/3d-models/tilted-towers-faad263b8d9a4b7abde2876f0664cac1) | Downloadable; 27,448 faces; description says Fortnite Tilted Towers; CC Attribution label | Ground/building coverage, interior/stair/wall collision and measured placement; build/provenance needed only for exporter comparison |
+| [Chapter 6 Island](https://sketchfab.com/3d-models/chapter-6-island-fortnite-model-40f3c369b1d44febb3d65153f1ee8dd9) | Downloadable; 22,114 faces; uploader describes UEFN import with models/textures and manual materials; CC Attribution label | Playable terrain/building coverage, scale and usable collision; counts do not prove completeness |
+| [Chapter 2 map scan](https://sketchfab.com/3d-models/fortnite-chapter-2-map-3d-scan-194a7362b3f94e67ac1bea4f041920e8) | Uploader describes a cleaned 3D scan | A scan is not an identified source-world/collision export; interiors and scale unverified |
+| [Official PC installation](https://www.epicgames.com/help/c-34254770/c-33726977/pc-a16245861) | Epic documents acquisition through its store/launcher | No installation performed; export access and selected-world compatibility remain unqualified |
+
+Reproduce the first three metadata observations with anonymous read-only GETs to
+`https://api.sketchfab.com/v3/models/<model-id>` using the IDs in their links;
+inspect `name`, `description`, `faceCount`, `vertexCount`, `isDownloadable`,
+`license` and `publishedAt`. Model pages returned 403/cache misses through the
+web reader; the public metadata API succeeded. This does not verify asset download
+access. A fresh anonymous GET to each of the first three official
+`/v3/models/<model-id>/download` endpoints returned **401**. This session has
+metadata access, not authorized asset-download access; no alternate viewer-file
+extraction, account login or asset download was attempted. Search leads were followed to uploader listings rather than relied on as
+technical proof. A paid Tilted UEFN prefab and generic terrain packs were not
+acquired: neither establishes the selected island nor the two-route comparison.
+[Epic's UEFN import guide](https://dev.epicgames.com/documentation/fortnite/import-content-and-islands-in-unreal-editor-for-fortnite)
+describes import into UEFN, not this engine's island export.
+
+A finished Blender/mesh package could unblock downstream reader/render testing,
+but cannot establish FortnitePorting versus FModel fidelity unless its original
+world and exporter provenance are available. Combining unrelated island and
+building listings would invent placement/build evidence. Neither is substituted.
+Local suffix discovery under the ignored `.private` root found no `.blend`,
+`.skate`, `.usd`, `.usda`, `.umap` or `.fbx` files; nine `.obj` files are in the
+previous trickshot trial, not an identified Fortnite export. This is a bounded
+project-folder check, not an exhaustive machine search. Blender is absent from
+this Linux shell's PATH; Windows/tool installation readiness is unknown.
+
+#### Pinned source answers
+
+FortnitePorting `4c13c7907ad1f7804b7affc6c86a737e8e70285d`:
+
+- [World/level export](https://github.com/h4lfheart/FortnitePorting/blob/4c13c7907ad1f7804b7affc6c86a737e8e70285d/src/FortnitePorting.Exporting/Context/ExportContext.Unreal.cs#L27)
+  traverses persistent and streaming levels. Missing loads can be skipped.
+  The actor path includes building meshes; landscape export at lines 238–252
+  requires the landscape flag and excludes actors whose export type is exactly
+  `Landscape`. This is a named terrain-coverage risk to census, not proof that
+  the selected island loses terrain.
+- [Component transforms](https://github.com/h4lfheart/FortnitePorting/blob/4c13c7907ad1f7804b7affc6c86a737e8e70285d/src/FortnitePorting.Exporting/Context/ExportContext.Mesh.cs#L223)
+  are carried explicitly. The inspected world/mesh context contains no explicit
+  source-collider export path; deeper conversion/plugin behavior and real output
+  remain unverified. Visual meshes do not prove source collision preservation.
+- [Provider setup](https://github.com/h4lfheart/FortnitePorting/blob/4c13c7907ad1f7804b7affc6c86a737e8e70285d/src/FortnitePorting/Services/CUE4ParseService.cs#L220)
+  supports custom/local and installed/on-demand paths. Installed/on-demand setup
+  verifies Epic authentication; on-demand registers downloaded manifest files.
+  `LoadKeys` and `LoadLocalKeys` submit keys (lines 390–423 and 609–635).
+  These paths are not a qualified no-bypass replacement for the flagged 3.1
+  input. No keys or account actions were used. Both candidates depend on
+  CUE4Parse technology; exact embedded parser revisions must be recorded before
+  comparing actual tool runs, rather than assumed identical.
+
+CUE4Parse `e4ea4ba8ec2b88d08b2066dfb8962863dccb36cc`:
+[WorldDto](https://github.com/FabianFG/CUE4Parse/blob/e4ea4ba8ec2b88d08b2066dfb8962863dccb36cc/CUE4Parse-Conversion/Dto/WorldDto.cs)
+skips unresolved actors; nonpersistent streaming worlds may be referenced without
+automatic export. Every referenced sublayer must therefore be accounted for.
+The [USD stage writer](https://github.com/FabianFG/CUE4Parse/blob/e4ea4ba8ec2b88d08b2066dfb8962863dccb36cc/CUE4Parse-Conversion/Writers/USD/Usd.cs#L270)
+sets `metersPerUnit=0.01` and Z-up. Blender import must be checked for its actual
+unit conversion. Inspected world/USD writers do not establish preservation of
+source collider bodies; shape geometry is not equivalent evidence. FModel's
+executable/version and embedded parser are not yet qualified or run.
+
+SK8 exporter `59614c8a0039395f1575e8bf08ed7ad82a554fa4` was downloaded as public
+source only; no addon/scripts executed. A bounded read-only helper traced its
+wire format against the exact Combine reader; lead checked cited source:
+
+- [Extension manifest](https://github.com/SK8-ENGINE/SK8-Engine/blob/59614c8a0039395f1575e8bf08ed7ad82a554fa4/tools/blender_owned_map/owned_world_material_addon/blender_manifest.toml)
+  declares addon 1.15.0 and **Blender minimum 5.0.0**. This resolves the SK8
+  requirement, separately from FortnitePorting's documented Blender 4.2+ minimum.
+- [Exporter](https://github.com/SK8-ENGINE/SK8-Engine/blob/59614c8a0039395f1575e8bf08ed7ad82a554fa4/tools/blender_owned_map/owned_world_material_addon/exporter.py#L35)
+  writes `SKATE15\0`, endian marker `0x12345678`, nine counts, v15 stored materials,
+  supported geometry compression and texture-reference methods. These match the
+  [pinned reader](https://github.com/chasmlol/2010-rust-rewrite-mashup/blob/f608f85e407ff1b7689d54a9aafdd16e95711ac4/skate/crates/skate-data/src/skate_map.rs#L392)
+  at source/schema level; no produced package has been parsed.
+- Exporter `_to_runtime` (lines 1389–1390) applies `(x,z,-y)` after object world
+  transforms. It has no scene-unit multiplier. Blender world coordinates pass
+  through numerically; actual scale must be measured at import and export.
+- Collision uses Groups 1+2, visual output Groups 1+3 (lines 4041–4065).
+  Automatic adoption defaults unassigned visible meshes to Group 1, making their
+  rendered surface collision. This is authoring behavior, not preservation of
+  Fortnite collision. Deliberate visual-only/collision-only classifications and
+  every manual repair must be recorded locally without uploading assets.
+- [Pinned host validation](https://github.com/chasmlol/2010-rust-rewrite-mashup/blob/f608f85e407ff1b7689d54a9aafdd16e95711ac4/skate/crates/skate-host/src/skate_world.rs#L22)
+  rejects doors, optional `BGRP` break-group extensions, nonstatic `MOBJ` physics,
+  absent collision and external texture placeholders. The exporter can emit
+  these rejected features. Matching v15 is therefore conditional compatibility,
+  not a qualified map route; do not strip required behavior silently to pass.
+
+Public source SHA-256 reproduction witnesses:
+
+```text
+FortnitePorting ExportContext.Unreal.cs 2434e8564ede45697d491f333b9aedf366ed6eb432a4c9d68a8243c14657fa69
+FortnitePorting ExportContext.Mesh.cs   5ba4f0af245134eca20855f136a1b8c594ac227455f0b51bbc56569d05a6b36f
+FortnitePorting CUE4ParseService.cs    6caf1241c3f21ae04da0bb4cb317c87a0a230a5e9bb1135020ee1ecf9e050d63
+SK8 exporter.py                      f41aaf20c6a6ff87eb90cbc3a3944638f2d09f208324892d6529433b51fcd53f
+SK8 blender_manifest.toml            1e9986b6dfdead6bcb561c2afeaff4b0ec055be4149b594206f802a48af46dc2
+```
+
+#### Experiment boundary and comparison record
+
+| Check | FortnitePorting → Blender → SK8 | FModel/CUE4Parse world → Blender → SK8 |
+| --- | --- | --- |
+| Identical accessible source build/world/sample | Blocked: no qualifying source identified | Same blocker |
+| Actual export/import/reader/host run | Not run | Not run |
+| Scale, placements, terrain/building/material fidelity | Unknown | Unknown |
+| Solid ground/walls/stairs and source collision | Unknown; authoring collision is not proof | Unknown; USD world geometry is not proof |
+| Missing content and repairs | Source skip risks identified; no measured omissions/repairs | Sublayer/dummy risks identified; no measured omissions/repairs |
+| Preparation time, output identity, repeatability | Not measured; no output | Not measured; no output |
+| Movement/jump/grind/recovery/exit/relaunch | Not tested | Not tested |
+
+Once an input qualifies, freeze a private record of its build/root-world identity,
+container hashes, sample bounds, one terrain seam, one building with a wall and
+stair, and reference dimensions/placements. Run FortnitePorting first, then the
+FModel/CUE4Parse route on that same sample. Record each executable, parser, addon
+and Blender version/hash, commands, flags, elapsed preparation time, outputs,
+missing dependencies, counts and manual repairs. Validate units/axes, materials,
+collision and exact pinned reader/host behavior. Stop unsupported output with
+its actual error; retain each original/output. A downstream-only mesh test must
+be labelled as such and cannot fill either full-route result column.
+
+The goal does not require a particular Fortnite build or Blender. The pinned
+reader/host needs supported geometry/material/collision data; Blender is the
+conversion/authoring step in these two candidates, not a runtime prerequisite.
+A matching source build matters only for a fair paired-export comparison.
+An existing island package can independently advance the playable goal even
+without original build identity, provided actual content, dimensions, placements,
+materials and usable collision are checked. It cannot establish either upstream
+exporter's fidelity. Any newly authored collision must be described as such and
+validated against solid ground, walls and stairs; do not claim source preservation.
+
+After the owner's questions, separate the two evidence gates: (1) qualify an
+existing island package on its measured content and usable collision; (2) compare
+exporters only if the same accessible source world is found. Neither requires
+silently replacing the full-island destination. Current public listings do not
+yet prove complete terrain/building coverage. Inspect the Chapter 1 package's
+actual scene and dependencies next if normal download access is available;
+Tilted Towers is a separate area lead, not a proven matching building set.
+Do not require an unknown original build merely to inspect a public mesh.
+No usable package was qualified in this bounded search; this is not proof none
+exists online. Owner route selection still waits on actual results. No new API/schema, runtime changes,
+installation, gameplay, spending, publication, merge or release occurred.
+
+### Runtime necessity reconsidered — 2026-10-06
+
+The owner asks whether Combine itself is necessary and whether existing methods
+are being overcomplicated. The earlier plan pins Combine; that remains the
+implemented/source baseline, but the host decision is now explicitly reopened
+for discussion. No alternative runtime is installed, selected or tested.
+
+Existing public [SK8 Custom Maps documentation](https://github.com/SK8-ENGINE/SK8-Engine/blob/main/CUSTOM_MAPS.md)
+describes `.skate` file loading from Settings → Maps, rebuilding the session
+on map changes, and retaining map selection for relaunch. Its documented world
+layer includes rendering, collision and grinds. The [current repository guide](https://github.com/SK8-ENGINE/SK8-Engine)
+identifies preview.18 Windows/D3D12 and requires the user's own Skate 3 Xbox 360
+ISO. It preserves Skate gameplay through Skate3Recomp, rather than Combine's
+Rust MW2 integration. These are current upstream documented capabilities, not
+a local Fortnite gameplay witness; preview.18 is not pinned/installed here.
+The already inspected preview.15 pin belongs to the exporter comparison.
+
+By contrast, the pinned Combine bridge currently constructs collision-only maps
+and needs standalone presentation/session wiring. **Inference/recommendation:**
+qualifying an existing custom-map host first could avoid much of that new work
+for the Fortnite + Skate-only goal. It does not solve island acquisition,
+conversion, usable collision/grinds or full-island resource limits. Its Skate
+input differs from Combine's prepared assets; reuse cannot be assumed.
+
+The documented existing method is game/world export → supported map package →
+custom-map Skate host. FortnitePorting supplies an asset-export stage, not Skate
+physics; Fortnite base files and Skate base files serve different roles. There
+is no inspected end-to-end Fortnite island trial for either host in this session.
+Blender is one practical authoring/conversion stage in that method, not the
+gameplay runtime. Avoid a new direct converter without evidence it is needed.
+
+The next owner decision is whether to assess SK8 directly as the trial host or
+retain Combine as a required destination runtime. An explicit change is needed
+before alternative-runtime implementation/launch. Keep both host selection and
+asset access open; no need to finish the two-exporter comparison before making
+this narrower complexity decision. Existing board/dependencies and separate
+Synergy requirements are retained pending the owner's answer.
+
+### Existing cross-game methods and minimum requirements — 2026-10-06
+
+The owner directs a GitHub search for others doing this with other games and
+questions using different runtimes per experience. Current primary findings:
+
+| Existing project | What its authors document | Relevance / limit |
+| --- | --- | --- |
+| [Skate 3 Rust Engine](https://github.com/SK8-ENGINE/skate-3-rust-engine/blob/main/README.md) | Standalone Windows app, Skate 3 ISO or extracted default.xex/data setup, `.skate` worlds and in-game map switching; gameplay parity remains work in progress | Same engine family used inside Combine, with a standalone frontend already documented; current main differs from vendored pin and must be pinned/qualified before a trial |
+| [SK8 Custom Engine Layer](https://github.com/SK8-ENGINE/SK8-Engine/blob/main/CUSTOM_MAPS.md) | Custom world rendering/collision/grinds and map session restart on top of Skate3Recomp | Complete documented custom-map path; different implementation and input preparation from Combine |
+| [ReSkate](https://github.com/Dingo-Shenanigans/ReSkate/blob/main/README.md) and author's [GTA III map package](https://thunderstore.io/c/reskate/p/WackyHckyStudios/GTAIIIMAP/) | ReSkate loads custom maps into the newer Steam skate.; map author publishes Liberty City as a playable level and gives install/load instructions | Concrete cross-game map-port example, author-documented rather than locally gameplay-tested; different game/movement and build dependency, not a drop-in Skate 3 host |
+| [Descenders Next map loader](https://github.com/Notexe/dnext_maploader/blob/main/docs/MAKING_A_MAP.md) | Unity scene AssetBundle, start/finish, explicit colliders and grind-object nodes | Demonstrates experience-specific map packaging; it supplies Descenders gameplay, not Skate 3 |
+
+No inspected example proves a complete Fortnite island skating trial. These
+projects do establish documented alternatives to writing every experience's
+render/session layer into Combine. Host selection should follow desired gameplay
+and existing map support, not just the game that supplied scenery.
+
+Minimum inputs are (1) a chosen skating host and its required legitimate local
+game data, (2) real Fortnite world geometry/textures/materials/placements at
+measured scale, (3) validated solid collision, spawn and suitable grind paths,
+and (4) a conversion/package that host actually accepts. Then verify real
+movement/jump/grind/recovery/exit/relaunch before full-island resource testing.
+Raw source-world access is needed only if extracting rather than using an
+existing usable map. Blender is an optional conversion tool; host package/version
+compatibility remains necessary regardless of authoring application.
+
+Recommended next investigation: compare standalone Rust Engine and SK8 Custom
+Engine Layer for the same small real-map trial, reusing their map support; keep
+ReSkate as an example, not an installed alternative. No universal runtime or new
+launcher selected. Final host choice and actual map access remain open.
+
 ### Preserved work and repair obligation
 
 The four inherited exporter files were reviewed and preserved unchanged in a

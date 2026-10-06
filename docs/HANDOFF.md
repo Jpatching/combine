@@ -1,85 +1,78 @@
-# Handoff — existing map tools assessed; real Fortnite export still blocked
+# Handoff — public island leads found; asset access and real-data qualification open
 
-**Objective:** recognizable Fortnite scenery with Skate controls, collision,
-grinds and repeatable recovery/exit/relaunch, then the complete selected island.
-Owner-supplied reuse plan recorded as D-024; current phase is qualification.
-[Comparison, exact tool refs and online examples](../research/results/2026-10-06-fortnite-adapter-qualification.md).
+**Objective:** full Fortnite island with the pinned Skate runtime, solid ground,
+walls/stairs, grinds and recovery/exit/relaunch. Phase 1 qualification continues
+on the existing map and export decision. No new map, runtime or schema selected.
+[Exact pins, source traces, input leads and blocked experiments](../research/results/2026-10-06-fortnite-adapter-qualification.md#paired-route-follow-up--2026-10-06).
 
-**Result:** pinned Combine already parses SKATE01–15 and has world physics
-handling; its public bridge constructs collision-only maps and does not supply
-a standalone full-world file/render session. Best candidate to test is pinned
-FortnitePorting → Blender → SK8 map exporter → pinned Combine reader/host.
-This is a recommendation, not a qualified route or a runtime switch. Public
-source/docs were downloaded for inspection; no exporter/game/plugin was run.
-Published Blender map-import examples and heightmap downloads were found,
-but no inspected complete Fortnite `.skate` package or end-to-end gameplay.
+**New evidence:** pinned SK8 addon 1.15.0 requires Blender 5.0+. Its v15 binary
+layout matches the pinned reader at source level, but Combine rejects BGRP break
+groups, hinged doors and nonstatic MOBJ physics. Exporter coordinate conversion
+has no unit multiplier. CUE4Parse USD declares centimetres/Z-up; actual Blender
+import dimensions remain to measure. World export paths can omit missing
+actors/levels; source collision preservation remains unverified.
 
-**Precise blocker:** prior 3.1 runs mounted 0/10 containers, zero worlds; no
-real terrain/building/source-collision export or qualified replacement exists.
-No fresh input reproduction is claimed. FortnitePorting on-demand access
-uses manifest downloads and key submission; its data-access path remains
-unqualified under the no-bypass boundary. Terrain-only downloads lack buildings
-and collision evidence. Full-island content/memory/loading measurements absent.
+Owner confirms no alternative local input; requests online input. Public Chapter
+1 island, Tilted Towers and Chapter 6 listings have readable metadata and are
+marked downloadable. All three anonymous official download endpoints returned
+401; no model was acquired or inspected. Coverage/scale/materials/collision are
+unknown. Existing 3.1 diagnosis remains inherited: 0/10 containers mounted, zero
+worlds. No new game-data execution is claimed. Linux PATH has no Blender;
+Windows tool readiness unknown. No private assets/logs sent to AI services.
+
+**Clarification (D-025):** no particular Fortnite build or Blender is required
+for the gameplay goal. The same source build is needed only to compare the two
+exporters fairly. An existing world model could advance downstream loading even
+without original build identity, after measured content/collision checks. Blender
+is the current candidate conversion step. No replacement or route accepted.
 
 ```text
-Accessible identified input -> reviewed exporter -> terrain/building/collision witness
-  | unavailable: explicit blocker, preserve previous setup
+Accessible raw world -> two exporters on same sample -> compare results
+Accessible existing mesh -> inspect content/scale/collision -> compatible map
+  | access/content missing: retain explicit blocker
   v
-Compare actual output -> select route -> real-area session -> measured full island
+Pinned reader/host + standalone rendering -> real skating trial -> full island
 ```
 
-**Source:** branch `slice/fortnite-reuse-qualification`, base/inherited checkpoint
-`86a2c6e` (only the inherited interview follow-up). Parent `da2cd99`; refreshed
-remote main `a5593d6`. Review the stacked ancestry separately; no push/merge
-authorized by this checkpoint. Four inherited exporter files were reviewed for source-safe contents and
-checkpointed unchanged as `62cff9a` at the owner’s clean-repo request; hashes
-recorded in qualification. Generated .NET bin/obj output is ignored. Existing patches/trials
-unchanged. PR #1 rail defect remains unfixed and holds merge. Global custom-router
-retirement is separate. Synergy/menu owner trial remains preserved separately.
+**Source:** current branch `slice/fortnite-reuse-qualification`; this follow-up
+base `f830595d3e70de2ae273b74b4bf815018ea94afb`; final local checkpoint is Git HEAD.
+Origin refreshed; `origin/main` remains `a5593d671142f31653d45caeaad7b926d40ff855`.
+Inherited source checkpoints `86a2c6e`, `7b43d11`, `62cff9a` preserved. Stacked
+ancestry still requires review before publication/merge. No push/merge/release.
+Only qualification/decision/handoff docs changed; no runtime or exporter code.
 
-**Verification and board:** qualification source checkpoint
-`7b43d11acf0f6e58f7d39ea5293f3525d5b896ad`; final evidence/checkpoint resolved
-with Git HEAD. `python3 scripts/verify.py`: PASS, 34 tests, two recipes and
-links in 17 documents; `git diff --check`: PASS. Exporter source hashes match
-the initial qualification hashes. Source packaging does not establish a new
-.NET build; missing inherited analyzer/cache debt remains.
+**Checks:** `python3 scripts/verify.py` PASS: 34 tests, two recipes, links in
+17 documents. `git diff --check` PASS. Independent Standards and Spec review
+of the export follow-up: no actionable findings; final host-discussion addition
+review pending. Source hashes verified; no real map compatibility/play evidence.
+Inherited debts unchanged: missing fresh exporter rebuild/NuGet analyzer cache;
+native broad suite lacks `src/tests/map_startup.rs`; reproduced PR #1 rail
+regression still blocks merge. Prior native tests do not waive these failures.
+No Windows build, launch, gameplay, owner acceptance or full-island measurement.
 
-C-019 specification, C-020 map, C-024 input and C-023 repair priority updated
-and read back; C-025–C-030 parked with dependency/acceptance contracts retained.
-Final unrelated-item/field/view preservation PASS. Qualification ends in a
-precise blocker; Fortnite input/export acceptance stays unchecked.
+**Tracker:** intended update is this source research plus separate evidence gates
+and anonymous-download blocker on existing export decision/map; export acceptance
+remains unchecked and parked implementation/dependencies remain preserved.
+Read-back pending until final synchronization below.
 
-Phase 1 | slice/fortnite-reuse-qualification | local/unpushed | repository gate
-PASS, exporter/native debts retained | board synced | Codex next: qualify the
-accessible input for pinned tools and obtain real terrain/building/collision proof.
-Native/runtime tests not rerun: no runtime/source patch change; the prior 13
-native tests do not waive the reproduced failing rail regression or inherited
-missing `src/tests/map_startup.rs`. No Windows build/launch/gameplay/acceptance.
-No private data/assets/logs uploaded, keys fetched, installation changed,
-spending/outreach, publication, merge or release.
+**Latest owner steering:** questions whether Combine should be the host and
+whether existing export/custom-map methods are being overcomplicated. Upstream
+SK8 documents an existing complete custom-map session; recommend assessing it
+before building a Combine standalone bridge. This is documented/inferred, not
+locally reproduced. No host switch selected. Exact preview.18 ref/dependencies,
+its separate Skate input and current updater/security behavior need qualification
+if chosen. Existing exporter source pin remains preview.15.
 
-**Next concrete check:** Codex qualifies an accessible input for the pinned
-FortnitePorting→Blender→SK8 candidate under the existing access boundaries.
-Acceptance: actual terrain plus building, transforms/materials/source collision
-and omissions, tool/build/input/output identities and reproducible private commands.
-Only then select the route and revise parked C-025–C-030; retain C-023 rail repair.
-No further general research without a named choice-changing question.
-
----
-
-# Handoff — PR #1 review found a validation blocker
-
-Only one open PR was returned: #1, base `a5593d6`, head `b399c55`.
-Independent Standards review: no distinct actionable findings. Spec review:
-one P2 rail validation defect, reproduced in a temporary Rust integration test.
-[Review and exact reproduction](../research/results/2026-10-06-pr1-review.md).
-PR-head repository gate: 27 tests pass; clean runtime patch replay and 13 existing
-native tests pass; the new rejection regression fails (validation returns Ok).
-Hold merge pending a fix matching the host's f32 spline/chord arithmetic.
-Next recommended actor/action: Codex fixes that boundary and carries the regression
-into the source slice, then reruns focused checks and the updated PR-head gate.
-This review made no PR code changes, merge, publication, game launch or acceptance.
-Inherited exporter files and the prior process-interview edit remain preserved.
+**Next concrete step:** Codex compares the existing standalone Rust Engine and
+SK8 Custom Engine Layer for the Fortnite + Skate-only trial before committing
+to new Combine session work. The owner asks for experience-specific runtime
+research; explicit final host choice remains open. ReSkate's author-documented
+GTA III port is a concrete existing cross-game example, not our tested route.
+Qualify normal asset-download access and inspect a real terrain/building scene
+before conversion/gameplay.
+No particular Fortnite build is required for that mesh inspection. Paired
+exporters need the same raw input only if that comparison is pursued. Preserve
+earlier trials/installations and separate Synergy/hit-radius work.
 
 # Preserved runtime handoff — Fortnite input diagnosed; export route blocked
 

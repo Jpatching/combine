@@ -23,7 +23,8 @@ retired. The next work comes from the owner's request; no old task is selected.
 
 **Baseline recovery — 2026-10-07:** the owner authorized one recovery PR from
 preserved tip `03444e2`, retaining implementation and final documentation cleanup.
-The recovery branch is `recovery/source-baseline-20261007`; local backup
+The open [recovery PR #3](https://github.com/Jpatching/combine/pull/3) uses branch
+`recovery/source-baseline-20261007`; local backup
 `backup-recovery-source-20261007` preserves the pre-recovery source tree, and
 `backup-clutter-state` retains the original history. Resume this recovery before
 starting another source slice. Matt's original skills remain unchanged.
@@ -33,7 +34,8 @@ against runtime `f608f85e407ff1b7689d54a9aafdd16e95711ac4`, 15 standalone tests,
 asset-free preparation example, exporter Release build and 13 synthetic CLI
 checks. Independent Standards review found an exporter private-root guard gap;
 the fix verifies Git ignores the root and has no tracked files beneath it.
-Spec review found no actionable source findings. Exporter dependency restore uses
+Follow-up Standards review resolved the guard finding; Spec review found no
+actionable source findings in either revision. Exporter dependency restore uses
 the committed lock; upstream projects warn about Microsoft.Bcl.Memory 9.0.0,
 while the runner's resolved dependency manifest selects its pinned 9.0.14.
 

@@ -1,21 +1,10 @@
-# Historical backlog and current board
+# Historical backlog
 
-Active status moved on October 4, 2026 to the private
-[Combine phase board](https://github.com/users/Jpatching/projects/5/views/4).
-Use **Now** for the current phase/skill/next action, **Milestones** for outcomes,
-and **Needs you** for decisions and trials. Git remains the source authority.
-This file is a frozen historical record, not a second active task list.
-
-The destination is the proper Synergy menu plus trickshot hit radius, without
-Combine-specific practice additions. Hide HUD work is preserved and deferred;
-it is not a prerequisite. Source coverage, agreed requirements and the first slice
-contract are in [the menu guide](docs/TRICKSHOT_MENU.md). The board owns their
-current phase and next action; the archived snapshot below is not a resume plan.
-
-Migration checked 17 private drafts, their values and dependency links, board
-privacy and actual results of all three view filters. Requirements, decisions
-and technical evidence remain in existing local files. If GitHub is unavailable,
-record intended changes as sync pending in the handoff; do not revive this list.
+Current goal, blocker and next action live on the private
+[Combine board](https://github.com/users/Jpatching/projects/5/views/8) and in the
+[current handoff](docs/HANDOFF.md). Fortnite + Skate is the selected outcome.
+This file is historical evidence, not an active task list or required startup reading.
+Archived board items are inactive, not newly accepted or completed.
 See [tracker operations](docs/agents/issue-tracker.md).
 
 ---

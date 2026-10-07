@@ -1,9 +1,10 @@
 # Combine domain documentation
 
-Read `README.md` and `BACKLOG.md` first, then documents relevant to the task:
+Start with the current board and `docs/HANDOFF.md`; load only relevant domain documents:
 
+- `research/results/2026-10-06-fortnite-adapter-qualification.md`: active Fortnite + Skate gameplay contract.
 - `docs/TRICKSHOT_MENU.md`: menu requirements, pinned feature inventory, build,
-  trial and acceptance procedures. The destination is Synergy plus trickshot hit
+  trial and acceptance procedures. The parked menu destination is Synergy plus trickshot hit
   radius; Hide HUD is deferred and is not a prerequisite.
 - `docs/DECISIONS.md`: consequential decisions, including the superseding scope/tracker decision D-012.
 - `docs/WINDOWS_BASELINE.md`: gameplay/recovery procedure.
@@ -20,6 +21,6 @@ those patches from private build checkouts, generated binaries and runtime trial
 Record source hash, patch order and commands for review. Private assets, recordings,
 settings and raw logs remain outside Git and are never uploaded to AI services.
 
-Read the skill's shared Codex adaptation before following upstream defaults.
+Use original skills when relevant; the custom shared adaptation was retired.
 Respect one-lead coordination and existing acceptance/publication boundaries.
 Use small plain-text diagrams where helpful and define unfamiliar terms plainly.

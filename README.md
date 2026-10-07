@@ -7,6 +7,12 @@ separate experiences and contributor-friendly source. Today this is experimental
 source, with no game files, playable download or installer. Each new world needs
 an independently evidenced integration; the ambition is not a universal merger.
 
+**Current outcome: Fortnite + Skate.** The selected 12.41 client executable fails
+manifest/signature integrity checks; no playable integration exists. Next: determine
+the mismatch's cause and whether matching original input is obtainable. Other work,
+including Synergy's unaccepted trial and unimplemented hit radius, is parked.
+See the [current handoff](docs/HANDOFF.md) for evidence and the bounded next task.
+
 Explore the [roadmap](docs/ROADMAP.md) and proposed [community growth plan](docs/GROWTH.md).
 Start with the [reproduction guide](docs/REPRODUCING.md) for source checks,
 the pinned Rust/Synergy build and private-trial prerequisites. Rust is the runtime
@@ -23,10 +29,10 @@ PowerShell support validation and Windows trial preparation.
 Recipes are strict research metadata. The Python checker does not prepare or
 launch these experiences. Unfinished preparation scaffolding is not playable progress.
 
-## Play the prepared Synergy trial
+## Parked Synergy trial
 
 Use the versioned review folder and shortcuts identified in the
-[current handoff](docs/HANDOFF.md): **Test Synergy**, **Open trial files** and
+[archived trial handoff](docs/archive/HANDOFF-2026-10-07.md): **Test Synergy**, **Open trial files** and
 **Read checklist**. Players need a separately prepared lawful local Windows
 runtime and game data; preserve original installations and use isolated copies.
 The [actual Synergy checklist](templates/synergy-checklist.txt) owns this trial's
@@ -58,9 +64,9 @@ installed, launched or gameplay-tested and does not replace Synergy.
 
 ## Source, checks and history
 
-To resume, say **Continue Combine**. Codex reads the
-[private board](https://github.com/users/Jpatching/projects/5/views/4), requirements,
-latest decisions and [handoff](docs/HANDOFF.md). The
+To resume, say **Continue Combine**. Start with the
+[private board](https://github.com/users/Jpatching/projects/5/views/8) and
+[current handoff](docs/HANDOFF.md); load only the selected task’s requirements. The
 [workspace tour](research/results/2026-10-06-workspace-orientation.md) explains
 source, scripts and private trials. The board owns current work;
 [BACKLOG.md](BACKLOG.md) preserves history.

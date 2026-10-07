@@ -65,7 +65,7 @@ cargo +1.95.0 xwin test --locked --profile play --target x86_64-pc-windows-msvc 
 Run the resulting sim tests with `synergy` and console tests with `practice` on
 Windows. Record results, executable SHA-256, patch hashes and source revision.
 [Menu guide](TRICKSHOT_MENU.md) owns diagnostic and trial preparation commands;
-[exact-build evidence](HANDOFF.md) identifies the preserved reference trial.
+[archived exact-build evidence](archive/HANDOFF-2026-10-07.md) identifies the preserved reference trial.
 These commands are drawn from recorded build evidence; they were not rebuilt
 in this documentation session and platform-specific tools remain prerequisites.
 

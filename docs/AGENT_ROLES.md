@@ -9,7 +9,7 @@ bounded routing authorization, subject to session restrictions.
 | --- | --- | --- |
 | Lead | Resume the live card after reconciling requirements/latest decisions; capture runtime changes in patches, test and synchronize | Reproducible revision, explicit check results, current board and exact next action |
 | Scout | Bounded source tracing for the live slice and its explicit compatibility question | Dated primary-source/file references, verified facts and unresolved dependencies |
-| Reviewer | Inspect one revision against the menu contract and project boundaries | Actionable standards/spec findings with locations; missing gameplay evidence stays missing |
+| Reviewer | Inspect one revision against the selected task contract and project boundaries | Actionable standards/spec findings with locations; missing gameplay evidence stays missing |
 | Specialist | Diagnose cross-system input/script/simulation failures or a specific collision/export uncertainty | Discriminating checks based on supplied failures; smallest justified change or precise blocker |
 
 The lead writes source; helpers are read-only. Use at most two helpers concurrently
@@ -26,5 +26,6 @@ self-review rather than independent review.
 
 Use the live board, latest owner decisions and [workflow](WORKFLOW.md) to choose work. A completed
 Intervention path does not establish all Synergy options are complete. Fortnite
-qualification precedes adapter implementation and needs actual lawful local data.
+needs integrity-checked input and a reviewed startup/native execution route;
+missing adapter code remains implementation work under the current contract.
 Keep original installs, game files and private diagnostics isolated.

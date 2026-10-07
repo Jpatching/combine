@@ -664,3 +664,26 @@ verification, review the matching local-server startup path before preparing
 a gameplay trial. The [acquisition evidence](../research/results/2026-10-06-fortnite-12-41-preparation.md)
 records exact provenance, checks and limitations. Existing qualification,
 source-publication, owner-acceptance, merge and release boundaries remain separate.
+
+
+## D-032: one Fortnite outcome and a lightweight workflow — 2026-10-07
+
+The owner selected a reset to reduce administration: retain the private Project,
+keep only the Fortnite destination C-019 and qualification task C-024 visible,
+and archive other work as inactive without changing acceptance claims. Replace
+phase views with Ready → Doing → Blocked → Done, with at most one Doing task.
+A separate Work status field preserves every historical Status/Phase/skill value;
+old views and full item bodies are snapshotted privately before replacement.
+
+The next task diagnoses the selected executable's integrity failure and original-client
+availability, ending with matching verified input or a precise unresolved blocker.
+The reset itself includes no new download or launch. Synergy, its unaccepted trial,
+hit radius and static-world work remain parked with requirements/evidence intact.
+
+Use one short development loop, task-relevant context and one current handoff with
+linked historical archive. Stop using the seven-phase helper for Combine; retain
+Matt's original skills and global configuration unchanged. This supersedes earlier
+phase machinery, mandatory backlog/history reading and conflicting publication wording.
+Reviewed reset source publication is authorized; routine SHA/board confirmation stays
+on the card or PR. Preserve branches/history and review inherited changes separately
+before any merge. No CI deployment, squash, merge, release or gameplay acceptance.

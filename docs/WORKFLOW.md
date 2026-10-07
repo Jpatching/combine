@@ -1,190 +1,52 @@
-# Combine workflow configuration
+# Combine development loop
 
-Matt’s original skills are installed globally. Use `$ask-matt` for his original
-flow map. The custom global router, adaptation policy and reminder were retired
-at the owner’s request on October 6, 2026; they are no longer prerequisites.
-
-To resume Combine, read [Combine — Now](https://github.com/users/Jpatching/projects/5/views/4),
-the [handoff](HANDOFF.md), current Git state and latest owner decisions. The
-private board owns status, Git owns source, and the handoff points to evidence.
-[BACKLOG](../BACKLOG.md) is historical. [Tracker operations](agents/issue-tracker.md)
-describe project updates and offline recovery. Existing project requirements,
-acceptance boundaries and publication permissions remain in force.
-
-## Agreed order and evidence boundaries
-
-D-016 originally scheduled the menu then Fortnite. D-020 starts Fortnite + Skate-only
-wayfinding now, while the separate menu work and owner trial remain incomplete. Preserve actual pinned Synergy, its presentation,
-options and agreed trickshot hit radius; Hide HUD stays deferred.
-
-Read the live board and latest owner correction for the current priority. D-019
-supersedes D-018's hit-radius-last ordering: hit-radius qualification/implementation
-comes first while the prepared Synergy physical trial remains pending independently.
-The remaining batches retain their requirements: basic loadout, weapons,
-presentation/adjustments, movement and killstreaks/private players. Their current
-order and progress belong on the board.
+Choose one observable outcome from the [private board](https://github.com/users/Jpatching/projects/5/views/8)
+and [current handoff](HANDOFF.md). Read only that task's requirements and relevant
+decisions. Existing contracts settle prior choices. Historical backlog and
+handoffs are evidence to consult when needed, not mandatory orientation.
 
 ```text
-Live card + requirements + evidence + latest owner correction
-  -> reconcile -> one missing check -> one observable outcome
-  -> verify behavior + affected instructions -> board + handoff -> read back
-Pending exact-build owner trial -> physical verdict (separate from Codex checks)
-Fortnite client/base/seams -> live structure skating -> regional tests -> full-island trial
+Choose one observable outcome
+  -> resolve only the uncertainty blocking it
+  -> implement a small complete change
+  -> test and review
+       failure -> fix and recheck
+       blocked -> retain evidence and stop that attempt
+  -> publish reviewed source when authorized
+  -> demonstrate; obtain acceptance where required
 ```
 
-Opening Synergy or equipping Intervention is not full menu completion. Hit-radius
-research is part of its slice; an unsupported capability needs a precise blocker.
-The [menu guide](TRICKSHOT_MENU.md) owns that slice's behavior and acceptance matrix.
+Keep Doing to one card. Before editing, state the outcome, exclusions and acceptance
+check. Inspect existing behavior, preserve unrelated work and use focused checks.
+A blocked attempt ends with a precise missing prerequisite and next action.
+Use Matt's original skills at the relevant step; explicit-only skills need explicit
+invocation. Skill execution is not board progress. Specifications and tickets are
+useful when work spans sessions; the next task must stand alone. Global skills and
+utilities remain unchanged; Combine no longer uses the seven-phase board helper.
 
-Check effect, reversal, important failures and related-option interactions;
-retain input/lifecycle regressions. Unsupported entries remain full-menu
-requirements while independent entries continue. New ideas go in the board's
-Later view. Hide HUD remains deferred. Each checked trial includes a newly
-working-options list and versioned Launch, Files and Checklist shortcuts.
+Use one branch per coherent outcome. Refresh origin, inspect the base and checkpoint
+inherited work separately. At handoff review the slice diff and explicit source
+list/history for private data, run `python3 scripts/verify.py` once plus relevant
+runtime/link checks, and make a reviewable commit. Repeat gates only after relevant
+changes or failures. Ignored runtime changes need a reproducible reviewed patch.
 
-Source publication means a reviewed branch with its remote revision verified.
-A local trial means an exact checked build is available for review. A local
-release additionally requires the owner's acceptance of that exact build and
-preserves its predecessor. Public full-menu release requires complete coverage
-and hit-radius checks, explicit build acceptance, reproducibility and applicable
-distribution-permission review, then separate publication authority. Earlier
-experimental source snapshots establish none of those release claims.
+D-027 and the October 7 reset authorize reviewed source branches to Jpatching/combine
+before gameplay acceptance. Push completed reviewed changes, verify the remote SHA,
+and read back the updated card. Record routine synchronization and SHA confirmation
+on the card or PR, without a follow-up commit just to describe the prior commit.
+Report a concrete blocker and unpushed count if publication cannot finish.
 
-The Fortnite destination is the **complete selected interactive island with
-Skate movement, tricks and grinds** (D-026). Qualify Project Reboot first,
-including compatible client acquisition, permitted isolated launch and live
-collision/lifecycle, controls/pose and rendering access. Combine, Blender and
-a particular Fortnite version are optional; no base or bridge is qualified yet.
-Build and edit on foot, then switch to skating for the first demonstration.
+The reset branch inherits 24 commits beyond main at its starting revision
+`676998711eadebdb2297a320cad9171e888f6fe5`. Review inherited changes separately before
+any merge; [PR #1](https://github.com/Jpatching/combine/pull/1) and existing branches
+remain intact. No squash, merge, CI deployment or release is authorized by this reset.
 
-The [current qualification/specification](../research/results/2026-10-06-fortnite-adapter-qualification.md)
-owns acceptance and preserves prior export evidence as historical. Static
-scenery cannot satisfy building/editing/destruction. Keep one bounded C-024
-qualification slice active; retain the existing map/dependencies and park
-route-dependent implementation. Full-island coverage and performance require
-identified Windows hardware and measured evidence. Separate Synergy requirements
-remain preserved. No protection bypass, gameplay recreation, multiplayer,
-redistribution, spending, merge or release in this slice. D-027 authorizes
-reviewed source-branch publication before gameplay acceptance. Prefer same-process
-Skate reuse; add IPC only when an observed host constraint requires it.
+For an owner trial, follow the relevant gameplay guide: prepare the exact verified
+build, versioned launch/files/checklist shortcuts and limitations; preserve its
+predecessor and stop ready for the owner's test. Launch requires authority. Passing
+source checks or a published branch does not establish gameplay or acceptance.
 
-## Implementation language and existing setup
-
-Existing MW2/Minecraft/Skate gameplay, collision, damage and menu integration
-use the pinned Rust runtime. The interactive Fortnite host and native bridge
-language remain conditional on inspected client interfaces. Synergy's original GSC remains its menu source; Rust supplies its
-runtime capabilities and the hit-radius extension. Python checks research data
-and local preparation metadata; PowerShell prepares and verifies Windows trials.
-Neither helper layer substitutes for playable runtime implementation.
-
-The engineering-skill setup already exists: AGENTS.md points to the private
-Project tracker and existing domain/decision documents through docs/agents/.
-`triage` is not installed, so no triage-label configuration is required. Reuse
-this project configuration rather than creating another tracker, glossary or ADR store.
-`ask-matt` routes the settled contract to qualification within the slice, then
-`implement`/behavior tests and review. No new interview is required for the
-already agreed menu or hit-radius behavior.
-
-## Checks, synchronization and delivery
-
-- Menu requirements and trial procedure: [menu guide](TRICKSHOT_MENU.md).
-  Baseline recovery: [Windows runbook](WINDOWS_BASELINE.md).
-  Full repository gate: `python3 scripts/verify.py`.
-- Keep one lead/writer and one implementation slice; [task briefs](AGENT_ROLES.md)
-  assign bounded helpers, subject to current session restrictions.
-- Preserve inherited dirty work. Runtime edits in ignored checkouts must be
-  captured as reviewed reproducible source patches before claiming Git contains
-  them. A Combine commit alone does not checkpoint an ignored runtime checkout.
-- At meaningful phase changes and handoff, update the live card's phase,
-  progress, blockers, evidence and next actor, then read it back. If unavailable,
-  mark sync pending in the handoff; do not revive BACKLOG as a competing tracker.
-- D-016/D-017 authorize reviewed source-branch pushes to Jpatching/combine before
-  owner acceptance. Review the source list and reachable history, commit only
-  the slice and verify the remote branch SHA after pushing. Keep failed/missing
-  checks visible. At every completed authorized slice, commit and push the reviewed
-  branch, verify its remote SHA and synchronize the tracker. Report a concrete
-  blocker or explicit no-push instruction instead of silently accumulating commits.
-  A push is not owner acceptance, merge or release.
-- Before requesting an owner trial, pass required checks and prepare a fresh
-  versioned review folder identifying commit, pins, patch hashes, executable hash,
-  launch/files/checklist shortcuts and limitations. Preserve previous builds.
-  Stop at ready for the owner's test; launch only on their instruction.
-
-The shared Windows review helpers stay in global storage. Combine's adapter is
-`scripts/prepare-trickshot-trial.ps1`. A checklist for a rejected earlier native
-build cannot establish acceptance of the actual Synergy build. Raw logs, game
-files, settings, recordings and local machine paths stay outside published source.
-
-## Visible progress without extra ceremony
-
-The owner can say **Continue Combine**; Codex selects the next skill from the
-current evidence. Now shows the phase, observable outcome, evidence, blocker and
-next actor/action; Milestones shows larger outcomes and Needs you shows decisions
-or trials. Reuse settled decisions and requirements. Failed checks keep the slice
-in Phase 5; changed assumptions reopen the affected earlier decision. Small fixes
-use the lightweight path rather than creating new planning documents.
-
-At meaningful updates, record the observation date/time and exact build/source
-where available. Implementation start dates are stamped once; target dates stay
-blank unless deliberately scheduled. Test, acceptance, merge and release dates
-are separate verified events; never infer a merge from a passing check. Roadmap
-date mapping still needs a UI check.
-
-During active sessions, flag workflow bloat when documents duplicate an authority,
-a step repeats a settled decision or an expensive check without changed evidence,
-a helper has no bounded question, or process work delays the playable outcome.
-State the redundant step and the simpler next action. These are session warnings,
-not a background monitor. Keep one active slice and concise evidence pointers.
-
-## Branch to main workflow
-
-Use one `slice/<outcome>` branch for each reviewable outcome. Refresh origin and
-inspect the merge base before starting; checkpoint inherited work separately,
-label unfinished scaffolding honestly, and never mix private assets into commits.
-Source inspection/specification can be a completed source deliverable even when
-its eventual game integration is not playable.
-
-```text
-main -> slice branch -> focused commits -> review + required gate -> PR
-                           ^                      | failure: revise
-                           +----------------------+
-PR + review + authorized merge -> main
-Exact game build -> owner trial -> acceptance -> separately authorized release
-```
-
-Before proposing a merge: inspect the entire diff from current `origin/main`, not
-only the newest commit; identify stacked prerequisites; resolve conflicts; run
-`python3 scripts/verify.py` once on the handoff revision, plus relevant runtime
-checks for runtime changes. Attach evidence and limitations to the PR. Do not
-merge unfinished ancestors just to clean a worktree. A local checkpoint is cheap
-and reversible; publishing, merging and release retain their own authority.
-After authorized merge, read back the PR/remote main SHA and board. Create the next
-slice from refreshed main. No automatic merge/CI setup is implied.
-
-The owner challenged the accumulated dirty work on October 6 and requested a
-clear branch/merge workflow. Resume local reviewable checkpoints; keep this slice
-unpushed and unmerged until its complete branch diff and target are reviewed.
-The earlier plan's no-commit instruction is superseded for local checkpoints by
-that correction; it does not establish publication or merge completion.
-
-For a concise live resume, run `python3 ~/.codex/workflows/solo-development/projects.py
-summary 5 /path/to/combine` (one shell line). It reads Git and the board;
-it does not fetch or synchronize them. D-026 interactive gameplay qualification supersedes the static export route.
-C-024 must establish compatible client access, a permitted launch route and live
-client bridge seams before C-025–C-030 implementation resumes. Preserve C-023
-rail repair before PR #1 merge and inherited source/export failures. Planning
-and source inspection do not mean integration is implemented or playable.
-
-## Session orientation
-
-Start with what is usable, today's bounded finish line, why it matters and who
-acts next. Explain any script before using it: input, processing, output and
-failure behavior. Work one bounded task, then explain the result. Use chat plus
-HANDOFF as the starting point; reuse this board and the Fortnite map. Create a
-decision ticket only when a precise unanswered question changes the route.
-
-At return, check whether the reminder makes usable/current/blocker/next instruction
-clear. The [workspace orientation](../research/results/2026-10-06-workspace-orientation.md)
-classifies existing tools; it is evidence, not a new status dashboard. Finish:
-“We did __. We checked __. Next is __.” Passing checks remains separate from
-owner acceptance, publication, merge and release.
+Maintain one current handoff with goal, evidence/blocker and next action. Move prior
+substantial handoffs into the linked archive, repairing relative links. Preserve
+requirements and evidence when parking work: inactive never means accepted or done.
+For board operations and unavailable-service recovery, use [tracker instructions](agents/issue-tracker.md).

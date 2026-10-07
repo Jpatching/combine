@@ -44,6 +44,18 @@ by this repository PR. The global hook file was empty; removing its stale trust
 record did not disable an active hook. The CLI status line already included the
 working directory and Git branch; no display setting needed changing.
 
+During cleanup, the owner clarified the interface is Codex CLI and reported that
+the footer still displayed `main` after Git in the chat's own checkout verified
+`chore/agent-workflow-cleanup`. Installed CLI version: 0.160.0. Its
+[status-surface source](https://github.com/openai/codex/blob/rust-v0.160.0/codex-rs/tui/src/chatwidget/status_surfaces.rs)
+caches branch state by working directory and uses asynchronous refreshes. An
+[open upstream report](https://github.com/openai/codex/issues/30930) describes stale
+branch labels after a switch on an earlier version. This supports investigating
+the display cache; it does not prove the exact cause in the owner's running TUI.
+No live TUI reproduction or confirmed refresh was obtained. Desktop-project advice
+was inapplicable to the reported CLI interface; Git state and UI state must be
+reported separately. This repository change does not patch the Codex binary.
+
 The source change adds CI but does not itself configure GitHub branch protection.
 After a passing PR run, require that check and PR-based updates on `main`, apply
 protection to administrators, and retain force-push/deletion restrictions. No

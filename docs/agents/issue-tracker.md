@@ -59,6 +59,12 @@ out elsewhere, use that existing worktree rather than forcing a second checkout.
 For app-managed worktrees, use the app's workspace/handoff controls; for an existing
 manual worktree, open that folder as the chat workspace. Treat the displayed branch
 as a useful cross-check; Git in the actual working directory supplies the evidence.
+In Codex CLI, start or resume with `codex -C <worktree>` or
+`codex resume -C <worktree>` and select the intended saved session. A shell command's
+`cd` does not retarget the running CLI. Its branch footer can be cached: if the
+display disagrees with Git, report the discrepancy, verify the actual directory
+and branch, and use `/statusline` or restart/resume to check the display. Do not
+claim the label refreshed without observing it or receiving user confirmation.
 Before pushing, inspect the remote and destination branch; publish the task branch,
 not a refspec targeting `main`.
 

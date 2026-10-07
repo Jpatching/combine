@@ -1,0 +1,19 @@
+{
+  "name": "combine-sandcastle",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "test": "node --test test/*.test.mjs",
+    "integration": "node --test integration/*.test.mjs",
+    "doctor": "node scripts/cli.mjs doctor",
+    "build-image": "node scripts/cli.mjs build-image",
+    "smoke": "node scripts/cli.mjs smoke",
+    "run": "node scripts/cli.mjs run"
+  },
+  "dependencies": {
+    "@ai-hero/sandcastle": "0.12.0",
+    "typescript": "6.0.3"
+  }
+}

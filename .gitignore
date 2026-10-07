@@ -39,3 +39,6 @@ Thumbs.db
 # Generated .NET exporter build output; retain only source/dependency metadata.
 /tools/fortnite-export/bin/
 /tools/fortnite-export/obj/
+
+# Sandcastle dependency installation; task data remains in .private/.
+/tools/sandcastle/node_modules/

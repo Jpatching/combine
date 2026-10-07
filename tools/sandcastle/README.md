@@ -81,23 +81,31 @@ Private records live under ignored `.private/sandcastle/`:
   hash and supplied skills. `result.json` records checks, reviews and elapsed time.
 - `source.patch`, `status.txt` and private logs support diagnosis. A `source/`
   snapshot preserves tracked, untracked and ignored files before cleanup, retaining
-  symlinks without following them. Source branches remain in `repos/<run-id>`.
-  Sandcastle may remove a worktree it considers clean (including ignored-only
-  changes); its branch/commits and the independent source snapshot remain.
+  symlinks without following them. Source branches and worktrees remain in
+  `repos/<run-id>`. Container shutdown never removes source, even if snapshotting
+  fails. Inspect the retained worktree when recovery artifacts are incomplete.
+- Accepted runs also export `export/task.bundle` inside a credential-free container.
+  Import this bundle on the host instead of fetching worker-controlled Git metadata.
 
 Inspect `coordinator-error.txt` locally when preflight fails. Keep authentication,
 raw logs and private records outside Git and AI uploads. Inspect the recorded
 branch before recovery; the runner never resets or overwrites an existing task
 workspace. Preserve the only retained copy before any cleanup.
 
-The host Git environment disables executable helpers for both the runner and
-dependency-owned Git calls. Every task phase uses the recorded immutable image ID.
+Worker-controlled Git inspection runs inside credential-free, network-disabled
+containers, keeping configured executable helpers inside Docker. Container teardown
+is separate from upstream worktree cleanup. Every phase uses the immutable image ID.
 
 An `accepted` result means source checks, scope/branch invariants and both agent
 reviews passed. Host review and publication are pending. Follow Combine's
 [slice conventions](../../docs/agents/issue-tracker.md): inspect/import task commits
 into the primary task branch, push, open a PR, require CI, merge and synchronize
 clean `main`. Reviewed corrections require affected checks and fresh review again.
+
+Use `git fetch <run-directory>/export/task.bundle <task-branch>` and fast-forward the
+primary task branch to `FETCH_HEAD` after inspecting the accepted result. The
+bundle retains the exact reviewed commits without executing a donor repository's
+configured Git helpers on the host.
 
 Hands-on time, interruptions and owner acceptance start as `null`; record only
 observed values. This does not establish Windows gameplay, game integration,

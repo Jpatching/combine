@@ -26,14 +26,14 @@ export async function requireWorkspace(repo, branch, revision) {
   }
 }
 
-export async function preserveWorkspace(repo, base, evidence) {
+export async function preserveWorkspace(repo, base, evidence, git = args => gitAt(repo, args)) {
   // Preserve ignored files independently: upstream cleanup does not consider them dirty.
   // Symlinks remain symlinks, so generated paths cannot make the host copy external files.
   await cp(repo, join(evidence, 'source'), { recursive: true, dereference: false,
     verbatimSymlinks: true, errorOnExist: true, force: false });
-  await writeFile(join(evidence, 'source.patch'), await gitAt(repo,
+  await writeFile(join(evidence, 'source.patch'), await git(
     ['diff', '--no-ext-diff', '--no-textconv', '--binary', base]), { mode: 0o600 });
-  await writeFile(join(evidence, 'status.txt'), await gitAt(repo,
+  await writeFile(join(evidence, 'status.txt'), await git(
     ['status', '--porcelain', '--untracked-files=all']), { mode: 0o600 });
 }
 
@@ -67,5 +67,6 @@ export async function sourceClone(id, base, signal) {
   await gitAt(repo, ['remote', 'remove', 'origin']);
   await gitAt(repo, ['config', 'user.name', 'Combine Sandcastle']);
   await gitAt(repo, ['config', 'user.email', 'sandcastle@example.invalid']);
+  await writeFile(join(repo, '.git/info/exclude'), '.sandcastle/\n');
   return repo;
 }

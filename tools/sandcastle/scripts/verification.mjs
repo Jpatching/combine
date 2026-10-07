@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
+import { mkdir } from 'node:fs/promises';
 import { execute } from './process.mjs';
-import { gitAt } from './workspace.mjs';
+import { hostGitEnv } from './workspace.mjs';
 import { IMAGE, TOOL } from './settings.mjs';
 
 export function verifierArgs(name, worktree, repo, image = IMAGE) {
@@ -19,7 +20,7 @@ export function verifierArgs(name, worktree, repo, image = IMAGE) {
 
 export async function verify(worktree, repo, task, options = {}) {
   const { image = IMAGE, ...executionOptions } = options;
-  const revision = await gitAt(worktree, ['rev-parse', 'HEAD']);
+  const revision = await inspectGit(worktree, repo, ['rev-parse', 'HEAD'], { ...executionOptions, image });
   const executions = [];
   for (const [command, ...args] of [['python3', 'scripts/verify.py'], ...task.checks]) {
     if (command !== 'python3') throw new Error('Unsupported check tool; add a reviewed check profile.');
@@ -35,4 +36,42 @@ export async function verify(worktree, repo, task, options = {}) {
   }
   return { revision, passed: executions.length === task.checks.length + 1 &&
     executions.every(result => result.code === 0 && !result.reason), executions };
+}
+
+export async function inspectGit(worktree, repo, args, { image = IMAGE, ...options } = {}) {
+  const name = `combine-inspect-${randomUUID()}`;
+  const command = verifierArgs(name, worktree, repo, image);
+  command[command.indexOf('--entrypoint') + 1] = 'git';
+  // Environment protects common helpers; any remaining configured filters stay
+  // inside this read-only, credential-free, network-disabled container.
+  command.splice(command.indexOf('-w'), 0, ...Object.entries(hostGitEnv()).flatMap(([key, value]) => ['-e', `${key}=${value}`]));
+  let result;
+  try { result = await execute('docker', [...command, ...args], options); }
+  finally { await execute('docker', ['rm', '-f', name], { timeoutMs: 20_000 }); }
+  if (result.code !== 0 || result.reason) throw new Error('Isolated Git inspection failed.');
+  return result.stdout.trim();
+}
+
+export async function requireIsolatedWorkspace(worktree, repo, branch, revision, options) {
+  if (await inspectGit(worktree, repo, ['branch', '--show-current'], options) !== branch ||
+      await inspectGit(worktree, repo, ['rev-parse', 'HEAD'], options) !== revision ||
+      await inspectGit(worktree, repo, ['status', '--porcelain'], options)) {
+    throw new Error('Isolated checkout branch, revision or clean-tree invariant failed.');
+  }
+}
+
+export async function exportBranchBundle(worktree, repo, evidence, branch, base, image) {
+  const name = `combine-export-${randomUUID()}`;
+  const output = join(evidence, 'export');
+  await mkdir(output, { mode: 0o700 });
+  const args = verifierArgs(name, worktree, repo, image);
+  args[args.indexOf('--entrypoint') + 1] = 'git';
+  args.splice(args.indexOf('-w'), 0, '-v', `${output}:/export`);
+  let result;
+  try {
+    result = await execute('docker', [...args, 'bundle', 'create', '/export/task.bundle',
+      branch, `^${base}`], { timeoutMs: 30_000 });
+  } finally { await execute('docker', ['rm', '-f', name], { timeoutMs: 20_000 }); }
+  if (result.code !== 0 || result.reason) throw new Error('Isolated task bundle export failed.');
+  return join(output, 'task.bundle');
 }

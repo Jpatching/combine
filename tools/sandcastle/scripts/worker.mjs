@@ -1,11 +1,11 @@
 import { writeFile, readFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
-import { createSandbox, codex } from '@ai-hero/sandcastle';
-import { docker } from '@ai-hero/sandcastle/sandboxes/docker';
-import { PRIVATE, IMAGE, MODEL, EFFORT, LIMIT_MS, PINS } from './settings.mjs';
-import { gitAt, requireWorkspace, preserveWorkspace, hostGitEnv } from './workspace.mjs';
-import { verify } from './verification.mjs';
+import { codex } from '@ai-hero/sandcastle';
+import { PRIVATE, MODEL, EFFORT, LIMIT_MS, PINS } from './settings.mjs';
+import { requireWorkspace, preserveWorkspace, hostGitEnv } from './workspace.mjs';
+import { verify, inspectGit, requireIsolatedWorkspace, exportBranchBundle } from './verification.mjs';
+import { retainedSandbox } from './sandbox.mjs';
 import { freshReview } from './review.mjs';
 import { acceptResult } from './policy.mjs';
 
@@ -33,12 +33,8 @@ await save();
 
 try {
   await requireWorkspace(job.repo, 'main', job.base);
-  sandbox = await createSandbox({ cwd: job.repo, branch: job.branch, baseBranch: job.base,
-    sandbox: docker({ imageName: job.image, selinuxLabel: false, cpus: 2,
-      env: { CODEX_HOME: '/home/agent/.codex' },
-      mounts: [{ hostPath: job.auth, sandboxPath: '/home/agent/.codex' }] }),
-    hooks: { sandbox: { onSandboxReady: [{ command: 'git config --global user.name "Combine Sandcastle" && git config --global user.email sandcastle@example.invalid' }] } },
-  });
+  sandbox = await retainedSandbox({ cwd: job.repo, branch: job.branch, baseBranch: job.base,
+    image: job.image, auth: job.auth });
   row.worktree = sandbox.worktreePath;
   // Persist recovery pointers before starting inference.
   await save();
@@ -67,13 +63,16 @@ try {
       'Emit <promise>COMPLETE</promise> only after checks pass and the task changes are committed.',
     ].join('\n\n'),
   });
+  await sandbox.stop();
   await writeFile(join(runDir, 'implement.txt'), output.stdout, { mode: 0o600 });
   row.usage = output.iterations.map(iteration => iteration.usage ?? null);
   if (agentError || !output.completionSignal) throw new Error('Implementer did not complete successfully.');
-  row.revision = await gitAt(row.worktree, ['rev-parse', 'HEAD']);
-  await requireWorkspace(row.worktree, job.branch, row.revision);
-  await requireWorkspace(job.repo, 'main', job.base);
-  const paths = (await gitAt(row.worktree, ['diff', '--no-ext-diff', '--no-textconv', '--name-only', job.base])).split('\n').filter(Boolean);
+  const inspection = { ...options(), image: job.image };
+  row.revision = await inspectGit(row.worktree, job.repo, ['rev-parse', 'HEAD'], inspection);
+  await requireIsolatedWorkspace(row.worktree, job.repo, job.branch, row.revision, inspection);
+  await requireIsolatedWorkspace(job.repo, job.repo, 'main', job.base, inspection);
+  const paths = (await inspectGit(row.worktree, job.repo,
+    ['diff', '--no-ext-diff', '--no-textconv', '--name-only', job.base, row.revision], inspection)).split('\n').filter(Boolean);
   if (!paths.length || paths.some(path => !job.task.paths.includes(path))) throw new Error('Empty task diff or out-of-scope source changes.');
   row.changed = true;
   row.checks = await verify(row.worktree, job.repo, job.task, { ...options(), image: job.image });
@@ -98,8 +97,8 @@ try {
     row.reviews[axis] = result.review;
   }));
   if (reviews.some(result => result.status === 'rejected')) throw new Error('Fresh review session failed.');
-  await requireWorkspace(row.worktree, job.branch, row.revision);
-  await requireWorkspace(job.repo, 'main', job.base);
+  await requireIsolatedWorkspace(row.worktree, job.repo, job.branch, row.revision, { ...options(), image: job.image });
+  await requireIsolatedWorkspace(job.repo, job.repo, 'main', job.base, { ...options(), image: job.image });
   row.branchValid = true;
   row.status = acceptResult(row) ? 'accepted' : 'failed';
 } catch (error) {
@@ -107,15 +106,20 @@ try {
   await writeFile(join(runDir, 'error.txt'), String(error.stack ?? error), { mode: 0o600 });
 } finally {
   clearTimeout(timer);
+  if (sandbox) {
+    try { await sandbox.stop(); } catch { row.cleanupError = true; row.status = 'failed'; }
+  }
   if (row.worktree) {
     try {
-      await preserveWorkspace(row.worktree, job.base, runDir);
+      await preserveWorkspace(row.worktree, job.base, runDir,
+        args => inspectGit(row.worktree, job.repo, args, { image: job.image, timeoutMs: 30_000 }));
       row.preservedSource = join(runDir, 'source');
+      if (row.status === 'accepted') {
+        row.sourceBundle = await exportBranchBundle(row.worktree, job.repo, runDir,
+          job.branch, job.base, job.image);
+      }
     }
     catch { row.preservationError = true; row.status = 'failed'; }
-  }
-  if (sandbox) {
-    try { await sandbox.close(); } catch { row.cleanupError = true; row.status = 'failed'; }
   }
   row.elapsedSeconds = (performance.now() - started) / 1000;
   await save();

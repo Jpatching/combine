@@ -1,3 +1,8 @@
+> Fresh start — 2026-10-07: the owner retired the previous workflow and PRs
+> while retaining the implementation. Process, routing and backlog instructions
+> below are historical; technical evidence remains available for reference.
+> Historical entries retain their original context; product and safety decisions remain.
+
 # Decisions and milestone outcome
 
 ## D-009: board audio and a private highlight edit — 2026-10-03
@@ -72,7 +77,7 @@ or plugin installation is needed. MCP becomes useful for controlled external act
 a plugin packages reusable skills/tools for distribution. See the [official plugin
 architecture](https://developers.openai.com/plugins/concepts/plugins).
 
-Use the checkpoint contract in docs/AGENT_ROLES.md. The owner authorizes a concrete
+Use the checkpoint contract in docs/archive/AGENT-ROLES-2026-10-07.md. The owner authorizes a concrete
 slice; routine work inside it continues without repeated proceed prompts. Present
 observable evidence before expanding scope. Publishing/spending/outreach remain
 separate boundaries, and environment-enforced approvals cannot be waived by a skill.
@@ -201,7 +206,7 @@ feature and grants no publication, deployment, asset upload or external messagin
 authority. Keep one lead and local verification. Assess demonstrated friction
 after two completed owner-reviewed slices before adding Sandcastle or automation.
 
-See [workflow configuration](WORKFLOW.md) and
+See workflow configuration (old plan removed) and
 [installation/validation evidence](../research/results/2026-10-04-matt-workflow.md).
 
 ## D-012: proper Synergy destination and private board authority — 2026-10-04
@@ -312,7 +317,7 @@ Windows Fortnite Release-3.1-CL-3917250, starting with one Tilted building and
 surrounding ground; only then implement the existing-world adapter and expand to
 bounded Tilted Towers. The selected build is a research target, not verified local
 data or successful conversion. The plan's defaults and exclusions are preserved
-in docs/WORKFLOW.md; menu requirements remain in docs/TRICKSHOT_MENU.md.
+in docs/archive/WORKFLOW-2026-10-07.md; menu requirements remain in docs/TRICKSHOT_MENU.md.
 
 The plan authorizes reviewed source-branch commits and pushes, with private assets,
 original installs and older builds preserved, checks before a versioned trial,
@@ -343,7 +348,7 @@ job. A missing asset/access/verdict remains a real dependency, not a model probl
 
 ## D-018: useful menu batches and exact-build release states — 2026-10-05
 
-The owner supplied the ordered batch plan now recorded in docs/WORKFLOW.md:
+The owner supplied the ordered batch plan now recorded in docs/archive/WORKFLOW-2026-10-07.md:
 finish the Intervention/input checkpoint, then basic loadout, weapons,
 presentation/adjustments, complex movement, killstreaks/private players and
 the agreed trickshot hit radius. Keep one batch active. Split only on a
@@ -362,3 +367,371 @@ The owner reports on October 5: only Intervention worked in the most recent
 trial; other options were missing. No exact build identity or full-menu
 acceptance was provided. Retain this successful Intervention report separately
 from automated diagnostics and the missing option coverage.
+
+## D-019: hit radius first and resume reconciliation — 2026-10-05
+
+The owner-supplied reconciliation plan puts hit-radius assistance first,
+superseding D-018's batch order where it put hit radius last. Preserve D-013's
+geometry, damage and cover contract and D-015's actual pinned Synergy execution.
+The existing exact-build physical input trial remains prepared and unaccepted;
+Codex can qualify the hit-radius integration independently of that verdict.
+Rainy remains a research candidate: the preceding source investigation reported
+IW4x/Bot Warfare dependencies and unsupported function replacement. It has not
+been installed, launched or gameplay-tested; this session has not re-inspected
+Rainy source and does not claim runtime compatibility.
+
+Reconcile the board, current requirements, evidence and latest owner correction
+before selecting one missing check. Persistent guidance describes responsibilities
+and authorities; current work stays on the board and exact-build evidence in the
+handoff. Keep separate mashup experiences and their evidence distinct.
+
+Preserve inherited unfinished scripts/prepare_experience.py and
+tests/test_experiences.py outside this correction. No commits or pushes are
+authorized for this work. Amend the existing global router/policy using filesystem
+approval; keep the static reminder hook unchanged. Defer new hooks, dashboards,
+automatic task pickup and skill upgrades. Passing checks do not confer acceptance,
+publication, merge or release.
+
+## D-020: Fortnite with Skate only and an open-source experience hub — 2026-10-05
+
+The owner requests starting Fortnite-with-Skate work, a polished README and clear
+reproduction guide, and a substantial open-source project with a compelling
+multi-game roadmap and a tested player hub. The owner explicitly selects
+**Fortnite + Skate only**: no MW2 combat or Synergy in this experience. This
+supersedes the earlier Fortnite composition in D-016/WORKFLOW.md; actual Synergy
+and hit-radius work remain a separate experience, incomplete and unaccepted.
+
+Start wayfinding/qualification now on the existing private board. Reuse the
+previously selected Windows build and one Tilted building + ground scope until
+source access/export evidence justifies a change. Reuse the existing Rust engine
+where suitable, while explicitly isolating inherited combat/UI. No adapter or
+playable Fortnite build exists. The unfinished scaffolding does not settle
+architecture or prove progress. No universal merger, new engine, marketplace,
+asset redistribution, outreach, spending, site publication, commits or pushes
+are authorized by this planning request.
+
+The roadmap should distinguish research candidates, prepared exact builds and
+play-tested experiences. A hub means a player-facing catalogue with prerequisites,
+reproduction/launch instructions, evidence, limitations and recovery for each
+experience, rather than a claim all combinations work. Its implementation,
+hosting and public status workflow require a later bounded spec; current work is
+planning. Traction means measurable player success/repeat use and contributor
+reproducibility, not a promised audience or download total. Source/community
+publication remains separate from game-data rights and owner acceptance.
+
+
+## D-021: GitHub catalogue and evidence before roadmap expansion — 2026-10-05
+
+The owner selected the GitHub experience catalogue as the first player hub. An
+experience may be called community-tested only with an identified exact build
+and recorded participant results; no minimum participant count or statistical
+claim is settled. Add additional game candidates to the public roadmap after
+Fortnite + Skate reaches its first playable milestone. Fortnite + Skate remains
+a separate Skate movement experience without MW2 combat or Synergy. These answers
+resolve the hub-format/readiness portion of C-021; the pilot threshold remains open
+in C-022. The private board is the detailed status authority.
+
+## D-022: full Fortnite island and a source-backed adapter specification — 2026-10-06
+
+The owner's supplied implementation plan makes the full selected Fortnite island
+the destination, with Skate movement and no MW2 combat or Synergy. The earlier
+one-building destination/expansion gate is superseded: smaller areas are test
+cases within the island integration. Keep `Release-3.1-CL-3917250` and runtime
+`f608f85e407ff1b7689d54a9aafdd16e95711ac4`; a Fortnite version change needs an explicit
+decision. Spatial streaming is a qualification question, not excluded from the
+destination and not yet justified by measurements.
+
+This bounded deliverable is the source-backed adapter specification, ordered
+implementation work, and precise input/startup blockers. It permits independent
+runtime research when input access is missing, not invented export formats or
+playable claims. Parser/exporter components can be reused without a finished
+third-party mashup. Preserve actual Synergy, its physical trial and hit-radius
+requirements separately. See the [qualification report](../research/results/2026-10-06-fortnite-adapter-qualification.md).
+
+The supplied plan excluded commits/pushes; the owner's later concern about dirty
+work and request for a clear branch/merge workflow supersede that for local
+reviewable checkpoints. Record actual Git results in the handoff; no push/merge
+result or broad auto-merge authority is inferred. Board maintenance remains
+authorized; publication, owner acceptance and release remain separate.
+
+
+## D-023: concise live resume and input-first reconciliation — 2026-10-06
+
+The owner's implementation plan retains the existing full-island specification
+and eight dependency-linked slices; planning/slicing are complete, integration is
+not. Keep C-021 and C-023 Done, and preserve the pending Synergy physical trial.
+Check Fortnite island input (C-024) first, then render standalone skating (C-025)
+after its asset prerequisite check when input is externally blocked. Broader
+ambitions remain milestones; later dependent work stays Later.
+
+Fresh board evidence records permission to choose a suitable accessible Fortnite
+build. This supersedes D-022's requirement for another version-choice approval;
+record the actual selected build and identity before changing requirements. Local
+metadata still identifies Release-3.1-CL-3917250; no replacement has been selected.
+No bypass or redistribution authority follows from version-choice permission.
+
+The existing global Projects helper gains a read-only live summary, not another
+saved status list. Preserve untracked exporter work and local main. Remote main
+and qualification source publication are verified; PR #1 remains open with local
+checks and no attached automated checks. Full diff review precedes any merge
+proposal. No CI, protection, automatic merge or deployment in this slice. Check
+resume usefulness at the next two returns and retire the helper if it adds friction.
+
+
+## D-024: qualify existing tools before custom Fortnite conversion — 2026-10-06
+
+The owner's supplied plan makes reuse assessment the next bounded outcome.
+Compare existing Fortnite exporters, Blender importers and Skate map pipelines
+with completing Combine's adapter; source claims do not establish local
+compatibility. Require an identified private export with terrain and a building,
+placements, materials and collision evidence before choosing serialization or
+writing a custom decoder. Qualification ends with an evidenced route or precise
+blocker; further research needs a named question that changes that choice.
+
+The full selected island remains the destination. First prove movement, jump,
+solid collision, a representative grind, recovery, exit and relaunch in one real
+area. Measure content/resource costs before choosing full residency or streaming.
+Keep the pinned runtime and existing skater. Another runtime requires comparison
+and an explicit owner decision. No Fortnite/MW combat, Synergy, character
+retargeting, new engine, asset redistribution or protection bypass.
+
+Update existing C-019 specification, C-020 map and dependent tickets; park
+route-dependent custom work pending qualification. Preserve inherited commits,
+patches and exporter scaffolding. The reproduced PR #1 rail validation defect
+remains a repair obligation before merge. Separate Synergy requirements/trial
+are preserved and parked outside this active milestone. Global custom-router
+retirement remains separate. See the [qualification](../research/results/2026-10-06-fortnite-adapter-qualification.md).
+
+
+## D-025: separate playable-map needs from exporter-comparison needs — 2026-10-06
+
+The owner confirms no additional local Fortnite build/export is available and
+asks us to find online input, then challenges whether a matching build and
+Blender are needed for the goal. Neither is a runtime requirement. Preserve the
+pinned Skate host and full-island destination; assess a public world package by
+actual content, dimensions, placements, materials and usable collision. A
+particular Fortnite build is not required merely to inspect a model.
+
+The proposed paired-export experiment requires the same source world/build for
+a fair comparison; a pre-exported mesh cannot prove either upstream exporter's
+fidelity. Blender is a conversion/authoring tool for the proposed SK8 pipeline,
+not part of gameplay. Another converter is possible but unqualified. Newly
+authored collision must be labelled and tested, never called preserved source
+collision. No route or replacement is selected by this clarification.
+
+Public Chapter 1/Tilted/Chapter 6 listings are concrete leads; their metadata is
+available, but anonymous official download checks return 401 and content has
+not been inspected. No account action, asset acquisition or spending occurred.
+Keep the paired comparison conditional on accessible raw input and the
+downstream package assessment distinct. Evidence and exact source conditions:
+[qualification follow-up](../research/results/2026-10-06-fortnite-adapter-qualification.md#paired-route-follow-up--2026-10-06).
+
+The owner's subsequent question also reopens whether Combine is necessary.
+Upstream SK8 documents a complete custom-map load/render/collision/grind/session
+path; it is a candidate to assess rather than implementing that bridge anew.
+This is a recommendation from source/documentation, not a runtime switch or
+Fortnite gameplay result. Owner host selection remains pending; preserve Combine
+and its separate Synergy work. See the qualification's runtime-necessity section.
+
+The owner then requests GitHub examples and asks whether different runtimes
+should serve different experiences. Investigate existing standalone map hosts
+before new Combine session work; preserve the full island + Skate-only outcome.
+The standalone Rust Engine and SK8 Custom Engine Layer are documented candidates.
+ReSkate's author-documented GTA III map port is an existing cross-game example
+for the newer skate. game, not a verified Skate 3 substitution. Final host
+selection remains open; no universal-runtime architecture is selected.
+
+
+## D-026: interactive Fortnite world with Skate simulation — 2026-10-06
+
+The owner's implementation plan corrects the export-first approach: retain
+Fortnite building, editing and destruction while Skate supplies movement,
+tricks and grinds. Static scenery is insufficient. Combine, Blender and a
+particular Fortnite version are not mandatory. The complete selected island
+remains the destination; the first demonstration builds/edits on foot then
+switches to skating. Simultaneous building while skating is deferred.
+
+Investigate Project Reboot 3.0 first, pin inspected source, establish accessible
+compatible client and a reviewed isolated launch route without protection
+bypass, then qualify live collision/lifecycle, controls/pose and rendering seams.
+Server functionality alone is insufficient. Reuse existing Skate Session seams
+where compatible; no generic bridge API/schema is selected. The bounded slice
+may finish with a precise evidence-backed prerequisite blocker. No static
+substitution, gameplay recreation, multiplayer, spending, redistribution,
+publication, merge or release is authorized. Preserve original/private data and
+separate Synergy requirements. Existing C-019/C-020/C-024 and dependency records
+are revised in place; conflicting static requirements become historical.
+
+The [current specification](../research/results/2026-10-06-fortnite-adapter-qualification.md)
+owns requirements and acceptance. D-026 supersedes conflicting static-world
+scope in D-020 through D-025, not their recorded observations or unresolved debt.
+
+
+## D-027: same-process adapter reuse and source-publication policy — 2026-10-06
+
+The owner asks to establish the existing integration architecture, try methods
+per game, and use same-process reuse unless required otherwise. Pinned source
+shows IW4L hosts MW2, Skate and Minecraft in one Bevy app; Skate uses internal
+thread channels, not cross-process IPC. The separate public Minecraft crossover
+uses two programs and shared memory. Neither supplies a qualified Fortnite host
+adapter. Prefer the existing Skate Session inside the selected host process.
+Only introduce IPC after a demonstrated host constraint justifies the change;
+keep one measured live-host experiment active and retain explicit blockers.
+The current specification and linked process-model evidence own the details.
+
+The owner also directs reviewed source branch publication and saving a global
+default that avoids accumulating local commits. At each completed authorized
+slice, review, run required checks, commit, push the branch, verify remote SHA
+and synchronize the tracker. Pending gameplay acceptance alone does not hold
+experimental source locally. This supersedes D-026's slice-specific no-publication
+restriction. Private data/assets remain excluded; acceptance, merge and release
+remain separate. Global Codex instructions now favor the smallest useful workflow
+and an explicitly requested skill rather than chaining unrelated workflows.
+
+
+## D-028: selected modding guidance informs qualification, not runtime authority — 2026-10-06
+
+The owner's supplied plan uses research to qualify an interactive Fortnite route,
+Reboot first, retaining the existing Skate Session and same-process preference.
+Any qualified interactive island is acceptable. Universal Modder reconnaissance,
+Unreal and mashup guidance is pinned and read as reference material; installing
+its tools or following its generic injection instructions is not part of this
+slice. Review tools before installation/execution. Its Unreal reference itself
+excludes Fortnite's EAC/BattlEye route. The guidance does not override project
+boundaries or establish a permitted host extension.
+
+The [qualification report](../research/results/2026-10-06-fortnite-guidance-qualification.md)
+records fresh source evidence: Reboot's inspected launcher suspends EAC; Era's
+inspected launcher requests protection-disabling options and an unreviewed DLL;
+Rift's inspected catalogue establishes packaging, not a qualified native host.
+No candidate selected for execution. Unknown exact compatible clients/dependencies
+stay explicit. Offline status or removed protection is insufficient qualification.
+
+First live experiment remains a real player/camera value correlated with movement,
+after a permitted client/extension route is established. Preserve build ramp →
+skate/jump/grind → edit/collision → destroy/removal → recover/relaunch acceptance.
+No runtime API or universal framework is introduced. Extract scripts only for
+proven repetition; create a reusable skill after success on a second case, in
+global storage. D-027 publication policy remains; no merge/release or gameplay
+acceptance follows from source research or passing repository checks.
+
+## D-029: actual Skate connection before observation-only diagnostics — 2026-10-06
+
+During grill-with-docs the owner selected option A: assess whether a Fortnite route
+can actually connect to the existing Skate simulation before spending effort on
+an observation-only diagnostic. Reading player/camera coordinates alone is not
+sufficient progress toward this selected outcome. Preserve actual Skate physics,
+the interactive island and same-process preference; no substitute simulation or
+static-world route is selected.
+
+The [connection assessment](../research/results/2026-10-06-fortnite-guidance-qualification.md#actual-skate-connection-assessment--owner-choice-a-2026-10-06)
+compares official UEFN native/transport/editor APIs and input/collision/animation
+capabilities with the pinned Session. Documented observation and editor automation
+do not establish a creator-provided native runtime call path. No supported native
+or local-transport connection was established in the inspected sources. This is
+a documentation result, not a universal impossibility claim or an observed
+constraint selecting IPC. Existing Reboot/Era protection/dependency blockers remain.
+
+Continue only on concrete primary-source evidence for the missing runtime seam;
+do not create a coordinate-only demo, speculative bridge, hosted backend or
+rewritten skating system to conceal the gap. Existing acceptance sequence and
+publication/asset/merge/release boundaries remain unchanged.
+
+
+## D-030 Original Matt skills restored — 2026-10-06
+
+The owner requested Matt’s original skills and Ask Matt flow map globally,
+removing the custom workflow layer. Restore the existing 21 skills unchanged
+from upstream v1.3.1 (`24fe0ef7737efae15c87225755e9f6f5965e4888`), including
+supporting files and invocation settings. Retire the custom `matt-workflow`
+router, adaptation rules, shared routing policy and automatic reminder.
+This supersedes earlier requirements to use that custom layer.
+
+The original archive checksum and all 62 restored files were verified. A complete
+pre-restoration backup is retained outside active skill discovery. Standalone
+board/review utilities, project records and unrelated personal preferences remain.
+Combine’s tracker, gameplay requirements and acceptance/publication boundaries
+are unchanged. Fresh-session skill discovery remains a separate check.
+
+## D-031: isolated Fortnite 12.41 acquisition before startup review — 2026-10-06
+
+The owner selected the supplied plan to download Windows 12.41 **CL12905909**
+from the reachable 42.5 GB archive into ignored private Linux storage. Download
+authorization is explicit. Preserve the working mashup and existing Fortnite
+copies; check extraction size, safe paths, ZIP integrity, exact-build manifest
+file hashes and executable version/signature in a fresh isolated directory.
+Stop on corruption or identity mismatch and retain diagnostics privately.
+
+This slice ends at downloaded/integrity-checked files. It authorizes no game
+launch, account login, protection changes, public asset upload or runtime API
+changes, and establishes neither playability nor ban safety. After successful
+verification, review the matching local-server startup path before preparing
+a gameplay trial. The [acquisition evidence](../research/results/2026-10-06-fortnite-12-41-preparation.md)
+records exact provenance, checks and limitations. Existing qualification,
+source-publication, owner-acceptance, merge and release boundaries remain separate.
+
+
+## D-032: one Fortnite outcome and a lightweight workflow — 2026-10-07
+
+The owner selected a reset to reduce administration: retain the private Project,
+keep only the Fortnite destination C-019 and qualification task C-024 visible,
+and archive other work as inactive without changing acceptance claims. Replace
+phase views with Ready → Doing → Blocked → Done, with at most one Doing task.
+A separate Work status field preserves every historical Status/Phase/skill value;
+old views and full item bodies are snapshotted privately before replacement.
+
+The next task diagnoses the selected executable's integrity failure and original-client
+availability, ending with matching verified input or a precise unresolved blocker.
+The reset itself includes no new download or launch. Synergy, its unaccepted trial,
+hit radius and static-world work remain parked with requirements/evidence intact.
+
+Use one short development loop, task-relevant context and one current handoff with
+linked historical archive. Stop using the seven-phase helper for Combine; retain
+Matt's original skills and global configuration unchanged. This supersedes earlier
+phase machinery, mandatory backlog/history reading and conflicting publication wording.
+Reviewed reset source publication is authorized; routine SHA/board confirmation stays
+on the card or PR. Preserve branches/history and review inherited changes separately
+before any merge. No CI deployment, squash, merge, release or gameplay acceptance.
+
+
+## D-033: finish routine source changes through main — 2026-10-07
+
+The owner selected routine agent merges after review and checks, then instructed
+Codex to proceed with the workflow correction and existing-branch reconciliation.
+Keep one branch per ticket/coherent outcome, created from updated main; continue
+the same task on its existing branch. The complete procedure and completion
+criteria live in workflow (old plan removed).
+
+This supersedes earlier separate-approval requirements for ordinary source PR
+merges, including D-032's reset restriction, subject to the workflow's review,
+verification and synchronization conditions. This is the owner's Combine policy,
+not a claim about Matt Pocock's personal merge practice. The owner subsequently
+clarified that Matt's skills should guide feature work without a second prescribed
+Combine workflow. Keep WORKFLOW.md limited to source completion and project
+boundaries; no mandatory skill sequence, custom router or phase system. Gameplay acceptance,
+launch, spending, redistribution, deployment and release keep their boundaries.
+
+The pre-existing backlog remains separately controlled: reconcile unique local
+history, review accumulated changes and present a concrete proposal for owner
+merge authorization. Preserve published history and unique local work. Continue
+the workflow-reset branch for this correction; do not add another dependent branch.
+
+
+## D-034: Matt's original skills only — 2026-10-07
+
+The owner selected Matt's original skills as the only engineering process and
+approved removing the competing global and Combine workflow layers. Global
+instructions retain communication preferences and evidence honesty. Project
+instructions retain requirements, test commands, tracker operations and runtime/privacy
+boundaries; archived process documents are historical evidence, not instructions.
+This supersedes the custom phase, agent-role, mandatory handoff and source-closure
+procedures in earlier decisions, including D-032/D-033. It does not expand existing
+authority: routine source merge permission remains subject to review/checks and
+repository protections; inherited PRs #1/#2 require separate owner merge approval.
+
+The private Project remains the ticket store. Install original triage with default
+roles represented as Project metadata; use it only for incoming requests. Glossary
+and ADR documentation uses Matt's lazy single-context convention. Preserve existing
+requirements and evidence. Reconcile accumulated branches without rewriting
+published history or discarding unique work. No new launcher, gameplay trial,
+download, deployment or release is authorized by this change.

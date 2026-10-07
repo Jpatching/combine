@@ -1,42 +1,78 @@
-# Combine issue tracker
+# Issue tracker: GitHub
 
-The private [Combine Project](https://github.com/users/Jpatching/projects/5/views/4)
-is the sole active status authority, verified and migrated October 4, 2026.
-BACKLOG.md is a frozen historical record and pointer. Git owns source; there is
-a public source remote at https://github.com/Jpatching/combine. Verify the remote
-branch SHA before claiming a source revision was pushed. Private draft items do not publish source.
+New specs and tickets live in [Jpatching/combine Issues](https://github.com/Jpatching/combine/issues).
+Use the `gh` CLI with `--repo Jpatching/combine` for issue operations.
+The repository is public: publish source-safe task descriptions and acceptance
+criteria; keep private diagnostics, logs, settings, identities and game assets
+outside Issues and Git.
 
-- Open Now, read the active draft, phase, current skill, phase exit, next action
-  and evidence checklist. Refresh before handoff. Milestones and Needs you give
-  the wider outcome and owner decisions. Keep one current work item in Now.
-- Preserve C-identifiers. The 17 migrated drafts retain open/deferred outcomes;
-  C-018 names the earlier pending full-library inventory request. Completed old
-  C-001/C-002/C-004 and the earlier workflow setup remain historical evidence.
-- `to-spec` updates docs/TRICKSHOT_MENU.md for menu requirements and links the
-  draft. `to-tickets` finalises independently demonstrable slices with explicit
-  dependencies. Drafts lack native issue dependency/subissue links, so their
-  bodies use named draft links for Blocked by and parent relationships.
-- C-017's approved requirements are recorded; to-spec consolidated the full-menu
-  contract and to-tickets finalised C-016. Resume from C-016's next missing check;
-  the earlier native implementation is checkpointed and rejected as the replacement.
-  D-015 requires Synergy itself; resume input isolation and lifecycle checks
-  from the live C-016 evidence.
-  Hide HUD is deferred, not a blocker.
-- Update the board at meaningful phase changes and read back changes. If unavailable,
-  report sync pending and preserve intended changes in docs/HANDOFF.md. Do not
-  maintain a second local status list or claim failed writes landed.
-- The global router's GitHub reference and helper live under
-  `~/.codex/skills/matt-workflow/` and `~/.codex/workflows/solo-development/`.
-  Local requirements, decisions and technical evidence stay in their existing docs.
-- The extra roadmap view (View 5) is preserved. The shared helper validates the
-  three required views while allowing extras; use its `update --body-file` with
-  read-back for routine updates. Start/Target date fields exist; starts are stamped
-  once on implementation. Targets remain blank. Roadmap date mapping needs a UI
-  check; the available API exposes no start/target mapping fields.
-- Tests/builds establish only their coverage. Owner acceptance is explicit;
-  reviewed source-branch publication to Jpatching/combine is authorized by D-016/D-017
-  before acceptance; merge and release remain separate.
-  The selected plan separately authorizes local commits. Board maintenance does
-  not authorize source publication, assets/logs,
-  spending, outreach or CI/CD. Use one lead/writer and the bounded helper policy
-  recorded in D-017 and docs/AGENT_ROLES.md.
+## Conventions
+
+- Create: `gh issue create --repo Jpatching/combine --title "..." --body-file <file>`.
+  Prepare multiline bodies in a temporary file and review them before publishing.
+- Read: `gh issue view <number> --repo Jpatching/combine --comments`;
+  also fetch `--json number,title,body,labels,comments,state` when structured data is needed.
+- List: `gh issue list --repo Jpatching/combine --state open --json number,title,body,labels,comments`,
+  with appropriate label and state filters.
+- Comment: `gh issue comment <number> --repo Jpatching/combine --body-file <file>`.
+- Apply/remove labels: `gh issue edit <number> --repo Jpatching/combine --add-label "..."`
+  or `--remove-label "..."`.
+- Close: `gh issue close <number> --repo Jpatching/combine --comment "..."`.
+
+When a skill says “publish to the issue tracker”, create a GitHub issue.
+When it says “fetch the relevant ticket”, read its full body, labels and comments.
+GitHub shares issue and PR numbers; resolve ambiguous references before acting.
+
+**PRs as a request surface: no.** External PRs are not part of the triage queue.
+
+## Implementation slices
+
+Follow `ask-matt`: larger, multi-session work goes through `to-spec` and
+`to-tickets`; small, clear work can go directly to `implement`.
+Use `to-tickets`' existing rules: each slice delivers a complete behavior that
+can be verified independently, fits one fresh context window, and declares
+acceptance criteria and blockers. Obtain the owner's approval of the breakdown
+before publishing tickets. Tickets produced by `to-tickets` are already ready
+for implementation; apply `ready-for-agent` without sending them through triage.
+
+Complete each authorized source slice through:
+
+**Implement → test → review → commit → push → PR → merge → synchronize local `main`.**
+
+Use one focused branch and PR per implementation slice, with a separate worktree
+for its edits and checks. Create each new slice branch from synchronized `main`;
+keep the primary checkout on clean `main` rather than implementing there. Work
+only on slices whose blockers are complete. Review and required checks must pass before merging. Start the next
+slice from updated `main` after completion. Resume an existing unfinished
+issue/branch/PR instead of creating a duplicate. When blocked, report the existing
+PR and exact blocker; keep it open and finish that slice before starting another.
+Verify completion with a clean working tree, a merged PR, and identical local
+`main` and `origin/main` revisions after fetching. Source integration does not
+establish gameplay acceptance or authorize launch, deployment or release.
+Keep experimental checkpoints on a separate `prototype/<name>` branch and link
+its question and verdict from the issue. A preserved experiment need not merge;
+promote useful implementation through a reviewed source slice. Verify branch,
+worktree and starting revision before edits. Remove completed worktrees only
+after preserving commits and checking ignored local files.
+This convention supplements Matt's original skills without modifying them.
+
+The old Project cards and deleted plans remain historical. Leave the cards
+untouched and do not import old plans or use them to select new work.
+
+## Blocking and wayfinding
+
+Publish approved tickets in dependency order. Use native GitHub issue dependencies:
+fetch the blocker's database ID with
+`gh api repos/Jpatching/combine/issues/<number> --jq .id`, then add it with
+`gh api --method POST repos/Jpatching/combine/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>`.
+The database ID is not the issue number or node ID. If dependencies are unavailable,
+record `Blocked by: #<number>` in the ticket body. A ticket is ready only when every
+blocker is closed; the native `issue_dependencies_summary.blocked_by` counts open blockers.
+
+When `wayfinder` is selected, its map is an issue labelled `wayfinder:map`; children
+use `wayfinder:<type>` and native sub-issue links. If sub-issues are unavailable,
+use a task list in the map and `Part of #<map>` in each child. Create those additional
+labels only when needed. Choose an unassigned open child with no open blockers,
+in map order; claim with `gh issue edit <number> --repo Jpatching/combine --add-assignee @me`.
+Resolve with an answer comment, close the child, and add its result link to the
+map's decisions. Preserve `to-tickets`' rule against changing or closing its parent issue.

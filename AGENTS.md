@@ -1,25 +1,26 @@
 # Combine
 
-Use Matt Pocock's original skills for engineering work; `ask-matt` routes requests.
-The [private board](https://github.com/users/Jpatching/projects/5/views/8) owns tickets
-and current status. [Current context](docs/HANDOFF.md) summarizes the game blocker.
+Work from the owner's current request. The previous workflow and backlog are
+retired; historical plans do not select or authorize new work.
+Preserve the existing implementation and local changes.
 
 ## Agent skills
 
+Use Matt Pocock's original skills; `ask-matt` selects the appropriate flow.
+
 ### Issue tracker
 
-Tickets and specs live as private Project draft cards. Read
-[tracker operations](docs/agents/issue-tracker.md) before ticket operations.
+New specs and tickets use Jpatching/combine GitHub Issues. Before tracker work or
+starting an implementation slice, read [tracker and slice conventions](docs/agents/issue-tracker.md).
 
 ### Triage labels
 
-Matt's five default roles map to Project metadata. Read
-[triage labels](docs/agents/triage-labels.md) when triaging incoming requests.
+Use Matt's five default labels. Before triage, read the [label mapping](docs/agents/triage-labels.md).
 
 ### Domain docs
 
-Single-context; read [domain docs](docs/agents/domain.md) when exploring terminology
-or recording decisions.
+Use a root glossary and `docs/adr/`, created when needed. Before exploration,
+read the [domain documentation rules](docs/agents/domain.md).
 
 ## Project reference
 
@@ -27,7 +28,7 @@ or recording decisions.
 - Player overview/controls: [README](README.md).
 - Parked Synergy: [menu guide](docs/TRICKSHOT_MENU.md); actual pinned GSC.
 - Baseline recovery: [Windows runbook](docs/WINDOWS_BASELINE.md).
-- Existing decisions and task authority: [decision log](docs/DECISIONS.md), with D-034 superseding custom process rules.
+- Historical technical decisions: [decision log](docs/DECISIONS.md).
 - Source/release identities: [pins](research/upstream.lock.json); refresh does not move pins.
 
 Full gate: `python3 scripts/verify.py` (`py -3 scripts/verify.py` on Windows).
@@ -41,4 +42,3 @@ No DRM/anti-cheat bypass. Source licences do not establish asset/publisher right
 Recipes remain strict data, never executable commands, paths or download URLs.
 No universal merger, new engine, marketplace or production launcher is authorized.
 Spending, outreach, redistribution, launch, deployment and release need task authority.
-Existing backlog PRs #1 and #2 still require separate owner merge authorization.

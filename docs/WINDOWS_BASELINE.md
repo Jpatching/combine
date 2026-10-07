@@ -8,7 +8,7 @@ is needed for gameplay; successful commands do not establish playable behaviour.
 **Current priority: skating on Rust.** MW2 Multiplayer is installed, the v0.4.0
 archive was verified and a separate trial launched. The owner reports Minecraft
 worked and a possible freeze. See [the result](../research/results/2026-10-03-first-launch.md)
-and [current status](../BACKLOG.md) before repeating any preparation.
+and [retained evidence](HANDOFF.md) before repeating any preparation.
 
 **IW4x is not required.** The pinned release includes the skating integration and
 converter. It still needs the player's Skate 3 Xbox 360 `default.xex` and accompanying

@@ -112,7 +112,7 @@ reviewed source/notices to Jpatching/combine. An unauthenticated read-only
 `git ls-remote` of that destination requested credentials; existence/access was
 not established. The connected GitHub search and local `gh repo view` also could not resolve
 that repository (absent or inaccessible). No remote is configured locally. Do not infer GitHub access or
-claim publication. The [stunt launcher](../../docs/STUNT_LAUNCHER_PROPOSAL.md)
+claim publication. The stunt launcher (old plan removed)
 remains a separate proposal with no implementation.
 
 ## Final repository gate

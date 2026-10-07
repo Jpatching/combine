@@ -87,8 +87,9 @@ Previous builds remain preserved; owner verdict, merge and release are separate.
 Run the reachable pinned Synergy GSC menu through the existing runtime, preserving
 its own presentation/options, and add the agreed near-pass control. Each option
 requires effect, reversal, failure and lifecycle evidence; visibility is insufficient.
-D-019 puts hit radius first. The board owns progress; the current exact input trial
-and pending physical verdict are in [HANDOFF.md](HANDOFF.md).
+D-019 records the earlier hit-radius priority. Current evidence and the pending
+physical verdict are in [HANDOFF.md](HANDOFF.md); new work follows the owner's
+request and the [Issues configuration](agents/issue-tracker.md).
 
 ### Agreed behavior — C-017, 2026-10-04
 
@@ -604,10 +605,10 @@ It is a tracer bullet: a narrow working path from input through simulation to
 visible feedback, before extending the remaining catalogue. C-017 supplies the
 settled requirements. `to-spec` consolidated the contract and `to-tickets`
 finalised this one independently demonstrable slice. Implementation and its
-acceptance checks are tracked separately in the current evidence; the [C-016 draft](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=261972158)
-owns active status. C-017 is the completed prerequisite; no other gameplay slice
-blocks starting C-016. The existing plan supplies the agreed granularity and
-test boundary, so no new interview or duplicate ticket is needed.
+acceptance checks are recorded separately in the historical evidence. The
+[C-016 draft](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=261972158)
+and C-017 prerequisite remain historical planning; they do not authorize restarting
+this slice. Retain this contract as requirements evidence for any new owner request.
 
 #### User stories
 

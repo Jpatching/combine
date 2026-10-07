@@ -1,13 +1,17 @@
-# Combine domain docs
+# Domain docs
 
-Single-context: read root `GLOSSARY.md` and relevant `docs/adr/` entries when present.
-If absent, proceed silently; domain-modeling creates them lazily as terms and
-architectural decisions are resolved. Use glossary vocabulary in issues and code.
+Use a single context: `GLOSSARY.md` at the repository root and architecture
+decision records (ADRs) under `docs/adr/`.
 
-Existing decisions remain in `docs/DECISIONS.md`. Consult relevant entries, surface
-conflicts explicitly, and link existing decisions instead of copying them into ADRs.
-Project requirements are linked from AGENTS.md.
+Before exploring, read the glossary if it exists and any ADRs relevant to the
+area being changed. If they are absent, proceed silently. `domain-modeling`
+creates them only when terms or decisions are resolved; setup creates no empty
+glossary or ADR directory.
 
-Distinguish repository patches against pinned upstream from private build checkouts,
-generated binaries and runtime trials. Preparation, launch and owner acceptance
-are separate claims.
+Use the glossary's terms in issue titles, proposals, hypotheses and tests.
+If a needed concept is missing, reconsider the wording or note the gap for
+`domain-modeling`. Surface conflicts with an existing ADR explicitly instead
+of silently overriding it.
+
+The historical [decision log](../DECISIONS.md) remains available for technical
+evidence and product constraints; its retired workflow does not select new work.

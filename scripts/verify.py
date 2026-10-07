@@ -38,7 +38,7 @@ def check_lock(lock):
 
 
 def check_links():
-    docs = [ROOT / "README.md", ROOT / "AGENTS.md", ROOT / "BACKLOG.md"]
+    docs = [ROOT / "README.md", ROOT / "AGENTS.md"]
     docs += sorted((ROOT / "docs").glob("*.md"))
     docs += sorted((ROOT / "templates").glob("*.md"))
     for doc in docs:

@@ -1,4 +1,6 @@
-> Process note: D-034 supersedes earlier custom workflow, routing and closure rules.
+> Fresh start — 2026-10-07: the owner retired the previous workflow and PRs
+> while retaining the implementation. Process, routing and backlog instructions
+> below are historical; technical evidence remains available for reference.
 > Historical entries retain their original context; product and safety decisions remain.
 
 # Decisions and milestone outcome
@@ -204,7 +206,7 @@ feature and grants no publication, deployment, asset upload or external messagin
 authority. Keep one lead and local verification. Assess demonstrated friction
 after two completed owner-reviewed slices before adding Sandcastle or automation.
 
-See [workflow configuration](archive/WORKFLOW-2026-10-07.md) and
+See workflow configuration (old plan removed) and
 [installation/validation evidence](../research/results/2026-10-04-matt-workflow.md).
 
 ## D-012: proper Synergy destination and private board authority — 2026-10-04
@@ -698,7 +700,7 @@ The owner selected routine agent merges after review and checks, then instructed
 Codex to proceed with the workflow correction and existing-branch reconciliation.
 Keep one branch per ticket/coherent outcome, created from updated main; continue
 the same task on its existing branch. The complete procedure and completion
-criteria live in [workflow](archive/WORKFLOW-2026-10-07.md#branch-to-main).
+criteria live in workflow (old plan removed).
 
 This supersedes earlier separate-approval requirements for ordinary source PR
 merges, including D-032's reset restriction, subject to the workflow's review,

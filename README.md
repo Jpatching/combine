@@ -11,9 +11,8 @@ an independently evidenced integration; the ambition is not a universal merger.
 manifest/signature integrity checks; no playable integration exists. Next: determine
 the mismatch's cause and whether matching original input is obtainable. Other work,
 including Synergy's unaccepted trial and unimplemented hit radius, is parked.
-See the [current handoff](docs/HANDOFF.md) for evidence and the bounded next task.
+See the [current handoff](docs/HANDOFF.md) for retained evidence and the fresh-start status.
 
-Explore the [roadmap](docs/ROADMAP.md) and proposed [community growth plan](docs/GROWTH.md).
 Start with the [reproduction guide](docs/REPRODUCING.md) for source checks,
 the pinned Rust/Synergy build and private-trial prerequisites. Rust is the runtime
 implementation language; original GSC remains Synergy's menu source. Python and
@@ -64,12 +63,11 @@ installed, launched or gameplay-tested and does not replace Synergy.
 
 ## Source, checks and history
 
-Current game work is on the
-[private board](https://github.com/users/Jpatching/projects/5/views/8) and
-[current handoff](docs/HANDOFF.md); load only the selected task’s requirements. The
-[workspace tour](research/results/2026-10-06-workspace-orientation.md) explains
-source, scripts and private trials. The board owns current work;
-[BACKLOG.md](BACKLOG.md) preserves history.
+The existing implementation is retained. PRs #1 and #2 are closed, and the
+previous workflow and backlog are retired. New work starts from the owner's
+request. The [current handoff](docs/HANDOFF.md) records the retained evidence.
+The [workspace tour](research/results/2026-10-06-workspace-orientation.md)
+explains source, scripts and private trials.
 
 ```sh
 python3 scripts/verify.py
@@ -92,5 +90,5 @@ They are separate earlier trials and are not current Synergy instructions.
 No universal merger, marketplace, production launcher, public-match assistance
 or firing while skating is authorized. Keep game assets, converted data, settings,
 recordings and private logs outside Git. Source licences do not settle asset
-rights or publisher terms. Engineering work uses Matt Pocock's original skills;
-owner acceptance, source publication, merge and release remain separate.
+rights or publisher terms. Owner acceptance, source publication, merge and release
+remain separate.

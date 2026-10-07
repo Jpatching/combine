@@ -1,56 +1,71 @@
-# Combine issue tracker
+# Issue tracker: GitHub
 
-Tickets and specs live in the private [Combine Project](https://github.com/users/Jpatching/projects/5/views/8),
-owner `Jpatching`, number `5`. Git owns source and repository PRs own source review.
-Repo Issues are not this project's ticket store; keep private planning private.
+New specs and tickets live in [Jpatching/combine Issues](https://github.com/Jpatching/combine/issues).
+Use the `gh` CLI with `--repo Jpatching/combine` for issue operations.
+The repository is public: publish source-safe task descriptions and acceptance
+criteria; keep private diagnostics, logs, settings, identities and game assets
+outside Issues and Git.
 
-## Skill operations
+## Conventions
 
-Use `gh project` and GitHub's Projects GraphQL API. Inspect current IDs/options
-before writes and read back changes. Avoid the retired custom phase helper.
+- Create: `gh issue create --repo Jpatching/combine --title "..." --body-file <file>`.
+  Prepare multiline bodies in a temporary file and review them before publishing.
+- Read: `gh issue view <number> --repo Jpatching/combine --comments`;
+  also fetch `--json number,title,body,labels,comments,state` when structured data is needed.
+- List: `gh issue list --repo Jpatching/combine --state open --json number,title,body,labels,comments`,
+  with appropriate label and state filters.
+- Comment: `gh issue comment <number> --repo Jpatching/combine --body-file <file>`.
+- Apply/remove labels: `gh issue edit <number> --repo Jpatching/combine --add-label "..."`
+  or `--remove-label "..."`.
+- Close: `gh issue close <number> --repo Jpatching/combine --comment "..."`.
 
-- **List/fetch:** `gh project item-list 5 --owner Jpatching --limit 100 --format json`.
-  Read the full matching C-identifier body and fields. For complete inventory,
-  query `user(login: "Jpatching") { projectV2(number: 5) { items(first: 100, after: $cursor) } }`
-  through `gh api graphql`; page until `hasNextPage` is false and include `isArchived`.
-  Search archived cards before creating duplicates or allocating the next C-number.
-- **Publish a ticket/spec:** `gh project item-create 5 --owner Jpatching --title ... --body ...`.
-  Preserve C-identifiers. Include result, acceptance checks, evidence/blocker,
-  next action and relevant links. Use structured arguments or a subprocess argument
-  list for multiline bodies, never interpolate bodies into shell commands.
-- **Edit/read notes:** draft cards have no issue comments. Use `gh project item-edit`
-  with the draft content ID to edit title/body, retaining prior discussion and dated
-  notes. For triage, retain Matt's AI disclaimer on generated text and append reporter
-  replies with author/date; do not invent reporter activity or send outreach.
-- **Fields/claim:** discover fields with `gh project field-list 5 --owner Jpatching --format json`.
-  Use `gh project item-edit` with Project ID, item ID, field ID and option ID for
-  Work status, Triage state and Triage category. Set Doing to claim work; use the
-  draft's assignees via `updateProjectV2DraftIssue` when a skill needs an assignee.
-  Never treat draft content IDs as Project item IDs.
-- **Dependencies/maps:** record linked `Blocked by: C-xxx` and `Part of: C-xxx` lines
-  in bodies, with a linked child list on the map. Drafts lack native issue dependency
-  endpoints. A ready frontier excludes assigned tasks and tasks with unresolved
-  prerequisites; a rejected prerequisite does not satisfy an acceptance check.
-- **Complete/close:** set Work status Done with evidence only when the acceptance
-  check passes. For a rejected request, record reason and `wontfix`, then archive;
-  archiving is not completion or gameplay acceptance. Read archived items via the API.
+When a skill says “publish to the issue tracker”, create a GitHub issue.
+When it says “fetch the relevant ticket”, read its full body, labels and comments.
+GitHub shares issue and PR numbers; resolve ambiguous references before acting.
 
-Work status options are Ready, Doing, Blocked, Done. Historical Status/Phase fields
-are retained evidence, not active process. Current selection belongs on the board.
-If GitHub fails, report the failed operation and pending update without claiming sync.
+**PRs as a request surface: no.** External PRs are not part of the triage queue.
 
-## Triage
+## Implementation slices
 
-PRs as a request surface: no.
+Follow `ask-matt`: larger, multi-session work goes through `to-spec` and
+`to-tickets`; small, clear work can go directly to `implement`.
+Use `to-tickets`' existing rules: each slice delivers a complete behavior that
+can be verified independently, fits one fresh context window, and declares
+acceptance criteria and blockers. Obtain the owner's approval of the breakdown
+before publishing tickets. Tickets produced by `to-tickets` are already ready
+for implementation; apply `ready-for-agent` without sending them through triage.
 
-Use [triage labels](triage-labels.md). Apply triage to incoming reports/requests,
-not prepared tickets. Discover candidates with Triage category/state metadata or
-an explicit `Incoming request` body marker; do not treat every unlabeled planned
-card as incoming. For imported reports, retain reporter, reported date and replies
-in the body. Sort by reported date (or creation date if unavailable).
-Record brief/notes in the draft body. Keep private rejection knowledge in the private
-tracker; only non-sensitive reusable rationale may go into public `.out-of-scope/` files.
+Complete each authorized source slice through:
 
-Bare `#N` denotes a repository PR/issue: resolve with `gh pr view N`, then
-`gh issue view N`. `C-NNN` denotes a Project ticket. An explicitly requested PR
-can be triaged using `gh pr` operations; maintainers' ordinary PRs are not an intake queue.
+**Implement → test → review → commit → push → PR → merge → synchronize local `main`.**
+
+Use one focused branch and PR per slice. Work only on slices whose blockers are
+complete. Review and required checks must pass before merging. Start the next
+slice from updated `main` after completion. Resume an existing unfinished
+issue/branch/PR instead of creating a duplicate. When blocked, report the existing
+PR and exact blocker; keep it open and finish that slice before starting another.
+Verify completion with a clean working tree, a merged PR, and identical local
+`main` and `origin/main` revisions after fetching. Source integration does not
+establish gameplay acceptance or authorize launch, deployment or release.
+This convention supplements Matt's original skills without modifying them.
+
+The old Project cards and deleted plans remain historical. Leave the cards
+untouched and do not import old plans or use them to select new work.
+
+## Blocking and wayfinding
+
+Publish approved tickets in dependency order. Use native GitHub issue dependencies:
+fetch the blocker's database ID with
+`gh api repos/Jpatching/combine/issues/<number> --jq .id`, then add it with
+`gh api --method POST repos/Jpatching/combine/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>`.
+The database ID is not the issue number or node ID. If dependencies are unavailable,
+record `Blocked by: #<number>` in the ticket body. A ticket is ready only when every
+blocker is closed; the native `issue_dependencies_summary.blocked_by` counts open blockers.
+
+When `wayfinder` is selected, its map is an issue labelled `wayfinder:map`; children
+use `wayfinder:<type>` and native sub-issue links. If sub-issues are unavailable,
+use a task list in the map and `Part of #<map>` in each child. Create those additional
+labels only when needed. Choose an unassigned open child with no open blockers,
+in map order; claim with `gh issue edit <number> --repo Jpatching/combine --add-assignee @me`.
+Resolve with an answer comment, close the child, and add its result link to the
+map's decisions. Preserve `to-tickets`' rule against changing or closing its parent issue.

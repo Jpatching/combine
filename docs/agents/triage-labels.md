@@ -1,16 +1,14 @@
 # Triage labels
 
-Draft cards use Project single-select fields, not repository issue labels.
+Use Matt's five default roles as labels in Jpatching/combine Issues.
 
-| Canonical role | Triage state option |
-| --- | --- |
-| needs-triage | needs-triage |
-| needs-info | needs-info |
-| ready-for-agent | ready-for-agent |
-| ready-for-human | ready-for-human |
-| wontfix | wontfix |
+| Role in Matt's skills | Repository label | Meaning |
+| --- | --- | --- |
+| `needs-triage` | `needs-triage` | Maintainer needs to evaluate this issue |
+| `needs-info` | `needs-info` | Waiting on the reporter for more information |
+| `ready-for-agent` | `ready-for-agent` | Fully specified, ready for agent implementation |
+| `ready-for-human` | `ready-for-human` | Requires human implementation |
+| `wontfix` | `wontfix` | Will not be actioned |
 
-Category roles `bug` and `enhancement` map to the `Triage category` field.
-Each triaged card has exactly one category and one state. These fields are separate
-from Work status. Prepared tickets from to-tickets do not need triage.
-For field operations and notes, read [tracker operations](issue-tracker.md).
+Triage incoming requests only; `to-tickets` output is already ready for implementation.
+Create missing labels without replacing existing labels or their metadata.

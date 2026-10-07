@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, readFile, writeFile, access, chmod } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, access, chmod, readdir } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
-import { gitAt, preserveWorkspace, hostGitEnv } from '../scripts/workspace.mjs';
+import { gitAt, preserveWorkspace, hostGitEnv, sourceClone } from '../scripts/workspace.mjs';
 import { verify, inspectGit, exportBranchBundle } from '../scripts/verification.mjs';
 import { retainedSandbox } from '../scripts/sandbox.mjs';
 import { PRIVATE, ROOT, IMAGE } from '../scripts/settings.mjs';
@@ -44,6 +44,14 @@ test('Docker verifier rejects a defect, accepts a fix and enforces isolation', a
   const outcome = await verify(repo, repo, task);
   assert.equal(outcome.passed, true, JSON.stringify(outcome));
   assert.match(await readFile(join(repo, 'scripts/verify.py'), 'utf8'), /verifier isolation/);
+});
+
+test('actual Combine gate can use empty ephemeral private scratch without host persistence', async () => {
+  const base = await gitAt(ROOT, ['rev-parse', 'main']);
+  const repo = await sourceClone(`gate-${randomUUID()}`, base);
+  const result = await verify(repo, repo, { checks: [] });
+  assert.equal(result.passed, true, JSON.stringify(result));
+  assert.deepEqual(await readdir(join(repo, '.private')), []);
 });
 
 test('accepted task commits export as a source bundle from the isolated inspector', async () => {

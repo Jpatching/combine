@@ -39,13 +39,33 @@ Complete each authorized source slice through:
 
 **Implement → test → review → commit → push → PR → merge → synchronize local `main`.**
 
-Use one focused branch and PR per implementation slice, with a separate worktree
-for its edits and checks. Create each new slice branch from synchronized `main`;
-keep the primary checkout on clean `main` rather than implementing there. Work
-only on slices whose blockers are complete. Review and required checks must pass before merging. Start the next
-slice from updated `main` after completion. Resume an existing unfinished
-issue/branch/PR instead of creating a duplicate. When blocked, report the existing
-PR and exact blocker; keep it open and finish that slice before starting another.
+Use one focused branch and PR per implementation slice. For a single active chat,
+switch its clean checkout to the task branch before editing. Use a separate
+worktree when parallel work or retained experiment state needs isolation, and
+attach the working chat to that checkout. A worktree is a separate folder checked
+out on a branch; creating one or using `git -C` does not move a chat into it.
+
+Before edits, after a handoff and before committing or pushing, verify the chat's
+workspace with `git rev-parse --show-toplevel`, `git branch --show-current`,
+`git rev-parse HEAD` and `git status --short --branch`. Match the exact task branch
+and directory; any non-main branch is not enough. Stop writes on a mismatch,
+`main` or detached HEAD and align the checkout first. Preserve local changes;
+never force-switch, reset or stash unrelated work to satisfy this check. Pass the
+same task branch and working directory explicitly to delegated agents.
+
+Create new slice branches from synchronized `main`. Resume existing unfinished
+issues/branches/PRs instead of creating duplicates. If a branch is already checked
+out elsewhere, use that existing worktree rather than forcing a second checkout.
+For app-managed worktrees, use the app's workspace/handoff controls; for an existing
+manual worktree, open that folder as the chat workspace. Treat the displayed branch
+as a useful cross-check; Git in the actual working directory supplies the evidence.
+Before pushing, inspect the remote and destination branch; publish the task branch,
+not a refspec targeting `main`.
+
+Work only on slices whose blockers are complete. When blocked, record the exact
+blocker on the existing issue/PR and preserve the branch. The owner may select
+independent work while it is blocked. Review and required checks must pass before
+merging. Start the next new slice from updated `main` after completion.
 Verify completion with a clean working tree, a merged PR, and identical local
 `main` and `origin/main` revisions after fetching. Source integration does not
 establish gameplay acceptance or authorize launch, deployment or release.
@@ -55,6 +75,9 @@ promote useful implementation through a reviewed source slice. Verify branch,
 worktree and starting revision before edits. Remove completed worktrees only
 after preserving commits and checking ignored local files.
 This convention supplements Matt's original skills without modifying them.
+If a routed skill is unavailable, report that fact and inspect its upstream
+availability before installing or choosing an applicable installed skill. Never
+claim an unavailable skill ran.
 
 The old Project cards and deleted plans remain historical. Leave the cards
 untouched and do not import old plans or use them to select new work.

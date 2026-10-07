@@ -10,8 +10,9 @@ Use Matt Pocock's original skills; `ask-matt` selects the appropriate flow.
 
 ### Issue tracker
 
-New specs and tickets use Jpatching/combine GitHub Issues. Before tracker work or
-starting an implementation slice, read [tracker and slice conventions](docs/agents/issue-tracker.md).
+New specs and tickets use Jpatching/combine GitHub Issues. Before repository edits
+(including documentation), resuming work or tracker operations, read
+[workspace and slice conventions](docs/agents/issue-tracker.md).
 
 ### Triage labels
 
@@ -24,14 +25,15 @@ read the [domain documentation rules](docs/agents/domain.md).
 
 ## Project reference
 
-- Fortnite + Skate requirements: [interactive-world contract](research/results/2026-10-06-fortnite-adapter-qualification.md).
+- Current status and evidence: [handoff](docs/HANDOFF.md); fetch the linked live issue before resuming its task.
+- Fortnite + Skate requirements: [interactive-world contract](docs/FORTNITE_SKATE.md).
 - Player overview/controls: [README](README.md).
 - Parked Synergy: [menu guide](docs/TRICKSHOT_MENU.md); actual pinned GSC.
 - Baseline recovery: [Windows runbook](docs/WINDOWS_BASELINE.md).
 - Historical technical decisions: [decision log](docs/DECISIONS.md).
 - Source/release identities: [pins](research/upstream.lock.json); refresh does not move pins.
 
-Full gate: `python3 scripts/verify.py` (`py -3 scripts/verify.py` on Windows).
+Repository gate: `python3 scripts/verify.py` (`py -3 scripts/verify.py` on Windows).
 Runtime changes need relevant runtime checks. Preparation, launch, gameplay,
 verification, owner acceptance and release are distinct evidence claims.
 

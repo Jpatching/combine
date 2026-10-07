@@ -45,8 +45,10 @@ is justified. A checksum identifies content; it is not an execution-safety guara
 2. Prepare: compatible inputs -> isolated profile or recoverable failure.
 3. Launch: prepared profile -> explicit local process start and session result.
 
-For this milestone, a tester applies world selection and skating activation manually
-using the Windows runbook. An accepted recipe does not invoke these stages. Before
-implementing them, C-003 and C-005 must establish working behaviour and a useful
-improvement; C-006 governs public distribution. Treat any new recipe format or
-supported runtime pin as a reviewed catalogue change with fresh compatibility evidence.
+For an authorized baseline trial, a tester applies world selection and skating
+activation manually using the Windows runbook. An accepted recipe does not invoke
+these stages. Automating them requires demonstrated working behaviour and a useful
+improvement selected by the owner; public distribution requires separate authority
+and resolved rights/provenance. Retired task IDs do not authorize or block new work.
+Treat any new recipe format or supported runtime pin as a reviewed catalogue change
+with fresh compatibility evidence.

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Diagnostics;
 using CUE4Parse.FileProvider;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Versions;
@@ -126,8 +127,9 @@ static void CheckRoots(string input, string output)
         // Within any Git checkout only its ignored .private directory may hold data.
         for (var d = new DirectoryInfo(root); d != null; d = d.Parent)
             if (Directory.Exists(Path.Combine(d.FullName, ".git")) || File.Exists(Path.Combine(d.FullName, ".git")))
-                if (!Within(root, Path.Combine(d.FullName, ".private")))
-                    throw new ArgumentException("Use .private or a root outside source control");
+                if (!Within(root, Path.Combine(d.FullName, ".private")) ||
+                    !GitConfirmsIgnoredRoot(d.FullName, root))
+                    throw new ArgumentException("Use an ignored, untracked .private root or a root outside source control");
     }
     if (Within(input, output) || Within(output, input))
         throw new ArgumentException("Input and output roots must be separate");
@@ -141,6 +143,34 @@ static void CheckRoots(string input, string output)
                 throw new ArgumentException("Input tree contains links");
             if ((attributes & FileAttributes.Directory) != 0) pending.Push(path);
         }
+}
+static bool GitConfirmsIgnoredRoot(string repository, string root)
+{
+    // Directory names alone do not establish privacy. Fail closed if Git is unavailable.
+    var ignored = Git("check-ignore", "--quiet", "--", root);
+    if (ignored.code != 0) return false;
+    var tracked = Git("ls-files", "--", root);
+    return tracked.code == 0 && tracked.output.Length == 0;
+
+    (int code, string output) Git(params string[] arguments)
+    {
+        var start = new ProcessStartInfo("git") {
+            UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true
+        };
+        start.ArgumentList.Add("-C");
+        start.ArgumentList.Add(repository);
+        foreach (var argument in arguments) start.ArgumentList.Add(argument);
+        using var process = Process.Start(start) ?? throw new IOException("Cannot verify ignored root");
+        var stdout = process.StandardOutput.ReadToEndAsync();
+        var stderr = process.StandardError.ReadToEndAsync();
+        if (!process.WaitForExit(10000))
+        {
+            process.Kill(entireProcessTree: true);
+            throw new IOException("Cannot verify ignored root");
+        }
+        stderr.GetAwaiter().GetResult();
+        return (process.ExitCode, stdout.GetAwaiter().GetResult());
+    }
 }
 static bool Within(string path, string root) => path.Equals(root, StringComparison.OrdinalIgnoreCase) ||
     path.StartsWith(Path.TrimEndingDirectorySeparator(root) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);

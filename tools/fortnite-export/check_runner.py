@@ -52,6 +52,21 @@ with tempfile.TemporaryDirectory(prefix='runner-tests-', dir=private) as tempora
     run('inventory', root / 'linked-input', expected=1)
     assert not (root / 'linked-input').exists()
     (source / 'loop').unlink()
+    # A directory called .private is not necessarily ignored by another checkout.
+    other = root / 'other-repository'
+    subprocess.run(['git', 'init', '--quiet', str(other)], check=True)
+    run('inventory', other / '.private/unignored', expected=1)
+    assert not (other / '.private/unignored').exists()
+    (other / '.gitignore').write_text('.private/\n')
+    run('inventory', other / '.private/ignored', expected=0)
+    tracked = other / '.private/tracked'
+    tracked.mkdir()
+    (tracked / 'keep.txt').write_text('source-only regression fixture')
+    subprocess.run(['git', '-C', str(other), 'add', '--force', '.private/tracked/keep.txt'], check=True)
+    (tracked / 'keep.txt').unlink()
+    tracked.rmdir()
+    run('inventory', tracked, expected=1)
+    assert not tracked.exists()
     (root / 'alias').symlink_to(root, target_is_directory=True)
     run('inventory', root / 'alias/new-output', expected=1)
     assert not (root / 'new-output').exists()

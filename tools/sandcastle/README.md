@@ -67,7 +67,10 @@ read-only source and writable temporary directories. The checkout's `.private`
 directory is shadowed by an empty, user-owned tmpfs for synthetic header-test
 fixtures; it exposes no host private data and retains no fixture writes. A symlink
 or non-directory scratch mountpoint is rejected. Reviewers have read-only
-source and their own authentication copies. Containers receive neither host
+source and their own authentication copies. Their Codex CLI uses `danger-full-access`
+inside Docker to avoid an unsupported nested namespace sandbox; Docker's read-only
+root/source/Git mounts, dropped capabilities and no-new-privileges enforce the review
+boundary. This CLI setting is never used for a host review process. Containers receive neither host
 home/configuration nor the Docker socket, project credentials, game assets,
 profiles or unrelated private files. Generated tests run inside containers.
 

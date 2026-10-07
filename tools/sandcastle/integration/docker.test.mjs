@@ -6,6 +6,8 @@ import { join } from 'node:path';
 import { gitAt, preserveWorkspace, hostGitEnv, sourceClone } from '../scripts/workspace.mjs';
 import { verify, inspectGit, exportBranchBundle } from '../scripts/verification.mjs';
 import { retainedSandbox } from '../scripts/sandbox.mjs';
+import { reviewArgs } from '../scripts/review.mjs';
+import { checked } from '../scripts/process.mjs';
 import { PRIVATE, ROOT, IMAGE } from '../scripts/settings.mjs';
 
 Object.assign(process.env, hostGitEnv());
@@ -52,6 +54,31 @@ test('actual Combine gate can use empty ephemeral private scratch without host p
   const result = await verify(repo, repo, { checks: [] });
   assert.equal(result.passed, true, JSON.stringify(result));
   assert.deepEqual(await readdir(join(repo, '.private')), []);
+});
+
+test('reviewer shell reads source but cannot write source, Git metadata or container root', async () => {
+  const { dir, repo, base } = await fixture();
+  const home = join(dir, 'dummy-auth');
+  await mkdir(home);
+  const args = reviewArgs(`combine-review-test-${randomUUID()}`, repo, repo, home, IMAGE);
+  args.splice(args.indexOf(IMAGE) + 1);
+  args[args.indexOf('--entrypoint') + 1] = 'python3';
+  const output = await checked('docker', [...args, '-c', [
+    'from pathlib import Path',
+    'assert "seeded failure" in Path("scripts/verify.py").read_text()',
+    'for path in ("scripts/verify.py", ".git/config", "/reviewer-write-probe"):',
+    '    try:', '        Path(path).write_text("bad")',
+    '    except OSError:', '        pass',
+    '    else:', '        raise AssertionError("reviewer can write " + path)',
+    'Path("/tmp/review-probe").write_text("temporary")',
+    'Path("/auth/review-probe").write_text("dedicated auth")',
+    'assert not Path("/var/run/docker.sock").exists()',
+    `assert not Path(${JSON.stringify(join(ROOT, '.private/worktrees'))}).exists()`,
+    'print("PASS: Docker review boundary")',
+  ].join('\n')], { timeoutMs: 20_000 });
+  assert.match(output, /PASS: Docker review boundary/);
+  assert.equal(await gitAt(repo, ['rev-parse', 'HEAD']), base);
+  assert.equal(await gitAt(repo, ['status', '--porcelain']), '');
 });
 
 test('accepted task commits export as a source bundle from the isolated inspector', async () => {

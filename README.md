@@ -1,5 +1,8 @@
 # Combine — reproducible game mashup experiments in Rust
 
+For one approved coding task in an isolated Docker worker, use the
+[Sandcastle operating guide](tools/sandcastle/README.md).
+
 Combine explores separate mashup experiences in the existing MW2 / Skate 3 /
 Minecraft runtime. Each experience needs its own preparation and gameplay evidence;
 The long-term ambition is a substantial open-source project with reproducible,

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "observed_on": "2026-10-07",
+  "status": "candidate-source-pins-runtime-unqualified",
+  "gta_version": "1.2.0.59",
+  "architecture": "x86",
+  "cleo_redux": {
+    "repository": "https://github.com/cleolibrary/CLEO-Redux",
+    "commit": "bbf6773fe8cc1bfa95c73509a25928f97b0d8d13",
+    "release": "1.5.1",
+    "asset": "cleo_redux_1.5.1.x86.zip",
+    "size_bytes": 3928451,
+    "sha256": "8dcc0e83e25ab8c57a52d4ca65470b8ec6fc4e94121e5905b826079d75c2807b",
+    "checksum_evidence": "GitHub-release-metadata-only",
+    "sdk_header_sha256": "c7b1e01f415c0fb59c00e630278a68c2e87a05739d247e284b01a73a038204a7"
+  },
+  "asi_loader": {
+    "repository": "https://github.com/ThirteenAG/Ultimate-ASI-Loader",
+    "commit": "6b440669144c4a0bef5718ab155df160d231cd42",
+    "release": "v9.7.4",
+    "asset": "Ultimate-ASI-Loader.zip",
+    "size_bytes": 3910913,
+    "sha256": "952cebfc30d525afc2bdbaca954329d405ded3aa688a83027354dae14dfd5c5f",
+    "checksum_evidence": "GitHub-release-metadata-only"
+  },
+  "native_definitions": {
+    "repository": "https://github.com/sannybuilder/library",
+    "commit": "34bedee0be2f57047ed8f0705c81f137ede3d3ce",
+    "path": "gta_iv/gta_iv.json",
+    "sha256": "ba78c1ae32ea2eb800311f4513617e75c6283ac94805db016d157745356eb21b"
+  },
+  "guidance": {
+    "repository": "https://github.com/rehan-remade/universal-modder",
+    "commit": "76b9c7e77ead5fd2d5f1b7613c6a7ed591b01c70"
+  },
+  "skate": {
+    "repository": "https://github.com/chasmlol/2010-rust-rewrite-mashup",
+    "commit": "f608f85e407ff1b7689d54a9aafdd16e95711ac4",
+    "local_patches": [],
+    "harness_lock_sha256": "35e296ff4d4710f49e7fb65941c2e41e23a97cbb62ad4879193c00fcac7a2204"
+  }
+}

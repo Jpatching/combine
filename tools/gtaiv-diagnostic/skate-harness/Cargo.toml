@@ -1,0 +1,11 @@
+[package]
+name = "combine-gtaiv-skate-harness"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+# Copy this harness alongside an immutable `upstream` source export before building.
+[dependencies]
+skate-host = { path = "../upstream/skate/crates/skate-host" }

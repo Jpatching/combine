@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile, mkdir, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, writeFile, readFile, rm, chmod, access } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { checked } from '../scripts/process.mjs';
-import { requireWorkspace, preserveWorkspace } from '../scripts/workspace.mjs';
+import { checked, execute } from '../scripts/process.mjs';
+import { requireWorkspace, preserveWorkspace, hostGitEnv } from '../scripts/workspace.mjs';
 
 test('workspace rejects branch or revision drift and preserves uncommitted source', async t => {
   const root = await mkdtemp(join(tmpdir(), 'combine-workspace-'));
@@ -33,4 +33,30 @@ test('workspace rejects branch or revision drift and preserves uncommitted sourc
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test('dependency-owned host Git cannot lazy-fetch through a configured remote helper', async t => {
+  const root = await mkdtemp(join(tmpdir(), 'combine-lazy-fetch-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const git = (args, options) => checked('git', ['-C', root, ...args], options);
+  await git(['init', '-q', '-b', 'main']);
+  const tree = await git(['hash-object', '-t', 'tree', '-w', '--stdin'], { input: '' });
+  const missingParent = '1'.repeat(40);
+  const commit = await git(['hash-object', '-t', 'commit', '-w', '--stdin'], {
+    input: `tree ${tree}\nparent ${missingParent}\nauthor Test <test@example.invalid> 1 +0000\ncommitter Test <test@example.invalid> 1 +0000\n\nMissing parent fixture\n`,
+  });
+  await git(['update-ref', 'refs/heads/main', commit]);
+  const marker = join(root, 'HOST_REMOTE_HELPER_EXECUTED');
+  const helper = join(root, 'remote-helper.sh');
+  await writeFile(helper, `#!/bin/sh\ntouch '${marker}'\nexit 1\n`);
+  await chmod(helper, 0o700);
+  for (const [key, value] of [['core.repositoryformatversion', '1'], ['extensions.partialClone', 'trap'],
+    ['remote.trap.promisor', 'true'], ['remote.trap.url', `ext::${helper}`], ['protocol.ext.allow', 'always']]) {
+    await git(['config', key, value]);
+  }
+  const result = await execute('git', ['-C', root, 'rev-list', 'main', '--reverse'],
+    { env: { ...process.env, ...hostGitEnv() }, timeoutMs: 5000 });
+  assert.notEqual(result.code, 0);
+  assert.equal(result.reason, null);
+  await assert.rejects(access(marker));
 });

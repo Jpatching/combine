@@ -12,10 +12,12 @@ export const gitAt = (repo, args, options) => checked('git', [
 
 export function hostGitEnv() {
   // Also protects dependency-owned host Git calls, including Sandcastle cleanup.
-  return { GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_COUNT: '3',
+  return { GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_COUNT: '4',
+    GIT_NO_LAZY_FETCH: '1', GIT_ALLOW_PROTOCOL: '', GIT_TERMINAL_PROMPT: '0',
     GIT_CONFIG_KEY_0: 'core.fsmonitor', GIT_CONFIG_VALUE_0: 'false',
     GIT_CONFIG_KEY_1: 'core.hooksPath', GIT_CONFIG_VALUE_1: '/dev/null',
-    GIT_CONFIG_KEY_2: 'core.pager', GIT_CONFIG_VALUE_2: 'cat' };
+    GIT_CONFIG_KEY_2: 'core.pager', GIT_CONFIG_VALUE_2: 'cat',
+    GIT_CONFIG_KEY_3: 'protocol.allow', GIT_CONFIG_VALUE_3: 'never' };
 }
 
 export async function requireWorkspace(repo, branch, revision) {

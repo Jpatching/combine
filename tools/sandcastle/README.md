@@ -95,6 +95,8 @@ workspace. Preserve the only retained copy before any cleanup.
 Worker-controlled Git inspection runs inside credential-free, network-disabled
 containers, keeping configured executable helpers inside Docker. Container teardown
 is separate from upstream worktree cleanup. Every phase uses the immutable image ID.
+The inherited host Git environment also disables lazy object fetching and all
+transport protocols for upstream's remaining commit enumeration.
 
 An `accepted` result means source checks, scope/branch invariants and both agent
 reviews passed. Host review and publication are pending. Follow Combine's

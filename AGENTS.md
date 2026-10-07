@@ -3,7 +3,7 @@
 Start with the [current board](https://github.com/users/Jpatching/projects/5/views/8)
 and [current handoff](docs/HANDOFF.md): goal, blocker, next action. Git owns source;
 the private Project owns status. Read [workflow](docs/WORKFLOW.md) when implementing
-or publishing, and [tracker operations](docs/agents/issue-tracker.md) when updating cards.
+or publishing/merging, and [tracker operations](docs/agents/issue-tracker.md) when updating cards.
 Historical backlog and archived handoffs are optional evidence, not startup reading.
 
 Load requirements for the selected task only:
@@ -26,6 +26,7 @@ builds; isolate runtime copies/caches/profiles. Review plugins/scripts before us
 No DRM/anti-cheat bypass. Source licences do not establish asset/publisher rights.
 Recipes remain strict data, never executable commands, paths or download URLs.
 No universal merger, new engine, marketplace or production launcher is authorized.
-Spending, outreach, redistribution, launch, merge and release need task authority.
-Reviewed source-branch publication to Jpatching/combine is authorized (D-027/D-032);
-verify remote SHA and board read-back. Preserve unrelated work and published history.
+Spending, outreach, redistribution, launch and release need task authority.
+Reviewed source publication and routine PR merges follow the workflow (D-033);
+the existing backlog needs separate merge authorization. Verify remote SHA and
+board read-back. Preserve unrelated work and published history.

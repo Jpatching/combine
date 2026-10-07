@@ -32,8 +32,9 @@ Requirements, builds and evidence are preserved; archiving is not completion.
 **Reset scope/source:** documentation and private board only, branch
 `slice/fortnite-workflow-reset`, base `676998711eadebdb2297a320cad9171e888f6fe5`.
 Git HEAD identifies the reset revision; publication SHA/read-back belongs on C-024.
-The inherited 24 commits beyond main and open PR #1 require separate review before
-merge. No history rewrite, merge, release or gameplay acceptance. Inherited native
+The inherited backlog and open PR #1 require separate review and owner authority
+before merge. D-033 now authorizes future routine reviewed source PR merges.
+No backlog merge, history rewrite, release or gameplay acceptance is claimed. Inherited native
 missing-test/exporter rebuild/analyzer debts remain; no runtime suite is claimed.
 
 **Reset verification:** API read-back confirms two Blocked cards, 27 archived with
@@ -44,3 +45,13 @@ worked despite omission from the initial automatic skill catalog. Lead self-revi
 covers this reset only. Final gate/link results and publication SHA are recorded
 with C-024's reset publication evidence.
 The private before/after snapshots are under `.private/workflow-reset/`.
+
+**Workflow correction:** D-033 makes merged source and synchronized main the normal
+finish condition, with one branch per ticket. Matt's skills guide feature work;
+WORKFLOW.md now contains only source completion and project boundaries.
+The correction continues the existing
+workflow-reset branch. [Branch reconciliation](../research/results/2026-10-07-branch-reconciliation.md)
+records the inventory, unpublished-history comparison and proposed backlog order.
+Existing branches remain preserved; the backlog is not merge-ready merely because
+the workflow documentation passes checks. Publication/review results belong on the
+PR and C-024; the game's current blocker and next action above are unchanged.

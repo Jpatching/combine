@@ -1,52 +1,55 @@
-# Combine development loop
+# Combine source completion
 
-Choose one observable outcome from the [private board](https://github.com/users/Jpatching/projects/5/views/8)
-and [current handoff](HANDOFF.md). Read only that task's requirements and relevant
-decisions. Existing contracts settle prior choices. Historical backlog and
-handoffs are evidence to consult when needed, not mandatory orientation.
+Choose the work from the [board](https://github.com/users/Jpatching/projects/5/views/8)
+and [handoff](HANDOFF.md). Use Matt's original skills when they fit the task;
+`ask-matt` can help choose. Combine adds no mandatory skill sequence, phase system,
+or custom router. Load only the selected task's requirements. Git owns source;
+the private Project owns status. Keep one implementation slice active.
 
-```text
-Choose one observable outcome
-  -> resolve only the uncertainty blocking it
-  -> implement a small complete change
-  -> test and review
-       failure -> fix and recheck
-       blocked -> retain evidence and stop that attempt
-  -> publish reviewed source when authorized
-  -> demonstrate; obtain acceptance where required
-```
+## Branch to main
 
-Keep Doing to one card. Before editing, state the outcome, exclusions and acceptance
-check. Inspect existing behavior, preserve unrelated work and use focused checks.
-A blocked attempt ends with a precise missing prerequisite and next action.
-Use Matt's original skills at the relevant step; explicit-only skills need explicit
-invocation. Skill execution is not board progress. Specifications and tickets are
-useful when work spans sessions; the next task must stand alone. Global skills and
-utilities remain unchanged; Combine no longer uses the seven-phase board helper.
+- **Start:** continue the same ticket on its existing branch. For a new ticket,
+  fetch origin, inspect dirty work and local commits, fast-forward clean local
+  main to origin/main, and create one task branch. Preserve unique work; resolve
+  divergence explicitly. Merge prerequisites first where practical; otherwise
+  record the dependent branch and PR base explicitly.
+- **Review and publish:** review requirements, standards and the source/history
+  for private data. Resolve blocking findings; run `python3 scripts/verify.py`
+  and relevant runtime checks. Capture ignored runtime edits as reviewed patches.
+  Commit, push, verify the remote SHA, and open/update the task PR with the outcome,
+  exact review/test evidence, limitations and dependencies.
+- **Merge:** D-033 authorizes ordinary source PR merges without another permission
+  question when review/checks pass, prerequisites are merged, and GitHub's head
+  and base match the reviewed/tested revisions. Respect repository protections;
+  inspect merge-triggered automation since deployment needs separate authority.
+  Use merge commits, preserving published history. Changed source, dependencies,
+  toolchain or base requires affected review/checks again.
+- **Synchronize:** verify the PR is merged and read origin/main's resulting SHA.
+  Fast-forward clean local main and verify equality. Delete local/remote task
+  branches only after checking merged containment, dirty state, linked worktrees
+  and evidence links. Replace branch-dependent evidence links with durable commit
+  links first. Preserve unaccounted work; report deferred cleanup explicitly.
+  Update the task card and read it back using [tracker operations](agents/issue-tracker.md).
 
-Use one branch per coherent outcome. Refresh origin, inspect the base and checkpoint
-inherited work separately. At handoff review the slice diff and explicit source
-list/history for private data, run `python3 scripts/verify.py` once plus relevant
-runtime/link checks, and make a reviewable commit. Repeat gates only after relevant
-changes or failures. Ignored runtime changes need a reproducible reviewed patch.
+Source completion means merged PR, matching local/remote main and reconciled
+branch/tracker state. Publication alone is intermediate. Put routine SHA evidence
+on the PR/card, without another commit describing the previous commit.
 
-D-027 and the October 7 reset authorize reviewed source branches to Jpatching/combine
-before gameplay acceptance. Push completed reviewed changes, verify the remote SHA,
-and read back the updated card. Record routine synchronization and SHA confirmation
-on the card or PR, without a follow-up commit just to describe the prior commit.
-Report a concrete blocker and unpushed count if publication cannot finish.
+Blocked work stays unfinished: publish reviewed, non-sensitive work in a draft
+PR with its blocker and next action. For failed publication or synchronization,
+report the failed operation and unpushed count; mark tracker synchronization pending
+in the handoff when needed. Passing checks never establishes gameplay acceptance.
+Launch, spending, outreach, redistribution, deployment and release retain their
+separate authority. Owner trials follow the relevant gameplay guide and stop at
+the exact verified build ready for the owner's test.
 
-The reset branch inherits 24 commits beyond main at its starting revision
-`676998711eadebdb2297a320cad9171e888f6fe5`. Review inherited changes separately before
-any merge; [PR #1](https://github.com/Jpatching/combine/pull/1) and existing branches
-remain intact. No squash, merge, CI deployment or release is authorized by this reset.
+## Existing backlog exception
 
-For an owner trial, follow the relevant gameplay guide: prepare the exact verified
-build, versioned launch/files/checklist shortcuts and limitations; preserve its
-predecessor and stop ready for the owner's test. Launch requires authority. Passing
-source checks or a published branch does not establish gameplay or acceptance.
-
-Maintain one current handoff with goal, evidence/blocker and next action. Move prior
-substantial handoffs into the linked archive, repairing relative links. Preserve
-requirements and evidence when parking work: inactive never means accepted or done.
-For board operations and unavailable-service recovery, use [tracker instructions](agents/issue-tracker.md).
+This correction continues the workflow-reset branch. Its inherited 25 commits
+beyond main at `4a366cb537da2c9eb6d3be2269b0eebe5eb8d2b1`, including
+[PR #1](https://github.com/Jpatching/combine/pull/1), need separate reconciliation,
+review and owner merge authorization. D-033 supersedes earlier blanket merge
+restrictions for future routine source work only. The
+[branch inventory and merge proposal](../research/results/2026-10-07-branch-reconciliation.md)
+record what remains. Preserve unique local history until its disposition is
+reviewed; do not automatically merge the backlog or rewrite published history.

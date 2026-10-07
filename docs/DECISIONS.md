@@ -687,3 +687,26 @@ phase machinery, mandatory backlog/history reading and conflicting publication w
 Reviewed reset source publication is authorized; routine SHA/board confirmation stays
 on the card or PR. Preserve branches/history and review inherited changes separately
 before any merge. No CI deployment, squash, merge, release or gameplay acceptance.
+
+
+## D-033: finish routine source changes through main — 2026-10-07
+
+The owner selected routine agent merges after review and checks, then instructed
+Codex to proceed with the workflow correction and existing-branch reconciliation.
+Keep one branch per ticket/coherent outcome, created from updated main; continue
+the same task on its existing branch. The complete procedure and completion
+criteria live in [workflow](WORKFLOW.md#branch-to-main).
+
+This supersedes earlier separate-approval requirements for ordinary source PR
+merges, including D-032's reset restriction, subject to the workflow's review,
+verification and synchronization conditions. This is the owner's Combine policy,
+not a claim about Matt Pocock's personal merge practice. The owner subsequently
+clarified that Matt's skills should guide feature work without a second prescribed
+Combine workflow. Keep WORKFLOW.md limited to source completion and project
+boundaries; no mandatory skill sequence, custom router or phase system. Gameplay acceptance,
+launch, spending, redistribution, deployment and release keep their boundaries.
+
+The pre-existing backlog remains separately controlled: reconcile unique local
+history, review accumulated changes and present a concrete proposal for owner
+merge authorization. Preserve published history and unique local work. Continue
+the workflow-reset branch for this correction; do not add another dependent branch.

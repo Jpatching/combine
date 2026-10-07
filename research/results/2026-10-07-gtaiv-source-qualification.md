@@ -79,3 +79,57 @@ Custom commands need JSON definitions matching registered name and parameter ord
 - Bones: GET_PED_BONE_POSITION(char,boneId,x,y,z)->Vector3 position exists, but binding, offsets, coordinate convention and real runtime result need qualification. Position reads do not prove writable bone transforms or Skate animation integration.
 
 All loader compatibility, changing gameplay values, repeated loading, disabled normal walking/driving/camera controls, collision, grind and bone-animation behavior remain runtime checks. Do not issue a skating proof spec as an accepted route merely from these sources.
+
+## Parent implementation and fresh qualification results
+
+The section above records the delegated source-only investigation. The parent
+subsequently implemented the [diagnostic and runbook](../../tools/gtaiv-diagnostic/README.md)
+on `prototype/gtaiv-skate-qualification`, starting at
+`225152f8a5527f46831327680ff00c35d047e362`. The owner authorized using that existing
+worktree through explicit command working directories; the visible chat workspace
+was not retargeted or claimed refreshed. The original checkout's unrelated local
+research file and other experiments remain preserved.
+
+| Check | Fresh result | Meaning and limit |
+| --- | --- | --- |
+| Supplied archive, selected main executable | Passed header identity: file version 1.2.0.59, PE machine 014c (x86) | Version and architecture only; private hashes retained outside Git |
+| Windows Authenticode, main GTAIV.exe | **Failed: HashMismatch**, signer listed as Rockstar Games, Inc. | Executable does not validate against its embedded signature; cause not established |
+| Windows Authenticode, PlayGTAIV.exe and orig_socialclub.dll | Valid, Rockstar Games, Inc. | Those selected files validate, not the package as a whole |
+| Windows Authenticode, active socialclub.dll | NotSigned; no version resource found; binary contains a Goldberg marker | Different from the signed original. Authentication replacement is suspected; its behavior was not executed or fully reverse-engineered |
+| Windows Authenticode, steam_api.dll | Valid, Valve | Does not cure the main executable mismatch |
+| CLEO diagnostic Release build | Passed CMake build with MinGW GCC 13, warnings treated as errors; objdump reports pei-i386 | Linked x86 DLL, not a loaded GTA plugin. Imports only KERNEL32, msvcrt and VERSION |
+| JS diagnostic interface check | Passed `node tools/gtaiv-diagnostic/check_script.cjs` | Synthetic readiness, missing-player and missing-camera guards; changing fields and all 17 arguments verified; no game reads occurred |
+| Custom definitions preparation | Passed exact-source hash check and JSON generation; altered source rejected; existing output preserved | Local command definitions still need CLEO runtime acceptance |
+| Original Skate host x86 check | Passed `cargo check --offline --locked --target i686-pc-windows-gnu` on an immutable source export | Pinned source, no local Skate patches; two upstream private-interface warnings |
+| Actual Skate Session harness x86 build | Passed `cargo build --offline --locked --target i686-pc-windows-gnu` | Linked calls to Session creation, ticking and pose access; PE i386 verified. XINPUT1_3 runtime availability, asset initialization, process memory and embedding remain untested |
+| Repository gate | Passed `python3 scripts/verify.py`: 38 tests and links in 46 tracked Markdown documents | Source gate only; no gameplay claim |
+| Stock GTA startup; native load; repeated gameplay; disabled controls | **Blocked / not tested** | Archive rejected before launch; no GTA process was started |
+| Collision geometry; grind detection; bone-animation access | **Not tested**, three separate unresolved qualifications | Loader/source/build success does not establish skating feasibility |
+| Skate harness execution; owner acceptance; release | **Not tested** | No runtime or acceptance result inferred from the successful build |
+
+Selected executable/support files were decompressed privately for static header,
+hash and signature checks. The original archive remains untouched. Inventory and
+raw evidence stay outside Git and AI uploads. An initial metadata filename search
+matched an in-game Goldberg website: that match was discarded as emulator evidence.
+The later marker observation was taken from the active support DLL itself.
+
+Temporary setup: the Rust i686 Windows target was installed after sandbox approval.
+System MinGW installation failed because sudo required a password. Approved Ubuntu
+compiler packages were instead downloaded and unpacked under `/tmp`, with no system
+package installation. The first host check failed for the absent MinGW compiler;
+the check passed after this tooling gap was resolved. Ubuntu's 7-Zip could list the
+RAR but lacked its extraction method; a downloaded Ubuntu RAR reader supplied
+private, selected-file decompression. No archive installer, support DLL or game
+executable was executed. Neither pinned loader release bundle was downloaded or run.
+
+**Decision: unresolved, blocked by stock executable integrity and startup-route
+qualification.** The modified-looking support library adds a startup-route question;
+no protection bypass, DLL substitution, version change or automatic repair was used.
+Advancing requires an unchanged 1.2.0.59 executable and ordinary startup route that
+satisfy the plan's baseline boundary, followed by the runbook's real-game checks.
+The successful x86 host build supplies no demonstrated need for a separate helper.
+Do not proceed to an accepted skating proof specification yet. Melty publication
+remains deferred.
+
+The full pinned host test suite still references missing `src/tests/map_startup.rs`.
+This work built the library/harness, not that suite; no recovery exception is reused.

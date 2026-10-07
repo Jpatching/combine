@@ -1,3 +1,6 @@
+#[cfg(not(all(windows, target_arch = "x86", target_pointer_width = "32")))]
+compile_error!("This qualification harness requires 32-bit x86 Windows");
+
 use skate_host::bridge::{Controls, Session};
 use std::path::PathBuf;
 

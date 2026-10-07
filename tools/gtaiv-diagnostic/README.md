@@ -61,6 +61,7 @@ Offline mode needs the dependencies already cached. The harness links the origin
 `Session::new`, `tick`, `pose` and `period` calls, without local Skate patches.
 Compilation and linking have passed. The executable imports XINPUT1_3.dll in
 addition to Windows system APIs; runtime library availability remains untested.
+Other operating systems or architectures are rejected at compile time.
 Its debug executable's disk size is not a measurement of process memory.
 
 On Windows, supply the existing private converted Skate asset directory as its

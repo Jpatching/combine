@@ -48,7 +48,9 @@ def check_links(root=ROOT):
     for doc in docs:
         require(doc.resolve().is_relative_to(root) and doc.is_file(),
                 f"Missing or external Markdown document: {doc.relative_to(root)}")
-        for target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", doc.read_text(encoding="utf-8")):
+        for target in re.findall(r"\[[^\]]+\]\((<[^<>\n]*>|[^)]+)\)", doc.read_text(encoding="utf-8")):
+            if target.startswith("<") and target.endswith(">"):
+                target = target[1:-1]
             if target.startswith(("https://", "http://", "#", "mailto:")):
                 continue
             path = (doc.parent / target.split("#", 1)[0]).resolve()

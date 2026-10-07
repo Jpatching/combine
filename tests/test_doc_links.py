@@ -42,6 +42,40 @@ class DocumentationLinksTests(unittest.TestCase):
         self.tracked("docs/with spaces.md", "[section](#heading)")
         self.assertEqual(check_links(self.root), 3)
 
+    def test_angle_bracket_relative_links_with_spaces_and_fragments_are_accepted(self):
+        self.tracked("README.md", "[guide](<docs/with spaces.md>)")
+        self.tracked("docs/with spaces.md", "[home](<../README.md#heading>)")
+        self.assertEqual(check_links(self.root), 2)
+
+    def test_angle_bracket_destination_with_parentheses_is_accepted(self):
+        self.tracked("README.md", "[guide](<docs/guide (draft).md#steps>)")
+        self.tracked("docs/guide (draft).md", "# Steps\n")
+        self.assertEqual(check_links(self.root), 2)
+
+    def test_remote_and_anchor_links_are_excluded_with_or_without_brackets(self):
+        for target in ("https://example.com/guide", "http://example.com/guide",
+                       "mailto:owner@example.com", "#heading"):
+            for destination in (target, f"<{target}>"):
+                with self.subTest(destination=destination):
+                    self.tracked("README.md", f"[excluded]({destination})")
+                    self.assertEqual(check_links(self.root), 1)
+
+    def test_missing_angle_bracket_local_target_is_rejected(self):
+        self.tracked("README.md", "[missing](<docs/missing guide.md#steps>)")
+        with self.assertRaisesRegex(ValidationError, "Broken local link"):
+            check_links(self.root)
+
+    def test_angle_bracket_links_to_existing_external_targets_are_rejected(self):
+        outside = tempfile.TemporaryDirectory(dir=self.root.parent)
+        self.addCleanup(outside.cleanup)
+        target = Path(outside.name) / "outside guide.md"
+        target.write_text("# Outside\n", encoding="utf-8")
+        for destination in (f"../{target.parent.name}/{target.name}", str(target)):
+            with self.subTest(destination=destination):
+                self.tracked("README.md", f"[outside](<{destination}#heading>)")
+                with self.assertRaisesRegex(ValidationError, "Broken local link"):
+                    check_links(self.root)
+
     def test_untracked_private_markdown_is_not_read(self):
         self.tracked(".gitignore", ".private/\n")
         self.tracked("README.md", "# Public\n")

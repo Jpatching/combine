@@ -23,7 +23,7 @@ retired. The next work comes from the owner's request; no old task is selected.
 
 **Baseline recovery — 2026-10-07:** the owner authorized one recovery PR from
 preserved tip `03444e2`, retaining implementation and final documentation cleanup.
-The open [recovery PR #3](https://github.com/Jpatching/combine/pull/3) uses branch
+The [recovery PR #3](https://github.com/Jpatching/combine/pull/3) uses branch
 `recovery/source-baseline-20261007`; local backup
 `backup-recovery-source-20261007` preserves the pre-recovery source tree, and
 `backup-clutter-state` retains the original history. Resume this recovery before
@@ -39,10 +39,24 @@ actionable source findings in either revision. Exporter dependency restore uses
 the committed lock; upstream projects warn about Microsoft.Bcl.Memory 9.0.0,
 while the runner's resolved dependency manifest selects its pinned 9.0.14.
 
-**Merge blocked:** fresh `cargo +1.95.0 test --offline --locked --manifest-path
+**Accepted recovery debt:** `cargo +1.95.0 test --offline --locked --manifest-path
 skate/crates/skate-host/Cargo.toml --all-targets` fails to compile because pinned
 upstream `src/physics.rs:401` references missing `src/tests/map_startup.rs`.
-The full host suite remains unverified; focused passes do not waive this failure.
-Keep the recovery PR open until required validation can pass. Merge, local-main
-synchronization and redundant-branch cleanup remain pending. No game assets were
-loaded, game launched, real export performed or owner gameplay acceptance claimed.
+The full host suite remains unverified. The owner explicitly selected merging
+this recovery with that inherited debt recorded, superseding the earlier hold
+until the full suite passes. This exception applies to recovery PR #3; it does
+not turn the failed check into a pass or waive future slice validation.
+
+**Next authorized setup:** merge recovery using a merge commit, synchronize clean
+local `main`, then create `prototype/fortnite-skate-surface` in a separate persistent
+worktree from that updated `main`. Keep one active source slice, with a fresh
+branch and worktree per new slice; resume unfinished work on its existing branch.
+The native experiment asks whether the existing Skate simulation can drive a
+visible marker on one real Fortnite surface. Rough presentation is accepted for
+the first proof; actual Skate movement, collision, input and repeatability are
+still required. Matt's HTML/UI `prototype` skill does not establish native
+integration; use `implement`, focused checks and `code-review` for this experiment.
+Keep experimental checkpoints on their branch and promote useful implementation
+through reviewed PRs. The immediate task is setup and a fresh-session handoff;
+client acquisition and game launch are not included. No game assets were loaded,
+game launched, real export performed or owner gameplay acceptance claimed here.

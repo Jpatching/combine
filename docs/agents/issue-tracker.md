@@ -39,14 +39,21 @@ Complete each authorized source slice through:
 
 **Implement → test → review → commit → push → PR → merge → synchronize local `main`.**
 
-Use one focused branch and PR per slice. Work only on slices whose blockers are
-complete. Review and required checks must pass before merging. Start the next
+Use one focused branch and PR per implementation slice, with a separate worktree
+for its edits and checks. Create each new slice branch from synchronized `main`;
+keep the primary checkout on clean `main` rather than implementing there. Work
+only on slices whose blockers are complete. Review and required checks must pass before merging. Start the next
 slice from updated `main` after completion. Resume an existing unfinished
 issue/branch/PR instead of creating a duplicate. When blocked, report the existing
 PR and exact blocker; keep it open and finish that slice before starting another.
 Verify completion with a clean working tree, a merged PR, and identical local
 `main` and `origin/main` revisions after fetching. Source integration does not
 establish gameplay acceptance or authorize launch, deployment or release.
+Keep experimental checkpoints on a separate `prototype/<name>` branch and link
+its question and verdict from the issue. A preserved experiment need not merge;
+promote useful implementation through a reviewed source slice. Verify branch,
+worktree and starting revision before edits. Remove completed worktrees only
+after preserving commits and checking ignored local files.
 This convention supplements Matt's original skills without modifying them.
 
 The old Project cards and deleted plans remain historical. Leave the cards

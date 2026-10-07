@@ -1,11 +1,12 @@
-# Windows baseline — C-003
+# Windows baseline — retained trial procedure
 
-This procedure tests the upstream runtime on the owner's Windows PC. “C-003” is
-just the backlog reference for that test, not a player-facing product name.
+This procedure tests the upstream runtime on the owner's Windows PC when that
+trial is requested. The observations below describe the October 3 baseline, not
+the current task queue; see [current context](HANDOFF.md).
 Windows PowerShell is accessible through WSL with sandbox approval. Human observation
 is needed for gameplay; successful commands do not establish playable behaviour.
 
-**Current priority: skating on Rust.** MW2 Multiplayer is installed, the v0.4.0
+**Retained trial: skating on Rust.** MW2 Multiplayer is installed, the v0.4.0
 archive was verified and a separate trial launched. The owner reports Minecraft
 worked and a possible freeze. See [the result](../research/results/2026-10-03-first-launch.md)
 and [retained evidence](HANDOFF.md) before repeating any preparation.
@@ -61,8 +62,8 @@ skating acceptance. Do not mark either skating recipe complete yet.
 - For both skating recipes, extracted Skate 3 Xbox 360 content: `default.xex` and
   its accompanying `data` folder. An ISO alone is not the mashup's documented input.
 - A controller; the current trial uses a detected DualSense. Record actual input results.
-- Internet for upstream first-run content downloads. Read C-006 in the research
-  record before deciding whether to run the content downloader. This runbook is not
+- Internet for upstream first-run content downloads. Review the [recorded rights/provenance questions](RESEARCH.md#rightsprovenance-questions-c-006)
+  before deciding whether to run the content downloader. This runbook is not
   permission to acquire files or bypass protection.
 - A dedicated writable folder outside either game's installation. Leave ordinary
   saves and installs untouched. Do not connect to public multiplayer servers.
@@ -166,7 +167,8 @@ matrix are acceptance targets to measure, not behaviours Combine has implemented
 Copy [the result template](../templates/baseline-result.md) into ignored `.private/`
 for raw notes. Put only a manually redacted report under `research/results/` when
 ready; include no usernames, absolute private paths, game files, tokens or participant
-identities. Update C-003 with pass/partial/fail/blocked and evidence location.
+identities. Record pass/partial/fail/blocked and evidence location on the authorized trial
+issue, if one exists; the retired C-003 card is historical.
 
 Acceptance: verified archive identity, actual hardware/build details, both candidate
 results, thirty minutes of gameplay observations, failure cases, original-file

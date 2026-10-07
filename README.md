@@ -7,9 +7,9 @@ separate experiences and contributor-friendly source. Today this is experimental
 source, with no game files, playable download or installer. Each new world needs
 an independently evidenced integration; the ambition is not a universal merger.
 
-**Current outcome: Fortnite + Skate.** The selected 12.41 client executable fails
-manifest/signature integrity checks; no playable integration exists. Next: determine
-the mismatch's cause and whether matching original input is obtainable. Other work,
+**Current outcome: Fortnite + Skate.** No playable integration exists. The
+[current experiment](https://github.com/Jpatching/combine/issues/4) owns the next
+native one-surface proof and its prerequisites. Other work,
 including Synergy's unaccepted trial and unimplemented hit radius, is parked.
 See the [current handoff](docs/HANDOFF.md) for retained evidence and the fresh-start status.
 
@@ -23,7 +23,7 @@ PowerShell support validation and Windows trial preparation.
 | Skate on MW2 Rust with MW2 combat | Owner reports skating worked; baseline recovery/replay incomplete | [Windows baseline](docs/WINDOWS_BASELINE.md) |
 | Minecraft world with MW2 combat and skating | Owner reports Minecraft worked; skating on changed terrain and replay unverified | [Windows baseline](docs/WINDOWS_BASELINE.md) |
 | Actual Synergy trickshot menu in the existing mashup | Original GSC menu integrated; Intervention/input checks recorded; exact-build physical trial unaccepted | [Menu guide](docs/TRICKSHOT_MENU.md), [trial evidence](docs/HANDOFF.md) |
-| Interactive Fortnite island + Skate | Gameplay base/client/bridge qualification; building/editing/destruction required; no playable integration | [Qualification](research/results/2026-10-06-fortnite-adapter-qualification.md) |
+| Interactive Fortnite island + Skate | Gameplay base/client/bridge qualification; building/editing/destruction required; no playable integration | [Contract](docs/FORTNITE_SKATE.md) |
 
 Recipes are strict research metadata. The Python checker does not prepare or
 launch these experiences. Unfinished preparation scaffolding is not playable progress.

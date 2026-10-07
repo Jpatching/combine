@@ -1,5 +1,9 @@
 # Interactive Fortnite with Skate: qualification and specification — 2026-10-06
 
+> Historical qualification and evolving specification. The [current contract](../../docs/FORTNITE_SKATE.md)
+> and its linked live issue own present requirements and task selection; candidate
+> ordering, tracker operations and next actions below describe their original dates.
+
 **Owner clarification, 2026-10-06:** narrow the prototype entry gate to usable
 startup and reviewed native execution, preserving the no-DRM/anti-cheat-bypass
 boundary. Game files and reverse engineering are valid starting points; an

@@ -17,10 +17,13 @@ python3 scripts/check_recipe.py recipes/mw2-skate.json
 
 On Windows substitute `py -3` for `python3`. Select the desired source branch and
 record `git rev-parse HEAD` and `git status --short` before comparing evidence.
-Use the revision/push state in [the handoff](HANDOFF.md); cloning an older remote
-revision will not reproduce later local documentation checkpoints.
-The gate checks research metadata, recipe inputs, links and tests; it proves no
+Use Git and the relevant PR for revision/push state; [the handoff](HANDOFF.md)
+links retained evidence and the live task. An older revision cannot reproduce
+later source changes.
+The gate checks research metadata, recipe inputs, tracked Markdown links and tests; it proves no
 playable integration. The checker reports invalid inputs and returns nonzero.
+The `repository-checks` CI job runs this same gate on pull requests and pushes to
+`main`. It does not compile the native runtime or establish gameplay acceptance.
 
 ## Compile actual Synergy in the pinned Rust runtime
 
@@ -87,12 +90,11 @@ Missing tools/data/check failure -> stop that stage, record exact prerequisite
 ## Fortnite with Skate: qualification comes before reproduction
 
 There is no playable interactive Fortnite + Skate integration to reproduce yet.
-[D-026 and the current specification](../research/results/2026-10-06-fortnite-adapter-qualification.md)
-require Fortnite building/editing/destruction with Skate movement/tricks/grinds.
-Qualify Project Reboot first; identify a compatible accessible client and reviewed
-isolated launch route, then live collision/lifecycle, controls/pose and rendering
-seams. A particular version, Combine and Blender are not mandatory. Earlier
-static exports and preparation scaffolding do not satisfy this contract.
+The [current contract](FORTNITE_SKATE.md) requires Fortnite building/editing/destruction
+with Skate movement/tricks/grinds. Follow the linked live experiment for candidate
+selection and first-proof acceptance. Establish usable exact-client startup and
+reviewed native execution before the Skate experiment; missing adapter code is
+experiment work. Historical candidate ordering does not select today's task.
 
 A future guide must record exact client/server/Skate revisions, lawful private
 input requirements, reviewed dependencies, coordinate/collision conversion and

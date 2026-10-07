@@ -37,17 +37,23 @@ def check_lock(lock):
                 "source evidence needs a full SHA-256")
 
 
-def check_links():
-    docs = [ROOT / "README.md", ROOT / "AGENTS.md"]
-    docs += sorted((ROOT / "docs").glob("*.md"))
-    docs += sorted((ROOT / "templates").glob("*.md"))
+def check_links(root=ROOT):
+    root = root.resolve()
+    inventory = subprocess.run(
+        ["git", "ls-files", "-z", "--", "*.md"], cwd=root,
+        capture_output=True, text=True, check=False,
+    )
+    require(inventory.returncode == 0, "Cannot list tracked Markdown documents")
+    docs = [root / name for name in inventory.stdout.split("\0") if name]
     for doc in docs:
+        require(doc.resolve().is_relative_to(root) and doc.is_file(),
+                f"Missing or external Markdown document: {doc.relative_to(root)}")
         for target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", doc.read_text(encoding="utf-8")):
             if target.startswith(("https://", "http://", "#", "mailto:")):
                 continue
             path = (doc.parent / target.split("#", 1)[0]).resolve()
-            require(path.is_relative_to(ROOT) and path.is_file(),
-                    f"Broken local link in {doc.relative_to(ROOT)}")
+            require(path.is_relative_to(root) and path.is_file(),
+                    f"Broken local link in {doc.relative_to(root)}")
     return len(docs)
 
 

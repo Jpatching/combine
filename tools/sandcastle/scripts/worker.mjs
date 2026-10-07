@@ -4,12 +4,13 @@ import { performance } from 'node:perf_hooks';
 import { createSandbox, codex } from '@ai-hero/sandcastle';
 import { docker } from '@ai-hero/sandcastle/sandboxes/docker';
 import { PRIVATE, IMAGE, MODEL, EFFORT, LIMIT_MS, PINS } from './settings.mjs';
-import { gitAt, requireWorkspace, preserveWorkspace } from './workspace.mjs';
+import { gitAt, requireWorkspace, preserveWorkspace, hostGitEnv } from './workspace.mjs';
 import { verify } from './verification.mjs';
 import { freshReview } from './review.mjs';
 import { acceptResult } from './policy.mjs';
 
 const [runDir] = process.argv.slice(2);
+Object.assign(process.env, hostGitEnv());
 const job = JSON.parse(await readFile(join(runDir, 'job.json'), 'utf8'));
 const started = performance.now();
 const controller = new AbortController();
@@ -33,7 +34,7 @@ await save();
 try {
   await requireWorkspace(job.repo, 'main', job.base);
   sandbox = await createSandbox({ cwd: job.repo, branch: job.branch, baseBranch: job.base,
-    sandbox: docker({ imageName: IMAGE, selinuxLabel: false, cpus: 2,
+    sandbox: docker({ imageName: job.image, selinuxLabel: false, cpus: 2,
       env: { CODEX_HOME: '/home/agent/.codex' },
       mounts: [{ hostPath: job.auth, sandboxPath: '/home/agent/.codex' }] }),
     hooks: { sandbox: { onSandboxReady: [{ command: 'git config --global user.name "Combine Sandcastle" && git config --global user.email sandcastle@example.invalid' }] } },
@@ -75,7 +76,7 @@ try {
   const paths = (await gitAt(row.worktree, ['diff', '--no-ext-diff', '--no-textconv', '--name-only', job.base])).split('\n').filter(Boolean);
   if (!paths.length || paths.some(path => !job.task.paths.includes(path))) throw new Error('Empty task diff or out-of-scope source changes.');
   row.changed = true;
-  row.checks = await verify(row.worktree, job.repo, job.task, options());
+  row.checks = await verify(row.worktree, job.repo, job.task, { ...options(), image: job.image });
   await save();
   if (!row.checks.passed) throw new Error('Independent checks failed.');
   // Separate new Codex processes and containers, each with read-only source and Git mounts.
@@ -91,7 +92,8 @@ try {
       'The host ran the repository gate, focused tests and external acceptance checks successfully. Do not spawn agents or modify files; the host is coordinating the two axes.',
       `End with exactly one <review>{"approved":true,"findings":[],"revision":"${row.revision}"}</review> object. Set approved false and supply actionable findings if needed.`,
     ].join('\n\n');
-    const result = await freshReview(axis, row.worktree, job.repo, home, prompt, row.revision, options());
+    const result = await freshReview(axis, row.worktree, job.repo, home, prompt, row.revision,
+      { ...options(), image: job.image });
     await writeFile(join(runDir, `${axis}.log`), result.execution.stdout + result.execution.stderr, { mode: 0o600 });
     row.reviews[axis] = result.review;
   }));
@@ -106,7 +108,10 @@ try {
 } finally {
   clearTimeout(timer);
   if (row.worktree) {
-    try { await preserveWorkspace(row.worktree, job.base, runDir); }
+    try {
+      await preserveWorkspace(row.worktree, job.base, runDir);
+      row.preservedSource = join(runDir, 'source');
+    }
     catch { row.preservationError = true; row.status = 'failed'; }
   }
   if (sandbox) {

@@ -21,6 +21,7 @@ export function agentMessage(stdout) {
 }
 
 export async function freshReview(axis, worktree, repo, home, prompt, revision, options) {
+  const { image = IMAGE, ...executionOptions } = options;
   const name = `combine-review-${axis}-${randomUUID()}`;
   let execution;
   try {
@@ -30,11 +31,11 @@ export async function freshReview(axis, worktree, repo, home, prompt, revision, 
       '--user', `${process.getuid()}:${process.getgid()}`,
       '-v', `${worktree}:${worktree}:ro`, '-v', `${join(repo, '.git')}:${join(repo, '.git')}:ro`,
       '-v', `${home}:/auth`, '-e', 'CODEX_HOME=/auth', '-e', 'HOME=/tmp',
-      '-e', 'PYTHONDONTWRITEBYTECODE=1', '-w', worktree, '--entrypoint', 'codex', IMAGE,
+      '-e', 'PYTHONDONTWRITEBYTECODE=1', '-w', worktree, '--entrypoint', 'codex', image,
       'exec', '--json', '--ephemeral', '--ignore-user-config', '--ignore-rules',
       '--skip-git-repo-check', '-s', 'read-only', '-c', 'approval_policy="never"',
       '-m', MODEL, '-c', `model_reasoning_effort="${EFFORT}"`, '-',
-    ], { ...options, input: prompt });
+    ], { ...executionOptions, input: prompt });
     if (execution.code !== 0 || execution.reason) throw new Error(`Fresh ${axis} review failed.`);
     return { execution, review: parseReview(agentMessage(execution.stdout), revision) };
   } finally {

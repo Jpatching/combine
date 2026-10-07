@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { checked } from '../scripts/process.mjs';
 import { requireWorkspace, preserveWorkspace } from '../scripts/workspace.mjs';
 
-test('workspace rejects branch or revision drift and preserves uncommitted source', async () => {
+test('workspace rejects branch or revision drift and preserves uncommitted source', async t => {
   const root = await mkdtemp(join(tmpdir(), 'combine-workspace-'));
   try {
     const git = args => checked('git', ['-C', root, ...args]);
@@ -22,8 +22,8 @@ test('workspace rejects branch or revision drift and preserves uncommitted sourc
     await assert.rejects(requireWorkspace(root, 'main', '0'.repeat(40)));
     await writeFile(join(root, 'source.txt'), 'changed');
     await writeFile(join(root, 'new.txt'), 'new source');
-    const evidence = join(root, 'evidence');
-    await mkdir(evidence);
+    const evidence = await mkdtemp(join(tmpdir(), 'combine-evidence-'));
+    t.after(() => rm(evidence, { recursive: true, force: true }));
     await preserveWorkspace(root, base, evidence);
     assert.match(await readFile(join(evidence, 'source.patch'), 'utf8'), /changed/);
     assert.equal(await readFile(join(root, 'new.txt'), 'utf8'), 'new source');

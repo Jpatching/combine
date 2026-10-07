@@ -1,13 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, readFile, writeFile, access } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, access, chmod } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 import { createSandbox } from '@ai-hero/sandcastle';
 import { docker } from '@ai-hero/sandcastle/sandboxes/docker';
-import { gitAt, preserveWorkspace } from '../scripts/workspace.mjs';
+import { gitAt, preserveWorkspace, hostGitEnv } from '../scripts/workspace.mjs';
 import { verify } from '../scripts/verification.mjs';
 import { PRIVATE, ROOT, IMAGE } from '../scripts/settings.mjs';
+
+Object.assign(process.env, hostGitEnv());
 
 async function fixture() {
   const dir = join(PRIVATE, 'integration', randomUUID());
@@ -43,6 +45,29 @@ test('Docker verifier rejects a defect, accepts a fix and enforces isolation', a
   const outcome = await verify(repo, repo, task);
   assert.equal(outcome.passed, true, JSON.stringify(outcome));
   assert.match(await readFile(join(repo, 'scripts/verify.py'), 'utf8'), /verifier isolation/);
+});
+
+test('upstream cleanup cannot execute Git helpers and ignored recovery source is saved', async () => {
+  const { dir, repo, base } = await fixture();
+  const branch = `test/ignored-${randomUUID()}`;
+  const sandbox = await createSandbox({ cwd: repo, branch, baseBranch: base,
+    sandbox: docker({ imageName: IMAGE, selinuxLabel: false }) });
+  const worktree = sandbox.worktreePath;
+  try {
+    await writeFile(join(repo, '.git/info/exclude'), 'ignored-recovery/\n');
+    await mkdir(join(worktree, 'ignored-recovery'));
+    await writeFile(join(worktree, 'ignored-recovery/source.txt'), 'retained after cleanup');
+    const marker = join(dir, 'HOST_HELPER_EXECUTED');
+    const helper = join(dir, 'fsmonitor.sh');
+    await writeFile(helper, `#!/bin/sh\ntouch '${marker}'\n`);
+    await chmod(helper, 0o700);
+    await gitAt(repo, ['config', 'core.fsmonitor', helper]);
+    await preserveWorkspace(worktree, base, dir);
+    await sandbox.close();
+    await assert.rejects(access(marker));
+    assert.equal(await readFile(join(dir, 'source/ignored-recovery/source.txt'), 'utf8'), 'retained after cleanup');
+    assert.equal(await gitAt(repo, ['rev-parse', branch]), base);
+  } finally { await sandbox.close(); }
 });
 
 test('Sandcastle cancellation retains dirty source, task branch and baseline', async () => {

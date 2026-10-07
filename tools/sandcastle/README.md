@@ -79,15 +79,19 @@ Private records live under ignored `.private/sandcastle/`:
 - `setup.json` and `smoke.json` identify the built and authenticated image.
 - `runs/<run-id>/job.json` preserves the issue, profile, base, image, dependency-lock
   hash and supplied skills. `result.json` records checks, reviews and elapsed time.
-- `source.patch`, `status.txt` and private logs support diagnosis. Source branches
-  remain in `repos/<run-id>`; dirty worktrees and untracked/ignored source remain
-  in place after failure/cancellation. Sandcastle may remove a clean successful
-  worktree; its branch and commits remain in the dedicated clone.
+- `source.patch`, `status.txt` and private logs support diagnosis. A `source/`
+  snapshot preserves tracked, untracked and ignored files before cleanup, retaining
+  symlinks without following them. Source branches remain in `repos/<run-id>`.
+  Sandcastle may remove a worktree it considers clean (including ignored-only
+  changes); its branch/commits and the independent source snapshot remain.
 
 Inspect `coordinator-error.txt` locally when preflight fails. Keep authentication,
 raw logs and private records outside Git and AI uploads. Inspect the recorded
 branch before recovery; the runner never resets or overwrites an existing task
 workspace. Preserve the only retained copy before any cleanup.
+
+The host Git environment disables executable helpers for both the runner and
+dependency-owned Git calls. Every task phase uses the recorded immutable image ID.
 
 An `accepted` result means source checks, scope/branch invariants and both agent
 reviews passed. Host review and publication are pending. Follow Combine's

@@ -1,4 +1,4 @@
-import { mkdir, writeFile, readFile, chmod } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, chmod, cp } from 'node:fs/promises';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 import { checked } from './process.mjs';
@@ -10,6 +10,14 @@ export const gitAt = (repo, args, options) => checked('git', [
   '-c', 'core.untrackedCache=false', '-c', 'core.pager=cat', '-C', repo, ...args,
 ], options);
 
+export function hostGitEnv() {
+  // Also protects dependency-owned host Git calls, including Sandcastle cleanup.
+  return { GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_COUNT: '3',
+    GIT_CONFIG_KEY_0: 'core.fsmonitor', GIT_CONFIG_VALUE_0: 'false',
+    GIT_CONFIG_KEY_1: 'core.hooksPath', GIT_CONFIG_VALUE_1: '/dev/null',
+    GIT_CONFIG_KEY_2: 'core.pager', GIT_CONFIG_VALUE_2: 'cat' };
+}
+
 export async function requireWorkspace(repo, branch, revision) {
   if (await gitAt(repo, ['branch', '--show-current']) !== branch ||
       await gitAt(repo, ['rev-parse', 'HEAD']) !== revision ||
@@ -19,7 +27,10 @@ export async function requireWorkspace(repo, branch, revision) {
 }
 
 export async function preserveWorkspace(repo, base, evidence) {
-  // Leave untracked/ignored source in its worktree, never reset or checkpoint it with host-side git add.
+  // Preserve ignored files independently: upstream cleanup does not consider them dirty.
+  // Symlinks remain symlinks, so generated paths cannot make the host copy external files.
+  await cp(repo, join(evidence, 'source'), { recursive: true, dereference: false,
+    verbatimSymlinks: true, errorOnExist: true, force: false });
   await writeFile(join(evidence, 'source.patch'), await gitAt(repo,
     ['diff', '--no-ext-diff', '--no-textconv', '--binary', base]), { mode: 0o600 });
   await writeFile(join(evidence, 'status.txt'), await gitAt(repo,

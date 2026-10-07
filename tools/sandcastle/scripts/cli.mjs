@@ -5,7 +5,7 @@ import { randomUUID, createHash } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
 import { execute, checked } from './process.mjs';
 import { parseTaskArgs, requireReadyIssue } from './policy.mjs';
-import { authHome, sourceClone, requireWorkspace, gitAt } from './workspace.mjs';
+import { authHome, sourceClone, requireWorkspace, gitAt, hostGitEnv } from './workspace.mjs';
 import { agentMessage } from './review.mjs';
 import { TOOL, ROOT, PRIVATE, REPOSITORY, REMOTE, IMAGE, MODEL, EFFORT, PINS, TASKS, LIMIT_MS } from './settings.mjs';
 
@@ -67,7 +67,7 @@ async function smoke() {
   try {
     result = await execute('docker', ['run', '--rm', '--name', name,
       '--user', `${process.getuid()}:${process.getgid()}`, '-v', `${home}:/auth`,
-      '-e', 'CODEX_HOME=/auth', '--entrypoint', 'codex', IMAGE,
+      '-e', 'CODEX_HOME=/auth', '--entrypoint', 'codex', image,
       'exec', '--json', '--ephemeral', '--ignore-user-config', '--ignore-rules', '--skip-git-repo-check',
       '-s', 'read-only', '-m', MODEL, '-c', `model_reasoning_effort="${EFFORT}"`,
       'Do not run tools. Respond exactly: COMBINE_AUTH_OK'], { ...options, timeoutMs: 120_000 });
@@ -119,7 +119,7 @@ async function run() {
     await json(join(runDir, 'job.json'), { id, issue, branch: selection.branch, base, repo, auth, task, skills, image, lockHash });
     console.log(`Starting one approved issue #${issue.number} on ${selection.branch}; private evidence ${runDir}`);
     const result = await execute(process.execPath, [join(TOOL, 'scripts/worker.mjs'), runDir], {
-      cwd: TOOL, env: { PATH: process.env.PATH, HOME: auth, LANG: 'C.UTF-8', TERM: 'dumb' },
+      cwd: TOOL, env: { PATH: process.env.PATH, HOME: auth, LANG: 'C.UTF-8', TERM: 'dumb', ...hostGitEnv() },
       signal: controller.signal, timeoutMs: Math.max(1, LIMIT_MS - (performance.now() - started)),
       cancellationMessage: 'CANCEL\n', killGraceMs: 45_000,
       onLine: line => { if (line.startsWith(`${id}:`)) console.log(line); },

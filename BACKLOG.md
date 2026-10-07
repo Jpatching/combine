@@ -66,7 +66,7 @@ Supplied local Xbox data passed conversion; its distribution provenance is unres
 | C-008 | pending C-003/C-005/C-006 | lead | Specify and implement only the smallest demonstrated usability improvement. Before code, record trigger, interfaces, measurable outcome and acceptance checks. |
 | C-010 | needs reproduction | owner + runtime | **Investigate possible freeze.** Owner reports Minecraft worked but believes startup/gameplay froze. Exact stage, duration, recovery and repeatability unknown. Record those before changing versions or settings. |
 | C-009 | pending study | owner + lead | Complete continue/change/stop decision in docs/DECISIONS.md using real results; do not fabricate missing measurements. |
-| C-015 | setup verified; experience review pending | lead | **Use a repeatable workflow across projects.** Nine pinned Matt Pocock skills plus a Codex router installed globally; custom grill-me preserved. Installed-file validation, manual routing checks and the repository gate passed (16 tests, two recipes, 14-document links). Combine retains its tracker, requirements and release rules. See [workflow guidance](docs/WORKFLOW.md) and [validation](research/results/2026-10-04-matt-workflow.md). Owner asked to leave Hide HUD alone; its proposed workflow pilot is excluded. Two-slice experience review remains future work. |
+| C-015 | setup verified; experience review pending | lead | **Use a repeatable workflow across projects.** Nine pinned Matt Pocock skills plus a Codex router installed globally; custom grill-me preserved. Installed-file validation, manual routing checks and the repository gate passed (16 tests, two recipes, 14-document links). Combine retains its tracker, requirements and release rules. See [workflow guidance](docs/archive/WORKFLOW-2026-10-07.md) and [validation](research/results/2026-10-04-matt-workflow.md). Owner asked to leave Hide HUD alone; its proposed workflow pilot is excluded. Two-slice experience review remains future work. |
 
 ## Baseline follow-up — Skate in the mashup (C-003b)
 
@@ -205,4 +205,4 @@ backend or catalogue layers ahead of usable behaviour.
 
 Only then add another configuration or a discovery website. Reassess whether a
 companion is needed after the manual baseline; metadata validation does not complete
-these player-facing slices. Use the owner checkpoints in docs/AGENT_ROLES.md.
+these player-facing slices. Use the owner checkpoints in docs/archive/AGENT-ROLES-2026-10-07.md.

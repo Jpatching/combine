@@ -64,7 +64,7 @@ installed, launched or gameplay-tested and does not replace Synergy.
 
 ## Source, checks and history
 
-To resume, say **Continue Combine**. Start with the
+Current game work is on the
 [private board](https://github.com/users/Jpatching/projects/5/views/8) and
 [current handoff](docs/HANDOFF.md); load only the selected task’s requirements. The
 [workspace tour](research/results/2026-10-06-workspace-orientation.md) explains
@@ -92,5 +92,5 @@ They are separate earlier trials and are not current Synergy instructions.
 No universal merger, marketplace, production launcher, public-match assistance
 or firing while skating is authorized. Keep game assets, converted data, settings,
 recordings and private logs outside Git. Source licences do not settle asset
-rights or publisher terms. Local checkpoints follow the [branch workflow](docs/WORKFLOW.md);
+rights or publisher terms. Engineering work uses Matt Pocock's original skills;
 owner acceptance, source publication, merge and release remain separate.

@@ -1,3 +1,6 @@
+> Process note: D-034 supersedes earlier custom workflow, routing and closure rules.
+> Historical entries retain their original context; product and safety decisions remain.
+
 # Decisions and milestone outcome
 
 ## D-009: board audio and a private highlight edit — 2026-10-03
@@ -72,7 +75,7 @@ or plugin installation is needed. MCP becomes useful for controlled external act
 a plugin packages reusable skills/tools for distribution. See the [official plugin
 architecture](https://developers.openai.com/plugins/concepts/plugins).
 
-Use the checkpoint contract in docs/AGENT_ROLES.md. The owner authorizes a concrete
+Use the checkpoint contract in docs/archive/AGENT-ROLES-2026-10-07.md. The owner authorizes a concrete
 slice; routine work inside it continues without repeated proceed prompts. Present
 observable evidence before expanding scope. Publishing/spending/outreach remain
 separate boundaries, and environment-enforced approvals cannot be waived by a skill.
@@ -201,7 +204,7 @@ feature and grants no publication, deployment, asset upload or external messagin
 authority. Keep one lead and local verification. Assess demonstrated friction
 after two completed owner-reviewed slices before adding Sandcastle or automation.
 
-See [workflow configuration](WORKFLOW.md) and
+See [workflow configuration](archive/WORKFLOW-2026-10-07.md) and
 [installation/validation evidence](../research/results/2026-10-04-matt-workflow.md).
 
 ## D-012: proper Synergy destination and private board authority — 2026-10-04
@@ -312,7 +315,7 @@ Windows Fortnite Release-3.1-CL-3917250, starting with one Tilted building and
 surrounding ground; only then implement the existing-world adapter and expand to
 bounded Tilted Towers. The selected build is a research target, not verified local
 data or successful conversion. The plan's defaults and exclusions are preserved
-in docs/WORKFLOW.md; menu requirements remain in docs/TRICKSHOT_MENU.md.
+in docs/archive/WORKFLOW-2026-10-07.md; menu requirements remain in docs/TRICKSHOT_MENU.md.
 
 The plan authorizes reviewed source-branch commits and pushes, with private assets,
 original installs and older builds preserved, checks before a versioned trial,
@@ -343,7 +346,7 @@ job. A missing asset/access/verdict remains a real dependency, not a model probl
 
 ## D-018: useful menu batches and exact-build release states — 2026-10-05
 
-The owner supplied the ordered batch plan now recorded in docs/WORKFLOW.md:
+The owner supplied the ordered batch plan now recorded in docs/archive/WORKFLOW-2026-10-07.md:
 finish the Intervention/input checkpoint, then basic loadout, weapons,
 presentation/adjustments, complex movement, killstreaks/private players and
 the agreed trickshot hit radius. Keep one batch active. Split only on a
@@ -695,7 +698,7 @@ The owner selected routine agent merges after review and checks, then instructed
 Codex to proceed with the workflow correction and existing-branch reconciliation.
 Keep one branch per ticket/coherent outcome, created from updated main; continue
 the same task on its existing branch. The complete procedure and completion
-criteria live in [workflow](WORKFLOW.md#branch-to-main).
+criteria live in [workflow](archive/WORKFLOW-2026-10-07.md#branch-to-main).
 
 This supersedes earlier separate-approval requirements for ordinary source PR
 merges, including D-032's reset restriction, subject to the workflow's review,
@@ -710,3 +713,23 @@ The pre-existing backlog remains separately controlled: reconcile unique local
 history, review accumulated changes and present a concrete proposal for owner
 merge authorization. Preserve published history and unique local work. Continue
 the workflow-reset branch for this correction; do not add another dependent branch.
+
+
+## D-034: Matt's original skills only — 2026-10-07
+
+The owner selected Matt's original skills as the only engineering process and
+approved removing the competing global and Combine workflow layers. Global
+instructions retain communication preferences and evidence honesty. Project
+instructions retain requirements, test commands, tracker operations and runtime/privacy
+boundaries; archived process documents are historical evidence, not instructions.
+This supersedes the custom phase, agent-role, mandatory handoff and source-closure
+procedures in earlier decisions, including D-032/D-033. It does not expand existing
+authority: routine source merge permission remains subject to review/checks and
+repository protections; inherited PRs #1/#2 require separate owner merge approval.
+
+The private Project remains the ticket store. Install original triage with default
+roles represented as Project metadata; use it only for incoming requests. Glossary
+and ADR documentation uses Matt's lazy single-context convention. Preserve existing
+requirements and evidence. Reconcile accumulated branches without rewriting
+published history or discarding unique work. No new launcher, gameplay trial,
+download, deployment or release is authorized by this change.

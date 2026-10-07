@@ -1,5 +1,5 @@
 > Historical setup record. The later global skill/board setup supersedes its
-> installation and authority claims; see docs/WORKFLOW.md for Combine configuration.
+> installation and authority claims; see docs/archive/WORKFLOW-2026-10-07.md for Combine configuration.
 
 # Shared workflow installation and validation — 2026-10-04
 
@@ -39,7 +39,7 @@ All pre-existing skill source/configuration files, including system skills,
 matched their saved hashes; generated Python bytecode caches were excluded.
 
 Local adaptations are documented in installed `matt-workflow/ADAPTATION.md` and
-[the project guide](../../docs/WORKFLOW.md). Each installed upstream entry point
+[the project guide](../../docs/archive/WORKFLOW-2026-10-07.md). Each installed upstream entry point
 loads the same adaptation, including when invoked directly. This prevents the
 router being the only place where project constraints are enforced.
 

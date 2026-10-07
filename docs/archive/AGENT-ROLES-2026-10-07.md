@@ -1,3 +1,5 @@
+> Historical record. Superseded by D-034; not current workflow instructions.
+
 # Combine agent task briefs
 
 One lead owns implementation, integration, Git and the private board. Personal
@@ -24,7 +26,7 @@ stop condition. Send only relevant context. The lead checks returned evidence;
 code review does not substitute for gameplay. If the lead reviews alone, record
 self-review rather than independent review.
 
-Use the live board, latest owner decisions and [workflow](WORKFLOW.md) to choose work. A completed
+Use the live board, latest owner decisions and [workflow](WORKFLOW-2026-10-07.md) to choose work. A completed
 Intervention path does not establish all Synergy options are complete. Fortnite
 needs integrity-checked input and a reviewed startup/native execution route;
 missing adapter code remains implementation work under the current contract.

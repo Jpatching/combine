@@ -63,7 +63,10 @@ skill's two axes, with one axis per reviewer.
 The coding container receives source, dedicated Git metadata and minimal copied
 ChatGPT authentication. Sandcastle's permission bypass operates inside Docker;
 Docker is that execution boundary. Verifiers have no authentication or network,
-read-only source and a writable temporary directory. Reviewers have read-only
+read-only source and writable temporary directories. The checkout's `.private`
+directory is shadowed by an empty, user-owned tmpfs for synthetic header-test
+fixtures; it exposes no host private data and retains no fixture writes. A symlink
+or non-directory scratch mountpoint is rejected. Reviewers have read-only
 source and their own authentication copies. Containers receive neither host
 home/configuration nor the Docker socket, project credentials, game assets,
 profiles or unrelated private files. Generated tests run inside containers.

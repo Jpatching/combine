@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, lstat } from 'node:fs/promises';
 import { execute } from './process.mjs';
 import { hostGitEnv } from './workspace.mjs';
 import { IMAGE, TOOL } from './settings.mjs';
@@ -9,6 +9,7 @@ export function verifierArgs(name, worktree, repo, image = IMAGE) {
   return ['run', '--rm', '--name', name, '--network', 'none', '--read-only',
     '--cap-drop=ALL', '--security-opt=no-new-privileges', '--pids-limit=256',
     '--memory=512m', '--cpus=2', '--tmpfs', '/tmp',
+    '--tmpfs', `${join(worktree, '.private')}:rw,nosuid,nodev,noexec,uid=${process.getuid()},gid=${process.getgid()},mode=0700`,
     '--user', `${process.getuid()}:${process.getgid()}`,
     '-v', `${worktree}:${worktree}:ro`, '-v', `${join(repo, '.git')}:${join(repo, '.git')}:ro`,
     '-v', `${join(TOOL, 'acceptance')}:/checks:ro`,
@@ -16,6 +17,15 @@ export function verifierArgs(name, worktree, repo, image = IMAGE) {
     '-e', 'GIT_CONFIG_COUNT=2', '-e', 'GIT_CONFIG_KEY_0=core.fsmonitor', '-e', 'GIT_CONFIG_VALUE_0=false',
     '-e', 'GIT_CONFIG_KEY_1=core.hooksPath', '-e', 'GIT_CONFIG_VALUE_1=/dev/null',
     '-w', worktree, '--entrypoint', 'python3', image];
+}
+
+export async function prepareScratch(worktree) {
+  const path = join(worktree, '.private');
+  try { await mkdir(path, { mode: 0o700 }); }
+  catch (error) { if (error.code !== 'EEXIST') throw error; }
+  if (!(await lstat(path)).isDirectory()) {
+    throw new Error('Verifier scratch mountpoint must be a real directory.');
+  }
 }
 
 export async function verify(worktree, repo, task, options = {}) {
@@ -39,6 +49,7 @@ export async function verify(worktree, repo, task, options = {}) {
 }
 
 export async function inspectGit(worktree, repo, args, { image = IMAGE, ...options } = {}) {
+  await prepareScratch(worktree);
   const name = `combine-inspect-${randomUUID()}`;
   const command = verifierArgs(name, worktree, repo, image);
   command[command.indexOf('--entrypoint') + 1] = 'git';
@@ -61,6 +72,7 @@ export async function requireIsolatedWorkspace(worktree, repo, branch, revision,
 }
 
 export async function exportBranchBundle(worktree, repo, evidence, branch, base, image) {
+  await prepareScratch(worktree);
   const name = `combine-export-${randomUUID()}`;
   const output = join(evidence, 'export');
   await mkdir(output, { mode: 0o700 });

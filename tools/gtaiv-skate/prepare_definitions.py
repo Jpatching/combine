@@ -48,6 +48,8 @@ def prepare(source, destination, evaluation=False):
              "output":[{"name":"accepted","type":"int"}]},
             {"name":"COMBINE_SKATE_EVAL_OWNER","num_params":3,"input":[],
              "output":[{"name":name,"type":"int"} for name in ("player","ped","camera")]},
+            {"name":"COMBINE_SKATE_EVAL_TIME","num_params":1,"input":[],
+             "output":[{"name":"milliseconds","type":"int"}]},
         ])
     definitions["extensions"].append({"name":"combine_skate","commands":commands})
     with destination.open("x",encoding="utf-8") as output:

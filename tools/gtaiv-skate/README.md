@@ -100,6 +100,9 @@ only riding write; expiry also protects against a stopped observer script.
 Remove the observer and restore the normal plugin/definitions after evaluation.
 These checks establish measured bridge behavior, not camera usability, physical
 controller qualification, metre calibration or owner acceptance.
+The observer uses wrapping game time plus an independent `GetTickCount` deadline;
+a paused/interrupted scene refuses observation. An external harness must also
+bound its wait because a paused script scheduler cannot run observer code.
 
 ## Behavior and runtime acceptance
 

@@ -13,15 +13,17 @@ function interrupted() {
 }
 function snapshot(owner) {
     const current=native("COMBINE_SKATE_EVAL_OWNER");
-    if(interrupted() || current.player!==owner.player || current.ped!==owner.ped || current.camera!==owner.camera
-        || native("IS_PLAYER_CONTROL_ON",owner.player)
-        || !native("DOES_CAM_EXIST",owner.camera)
-        || !native("IS_CAM_ACTIVE",owner.camera)
-        || !native("IS_CAM_PROPAGATING",owner.camera)) throw new Error("ride unavailable");
+    if(interrupted()) throw new Error("game-interrupted");
+    if(current.player!==owner.player || current.ped!==owner.ped || current.camera!==owner.camera)
+        throw new Error("ride-ended");
+    if(native("IS_PLAYER_CONTROL_ON",owner.player)) throw new Error("GTA-control-returned");
+    if(!native("DOES_CAM_EXIST",owner.camera)) throw new Error("camera-missing");
+    if(!native("IS_CAM_ACTIVE",owner.camera)) throw new Error("camera-inactive");
+    if(!native("IS_CAM_PROPAGATING",owner.camera)) throw new Error("camera-not-propagating");
     const pos=native("GET_CHAR_COORDINATES",owner.ped);
     const camera=native("GET_CAM_POS",owner.camera);
     const heading=native("GET_CHAR_HEADING",owner.ped);
-    if(!finite(pos) || !finite(camera) || !Number.isFinite(heading)) throw new Error("nonfinite observation");
+    if(!finite(pos) || !finite(camera) || !Number.isFinite(heading)) throw new Error("nonfinite-observation");
     return {pos,camera,heading};
 }
 function phase(owner,profile,duration) {
@@ -30,7 +32,7 @@ function phase(owner,profile,duration) {
     let latest=snapshot(owner);
     do {
         wait(0);latest=snapshot(owner);
-        if(elapsed("COMBINE_SKATE_EVAL_TIME",realStarted)>duration+1000) throw new Error("observation timeout");
+        if(elapsed("COMBINE_SKATE_EVAL_TIME",realStarted)>duration+1000) throw new Error("observation-timeout");
     } while(elapsed("GET_GAME_TIMER",started)<duration);
     return latest;
 }
@@ -54,7 +56,11 @@ function playback(owner) {
         const sign=delta=>delta>0.1?"positive":delta< -0.1?"negative":"unchanged";
         report((moved&&opposite&&followed?"PASS":"FAIL")+": real-input movement="+moved+", left-heading="+sign(leftDelta)+", right-heading="+sign(rightDelta)+", finite-active-camera-moved="+followed+"; scale/orientation acceptance unverified");
     } catch (error) {
-        report(error===INPUT_REFUSED?"REFUSED: evaluation input unavailable":"UNAVAILABLE: playback interrupted or native observation unavailable");
+        const known=["game-interrupted","ride-ended","GTA-control-returned","camera-missing",
+            "camera-inactive","camera-not-propagating","nonfinite-observation","observation-timeout"];
+        const reason=known.includes(error.message)?error.message:"native-query-unavailable";
+        report(error===INPUT_REFUSED?"REFUSED: evaluation input unavailable":
+            "UNAVAILABLE: playback interrupted or native observation unavailable; prerequisite="+reason);
     }
     finally {try {native("COMBINE_SKATE_EVAL_INPUT",-1,0);}catch (_) {}}
 }

@@ -19,7 +19,8 @@ function replay(mode) {
         case 'IS_PAUSE_MENU_ACTIVE': case 'HAS_CUTSCENE_LOADED': return false;
         case 'HAS_CUTSCENE_FINISHED': return true;
         case 'IS_PLAYER_CONTROL_ON': return mode==='walking';
-        case 'DOES_CAM_EXIST': case 'IS_CAM_ACTIVE': case 'IS_CAM_PROPAGATING': return true;
+        case 'DOES_CAM_EXIST': case 'IS_CAM_ACTIVE': return true;
+        case 'IS_CAM_PROPAGATING': return mode!=='camera-not-propagating';
         case 'GET_CHAR_COORDINATES': case 'GET_CAM_POS': return {x:real/1000,y:0,z:1};
         case 'GET_CHAR_HEADING': return profile===2?10:profile===3&&mode!=='broken-right'?350:0;
         case 'CONVERT_INT_TO_PLAYERINDEX': case 'GET_PLAYER_ID': return 1;
@@ -50,3 +51,6 @@ const broken=replay('broken-right');
 assert(broken.logs.some(line=>line.includes('FAIL: real-input')));
 assert(!broken.logs.some(line=>line.includes('PASS: real-input')));
 console.log('PASS: one responding steering direction cannot pass the playback check');
+const unavailableCamera=replay('camera-not-propagating');
+assert(unavailableCamera.logs.some(line=>line.includes('prerequisite=camera-not-propagating')));
+console.log('PASS: native camera prerequisite failure identifies the exact failed condition');

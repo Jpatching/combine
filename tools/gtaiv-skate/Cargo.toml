@@ -1,0 +1,13 @@
+[package]
+name = "combine-gtaiv-skate"
+version = "0.1.0"
+edition = "2024"
+publish = false
+[workspace]
+[lib]
+crate-type = ["staticlib"]
+[dependencies]
+skate-host = { path = "../upstream/skate/crates/skate-host" }
+
+[profile.dev]
+debug = 0

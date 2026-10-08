@@ -1,0 +1,85 @@
+// GTA IV native names/signatures: sannybuilder/library 34bedee0, API 0.108.
+// F6 toggles; Xbox controller 0 supplies raw Skate push/steering input.
+const SCALE = 1; // GTA metres assumption: MUST verify against a surveyed real surface.
+let ride = null, announced=false;
+function notify(text) { native("PRINT_STRING_WITH_LITERAL_STRING_NOW", "STRING", text, 2500, 1); }
+function restore() {
+    const saved = ride; ride = null;
+    native("COMBINE_SKATE_STOP");
+    if (!saved) return;
+    // Independent restoration attempts ensure a missing ped/camera cannot trap control.
+    const attempt = action => { try { action(); } catch (_) {} };
+    attempt(() => native("ACTIVATE_SCRIPTED_CAMS", false, false));
+    attempt(() => { if (native("DOES_CAM_EXIST", saved.camera)) {
+        native("SET_CAM_PROPAGATE", saved.camera, false);
+        native("SET_CAM_ACTIVE", saved.camera, false);
+        native("DESTROY_CAM", saved.camera);
+    }});
+    attempt(() => { if (native("DOES_CHAR_EXIST", saved.ped)) {
+        native("FREEZE_CHAR_POSITION", saved.ped, false);
+    }});
+    attempt(() => native("SET_PLAYER_CONTROL", saved.player, true));
+    native("COMBINE_SKATE_RELEASE");
+}
+function mount(player, ped) {
+    if (!native("IS_CHAR_ON_FOOT", ped)) return;
+    const pos = native("GET_CHAR_COORDINATES", ped);
+    const ground = native("GET_GROUND_Z_FOR_3D_COORD", pos.x, pos.y, pos.z + 2);
+    const height=native("GET_CHAR_HEIGHT_ABOVE_GROUND",ped);
+    if (![pos.x,pos.y,pos.z,ground,height].every(Number.isFinite) || Math.abs(ground)<0.001
+        || Math.abs(pos.z-ground)>2 || Math.abs(pos.z-ground-height)>0.2) {
+        notify("Skate: ground unavailable/ambiguous - choose another clear surface");return;
+    }
+    native("COMBINE_SKATE_STOP");
+    for (let y=0;y<5;y++) for (let x=0;x<5;x++) {
+        const px=pos.x+(x-2)*2/SCALE, py=pos.y+(y-2)*2/SCALE;
+        const z=native("GET_GROUND_Z_FOR_3D_COORD", px, py, pos.z+2);
+        if (!Number.isFinite(z) || Math.abs(z)<0.001 || Math.abs(z-ground)*SCALE>0.05
+            || !native("COMBINE_SKATE_VERTEX",px,py,z)) {
+            native("COMBINE_SKATE_STOP");notify("Skate: choose a clear, flat surface");return;
+        }
+    }
+    if (!native("COMBINE_SKATE_MOUNT",pos.x,pos.y,ground,native("GET_CHAR_HEADING",ped),SCALE)) {
+        notify("Skate: initialization/controller unavailable");return;
+    }
+    const camera=native("CREATE_CAM",14);
+    ride={player,ped,camera,lift:pos.z-native("COMBINE_SKATE_VALUE",2)};
+    if (!native("DOES_CAM_EXIST",camera)) {restore();return;}
+    native("COMBINE_SKATE_CLAIM",player,ped,camera);
+    native("SET_PLAYER_CONTROL",player,false);
+    native("FREEZE_CHAR_POSITION",ped,true);
+    native("SET_CAM_ACTIVE",camera,true);native("SET_CAM_PROPAGATE",camera,true);
+    native("ACTIVATE_SCRIPTED_CAMS",true,true);
+    notify("Skate: mounted - A/X push, left stick steer, F6 dismount");
+}
+try {
+    while (true) {
+        wait(0);
+        try {
+            if (!native("COMBINE_SKATE_READY")) {restore();continue;}
+            if (!announced) {notify("Skate adapter ready - F6 on a clear flat surface");announced=true;}
+            const player=native("CONVERT_INT_TO_PLAYERINDEX",native("GET_PLAYER_ID"));
+            const ped=native("GET_PLAYER_CHAR",player);
+            const valid=native("DOES_CHAR_EXIST",ped) && native("IS_PLAYER_PLAYING",player)
+                && native("IS_CHAR_ON_FOOT",ped);
+            const toggle=native("COMBINE_SKATE_TOGGLE");
+            if (ride && (toggle || !valid || ped!==ride.ped || player!==ride.player
+                || !native("DOES_CAM_EXIST",ride.camera))) {
+                restore();notify("Skate: GTA controls restored");continue;
+            }
+            if (!ride) {if(toggle && valid)mount(player,ped);continue;}
+            const prior=[0,1,2].map(i=>native("COMBINE_SKATE_VALUE",i));
+            const ground=native("GET_GROUND_Z_FOR_3D_COORD",prior[0],prior[1],prior[2]+2);
+            if (!native("COMBINE_SKATE_TICK",native("GET_GAME_TIMER"),ground,valid?1:0)) {
+                restore();notify("Skate: surface/input/time unavailable - GTA restored");continue;
+            }
+            const [x,y,z,heading]=[0,1,2,3].map(i=>native("COMBINE_SKATE_VALUE",i));
+            if (![x,y,z,heading].every(Number.isFinite)) {restore();continue;}
+            native("SET_CHAR_COORDINATES",ped,x,y,z+ride.lift);
+            native("SET_CHAR_HEADING",ped,heading);
+            const angle=heading*Math.PI/180;
+            native("SET_CAM_POS",ride.camera,x+Math.sin(angle)*4,y-Math.cos(angle)*4,z+2.5);
+            native("POINT_CAM_AT_COORD",ride.camera,x,y,z+1);
+        } catch (_) {restore();}
+    }
+} finally {restore();}

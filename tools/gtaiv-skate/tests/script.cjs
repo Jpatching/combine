@@ -10,6 +10,10 @@ function run(mode) {
    case 'GET_PLAYER_ID':case 'CONVERT_INT_TO_PLAYERINDEX':return 0;
    case 'GET_PLAYER_CHAR':return 7;
    case 'DOES_CHAR_EXIST':case 'IS_PLAYER_PLAYING':return true;
+   case 'HAS_CUTSCENE_LOADED':return mode==='cutscene';
+   case 'HAS_CUTSCENE_FINISHED':return mode!=='cutscene';
+   case 'IS_PAUSE_MENU_ACTIVE':return mode==='paused';
+   case 'IS_PLAYER_CONTROL_ON':return mode!=='blocked' && !mounted;
    case 'IS_CHAR_ON_FOOT':return mode!=='vehicle'||frame<3;
    case 'GET_CHAR_COORDINATES':return {x:100,y:200,z:mode==='noGround'?1:11};
    case 'GET_CHAR_HEADING':return 0;
@@ -80,3 +84,10 @@ console.log('PASS: watchdog keeps running when ownership release throws');
 
 const noGround=run("noGround");assert.equal(noGround.poseWrites,0);assert.equal(noGround.calls.some(c=>c[0]==="SET_PLAYER_CONTROL"&&c[2]===false),false);
 console.log("PASS: ambiguous no-ground zero probe retains GTA ownership");
+
+for(const mode of ['cutscene','paused','blocked']) {
+ const result=run(mode);
+ assert.equal(result.vertices,0,`${mode} must not sample a mount surface`);
+ assert.equal(result.calls.some(c=>c[0]==='SET_PLAYER_CONTROL'&&c[2]===false),false);
+}
+console.log('PASS: cutscenes, pause menus and disabled GTA control prevent mount');

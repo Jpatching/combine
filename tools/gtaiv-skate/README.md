@@ -20,6 +20,9 @@ python3 scripts/verify.py
 rustc --test tools/gtaiv-skate/tests/connection.rs -o /tmp/combine-connection-tests
 /tmp/combine-connection-tests
 node tools/gtaiv-skate/tests/script.cjs
+node tools/gtaiv-skate/tests/status-script.cjs
+# Windows PowerShell:
+# powershell -NoProfile -File tools/gtaiv-skate/tests/status.ps1
 ```
 
 With Rust's `i686-pc-windows-gnu` target and a 32-bit MinGW compiler on PATH:
@@ -52,6 +55,7 @@ checksums from qualification #10. Stage into the owner-selected runtime with pri
 
 - `combine_skate.cleo` → `CLEO/CLEO_PLUGINS/`.
 - `combine_skate.js` and `combine_skate_watchdog.js` → `CLEO/`.
+- `combine_game_status.js` → `CLEO/` (read-only state publisher).
 - Prepared JSON → the owner-selected runtime's `CLEO/.config/gta_iv.json`, preserving the
   previous private file. This preparation uses the pinned base; it does not
   preserve unrelated custom definitions automatically.
@@ -104,3 +108,35 @@ script failure/watchdog; and normal GTA control/camera after each. Source/build
 results, observed runtime behavior and owner acceptance are separate evidence.
 Do not repeat waived stock qualification trials from #10. No game launch or
 release is authorized merely by this source artifact.
+
+## Compact live context
+
+`combine_game_status.js` queries pause, cutscene, player-control and on-foot state.
+The plugin adds readiness, owned mount state and XInput slot 0 availability. It
+atomically replaces a small fixed-schema snapshot under the current Windows
+user's `%LOCALAPPDATA%/Combine/gtaiv-status/state.json`, at most twice a second
+while unchanged. It does not record coordinates, assets, settings or raw logs.
+
+From the repository root in Windows PowerShell:
+
+```powershell
+powershell -NoProfile -File tools/gtaiv-skate/game-status.ps1
+powershell -NoProfile -File tools/gtaiv-skate/game-status.ps1 -Watch -TimeoutSeconds 30
+powershell -NoProfile -File tools/gtaiv-skate/game-status.ps1 -WaitPlayable -TimeoutSeconds 30
+```
+
+The first prints the five-line report. Watch prints only state changes. Wait
+returns exit 0 for fresh on-foot gameplay with a controller and ready adapter;
+exit 2 means the deadline elapsed. `-Json` returns the same fixed labels and
+`CanTest` decision. Neither mode sends input. Check exit status before proceeding,
+then check again immediately before input; the mount adapter also refuses
+cutscenes, pause menus and disabled GTA control independently.
+
+Reports older than two seconds, another process/start time, invalid schema or
+failed queries become `unknown` and block input. Before game scripts run, menu
+and loading state cannot be distinguished by this native publisher. A fresh
+`gameplay` label with disabled player control still blocks unmounted tests.
+Mounted Skate intentionally disables GTA controls, which is reported separately.
+The report establishes test prerequisites, not surface validity, visible movement,
+correct scale, usable camera or gameplay acceptance. Local OCR can supplement
+menu/message confirmation; screenshots and raw evidence remain private.

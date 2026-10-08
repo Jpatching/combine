@@ -23,7 +23,9 @@ function restore() {
     ride = null;
 }
 function mount(player, ped) {
-    if (!native("IS_CHAR_ON_FOOT", ped)) return;
+    if (!native("IS_CHAR_ON_FOOT", ped) || !native("IS_PLAYER_CONTROL_ON", player)
+        || native("IS_PAUSE_MENU_ACTIVE")
+        || (native("HAS_CUTSCENE_LOADED") && !native("HAS_CUTSCENE_FINISHED"))) return;
     const pos = native("GET_CHAR_COORDINATES", ped);
     const ground = native("GET_GROUND_Z_FOR_3D_COORD", pos.x, pos.y, pos.z + 2);
     const height=native("GET_CHAR_HEIGHT_ABOVE_GROUND",ped);

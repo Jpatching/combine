@@ -6,6 +6,7 @@
 #include <cstring>
 #include <vector>
 #include <atomic>
+#include "status_sink.h"
 static_assert(sizeof(void*)==4,"GTA IV is x86");
 extern "C" {
 struct Packet {uint16_t buttons; int16_t left[2],right[2]; uint8_t triggers[2];};
@@ -75,6 +76,17 @@ int rescue(Context c) {
     return 0;
 }
 int ready(Context c) {sdk.output_int(c,identity() && callback_seen.load() ? 1:0);return 0;}
+int status(Context c) {
+    const auto scene=static_cast<int>(sdk.integer(c));
+    const bool control=sdk.integer(c)!=0, on_foot=sdk.integer(c)!=0;
+    AcquireSRWLockShared(&ownership_lock);
+    const bool mounted=owned;
+    ReleaseSRWLockShared(&ownership_lock);
+    XINPUT_STATE input{};
+    combine_status::publish(scene,control,on_foot,identity()&&callback_seen.load(),mounted,
+        XInputGetState(0,&input)==ERROR_SUCCESS);
+    return 0;
+}
 int toggle(Context c) {
     const bool held=(GetAsyncKeyState(VK_F6)&0x8000)!=0;
     const bool rising=held&&!key_held; key_held=held;
@@ -129,5 +141,6 @@ BOOL WINAPI DllMain(HINSTANCE instance,DWORD reason,LPVOID) {
     sdk.command("COMBINE_SKATE_VALUE",value,nullptr);
     sdk.command("COMBINE_SKATE_CLAIM",claim,nullptr);sdk.command("COMBINE_SKATE_RELEASE",release,nullptr);
     sdk.command("COMBINE_SKATE_RESCUE",rescue,nullptr);
+    sdk.command("COMBINE_GAME_STATUS",status,nullptr);
     sdk.after(after);sdk.runtime_init(reset);return TRUE;
 }

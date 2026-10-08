@@ -31,6 +31,9 @@ def prepare(source, destination):
         if command["name"]=="COMBINE_SKATE_RESCUE":
             command["output"]=[{"name":name,"type":"int"} for name in ("player","ped","camera")]
             command["num_params"]=3
+    commands.append({"name":"COMBINE_GAME_STATUS","num_params":3,
+        "input":[{"name":name,"type":"int"} for name in ("scene","control","onFoot")],
+        "output":[]})
     definitions["extensions"].append({"name":"combine_skate","commands":commands})
     with destination.open("x",encoding="utf-8") as output:
         json.dump(definitions,output,indent=2);output.write("\n")

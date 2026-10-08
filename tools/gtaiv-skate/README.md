@@ -170,7 +170,9 @@ cancels preparation while GTA retains control. Mounted pause/cutscene now restor
 GTA immediately in either candidate.
 
 A dedicated supervisor owns process and pipe operations; GTA commands only submit
-to a capacity-one queue or read the latest validated snapshot. Fixed binary
+to a capacity-one queue or read the latest validated snapshot. One bounded deferred
+prepare request remains pending while prior cleanup occupies that queue; polling
+submits it without blocking, and cancellation clears it. Fixed binary
 messages carry ride generation, request sequence and collision revision. Output
 with mismatching identity, nonfinite pose or invalid period is refused. Riding
 ends after a response gap above 250 ms. A Windows kill-on-close job contains owned

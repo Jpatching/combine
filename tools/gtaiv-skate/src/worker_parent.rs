@@ -188,7 +188,10 @@ impl Bridge {
                     responses = None;
                     active = false;
                     if token.load(Ordering::Acquire) == request.ride {
-                        shared.lock().unwrap().state = 0;
+                        let mut state = shared.lock().unwrap();
+                        state.ride = request.ride;
+                        state.revision = request.revision;
+                        state.state = 0;
                     }
                 }
             }
@@ -215,6 +218,7 @@ pub struct Adapter {
     bridge: Option<Bridge>,
     surface: Option<Surface>,
     pose: [f32; 4],
+    deferred: Option<Request>,
 }
 impl Adapter {
     pub fn config(&mut self, path: PathBuf) {
@@ -230,6 +234,7 @@ impl Adapter {
         self.exe = path.parent().map(|p| p.join("combine_skate_worker.exe"));
     }
     pub fn stop(&mut self) {
+        self.deferred = None;
         let active = self.surface.take().is_some();
         self.points.clear();
         self.pose = [f32::NAN; 4];
@@ -307,20 +312,34 @@ impl Adapter {
             s.revision = b.revision;
             s.state = 2;
             s.pose = [f32::NAN; 4];
-        } else {
-            return 0;
         }
-        if b.sender.try_send(request).is_err() {
-            return 0;
+        self.pose = [f32::NAN; 4];
+        match b.sender.try_send(request) {
+            Ok(()) => {}
+            Err(mpsc::TrySendError::Full(request)) => self.deferred = Some(request),
+            Err(mpsc::TrySendError::Disconnected(_)) => return 0,
         }
         self.surface = Some(surface);
         2
     }
     pub fn poll(&mut self) -> i32 {
+        if self.surface.is_none() {
+            return 0;
+        }
         if let Some(b) = self.bridge.as_ref() {
+            if let Some(request) = self.deferred.take() {
+                match b.sender.try_send(request) {
+                    Ok(()) => {}
+                    Err(mpsc::TrySendError::Full(request)) => {
+                        self.deferred = Some(request);
+                        return 2;
+                    }
+                    Err(mpsc::TrySendError::Disconnected(_)) => return 0,
+                }
+            }
             if let Ok(s) = b.snapshot.try_lock() {
                 if s.ride != b.ride || s.revision != b.revision {
-                    return 0;
+                    return 2;
                 }
                 if s.state == 1 && s.updated.elapsed() > Duration::from_millis(250) {
                     return 0;

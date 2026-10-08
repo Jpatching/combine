@@ -11,5 +11,6 @@ while (true) {
     }});
     attempt(()=>{if(native("DOES_CHAR_EXIST",ped))native("FREEZE_CHAR_POSITION",ped,false);});
     attempt(()=>native("SET_PLAYER_CONTROL",player,true));
-    native("COMBINE_SKATE_STOP");native("COMBINE_SKATE_RELEASE");
+    attempt(()=>native("COMBINE_SKATE_STOP"));
+    attempt(()=>native("COMBINE_SKATE_RELEASE"));
 }

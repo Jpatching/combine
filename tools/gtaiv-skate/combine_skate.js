@@ -4,11 +4,11 @@ const SCALE = 1; // GTA metres assumption: MUST verify against a surveyed real s
 let ride = null, announced=false;
 function notify(text) { native("PRINT_STRING_WITH_LITERAL_STRING_NOW", "STRING", text, 2500, 1); }
 function restore() {
-    const saved = ride; ride = null;
-    native("COMBINE_SKATE_STOP");
+    const saved = ride;
+    const attempt = action => { try { action(); } catch (_) {} };
+    attempt(() => native("COMBINE_SKATE_STOP"));
     if (!saved) return;
     // Independent restoration attempts ensure a missing ped/camera cannot trap control.
-    const attempt = action => { try { action(); } catch (_) {} };
     attempt(() => native("ACTIVATE_SCRIPTED_CAMS", false, false));
     attempt(() => { if (native("DOES_CAM_EXIST", saved.camera)) {
         native("SET_CAM_PROPAGATE", saved.camera, false);
@@ -19,7 +19,8 @@ function restore() {
         native("FREEZE_CHAR_POSITION", saved.ped, false);
     }});
     attempt(() => native("SET_PLAYER_CONTROL", saved.player, true));
-    native("COMBINE_SKATE_RELEASE");
+    attempt(() => native("COMBINE_SKATE_RELEASE"));
+    ride = null;
 }
 function mount(player, ped) {
     if (!native("IS_CHAR_ON_FOOT", ped)) return;

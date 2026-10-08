@@ -16,7 +16,7 @@ COMMANDS = {
     "RELEASE": ([], None), "RESCUE": ([], "int"),
 }
 
-def prepare(source, destination):
+def prepare(source, destination, evaluation=False):
     content=source.read_bytes()
     if hashlib.sha256(content).hexdigest()!=BASE_SHA256:
         raise ValueError("Definitions differ from pinned source")
@@ -41,6 +41,14 @@ def prepare(source, destination):
     commands.append({"name":"COMBINE_GAME_STATUS","num_params":3,
         "input":[{"name":name,"type":"int"} for name in ("scene","control","onFoot")],
         "output":[]})
+    if evaluation:
+        commands.extend([
+            {"name":"COMBINE_SKATE_EVAL_INPUT","num_params":3,
+             "input":[{"name":"profile","type":"int"},{"name":"duration","type":"int"}],
+             "output":[{"name":"accepted","type":"int"}]},
+            {"name":"COMBINE_SKATE_EVAL_OWNER","num_params":3,"input":[],
+             "output":[{"name":name,"type":"int"} for name in ("player","ped","camera")]},
+        ])
     definitions["extensions"].append({"name":"combine_skate","commands":commands})
     with destination.open("x",encoding="utf-8") as output:
         json.dump(definitions,output,indent=2);output.write("\n")
@@ -48,4 +56,5 @@ def prepare(source, destination):
 if __name__=="__main__":
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source",type=Path);parser.add_argument("destination",type=Path)
-    args=parser.parse_args();prepare(args.source,args.destination)
+    parser.add_argument("--evaluation",action="store_true",help="Definitions for the explicitly opted-in evaluation plugin")
+    args=parser.parse_args();prepare(args.source,args.destination,args.evaluation)

@@ -45,6 +45,8 @@ jobs:
           /tmp/combine-worker-wire-tests
           rustc --edition=2024 --test tools/gtaiv-skate/tests/freshness.rs -o /tmp/combine-worker-freshness-tests
           /tmp/combine-worker-freshness-tests
+          g++ -std=c++17 -Wall -Wextra -Werror tools/gtaiv-skate/tests/evaluation-input.cpp -o /tmp/combine-evaluation-input-tests
+          /tmp/combine-evaluation-input-tests
   game-status-checks:
     runs-on: windows-latest
     timeout-minutes: 5

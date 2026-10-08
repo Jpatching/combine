@@ -9,7 +9,9 @@ import tarfile
 PIN="f608f85e407ff1b7689d54a9aafdd16e95711ac4"
 HERE=Path(__file__).resolve().parent
 
-def build(source, destination, compiler, offline=True, worker=False):
+def build(source, destination, compiler, offline=True, worker=False, evaluation=False):
+    if evaluation and not worker:
+        raise ValueError("Evaluation input requires the separate worker candidate")
     # Exact object export ignores unrelated upstream working-tree modifications.
     destination.mkdir(parents=True,exist_ok=False)
     archive=subprocess.run(["git","-C",str(source),"archive",PIN],check=True,capture_output=True).stdout
@@ -25,7 +27,7 @@ def build(source, destination, compiler, offline=True, worker=False):
     profile="release" if worker else "debug"
     library=adapter/"target/i686-pc-windows-gnu"/profile/"libcombine_gtaiv_skate.a"
     if worker:shutil.copy2(adapter/"target/i686-pc-windows-gnu/release/combine_skate_worker.exe",destination/"combine_skate_worker.exe")
-    subprocess.run([compiler,"-std=c++17","-shared","-static","-static-libgcc","-static-libstdc++",
+    subprocess.run([compiler,*( ["-DCOMBINE_SKATE_EVALUATION"] if evaluation else [] ),"-std=c++17","-shared","-static","-static-libgcc","-static-libstdc++",
         "-Wall","-Wextra","-Werror","-Wl,--exclude-all-symbols",str(HERE/"plugin.cpp"),str(library),
         "-o",str(destination/"combine_skate.cleo"),"-lversion","-lxinput","-lws2_32",
         "-lbcrypt","-luserenv","-lntdll"],check=True)
@@ -35,4 +37,5 @@ if __name__=="__main__":
     parser.add_argument("source",type=Path);parser.add_argument("destination",type=Path)
     parser.add_argument("--compiler",default="i686-w64-mingw32-g++")
     parser.add_argument("--worker",action="store_true",help="Build optional asynchronous separate worker candidate")
-    args=parser.parse_args();build(args.source.resolve(),args.destination.resolve(),args.compiler,worker=args.worker)
+    parser.add_argument("--evaluation",action="store_true",help="Opt in to bounded controller playback for private worker trials")
+    args=parser.parse_args();build(args.source.resolve(),args.destination.resolve(),args.compiler,worker=args.worker,evaluation=args.evaluation)

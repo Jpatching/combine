@@ -78,6 +78,29 @@ checksums from qualification #10. Stage into the owner-selected runtime with pri
 No installer, launch, asset conversion or redistribution runs in the build.
 The DLL imports XINPUT1_3 and Windows system libraries; confirm availability.
 
+For private automated worker trials only, add `--evaluation` to `build.py --worker`
+and `prepare_definitions.py`. Normal builds do not register evaluation commands.
+This enables `COMBINE_SKATE_EVAL_INPUT(profile,duration)` for four fixed profiles:
+neutral, X push, X push with left steering, and X push with right steering.
+Each request expires after 50–1000 milliseconds. Playback requires a mounted ride,
+foreground GTA and a connected, neutral physical controller; controller activity,
+lost focus, stop, dismount, reset and rescue cancel it. Expiry returns to physical
+input. The simulation, collision checks, transport and pose application are the
+same paths as normal riding. No virtual controller driver is required.
+
+`COMBINE_SKATE_EVAL_OWNER` exposes the current player/ped/camera handles to a private
+observer. Stage `tests/live-evaluation.js` separately as an evaluation script using
+the closed-game preparation rules above. F8 runs bounded input playback and reads
+actual GTA movement, heading and active camera position. F9 observes ordinary
+walking displacement for two seconds while the harness supplies walking input.
+The script also checks native control and destruction of the owned camera after
+a ride ends. Its log contains fixed verdicts only. It never teleports the player,
+writes camera/player state, mounts or substitutes a pose. The input command is its
+only riding write; expiry also protects against a stopped observer script.
+Remove the observer and restore the normal plugin/definitions after evaluation.
+These checks establish measured bridge behavior, not camera usability, physical
+controller qualification, metre calibration or owner acceptance.
+
 ## Behavior and runtime acceptance
 
 F6 toggles on-foot mount/dismount when the game is foreground. A connected Xbox

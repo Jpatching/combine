@@ -7,6 +7,9 @@
 #include <vector>
 #include <atomic>
 #include "status_sink.h"
+#ifdef COMBINE_SKATE_EVALUATION
+#include "evaluation_input.h"
+#endif
 static_assert(sizeof(void*)==4,"GTA IV is x86");
 extern "C" {
 struct Packet {uint16_t buttons; int16_t left[2],right[2]; uint8_t triggers[2];};
@@ -31,6 +34,46 @@ INIT_ONCE identity_once=INIT_ONCE_STATIC_INIT;
 std::atomic<bool> callback_seen{false};
 SRWLOCK ownership_lock=SRWLOCK_INIT;
 DWORD heartbeat=0; bool owned=false, reset_pending=false; intptr_t owner[3]{};
+#ifdef COMBINE_SKATE_EVALUATION
+EvaluationInput evaluation_input;
+bool identity();
+bool evaluation_allowed(const XINPUT_STATE& input) {
+    DWORD process=0;GetWindowThreadProcessId(GetForegroundWindow(),&process);
+    const auto& pad=input.Gamepad;
+    const auto centred=[](int axis) {return axis>=-4096 && axis<=4096;};
+    return process==GetCurrentProcessId() && pad.wButtons==0
+        && centred(pad.sThumbLX) && centred(pad.sThumbLY)
+        && centred(pad.sThumbRX) && centred(pad.sThumbRY)
+        && pad.bLeftTrigger<30 && pad.bRightTrigger<30;
+}
+int evaluation_arm(Context c) {
+    const int profile=static_cast<int>(sdk.integer(c));
+    const int duration=static_cast<int>(sdk.integer(c));
+    XINPUT_STATE input{};
+    const bool permitted=identity() && XInputGetState(0,&input)==ERROR_SUCCESS
+        && evaluation_allowed(input);
+    AcquireSRWLockExclusive(&ownership_lock);
+    evaluation_input.clear();
+    const bool ok=permitted && owned && !reset_pending
+        && evaluation_input.arm(profile,duration,GetTickCount());
+    ReleaseSRWLockExclusive(&ownership_lock);
+    sdk.output_int(c,ok?1:0);return 0;
+}
+int evaluation_owner(Context c) {
+    intptr_t saved[3];
+    AcquireSRWLockShared(&ownership_lock);
+    for(int i=0;i<3;++i)saved[i]=owned&&!reset_pending?owner[i]:-1;
+    ReleaseSRWLockShared(&ownership_lock);
+    for(auto v:saved)sdk.output_int(c,v);
+    return 0;
+}
+#endif
+// Caller holds the ownership lock; normal builds have no playback state.
+void clear_evaluation() {
+#ifdef COMBINE_SKATE_EVALUATION
+    evaluation_input.clear();
+#endif
+}
 template<class T> bool bind(HMODULE module,const char* name,T&target) {
     auto address=GetProcAddress(module,name); std::memcpy(&target,&address,sizeof(target)); return target!=nullptr;
 }
@@ -54,16 +97,17 @@ bool on_thread() {
     const auto current=GetCurrentThreadId();
     return current==script_thread.load() && identity() && callback_seen.load();
 }
-void reset() {combine_reset();AcquireSRWLockExclusive(&ownership_lock);reset_pending=true;script_thread.store(0);ReleaseSRWLockExclusive(&ownership_lock);}
+void reset() {combine_reset();AcquireSRWLockExclusive(&ownership_lock);clear_evaluation();reset_pending=true;script_thread.store(0);ReleaseSRWLockExclusive(&ownership_lock);}
 int claim(Context c) {
     intptr_t saved[3];for(auto &v:saved)v=sdk.integer(c);
     AcquireSRWLockExclusive(&ownership_lock);
+    clear_evaluation();
     for(int i=0;i<3;++i)owner[i]=saved[i];
     owned=true;reset_pending=false;heartbeat=GetTickCount();
     ReleaseSRWLockExclusive(&ownership_lock);return 0;
 }
 int release(Context) {
-    AcquireSRWLockExclusive(&ownership_lock);owned=false;reset_pending=false;
+    AcquireSRWLockExclusive(&ownership_lock);clear_evaluation();owned=false;reset_pending=false;
     ReleaseSRWLockExclusive(&ownership_lock);return 0;
 }
 int rescue(Context c) {
@@ -71,7 +115,7 @@ int rescue(Context c) {
     AcquireSRWLockExclusive(&ownership_lock);
     const bool pending=owned&&(reset_pending||GetTickCount()-heartbeat>2000);
     for(int i=0;i<3;++i)saved[i]=pending?owner[i]:-1;
-    if(pending) {reset_pending=true;combine_reset();}
+    if(pending) {clear_evaluation();reset_pending=true;combine_reset();}
     ReleaseSRWLockExclusive(&ownership_lock);
     for(auto v:saved)sdk.output_int(c,v);
     return 0;
@@ -95,7 +139,15 @@ int toggle(Context c) {
     const bool foreground=process==GetCurrentProcessId();
     sdk.output_int(c,rising&&foreground?1:0); return 0;
 }
-int stop(Context) {if(on_thread()) combine_stop();return 0;}
+int stop(Context) {
+    if(on_thread()) {
+#ifdef COMBINE_SKATE_EVALUATION
+        AcquireSRWLockExclusive(&ownership_lock);clear_evaluation();ReleaseSRWLockExclusive(&ownership_lock);
+#endif
+        combine_stop();
+    }
+    return 0;
+}
 int vertex(Context c) {
     const float x=sdk.number(c),y=sdk.number(c),z=sdk.number(c);
     DWORD empty=0;script_thread.compare_exchange_strong(empty,GetCurrentThreadId());
@@ -121,6 +173,11 @@ int tick(Context c) {
     if(on_thread() && !reset_requested && valid && XInputGetState(0,&state)==ERROR_SUCCESS) {
         Packet p{state.Gamepad.wButtons,{state.Gamepad.sThumbLX,state.Gamepad.sThumbLY},
             {state.Gamepad.sThumbRX,state.Gamepad.sThumbRY},{state.Gamepad.bLeftTrigger,state.Gamepad.bRightTrigger}};
+#ifdef COMBINE_SKATE_EVALUATION
+        AcquireSRWLockExclusive(&ownership_lock);
+        evaluation_input.apply(p,owned&&!reset_pending&&evaluation_allowed(state),GetTickCount());
+        ReleaseSRWLockExclusive(&ownership_lock);
+#endif
         ok=combine_tick(timer,ground,&p);
     } else if(on_thread()) combine_stop();
     sdk.output_int(c,ok);return 0;
@@ -149,5 +206,9 @@ BOOL WINAPI DllMain(HINSTANCE instance,DWORD reason,LPVOID) {
     sdk.command("COMBINE_SKATE_CLAIM",claim,nullptr);sdk.command("COMBINE_SKATE_RELEASE",release,nullptr);
     sdk.command("COMBINE_SKATE_RESCUE",rescue,nullptr);
     sdk.command("COMBINE_GAME_STATUS",status,nullptr);
+#ifdef COMBINE_SKATE_EVALUATION
+    sdk.command("COMBINE_SKATE_EVAL_INPUT",evaluation_arm,nullptr);
+    sdk.command("COMBINE_SKATE_EVAL_OWNER",evaluation_owner,nullptr);
+#endif
     sdk.after(after);sdk.runtime_init(reset);return TRUE;
 }

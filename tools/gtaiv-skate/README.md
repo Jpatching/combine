@@ -175,7 +175,10 @@ prepare request remains pending while prior cleanup occupies that queue; polling
 submits it without blocking, and cancellation clears it. Fixed binary
 messages carry ride generation, request sequence and collision revision. Output
 with mismatching identity, nonfinite pose or invalid period is refused. Riding
-ends after a response gap above 250 ms. A Windows kill-on-close job contains owned
+ends after a response gap above 250 ms. Temporary snapshot publication contention
+uses only the last accepted pose with its original timestamp, matching ride/revision
+and runtime identity, and independently validated ground. Repeated reads never
+extend that deadline; poisoned shared state refuses riding. A Windows kill-on-close job contains owned
 workers; cancellation/failure terminates only that child. No game-thread shutdown
 wait is performed. An idle Session can remain warm; each new ride installs collision
 from the newly sampled grid before activation. Cancellation during an outstanding
@@ -186,6 +189,8 @@ Additional source checks:
 ```sh
 rustc --edition=2024 --test tools/gtaiv-skate/tests/wire.rs -o /tmp/combine-worker-wire-tests
 /tmp/combine-worker-wire-tests
+rustc --edition=2024 --test tools/gtaiv-skate/tests/freshness.rs -o /tmp/combine-worker-freshness-tests
+/tmp/combine-worker-freshness-tests
 ```
 
 `tests/native-worker.cpp` is a standalone Windows smoke harness linked against the

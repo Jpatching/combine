@@ -1,5 +1,7 @@
 #[cfg(not(all(windows, target_arch = "x86", target_pointer_width = "32")))]
 compile_error!("GTA IV adapter requires x86 Windows");
+#[cfg(feature = "worker")]
+mod accepted_pose;
 mod connection;
 #[cfg(not(feature = "worker"))]
 mod in_process;

@@ -43,6 +43,8 @@ jobs:
           node tools/gtaiv-skate/tests/status-script.cjs
           rustc --edition=2024 --test tools/gtaiv-skate/tests/wire.rs -o /tmp/combine-worker-wire-tests
           /tmp/combine-worker-wire-tests
+          rustc --edition=2024 --test tools/gtaiv-skate/tests/freshness.rs -o /tmp/combine-worker-freshness-tests
+          /tmp/combine-worker-freshness-tests
   game-status-checks:
     runs-on: windows-latest
     timeout-minutes: 5

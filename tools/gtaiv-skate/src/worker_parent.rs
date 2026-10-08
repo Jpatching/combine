@@ -1,6 +1,7 @@
 //! GTA commands perform no pipe/process IO; a supervisor owns the child lifetime.
 use crate::{
     Packet,
+    accepted_pose::AcceptedPose,
     connection::Surface,
     wire::{Request, Response},
 };
@@ -219,6 +220,7 @@ pub struct Adapter {
     surface: Option<Surface>,
     pose: [f32; 4],
     deferred: Option<Request>,
+    accepted: Option<AcceptedPose>,
 }
 impl Adapter {
     pub fn config(&mut self, path: PathBuf) {
@@ -230,6 +232,7 @@ impl Adapter {
             self.bridge = None;
             self.surface = None;
             self.pose = [f32::NAN; 4];
+            self.accepted = None;
         }
         self.exe = path.parent().map(|p| p.join("combine_skate_worker.exe"));
     }
@@ -238,6 +241,7 @@ impl Adapter {
         let active = self.surface.take().is_some();
         self.points.clear();
         self.pose = [f32::NAN; 4];
+        self.accepted = None;
         if !active {
             return;
         }
@@ -314,6 +318,7 @@ impl Adapter {
             s.pose = [f32::NAN; 4];
         }
         self.pose = [f32::NAN; 4];
+        self.accepted = None;
         match b.sender.try_send(request) {
             Ok(()) => {}
             Err(mpsc::TrySendError::Full(request)) => self.deferred = Some(request),
@@ -327,6 +332,9 @@ impl Adapter {
             return 0;
         }
         if let Some(b) = self.bridge.as_ref() {
+            if b.epoch != EPOCH.load(Ordering::Acquire) {
+                return 0;
+            }
             if let Some(request) = self.deferred.take() {
                 match b.sender.try_send(request) {
                     Ok(()) => {}
@@ -337,15 +345,23 @@ impl Adapter {
                     Err(mpsc::TrySendError::Disconnected(_)) => return 0,
                 }
             }
-            if let Ok(s) = b.snapshot.try_lock() {
-                if s.ride != b.ride || s.revision != b.revision {
-                    return 2;
+            match b.snapshot.try_lock() {
+                Ok(s) => {
+                    if s.ride != b.ride || s.revision != b.revision {
+                        return 2;
+                    }
+                    if s.state == 1 && s.updated.elapsed() > Duration::from_millis(250) {
+                        return 0;
+                    }
+                    self.pose = s.pose;
+                    if s.state == 1 {
+                        self.accepted =
+                            AcceptedPose::new(s.ride, s.revision, b.epoch, s.pose, s.updated);
+                    }
+                    return s.state;
                 }
-                if s.state == 1 && s.updated.elapsed() > Duration::from_millis(250) {
-                    return 0;
-                }
-                self.pose = s.pose;
-                return s.state;
+                Err(std::sync::TryLockError::Poisoned(_)) => return 0,
+                Err(std::sync::TryLockError::WouldBlock) => {}
             }
         }
         2
@@ -357,22 +373,32 @@ impl Adapter {
         let Some(b) = self.bridge.as_mut() else {
             return 0;
         };
-        let Ok(s) = b.snapshot.try_lock() else {
-            return 0;
-        };
-        if s.ride != b.ride
-            || s.revision != b.revision
-            || s.state != 1
-            || s.updated.elapsed() > Duration::from_millis(250)
-            || !self
-                .surface
-                .as_ref()
-                .is_some_and(|surface| surface.contains([s.pose[0], s.pose[1], s.pose[2]], ground))
-        {
+        if b.epoch != EPOCH.load(Ordering::Acquire) {
             return 0;
         }
-        self.pose = s.pose;
-        drop(s);
+        let Some(surface) = self.surface.as_ref() else {
+            return 0;
+        };
+        let candidate = match b.snapshot.try_lock() {
+            Ok(s) => {
+                if s.ride != b.ride || s.revision != b.revision || s.state != 1 {
+                    self.accepted = None;
+                    return 0;
+                }
+                self.accepted = AcceptedPose::new(s.ride, s.revision, b.epoch, s.pose, s.updated);
+                self.accepted.as_ref().and_then(|pose| {
+                    pose.fresh(b.ride, b.revision, b.epoch, Instant::now(), ground, surface)
+                })
+            }
+            Err(std::sync::TryLockError::WouldBlock) => self.accepted.as_ref().and_then(|pose| {
+                pose.fresh(b.ride, b.revision, b.epoch, Instant::now(), ground, surface)
+            }),
+            Err(std::sync::TryLockError::Poisoned(_)) => return 0,
+        };
+        let Some(pose) = candidate else {
+            return 0;
+        };
+        self.pose = pose;
         let sequence = match b.sequence.checked_add(1) {
             Some(v) => v,
             None => return 0,

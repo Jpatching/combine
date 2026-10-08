@@ -46,3 +46,5 @@ $start=[DateTimeOffset][DateTime]::FromFileTimeUtc([long]134350560000009999)
 $report=ConvertTo-CombineGameReport -Snapshot ([pscustomobject]$boundary) -ExpectedProcessId 42 -ExpectedStartTime $start -NowMs 1790582401500
 Assert ($report.CanTest) 'Exact process timestamp near a millisecond boundary must not reject its own snapshot'
 Write-Output 'PASS: process identity preserves exact timestamp boundaries'
+# The deliberately failing child command must not become the CI runner's exit code.
+exit 0

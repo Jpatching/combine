@@ -36,8 +36,20 @@ The build exports the exact upstream Git object, never its working tree. It
 requires a new destination, uses the committed dependency lock offline, and
 produces `combine_skate.cleo`. The preparer requires the pinned JSON SHA256
 `ba78c1ae32ea2eb800311f4513617e75c6283ac94805db016d157745356eb21b` and refuses
-an existing output. It adds eleven commands. Native signatures stay in the pinned
-base; no numeric native IDs, hooks or game offsets are invented.
+an existing output. It adds eleven commands and marks
+`GET_GROUND_Z_FOR_3D_COORD` as conditional in the generated definitions. The
+pinned input remains unchanged; no numeric native IDs, hooks or game offsets are
+invented.
+
+The ground correction was checked on the stated GTA/CLEO versions: the original
+definition returned success bits `1` interpreted as a float (approximately
+`1.4e-45`), which the near-zero guard rejected. An explicit output-buffer probe
+returned a height agreeing with `GET_CHAR_HEIGHT_ABOVE_GROUND`; the conditional
+definition then produced the same agreement through the ordinary `native` call
+on two repeated live checks. Higher query origins and a collision request with a
+wait did not fix the original definition. This establishes ground-query output
+handling, not a complete surface survey or skating acceptance. The proprietary
+CLEO return-handling path is not exercised by the portable mocked tests.
 
 The portable checks exercise axis/scale, selected-surface bounds, timer
 interruptions, cardinal headings and external GTA native control/camera

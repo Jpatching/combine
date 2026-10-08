@@ -1,4 +1,4 @@
-"""Add adapter commands to exact pinned GTA IV definitions into a new file."""
+"""Prepare pinned GTA IV definitions with verified compatibility corrections."""
 import argparse
 import hashlib
 import json
@@ -21,6 +21,13 @@ def prepare(source, destination):
     if hashlib.sha256(content).hexdigest()!=BASE_SHA256:
         raise ValueError("Definitions differ from pinned source")
     definitions=json.loads(content)
+    # GTA IV returns a success flag as well as writing the ground-height output.
+    # Without this flag CLEO 1.5.1 reads success bits (1) as the float height.
+    # Keep the pinned input intact; correct only the generated runtime definition.
+    ground=next(command for extension in definitions["extensions"]
+        for command in extension["commands"]
+        if command["name"]=="GET_GROUND_Z_FOR_3D_COORD")
+    ground.setdefault("attrs",{})["is_condition"]=True
     commands=[]
     for suffix,(fields,result) in COMMANDS.items():
         commands.append({"name":"COMBINE_SKATE_"+suffix,

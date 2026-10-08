@@ -6,7 +6,7 @@ from pathlib import Path
 
 BASE_SHA256 = "ba78c1ae32ea2eb800311f4513617e75c6283ac94805db016d157745356eb21b"
 COMMANDS = {
-    "READY": ([], "int"), "TOGGLE": ([], "int"), "STOP": ([], None),
+    "POLL": ([], "int"), "READY": ([], "int"), "TOGGLE": ([], "int"), "STOP": ([], None),
     "VERTEX": ([("x","float"),("y","float"),("z","float")], "int"),
     "MOUNT": ([("x","float"),("y","float"),("ground","float"),
                ("heading","float"),("scale","float")], "int"),

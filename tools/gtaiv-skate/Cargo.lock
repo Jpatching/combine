@@ -1086,6 +1086,7 @@ name = "combine-gtaiv-skate"
 version = "0.1.0"
 dependencies = [
  "skate-host",
+ "windows-sys",
 ]
 
 [[package]]

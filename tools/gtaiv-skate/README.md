@@ -36,7 +36,7 @@ The build exports the exact upstream Git object, never its working tree. It
 requires a new destination, uses the committed dependency lock offline, and
 produces `combine_skate.cleo`. The preparer requires the pinned JSON SHA256
 `ba78c1ae32ea2eb800311f4513617e75c6283ac94805db016d157745356eb21b` and refuses
-an existing output. It adds eleven commands and marks
+an existing output. It adds twelve commands and marks
 `GET_GROUND_Z_FOR_3D_COORD` as conditional in the generated definitions. The
 pinned input remains unchanged; no numeric native IDs, hooks or game offsets are
 invented.
@@ -108,7 +108,7 @@ is attempted independently if a GTA native throws.
 A separate watchdog script restores saved ownership after two seconds without a
 frame or on CLEO runtime reset. Both scripts must be installed. Callback/script
 threads are distinct in live qualification; shared state uses atomics, Windows
-InitOnce and an ownership lock. Session calls stay on one script thread; reset
+InitOnce and an ownership lock. The default candidate keeps Session calls on one script thread; reset
 allows a new script thread to capture the next surface. Dynamic DLL unload or
 simultaneous removal of both scripts cannot perform native restoration; close
 normally, and do not hot-unload this adapter.
@@ -152,3 +152,44 @@ Mounted Skate intentionally disables GTA controls, which is reported separately.
 The report establishes test prerequisites, not surface validity, visible movement,
 correct scale, usable camera or gameplay acceptance. Local OCR can supplement
 menu/message confirmation; screenshots and raw evidence remain private.
+
+## Optional separate-worker candidate
+
+Build with `build.py --worker` to produce the optional asynchronous plugin and
+`combine_skate_worker.exe`; the ordinary build preserves the in-process candidate.
+Stage the executable beside the plugin and private asset pointer only after normal
+closure and backed-up staging. The worker reads that same private asset-pointer
+file. There is no installation or launch in the build.
+
+The GTA script submits preparation, then polls `COMBINE_SKATE_POLL` without taking
+control until a fresh finite pose is available. Mount returns 0 for refusal, 1 for
+immediate in-process readiness, or 2 for pending worker preparation. Poll returns
+0 for refusal, 1 for readiness, or 2 while pending. F6, movement away from the
+sampled position, pause/cutscene, input loss or a 60-second preparation deadline
+cancels preparation while GTA retains control. Mounted pause/cutscene now restores
+GTA immediately in either candidate.
+
+A dedicated supervisor owns process and pipe operations; GTA commands only submit
+to a capacity-one queue or read the latest validated snapshot. Fixed binary
+messages carry ride generation, request sequence and collision revision. Output
+with mismatching identity, nonfinite pose or invalid period is refused. Riding
+ends after a response gap above 250 ms. A Windows kill-on-close job contains owned
+workers; cancellation/failure terminates only that child. No game-thread shutdown
+wait is performed. An idle Session can remain warm; each new ride installs collision
+from the newly sampled grid before activation. Cancellation during an outstanding
+request may discard the warm child. The unchanged 5 cm surface guard still applies.
+
+Additional source checks:
+
+```sh
+rustc --edition=2024 --test tools/gtaiv-skate/tests/wire.rs -o /tmp/combine-worker-wire-tests
+/tmp/combine-worker-wire-tests
+```
+
+`tests/native-worker.cpp` is a standalone Windows smoke harness linked against the
+worker-feature static library. Run it beside the built worker and private asset
+pointer. It checks bounded parent calls during real Session preparation and pose
+exchange, warm remount, push/steer response, discarded dismounted poses, suspension
+and exit of its own child, and fresh recovery. It never attaches to GTA. Its refusal
+outcome plus mocked JS cleanup checks do not prove actual GTA control/camera
+restoration; the mounted gameplay/fault trial remains required for #20 acceptance.

@@ -1,5 +1,5 @@
 // CLEO Redux SDK bbf6773fe8cc1bfa95c73509a25928f97b0d8d13.
-// GTA natives stay in the JS runtime. All Session calls run on its script thread.
+// GTA natives stay in JS. The optional worker runs Session outside GTA.
 #include <windows.h>
 #include <xinput.h>
 #include <cstdint>
@@ -11,6 +11,7 @@ static_assert(sizeof(void*)==4,"GTA IV is x86");
 extern "C" {
 struct Packet {uint16_t buttons; int16_t left[2],right[2]; uint8_t triggers[2];};
 int combine_config(const wchar_t*,uint32_t);
+int combine_poll();void combine_reset();
 void combine_stop(); int combine_vertex(float,float,float);
 int combine_mount(float,float,float,float,float);
 int combine_tick(uint32_t,float,const Packet*); float combine_value(int);
@@ -53,7 +54,7 @@ bool on_thread() {
     const auto current=GetCurrentThreadId();
     return current==script_thread.load() && identity() && callback_seen.load();
 }
-void reset() {AcquireSRWLockExclusive(&ownership_lock);reset_pending=true;script_thread.store(0);ReleaseSRWLockExclusive(&ownership_lock);}
+void reset() {combine_reset();AcquireSRWLockExclusive(&ownership_lock);reset_pending=true;script_thread.store(0);ReleaseSRWLockExclusive(&ownership_lock);}
 int claim(Context c) {
     intptr_t saved[3];for(auto &v:saved)v=sdk.integer(c);
     AcquireSRWLockExclusive(&ownership_lock);
@@ -70,7 +71,7 @@ int rescue(Context c) {
     AcquireSRWLockExclusive(&ownership_lock);
     const bool pending=owned&&(reset_pending||GetTickCount()-heartbeat>2000);
     for(int i=0;i<3;++i)saved[i]=pending?owner[i]:-1;
-    if(pending)reset_pending=true;
+    if(pending) {reset_pending=true;combine_reset();}
     ReleaseSRWLockExclusive(&ownership_lock);
     for(auto v:saved)sdk.output_int(c,v);
     return 0;
@@ -107,7 +108,7 @@ int mount(Context c) {
     wchar_t path[32768];const auto length=GetModuleFileNameW(plugin_instance,path,32768);
     const bool configured=on_thread()&&length>0&&length<32768&&combine_config(path,length);
     const auto ok=configured&&input?combine_mount(x,y,z,heading,scale):0;
-    sdk.log(ok?"COMBINE_SKATE mounted actual Session":"COMBINE_SKATE initialization rejected");
+    sdk.log(ok==2?"COMBINE_SKATE preparation submitted":ok==1?"COMBINE_SKATE mounted actual Session":"COMBINE_SKATE initialization rejected");
     sdk.output_int(c,ok);return 0;
 }
 int tick(Context c) {
@@ -124,6 +125,11 @@ int tick(Context c) {
     } else if(on_thread()) combine_stop();
     sdk.output_int(c,ok);return 0;
 }
+int poll(Context c) {
+    XINPUT_STATE state{};
+    sdk.output_int(c,on_thread()&&XInputGetState(0,&state)==ERROR_SUCCESS?combine_poll():0);
+    return 0;
+}
 int value(Context c) {const auto i=static_cast<int>(sdk.integer(c));sdk.output_float(c,on_thread()?combine_value(i):0.f);return 0;}
 }
 BOOL WINAPI DllMain(HINSTANCE instance,DWORD reason,LPVOID) {
@@ -139,6 +145,7 @@ BOOL WINAPI DllMain(HINSTANCE instance,DWORD reason,LPVOID) {
     sdk.command("COMBINE_SKATE_STOP",stop,nullptr);sdk.command("COMBINE_SKATE_VERTEX",vertex,nullptr);
     sdk.command("COMBINE_SKATE_MOUNT",mount,nullptr);sdk.command("COMBINE_SKATE_TICK",tick,nullptr);
     sdk.command("COMBINE_SKATE_VALUE",value,nullptr);
+    sdk.command("COMBINE_SKATE_POLL",poll,nullptr);
     sdk.command("COMBINE_SKATE_CLAIM",claim,nullptr);sdk.command("COMBINE_SKATE_RELEASE",release,nullptr);
     sdk.command("COMBINE_SKATE_RESCUE",rescue,nullptr);
     sdk.command("COMBINE_GAME_STATUS",status,nullptr);

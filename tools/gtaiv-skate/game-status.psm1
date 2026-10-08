@@ -3,8 +3,9 @@ function New-UnknownReport {
     [pscustomobject]@{Scene='unknown';PlayerControl='unknown';Controller='unknown';Adapter='unknown';CurrentTest='waiting for verified game state';OnFoot=$null;CanTest=$false}
 }
 function ConvertTo-CombineGameReport {
-    param($Snapshot,[long]$ExpectedProcessId,[long]$ExpectedStartMs,[long]$NowMs)
+    param($Snapshot,[long]$ExpectedProcessId,[DateTimeOffset]$ExpectedStartTime,[long]$NowMs)
     $unknown=New-UnknownReport
+    $ExpectedStartMs=$ExpectedStartTime.ToUnixTimeMilliseconds()
     if($null -eq $Snapshot){return $unknown}
     $names=@('schema','pid','process_start_ms','updated_ms','scene','player_control','on_foot','adapter_ready','mounted','controller')
     $actual=@($Snapshot.PSObject.Properties.Name)
@@ -45,9 +46,9 @@ function Get-CombineGameReport {
         $file=Get-Item -LiteralPath $StatePath -ErrorAction Stop
         if($file.Length -gt 8192 -or $file.PSIsContainer -or ($file.Attributes -band [IO.FileAttributes]::ReparsePoint)){return $unknown}
         $snapshot=[IO.File]::ReadAllText($file.FullName) | ConvertFrom-Json -ErrorAction Stop
-        $start=[long][Math]::Floor($games[0].StartTime.ToUniversalTime().ToFileTimeUtc()/10000)-11644473600000
+        $start=[DateTimeOffset]$games[0].StartTime.ToUniversalTime()
         $now=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-        ConvertTo-CombineGameReport -Snapshot $snapshot -ExpectedProcessId $games[0].Id -ExpectedStartMs $start -NowMs $now
+        ConvertTo-CombineGameReport -Snapshot $snapshot -ExpectedProcessId $games[0].Id -ExpectedStartTime $start -NowMs $now
     } catch {return $unknown}
 }
 Export-ModuleMember -Function ConvertTo-CombineGameReport,Get-CombineGameReport

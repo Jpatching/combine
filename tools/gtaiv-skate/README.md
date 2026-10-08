@@ -36,7 +36,7 @@ The build exports the exact upstream Git object, never its working tree. It
 requires a new destination, uses the committed dependency lock offline, and
 produces `combine_skate.cleo`. The preparer requires the pinned JSON SHA256
 `ba78c1ae32ea2eb800311f4513617e75c6283ac94805db016d157745356eb21b` and refuses
-an existing output. It adds ten commands. Native signatures stay in the pinned
+an existing output. It adds eleven commands. Native signatures stay in the pinned
 base; no numeric native IDs, hooks or game offsets are invented.
 
 The portable checks exercise axis/scale, selected-surface bounds, timer

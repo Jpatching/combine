@@ -15,7 +15,7 @@ function replay(mode) {
         case 'COMBINE_SKATE_EVAL_TIME': return real;
         case 'GET_GAME_TIMER': return mode==='frozen'?0:(0x7fffff00+real)|0;
         case 'COMBINE_SKATE_EVAL_INPUT': profile=args[0];return mode==='refused'?0:1;
-        case 'IS_KEYBOARD_KEY_PRESSED': return args[0]===(mode==='walking'?120:119);
+        case 'COMBINE_SKATE_EVAL_KEY': return args[0]===(mode==='walking'?1:0);
         case 'IS_PAUSE_MENU_ACTIVE': case 'HAS_CUTSCENE_LOADED': return false;
         case 'HAS_CUTSCENE_FINISHED': return true;
         case 'IS_PLAYER_CONTROL_ON': return mode==='walking';

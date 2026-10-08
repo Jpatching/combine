@@ -28,6 +28,11 @@ def prepare(source, destination, evaluation=False):
         for command in extension["commands"]
         if command["name"]=="GET_GROUND_Z_FOR_3D_COORD")
     ground.setdefault("attrs",{})["is_condition"]=True
+    # DESTROY_CAM takes a camera handle by value. The pinned pointer annotation
+    # makes CLEO pass its address, leaving the owned camera alive after dismount.
+    destroy=next(command for extension in definitions["extensions"]
+        for command in extension["commands"] if command["name"]=="DESTROY_CAM")
+    destroy["input"][0]["source"]="any"
     commands=[]
     for suffix,(fields,result) in COMMANDS.items():
         commands.append({"name":"COMBINE_SKATE_"+suffix,
@@ -50,6 +55,9 @@ def prepare(source, destination, evaluation=False):
              "output":[{"name":name,"type":"int"} for name in ("player","ped","camera")]},
             {"name":"COMBINE_SKATE_EVAL_TIME","num_params":1,"input":[],
              "output":[{"name":"milliseconds","type":"int"}]},
+            {"name":"COMBINE_SKATE_EVAL_KEY","num_params":2,
+             "input":[{"name":"action","type":"int"}],
+             "output":[{"name":"held","type":"int"}]},
         ])
     definitions["extensions"].append({"name":"combine_skate","commands":commands})
     with destination.open("x",encoding="utf-8") as output:

@@ -90,8 +90,8 @@ while(true) {
             restoredForWalk=restored?previous:null;
             previous=null;
         }
-        const key8=Boolean(native("IS_KEYBOARD_KEY_PRESSED",119));
-        const key9=Boolean(native("IS_KEYBOARD_KEY_PRESSED",120));
+        const key8=Boolean(native("COMBINE_SKATE_EVAL_KEY",0));
+        const key9=Boolean(native("COMBINE_SKATE_EVAL_KEY",1));
         if(key8&&!held8) {
             if(owner.player>=0)playback(owner);
             else report("UNAVAILABLE: mounted ride required for playback");

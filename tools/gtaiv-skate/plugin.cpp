@@ -68,6 +68,13 @@ int evaluation_owner(Context c) {
     return 0;
 }
 int evaluation_time(Context c) {sdk.output_int(c,GetTickCount());return 0;}
+int evaluation_key(Context c) {
+    const auto action=sdk.integer(c);
+    const int key=action==0?VK_F8:action==1?VK_F9:0;
+    DWORD process=0;GetWindowThreadProcessId(GetForegroundWindow(),&process);
+    sdk.output_int(c,key&&identity()&&process==GetCurrentProcessId()
+        && (GetAsyncKeyState(key)&0x8000)?1:0);return 0;
+}
 #endif
 // Caller holds the ownership lock; normal builds have no playback state.
 void clear_evaluation() {
@@ -211,6 +218,7 @@ BOOL WINAPI DllMain(HINSTANCE instance,DWORD reason,LPVOID) {
     sdk.command("COMBINE_SKATE_EVAL_INPUT",evaluation_arm,nullptr);
     sdk.command("COMBINE_SKATE_EVAL_OWNER",evaluation_owner,nullptr);
     sdk.command("COMBINE_SKATE_EVAL_TIME",evaluation_time,nullptr);
+    sdk.command("COMBINE_SKATE_EVAL_KEY",evaluation_key,nullptr);
 #endif
     sdk.after(after);sdk.runtime_init(reset);return TRUE;
 }

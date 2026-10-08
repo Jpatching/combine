@@ -38,7 +38,13 @@ produces `combine_skate.cleo`. The preparer requires the pinned JSON SHA256
 `ba78c1ae32ea2eb800311f4513617e75c6283ac94805db016d157745356eb21b` and refuses
 an existing output. It adds twelve commands and marks
 `GET_GROUND_Z_FOR_3D_COORD` as conditional in the generated definitions. The
-pinned input remains unchanged; no numeric native IDs, hooks or game offsets are
+pinned input remains unchanged. It also passes `DESTROY_CAM`'s camera handle by
+value: the pinned pointer annotation left the owned camera alive after dismount
+on GTA IV 1.2.0.59 / CLEO Redux 1.5.1. A private inactive-camera trial verified
+immediate destruction with the generated correction. CI checks these generated
+argument/return contracts against the hash-verified public definition pin;
+that check does not establish gameplay or replace a live native smoke trial.
+No numeric native IDs, hooks or game offsets are
 invented.
 
 The ground correction was checked on the stated GTA/CLEO versions: the original
@@ -90,7 +96,10 @@ same paths as normal riding. No virtual controller driver is required.
 
 `COMBINE_SKATE_EVAL_OWNER` exposes the current player/ped/camera handles to a private
 observer. Stage `tests/live-evaluation.js` separately as an evaluation script using
-the closed-game preparation rules above. F8 runs bounded input playback and reads
+the closed-game preparation rules above. The opt-in `COMBINE_SKATE_EVAL_KEY`
+reads only F8/F9 through Windows while GTA is foreground; other action values
+return false. This avoids relying on GTA's debug keyboard native for the trial.
+F8 runs bounded input playback and reads
 actual GTA movement, heading and active camera position. F9 observes ordinary
 walking displacement for two seconds while the harness supplies walking input.
 The script also checks native control and destruction of the owned camera after

@@ -16,48 +16,68 @@ The CLI deliberately publishes only the bounded verdict.
 
 ## Supported evidence and conservative limits
 
-This experiment supports only little-endian RSC5 bounds (`0x20`), zlib-framed DEFLATE
-(`0xda78`), a tagged system-memory root pointer at dictionary offset 8, and root
-Geometry (`4`). Quantized signed 16-bit triples are scaled per axis and translated
-by the geometry center. Polygon records are 32 bytes; only unflagged triangles
-with a zero fourth index are accepted. No Unity coordinate conversion is applied.
-The supported layout is source evidence, not exact-version owned-input evidence.
+The read-only parser supports little-endian RSC5 bounds (`0x20`), checksummed
+zlib (`0xda78`), and a tagged system-memory root at dictionary offset 8.
+Geometry (`4`) and BVH (`10`) roots decode their polygon buffers. A single
+composite (`12`) may contain geometry/BVH children with explicit rigid transforms.
+Nested composites and other child shapes refuse the whole resource.
 
-The file cap is **16 MiB**, declared/inflated total memory **32 MiB**, vertices
-**32,767**, polygons **100,000**, and traversal exactly **one geometry root**.
-Header sizes and counts are checked before decompression/array construction.
-Decompression reads at most declared size plus one byte and validates the full
-zlib stream starting at byte 12, including its `0xda78` header and Adler-32
-checksum. Missing/corrupt checksums, incomplete streams and any trailing data
-(including a second compressed stream) are invalid. The pinned reference uses
-raw DEFLATE internally and writes the codec separately; copying that framing
-assumption into this strict parser wrongly rejected a valid owned resource.
-The supported framing now follows the locally verified checksummed stream.
-Checksum-free output is not accepted. System pointers must have tag 5 and a nonzero
-in-range offset; dictionary, geometry, vertex and polygon spans must be disjoint.
-Decoded coordinates and polygon normals must be finite; normals and face
-cross products must be nonzero, indices in range and triangle vertices distinct.
-These are conservative investigation caps, not measured gameplay budgets.
+Signed 16-bit vertices reconstruct as quantized coordinates times axis scale,
+plus geometry center. For composite children, the parser then applies the stored
+basis vectors and translation, retaining GTA coordinates. Both composite count
+fields must agree. The primary matrix is required; the secondary matrix must be
+absent, alias it, or have identical meaningful components. The four padding words
+are ignored, including NaN padding. All twelve meaningful components must be
+finite. Basis dot products must match an orthonormal basis and determinant +1
+within `1e-5`; scale, shear and reflection return unsupported.
 
-Other versions, resource types, codecs, box/BVH/curved geometry, spheres, capsules,
-unknown roots and **all composites** return unsupported. Composite child transforms
-are never traversed or assumed identity. Quads and index flags also refuse because
-the source's fourth-index convention is ambiguous at vertex zero and flag meanings
-have not been qualified. Empty geometry, bad spans/counts/indices, degenerate faces,
-truncation and decompression failures return invalid. Neither outcome supplies an
-empty or replacement world. The command only validates the specified subset;
-unused fields/adjacency/materials are not a fidelity claim.
+Unflagged triangles use a zero fourth-index sentinel. Unflagged quads use a
+nonzero fourth index and split into `(0,1,2)` and `(2,3,0)`, following corroborated
+IV readers. Every index must be in range; triangle/quad corner indices must be
+distinct and every output triangle nondegenerate. High-bit index flags remain
+unsupported. Stored polygon normals must be finite and nonzero. Transformed
+vertices and triangles are rechecked for finite values and precision collapse.
 
-One owned resource was acquired privately during the separate
-[street experiment](https://github.com/Jpatching/combine/issues/20#issuecomment-6087765258).
-The original inspector rejected its valid checksum with `invalid / decompression-error`.
-After this framing correction the same file returns `unsupported / unsupported-root`
-(exit 2): the experiment classified it as a composite, which this parser deliberately
-does not support. No geometry was decoded; this is useful negative evidence,
-not an owned-resource compatibility pass. The acquisition code remains separate
-from this inspector. This experiment does not prove
-placement, active GTA collision, units/winding, Skate contact, streaming,
-traffic/doors, grind semantics or gameplay.
+Limits: **16 MiB** input, **32 MiB** declared/inflated memory, **256** children,
+**32,767 total output vertices**, and **100,000 total output triangles**, including
+quad expansion across children. Counts and complete buffer spans are checked
+before relevant array construction. There is no recursive traversal. Null child
+pointers, invalid pointer tags, truncated arrays, overlapping consumed spans and
+inconsistent counts refuse; a failed child never becomes a partial world.
+Aliasing primary/secondary matrices is explicitly allowed; shared mesh buffers
+are conservatively rejected. Child boxes must have finite, ordered bounds.
+
+The complete zlib stream, starting at byte 12, must validate its checksum and
+consume exactly the declared size. Missing/corrupt checksums, incomplete streams,
+trailing data and concatenated streams are invalid. Unsupported versions, types,
+codecs, shapes and transform semantics return unsupported. Neither refusal
+supplies an empty or replacement world.
+
+**What the verdict covers:** the consumed polygon buffers and transforms, not
+all collision-resource structure or fidelity. BVH search trees are not traversed
+or validated; materials, adjacency, margins and unused pointers are not decoded.
+Child boxes are checked structurally, not for enclosure of the decoded mesh.
+The tool is not a validator for installing an original WBN in GTA.
+
+## Owned-file evidence and remaining gate
+
+On 2026-10-09 the same private owned resource from the
+[street experiment](https://github.com/Jpatching/combine/issues/20#issuecomment-6087765258)
+changed from `unsupported / unsupported-root` to
+`structurally-decoded / validated-geometry`. Its composite children are BVH meshes;
+an intermediate triangle-only candidate refused quads, before the source-backed
+quad extension. The final check applied the explicit child transforms and
+completed the bounded geometry checks. Only the verdict was emitted; no owned
+bytes, coordinates, geometry, paths or identities were published. Acquisition
+remains separate from this inspector; no game was launched or runtime changed.
+
+This is an owned-file decoding result, **not independently verified street
+placement**. There is no existing physical checkpoint proving that this resource
+supplies the selected street's active collision. Before Skate integration, qualify
+an independent local host-contact or exporter reference, compare scale/orientation
+and floor/curb/wall plus a clear-space control, and record a separate verdict.
+The [source investigation](../../research/results/2026-10-09-gtaiv-composite-transforms.md)
+separates source facts, algorithm tests and that remaining physical proof.
 
 ## Source provenance and licensing
 
@@ -86,19 +106,28 @@ does not establish publisher/asset rights.
 
 Changes from the reference are a standalone Python parser with bounded input and
 inflation, strict spans/tag/count/face validation, conservative unsupported results,
-no geometry conversion/export and private diagnostics suppressed. The unsafe
-Unity loops, permissive unknown-root behavior and composite traversal are not
-reproduced. Public source was read as text; no upstream project was executed.
+explicit rigid child transforms, no export and private diagnostics suppressed.
+The permissive Unity loops and silent child skipping are not reproduced. Public source was read as text; no upstream project was executed.
+
+Additional format corroboration and matrix provenance are pinned in the
+[source investigation](../../research/results/2026-10-09-gtaiv-composite-transforms.md).
+CitizenFX source was read for format facts only; no CitizenFX implementation was
+copied or linked. The new Python traversal, transforms and tests were independently
+authored. Existing GPLv3 terms and RageLib attribution remain applicable.
 
 ## Verification
 
-`python3 -m unittest discover -s tests -p test_gtaiv_collision.py -v` tests the
-agreed command/parser boundaries using authored fixtures only. The fixture's
-independently specified triangle is `(1,2,3)`, `(3,2,3)`, `(1,4,3)`; expectations
-are not generated by the decoder. The fixture uses a complete checksummed zlib
-stream. The corrected fixture made the existing command test fail before the
-framing fix; it passes afterward. The invalid-framing regression also fails
-against the original revision, which incorrectly accepts a missing checksum.
-All eight focused tests pass after the correction. The repository gate is
-`python3 scripts/verify.py`. These synthetic checks do not supply owned-resource
-or runtime proof; the separate owned-file result above remains unsupported.
+`python3 tests/test_gtaiv_collision.py -v` exercises the agreed public parser and
+command boundaries with authored data. The base triangle is `(1,2,3)`, `(3,2,3)`,
+`(1,4,3)`. A +90-degree Z rotation followed by `(10,20,30)` translation must produce
+`(8,21,33)`, `(8,23,33)`, `(6,21,33)`, specified independently of the decoder.
+The transformed-child test failed before implementation and passed afterward.
+The quad test likewise failed before its bounded extension. Refusal tests cover
+malformed transforms, internal motion, child spans, total counts, shared buffers,
+unsupported children/flags, invalid quads and transformed precision loss.
+The command returns only a verdict even after an earlier child succeeds.
+
+All 19 focused tests passed. `python3 scripts/verify.py` is the repository gate.
+No Python typechecker is configured here. Synthetic tests and the owned-file
+verdict do not establish placement, active GTA collision, physical units/winding,
+Skate contact, streaming, traffic/doors, grind semantics or gameplay acceptance.

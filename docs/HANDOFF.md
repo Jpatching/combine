@@ -8,12 +8,12 @@ Task: establish bounded composite collision decoding for [#20](https://github.co
 
 Source branch: `implement/gtaiv-composite-collision`
 
-Source revision: `911925c81d8997dff08f7768d348b65020509049`
+Source revision: `708c017ae9b4ee0beed75d48a06c0c950cc0358e`
 
-This is the merged inspector baseline from PR #37. The live issue owns the new
-candidate's publication revision and review evidence.
+This is the initial reviewed composite candidate. The issue and PR own the final
+publication revision, including the shared-validation review cleanup.
 
-Disposition: composite decoder source candidate prepared; the existing owned file decodes, but independent street placement remains blocked. No PR exists for this new slice yet.
+Disposition: draft [#38](https://github.com/Jpatching/combine/pull/38) awaits owner source approval. The existing owned file decodes; independent street placement remains blocked.
 
 The owner authorized the bounded investigation and focused implementation with
 TDD, using subagents where efficient. The broader target remains one real GTA IV
@@ -35,7 +35,10 @@ The authored rotation/translation test failed before implementation and passed
 afterward; the quad test likewise went red then green. Nineteen focused
 command/parser tests passed. No separate Python typechecker is configured.
 The repository gate passed 73 tests and link/context checks across 60 documents.
-Independent final review is pending at preparation.
+Independent Standards review found no documented violations and one duplicate-
+validation suggestion, addressed with a shared helper. Spec review found no
+blocking findings; both reviewed the bounded source scope rather than privately
+repeating the owned-file check.
 
 The same existing private owned WBN changed from `unsupported / unsupported-root`
 to `structurally-decoded / validated-geometry`. Only the verdict was emitted.
@@ -47,7 +50,7 @@ Latest runtime evidence: the earlier gameplay candidate `b403377481a33e407aeb81b
 
 ## Next step
 
-Complete source review and publish the focused draft candidate for owner approval.
+Review draft #38 for owner source approval; it has not been merged.
 [PR #37](https://github.com/Jpatching/combine/pull/37) is merged and #34 closed;
 its earlier pending-merge handoff is superseded.
 

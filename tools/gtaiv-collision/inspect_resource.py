@@ -86,6 +86,13 @@ def decode_resource(raw):
             raise Refusal('overlapping-spans')
         ranges.append((offset, offset + size))
 
+    def validate_triangle(vertices, face, reason):
+        a, b, c = (vertices[i] for i in face)
+        u, v = tuple(b[i]-a[i] for i in range(3)), tuple(c[i]-a[i] for i in range(3))
+        cross = (u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0])
+        if not all(math.isfinite(value) for value in cross) or not any(cross):
+            raise Refusal(reason)
+
     def geometry(root, used_vertices=0, used_faces=0):
         span(root, 0xf0 if data[root + 4] == 10 else 0xe0)
         polygon_offset = pointer(root + 0x8c)
@@ -123,11 +130,7 @@ def decode_resource(raw):
             if not all(math.isfinite(value) for value in normal) or not any(normal):
                 raise Refusal('invalid-face')
             for face in polygon_faces:
-                a,b,c = (vertices[i] for i in face)
-                u,v = tuple(b[i]-a[i] for i in range(3)), tuple(c[i]-a[i] for i in range(3))
-                cross = (u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0])
-                if not all(math.isfinite(value) for value in cross) or not any(cross):
-                    raise Refusal('invalid-face')
+                validate_triangle(vertices, face, 'invalid-face')
                 faces.append(face)
         return Inspection(vertices, tuple(faces))
 
@@ -186,11 +189,7 @@ def decode_resource(raw):
     if not all(math.isfinite(value) for vertex in vertices for value in vertex):
         raise Refusal('nonfinite-coordinate')
     for face in faces:
-        a, b, c = (vertices[i] for i in face)
-        u, v = tuple(b[i]-a[i] for i in range(3)), tuple(c[i]-a[i] for i in range(3))
-        cross = (u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0])
-        if not all(math.isfinite(value) for value in cross) or not any(cross):
-            raise Refusal('invalid-transformed-face')
+        validate_triangle(vertices, face, 'invalid-transformed-face')
     return Inspection(tuple(vertices), tuple(faces))
 
 

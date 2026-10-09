@@ -90,6 +90,20 @@ that later trial before qualification or bypass the street-location gate.
 
 ## Result status
 
-Prepared; not yet compiled or executed. No observed red or green result exists,
-and no existing upstream source was changed. Record actual editor execution
-separately before relying on this check or enabling the startup overlay.
+The actual CLI run verified Unity Editor `6000.4.0f1`; the pinned package
+manifest and lock remained unchanged. The initial compilation attempt was
+unavailable: the fixture's ambiguous `CompressionLevel` name was corrected in
+`bed92c1`, and separate package GUID compilation errors were resolved during
+local setup. That attempt was not a behavioral red result.
+
+The second run emitted
+`COMBINE_OVERLAY_QUALIFICATION: PASS (scene geometry; pixels unverified)`, exited
+with code 0 and reported no compiler errors. This is a baseline pass of the
+existing renderer through the authored fixture; no behavioral red → green
+implementation cycle or existing upstream source change is claimed.
+
+Interactive pixel capture awaits the owner's Unity Editor Software Terms
+dialog. No owned game assets have been loaded. Visible pixels, startup overlay
+enablement and full viewer qualification under #40 remain incomplete; street
+identification under #41 remains blocked. Keep private execution logs and setup
+details outside Git and uploads.

@@ -39,6 +39,16 @@ def check_lock(lock):
 
 def check_links(root=ROOT):
     root = root.resolve()
+    untracked = subprocess.run(
+        ["git", "ls-files", "--others", "--exclude-standard", "-z", "--",
+         "GLOSSARY.md", "docs/", "research/results/"], cwd=root,
+        capture_output=True, text=True, check=False,
+    )
+    require(untracked.returncode == 0, "Cannot inspect public context inventory")
+    pending = [name for name in untracked.stdout.split("\0") if name.endswith(".md")]
+    require(not pending,
+            "Untracked public context: " + ", ".join(pending)
+            + ". Review and stage intended public files; keep private material outside these paths.")
     inventory = subprocess.run(
         ["git", "ls-files", "-z", "--", "*.md"], cwd=root,
         capture_output=True, text=True, check=False,
@@ -59,6 +69,27 @@ def check_links(root=ROOT):
     return len(docs)
 
 
+def check_handoff(root=ROOT):
+    text = (root / "docs/HANDOFF.md").read_text(encoding="utf-8")
+    for section in ("Current task", "Evidence", "Next step", "Session close", "Historical reference"):
+        matches = re.findall(r"^## " + re.escape(section) + r"\n(.*?)(?=^## |\Z)",
+                             text, flags=re.MULTILINE | re.DOTALL)
+        require(len(matches) == 1 and bool(matches[0].strip()),
+                f"HANDOFF needs one nonempty '{section}' section")
+    for field in ("Reviewed", "Task", "Source branch", "Source revision", "Disposition",
+                  "Latest runtime evidence"):
+        values = re.findall(r"^" + re.escape(field) + r":[ \t]*(.*)$", text, flags=re.MULTILINE)
+        require(len(values) == 1 and bool(values[0].strip()), f"HANDOFF needs one '{field}' value")
+    require(re.search(r"^Reviewed: \d{4}-\d{2}-\d{2}$", text, flags=re.MULTILINE),
+            "HANDOFF Reviewed must use YYYY-MM-DD")
+    require(re.search(r"^Source revision: `[0-9a-f]{40}`$", text, flags=re.MULTILINE),
+            "HANDOFF needs a full source revision")
+    require(re.search(r"^Task: .*https://github.com/Jpatching/combine/issues/\d+", text, flags=re.MULTILINE),
+            "HANDOFF Task must link the current issue")
+    require("https://github.com/Jpatching/combine/pull/" in text or "No PR exists" in text,
+            "HANDOFF must link the PR or state 'No PR exists'")
+
+
 def main():
     try:
         lock = read_json(LOCK_PATH)
@@ -72,11 +103,13 @@ def main():
             require(recipe["id"] not in seen_ids, "recipe ids must be unique")
             seen_ids.add(recipe["id"])
         doc_count = check_links()
+        check_handoff()
     except (ValidationError, KeyError, TypeError, OSError) as error:
         message = str(error) if isinstance(error, ValidationError) else "Invalid repository metadata"
         print(f"FAIL: {message}", file=sys.stderr)
         return 1
-    print(f"PASS: lock structure, {len(recipes)} recipes, local links in {doc_count} documents", flush=True)
+    print(f"PASS: lock structure, {len(recipes)} recipes, local links in {doc_count} documents, "
+          "public context inventory and HANDOFF structure", flush=True)
     result = subprocess.run(
         [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"], cwd=ROOT,
         check=False,

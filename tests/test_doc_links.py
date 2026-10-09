@@ -85,6 +85,26 @@ class DocumentationLinksTests(unittest.TestCase):
         (self.root / "scratch.md").write_text("[missing](absent.md)")
         self.assertEqual(check_links(self.root), 1)
 
+    def test_untracked_public_context_is_rejected_until_staged(self):
+        self.tracked("README.md", "# Public\n")
+        for name in ("GLOSSARY.md", "docs/adr/decision.md", "research/results/note.md"):
+            with self.subTest(name=name):
+                path = self.root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("# Reviewed context\n", encoding="utf-8")
+                with self.assertRaisesRegex(ValidationError, "Untracked public context"):
+                    check_links(self.root)
+                self.git("add", "--", name)
+                check_links(self.root)
+
+    def test_ignored_markdown_under_public_docs_is_not_read(self):
+        self.tracked(".gitignore", "docs/private/\n")
+        self.tracked("README.md", "# Public\n")
+        private = self.root / "docs/private"
+        private.mkdir(parents=True)
+        (private / "note.md").write_text("[missing](absent.md)", encoding="utf-8")
+        self.assertEqual(check_links(self.root), 1)
+
     def test_link_outside_repository_is_rejected(self):
         self.tracked("README.md", "[outside](../outside.md)")
         with self.assertRaisesRegex(ValidationError, "Broken local link"):

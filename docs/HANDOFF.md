@@ -1,55 +1,76 @@
-# Current context — Fortnite + Skate
+# Current context
 
-The [contract](FORTNITE_SKATE.md) owns the intended interactive-world outcome.
-[Issue #4](https://github.com/Jpatching/combine/issues/4) owns the selected native
-one-surface experiment and its current prerequisites. Fetch the issue when resuming;
-the owner's current request selects work. No playable Fortnite + Skate integration
-has been demonstrated.
+## Current task
 
-## Completed recovery and experiment setup
+Reviewed: 2026-10-09
 
-[Recovery PR #3](https://github.com/Jpatching/combine/pull/3) merged on 2026-10-07
-at `7f152713a24402ccb74560066f62d8f39afb6800`. Recovery and worktree creation are
-complete, not tasks to repeat. The retained experiment branch is
-`prototype/fortnite-skate-surface`, with its existing worktree under
-`.private/worktrees/fortnite-skate-surface`. Check `git worktree list` before
-resuming; use that checkout for the experiment and align its chat workspace before
-editing. Do not create a duplicate experiment. Other independent owner-selected
-tasks follow the [workspace conventions](agents/issue-tracker.md).
+Task: [#20 — Mount → move → dismount](https://github.com/Jpatching/combine/issues/20).
+Fetch its body and comments before resuming. The owner's current request selects work.
 
-PRs #1 and #2 were closed without merging. Recovery retained the implementation;
-`backup-recovery-source-20261007` and `backup-clutter-state` preserve local history.
-The old Project cards, process rules and backlog remain historical.
+Source branch: `integration/gtaiv-skate-loop`
 
-## Retained evidence
+Source revision: `b403377481a33e407aeb81b78b8d38984aac4735`
 
-- The retained 3.1 client exited early; usable startup remains unproven.
-  [Loading evidence](../research/results/2026-10-06-fortnite-loading-gate.md).
-- The 12.41 candidate failed manifest/signature integrity checks. ZIP CRC passed
-  and archive/extracted executable hashes agree; cause remains unresolved.
-  [Acquisition evidence](../research/results/2026-10-06-fortnite-12-41-preparation.md).
-  Neither candidate is a qualified host; current candidate choice belongs to the issue.
-- Recovery checks passed: 34 repository tests, 15 focused Skate tests, the
-  asset-free validate-only example, exporter Release build and 13 synthetic CLI
-  checks. These are recovery results, not fresh checks or gameplay acceptance.
-- Accepted recovery debt: pinned upstream `src/physics.rs:401` references missing
-  `src/tests/map_startup.rs`. The full Skate-host test suite remains unverified.
-  The owner's recovery-merge exception does not waive future validation.
+Disposition: pushed; [PR #23](https://github.com/Jpatching/combine/pull/23) is draft and unmerged; complete gameplay acceptance is pending.
 
-Private diagnostics stay in the existing ignored private directories; they are
-not automatically copied between worktrees. Temporary handoffs may carry newer
-investigation detail, but are not durable task authority. Preserve source-safe
-findings in dated research and link them from the relevant issue before relying on
-them across sessions. Recheck observations against the exact source/client revision.
+**A complete repeatable GTA IV + Skate ride has not passed.** Offline GTA IV supplies
+normal city gameplay; Skate supplies riding. The owner approved evaluating a separate
+worker alongside the preserved in-process candidate. See the
+[host decision](adr/0001-preserve-offline-gta-gameplay.md) and [glossary](../GLOSSARY.md).
+The issue owns acceptance and approved scope; this file is the starting pointer.
 
-## Parked work and execution boundary
+## Evidence
 
-Synergy's physical trial remains unaccepted; hit radius is unimplemented. Prior
-MW2/Skate/Minecraft gameplay was owner-reported; recovery/repeatability remain
-incomplete. [Historical trial evidence](archive/HANDOFF-2026-10-07.md).
+Latest runtime evidence: [2026-10-09 diagnosis](https://github.com/Jpatching/combine/issues/20#issuecomment-6078907484).
 
-Use Matt's original skills without modifications. The native experiment uses
-`implement`, focused checks and `code-review`; the installed HTML/UI `prototype`
-skill is not a native runtime trial procedure. Read-only prerequisite investigation
-does not authorize client acquisition, game launch or protection changes. Keep
-preparation, source checks, runtime execution and owner acceptance distinct.
+- At the source revision above, two unchanged-location mount attempts refused with
+  `over-0.05-metres`, retaining GTA control. Playback never began. This reproduces
+  a rejecting condition; the surface root cause remains unknown.
+- Earlier trials passed actual worker mount/dismount and worker-failure control
+  restoration. A later camera-definition fix passed camera destruction during
+  mounted dismount. These are separate observations, not one accepted full ride.
+  [Earlier progress](https://github.com/Jpatching/combine/issues/20#issuecomment-6067861907),
+  [camera correction](https://github.com/Jpatching/combine/issues/20#issuecomment-6068900739).
+- Push, both steering directions, usable camera, walking/vehicle recovery,
+  scale/alignment and corrected mounted fault-camera recovery have not passed
+  together. Owner gameplay acceptance remains pending; #21/#22 remain blocked.
+- The latest diagnosis records 43 repository tests and links in 47 tracked
+  documents passing. PR #23 has three successful CI jobs at the recorded revision.
+  These are source checks, not playable acceptance. Full upstream host tests remain
+  unverified because pinned `src/tests/map_startup.rs` is missing.
+
+## Next step
+
+Resume #20 only from its current live verdict. The recorded mount refusal is the
+first blocker to riding. Use a bounded reproduction tied to the exact source and
+installed runtime, then test a specific hypothesis; repeat setup only when integrity,
+location or runtime state has changed. Game execution needs current task authority.
+
+Collision feasibility research remains separate from live riding diagnosis. Read the
+issue's latest research prerequisite before starting it; this context cleanup does
+not select a new architecture, relax the surface guard or authorize a launch.
+
+Preserved research is dated evidence, not the next task:
+[worker evaluation](../research/results/2026-10-08-separate-skate-worker.md),
+[native diagnostics](../research/results/2026-10-08-gtaiv-live-diagnostic-tooling.md),
+[helper alternatives](../research/results/2026-10-08-gtaiv-runtime-helper-alternatives.md),
+[MW2/GTA comparison](../research/results/2026-10-08-skate-mw2-gtaiv-integration.md).
+GTA source and runtime instructions remain on the
+[recorded candidate](https://github.com/Jpatching/combine/blob/b403377481a33e407aeb81b78b8d38984aac4735/tools/gtaiv-skate/README.md).
+
+## Session close
+
+Follow the [context maintenance procedure](agents/current-context.md) at a task
+boundary: preserve findings, record the exact verdict and next step, and state whether
+work is merged, pushed but blocked, or a preserved experiment. A temporary handoff
+links these artifacts. Source integration, runtime observation and owner acceptance
+remain separate. Recheck Git and the live tracker before relying on this snapshot.
+
+## Historical reference
+
+Fortnite/#4 is historical context for the current GTA work:
+[previous snapshot](archive/HANDOFF-2026-10-09-fortnite-context.md),
+[Fortnite contract](FORTNITE_SKATE.md).
+Recovery, parked Synergy and earlier MW2/Minecraft observations remain in the
+[October 7 archive](archive/HANDOFF-2026-10-07.md). Preserve retained branches and
+original runtime backups; consult `git worktree list` before resuming an experiment.

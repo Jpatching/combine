@@ -2,6 +2,11 @@
 
 Researched 2026-10-09 for [issue #28](https://github.com/Jpatching/combine/issues/28). This is a source-based recommendation, not an architecture selection or gameplay verdict.
 
+The subsequent [repository interface audit](2026-10-09-repository-interface-audit.md)
+performs the bounded source check recommended here. Read it before selecting the
+next experiment; the survey below is not a claim that these repositories provide
+a complete reproducible GTA/Skate integration.
+
 ## Finding
 
 **Compare credible end-to-end routes before choosing the next technical question.** Preserve the existing-game host and pinned Skate simulation as the comparison baseline, but do not assume either mount debugging or collision acquisition is the next task. REA and Universal Modder supply ways to investigate; they do not establish a winning architecture. The current adapter's flat-floor limit makes collision a candidate uncertainty, not a demonstrated highest-priority blocker. Choosing the next proof requires comparing loading, simulation access, host geometry, presentation, control and recovery across routes. [Retained geometry implementation](https://github.com/Jpatching/combine/blob/c87e59471c34aff6ffcae5f23b8afc320ca6bd09/tools/gtaiv-skate/src/connection.rs), [mashup guidance](https://github.com/rehan-remade/universal-modder/blob/8370faa8e114baf33acdb23079aff552a7728c4b/skills/mashup-mods/SKILL.md).

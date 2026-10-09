@@ -2,9 +2,9 @@
 
 ## Current task
 
-Reviewed: 2026-10-09
+Reviewed: 2026-10-10
 
-Task: identify the retained resource street under [spec #39](https://github.com/Jpatching/combine/issues/39) for [#20](https://github.com/Jpatching/combine/issues/20). [Viewer ticket #40](https://github.com/Jpatching/combine/issues/40) is closed with bounded qualification; [street ticket #41](https://github.com/Jpatching/combine/issues/41) has no open blockers.
+Task: record the inconclusive retained-resource street result under [spec #39](https://github.com/Jpatching/combine/issues/39) for [#20](https://github.com/Jpatching/combine/issues/20). [Viewer ticket #40](https://github.com/Jpatching/combine/issues/40) is closed with bounded qualification; [street ticket #41](https://github.com/Jpatching/combine/issues/41) has no open blockers.
 
 Source branch: `implement/gtaiv-composite-collision`
 
@@ -119,28 +119,29 @@ Latest runtime evidence: the earlier gameplay candidate `b403377481a33e407aeb81b
 
 ## Next step
 
-Resume street ticket #41 from the retained running private live trial; do not
-repeat installation or resource acquisition. Viewer source/procedure is integrated
-and pushed at `b75eb037`; #40 is closed and #41's native open-blocker count is zero.
-Private setup, patch identities and before/after evidence remain under
-`.private/gtaiv-viewer/`. The owner selected a hybrid approach: AI may inspect
-selected viewer screenshots to narrow candidates, followed by owner local
-confirmation. That permission covers selected screenshots only; game files,
-private identities and exact coordinates stay outside Git/issues/uploads.
+The bounded location investigation has reached an **inconclusive stop**, recorded
+in the [viewer location verdict](../research/results/2026-10-10-gtaiv-viewer-location-verdict.md).
+The camera-only close/side views and exact location record are retained privately.
+The resource digest still matches; no acquisition, installation or decoder work
+needs repeating. Selected-resource count checks are not individual landmark
+identification of every child.
 
-A camera-only turn produced and locally opened a new landward view; collision
-placement and map transforms were untouched. The candidate is the unfinished
-Northern Expressway at Leavenworth Avenue in Industrial, Bohan, supported by
-[one firsthand guide](https://gamefaqs.gamespot.com/ps3/933036-grand-theft-auto-iv/faqs/54410)
-and [another](https://gamefaqs.gamespot.com/ps3/933036-grand-theft-auto-iv/faqs/52838).
-The waterfront, detached bridge sections, crane and raised approach narrow the
-area; close junction/pavement/height-change correspondence remains unproved.
-The owner was asked whether they recognise the newly opened location image.
-This is a candidate, not a street-placement pass. Independent visual review
-corroborated the candidate area and visible level difference, but found the
-named junction partly obscured, curb profile unclear and continuous ramp
-gradient unproved. A close entrance/junction view remains the decisive evidence.
-No ground-measurement tooling or GTA launch is authorized.
+Independent visual review resolves the curved elevated deck as railway, not a
+road ramp. Its overlay and the neighbouring building match rendered geometry;
+the exposed ground asphalt remains gray. A named junction, selected-resource
+road/pavement coverage and a continuous road height change remain unestablished.
+Industrial, Bohan remains a candidate, not a street-placement pass.
+
+Complete the integration Standards/Spec review and publish the precise outcome
+on #41; preserve draft #38 and owner source-approval gates. No measurement tooling
+or GTA launch is authorized. The next decisive evidence is an independently
+identified named junction and proof that this exact mesh covers the intended
+road, pavement and height-change checkpoints, followed by local owner street
+confirmation. Do not silently replace the resource or move it into agreement.
+
+The owner's hybrid permission covers selected viewer screenshots for AI
+inspection; game files, private identities and exact coordinates remain private.
+The latest side view was requested open locally through its native Windows path.
 Camera readout is Unity (-GTA.x, GTA.z, -GTA.y), not a ground sample.
 
 Review draft #38 for owner source approval; it has not been merged.

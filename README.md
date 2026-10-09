@@ -14,6 +14,9 @@ For the selected task, current verdict and next step, start with the
 [current context](docs/HANDOFF.md), then fetch its linked live issue. Source checks,
 runtime observations and owner gameplay acceptance are separate evidence.
 
+Use the [workbench guide](docs/WORKBENCH.md) for REA and Universal Modder guidance,
+terminal views, and private visual evidence tied to acceptance checks.
+
 Start with the [reproduction guide](docs/REPRODUCING.md) for source checks,
 the pinned Rust/Synergy build and private-trial prerequisites. Rust is the runtime
 implementation language; original GSC remains Synergy's menu source. Python and

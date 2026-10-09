@@ -1,0 +1,18 @@
+{
+  "rea": {
+    "repository": "https://github.com/morluto/rea",
+    "revision": "f085589957922eaf421db814399e88e415712050",
+    "reviewed": "2026-10-09",
+    "package_version": "6.1.0",
+    "package_integrity": "sha512-xsXFiXEt2hc5ts+zX3D8zdyZHK5Glbp8GFYSIHMZytDiUCGAQp2crDmkoyiXNNbXXcvem228h+k54xUOYCnI7Q==",
+    "role": "Shipped-artifact and runtime investigation when available source does not establish behaviour",
+    "installed_tree_sha256": "6195b3ea7ea471725020d1a78e0e8862f1d9fd15f6b9bbe92762295c09981d27",
+    "node_sha256": "d918479037f14dc30c8d21df3767a010fe710685373baec7edf680ca8c3edbee"
+  },
+  "universal-modder": {
+    "repository": "https://github.com/rehan-remade/universal-modder",
+    "revision": "8370faa8e114baf33acdb23079aff552a7728c4b",
+    "reviewed": "2026-10-09",
+    "role": "Reconnaissance, product-specific adapters, real-game checks, recording and field notes"
+  }
+}

@@ -71,6 +71,13 @@ the required ground checkpoints, or active GTA collision. The verdict remains
 **inconclusive** and measurement tooling remains stopped. No game files or private
 coordinates were added to source or tracker evidence.
 
+The focused source revision is `2f228b4ae128090d59dde36ffe67cdd916ed5ec6`, reviewed
+against `51e258a`. Independent Standards and Spec reviews found no actionable
+findings. `python3 scripts/verify.py` passed 73 tests and 63-document/context
+checks. Unity compilation and live pixel evidence are separate from that gate.
+The final authored rerun after sharing unchanged literal expectations emitted
+PASS with no C# errors and CLI exit 0; exact staged source and pins were rechecked.
+
 ## Candidate and independent reference
 
 Industrial, Bohan remains a plausible candidate area. Two firsthand guides place

@@ -68,6 +68,13 @@ resource's digest, completeness or active GTA collision. Use the earlier lab
 coverage checks and retain private evidence. Map-only visibility is not proof
 that the selected mesh covers a visible road.
 
+The retained live trial emitted HIDDEN and SHOWN markers and produced a fixed-
+camera game-view pair, opened locally. Independent visual review confirmed green
+surfaces disappear and return while map landmarks stay aligned. Some foreground
+approach/yard/roadside surfaces are covered; farther bridge spans are not. This
+does not identify a named street or qualify ground checkpoints. See the
+[location verdict](../../research/results/2026-10-10-gtaiv-viewer-location-verdict.md).
+
 ## What the fixture covers
 
 The input is an authored Deflate RSC5 composite with two geometry children,

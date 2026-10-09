@@ -8,9 +8,9 @@ Task: implement a focused selected-overlay visibility comparison under [spec #39
 
 Source branch: `implement/gtaiv-composite-collision`
 
-Source revision: `51e258a97d91ac7a6d3368eb6ffa5e3eeba8c133`
+Source revision: `2f228b4ae128090d59dde36ffe67cdd916ed5ec6`
 
-This is the starting point for the focused visibility implementation.
+This is the reviewed focused visibility implementation, compared with `51e258a`.
 The integrated baseline viewer fixture/procedure is `b75eb037`. Decoder source
 remains unchanged from `47e8a2c`. The issue owns later publication revisions.
 
@@ -49,8 +49,11 @@ Green coverage broadly follows the foreground bridge approach, parts of the yard
 a small building and roadside/verge surfaces; farther disconnected bridge spans
 remain uncovered. This is visual correspondence, not named street identity or
 qualified coordinate checkpoints. The updated [location verdict](../research/results/2026-10-10-gtaiv-viewer-location-verdict.md)
-remains inconclusive. The new source implementation still needs final independent
-Standards/Spec review and the repository gate before publication.
+remains inconclusive. Independent Standards and Spec reviews found no actionable
+findings. The repository gate passed 73 tests and 63-document/context checks.
+The final authored rerun after expectation reuse also compiled without C# errors,
+emitted PASS and completed with CLI exit 0; staged source and pins matched exactly.
+The source is committed on the existing branch; draft #38 retains owner approval.
 
 The owner approved spec #39, its two-ticket dependency chain, and the authored
 resource-to-viewer scene test boundary. The existing current branch is preserved;

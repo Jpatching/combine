@@ -11,7 +11,9 @@ Source branch: `chore/workbench-evidence`
 
 Source revision: `e961e843acd5b2c2b9ecde9bd3d8719ece9c77ad`
 
-Disposition: reviewed source setup committed; source integration pending. No PR exists yet.
+Disposition: reviewed source setup on [PR #26](https://github.com/Jpatching/combine/pull/26).
+The linked PR records source integration; #25 owns the live completion verdict.
+No new gameplay acceptance or release is established.
 
 The owner selected Reverse Engineer Anything and Universal Modder as tools/guides
 for Combine. Use the [workbench guide](WORKBENCH.md) for the durable workflow,
@@ -39,8 +41,9 @@ remains tied to `b403377481a33e407aeb81b78b8d38984aac4735`, not this setup revis
 
 ## Next step
 
-Complete the review and source integration for #25. Keep its tool smoke evidence
-separate from gameplay acceptance. Use short uncut clips for movement/camera/recovery,
+Check #25 and PR #26 for the source integration verdict, then work from the owner's
+next selected behaviour. Keep tool smoke evidence separate from gameplay acceptance.
+Use short uncut clips for movement/camera/recovery,
 paired screenshots for static changes, and traces for numerical claims. The local
 comparison page supports review and private records; it does not record a game.
 

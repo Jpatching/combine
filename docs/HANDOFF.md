@@ -4,24 +4,30 @@
 
 Reviewed: 2026-10-09
 
-Task: finish publication of research [#31](https://github.com/Jpatching/combine/issues/31)
-and [#32](https://github.com/Jpatching/combine/issues/32), then implement
-[#34](https://github.com/Jpatching/combine/issues/34) in a fresh session.
+Task: implement [#34](https://github.com/Jpatching/combine/issues/34), a bounded
+read-only inspector for one owned GTA IV collision resource.
 
-Source branch: `research/gtaiv-physical-collision`
+Source branch: `implement/gtaiv-collision-inspector`
 
-Source revision: `c0ba526b531b5bd272abd41978c2f9efb516c414`
+Source revision: `ba7fb89074860723fd592804de3b06ce2e49da47`
 
-This is the accepted
-Sandcastle report before host provenance correction and this handoff. Fetch #32
-for the final publication revision and PR link.
+This is the inspector implementation revision before this handoff update; #34
+owns the final publication revision and review evidence.
 
-Disposition: research publication awaiting owner approval. No PR exists for #34. #31/#32 each have a
-separate report branch; their issues own the draft PR links. No implementation
-of #34 has started. The previously approved runner PR #33 merged as
-`1db98bdf0cd567548da3394d058c779c8be10dcc`; #30 is closed.
+Disposition: source implementation complete, pending independent review and draft
+publication. No PR exists for #34 yet. Owned-resource verification is blocked. Owner-approved
+research PR [#35](https://github.com/Jpatching/combine/pull/35) merged as
+`9cecd6448c35ff8455376be0a96d5c60d5853970`; PR
+[#36](https://github.com/Jpatching/combine/pull/36) merged as
+`00fd570d98b86c3479c9607b75eb299172095221`. #31/#32 are closed, with merged revisions recorded on each issue.
 
 ## Evidence
+
+The [standalone inspector](../tools/gtaiv-collision/README.md) validates one
+bounded geometry root and emits only a verdict/reason pair. GPLv3 terms,
+attribution and pinned format sources are recorded with the tool. Seven focused
+command/parser tests passed using authored synthetic data; the worker repository
+gate passed all 61 tests. These checks do not establish owned-file compatibility.
 
 Both Sandcastle jobs returned `requires-local-proof`, passed report checks and
 independent Standards/Spec reviews with zero findings. Host publication review
@@ -45,14 +51,16 @@ not a runtime test of the research reports.
 
 ## Next step
 
-Review and approve the two research PRs, squash merge them and synchronize main.
-Close #31/#32 only with their final merged revisions recorded. Then start a fresh
-session against the self-contained #34, from synchronized main on a new focused
-branch. Its first experiment inspects one owned collision resource with bounded
-structural validation. The concrete public reader makes this a smaller initial
-unknown than qualifying an undocumented native interface. Unsupported layouts
-must refuse explicitly. A structural pass does not establish world placement,
-active host collision, Skate contact or gameplay.
+Complete independent Standards/Spec review and publish #34's draft PR for owner
+approval. The source implementation and synthetic checks are complete.
+The owner-authorized read-only search of the discovered GTA IV installation found
+no loose `.wbn` or `.wbd` resources; game archives were present. No archive contents
+were inspected, no game data was extracted, and no owned resource was decoded.
+An already-extracted resource from reviewed tooling is the remaining local-input
+requirement. Do not expand this ticket into an archive extractor.
+
+A structural pass does not establish world placement, active host collision,
+Skate contact or gameplay. Unsupported layouts must refuse explicitly.
 
 Keep the native-query route as a comparison and possible future physical oracle.
 Do not start a city extractor or broaden #34 into the full integration. Preserve
@@ -63,8 +71,7 @@ and remains unmerged. Do not resume retired Fortnite work or relax flatness guar
 ## Session close
 
 Use [context maintenance](agents/current-context.md) and
-[workspace conventions](agents/issue-tracker.md). Fetch #34 and its blockers in the
-fresh session rather than carrying the full research transcript. Keep assets,
+[workspace conventions](agents/issue-tracker.md). Fetch #34 and its latest evidence before resuming implementation or local proof. Keep assets,
 geometry, settings, authentication and raw logs outside Git and AI uploads.
 Draft publication is not merge approval, runtime acceptance or release authority.
 

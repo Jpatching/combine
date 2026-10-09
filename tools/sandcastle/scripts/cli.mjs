@@ -7,7 +7,8 @@ import { execute, checked } from './process.mjs';
 import { parseTaskArgs, requireReadyIssue } from './policy.mjs';
 import { authHome, sourceClone, requireWorkspace, gitAt, hostGitEnv } from './workspace.mjs';
 import { agentMessage } from './review.mjs';
-import { TOOL, ROOT, PRIVATE, REPOSITORY, REMOTE, IMAGE, MODEL, EFFORT, PINS, TASKS, LIMIT_MS } from './settings.mjs';
+import { researchInputs, researchFingerprint, requireResearchQualification, recordResearchQualification, beginResearchQualification } from './research.mjs';
+import { RESEARCH_QUALIFICATION, TOOL, ROOT, PRIVATE, REPOSITORY, REMOTE, IMAGE, MODEL, EFFORT, PINS, TASKS, LIMIT_MS } from './settings.mjs';
 
 const controller = new AbortController();
 process.on('SIGINT', () => controller.abort());
@@ -82,26 +83,36 @@ async function smoke() {
   }
 }
 
-async function run() {
-  const selection = parseTaskArgs(args);
-  const task = TASKS[selection.issue];
+async function run(qualification = false) {
+  const selection = qualification ? { issue: 'qualification', branch: `research/qualification-${randomUUID()}` } : parseTaskArgs(args);
+  const task = qualification ? RESEARCH_QUALIFICATION : TASKS[selection.issue];
   if (!task) throw new Error('Issue has no approved host check/scope profile. Add one through a reviewed source slice.');
+  const qualificationPath = join(PRIVATE, 'research-smoke.json');
+  // A failed new qualification must not leave an earlier candidate qualified.
+  if (qualification) await beginResearchQualification(qualificationPath);
+  // Resolve supplied skills/guidance before authentication copying or inference.
+  const researchSkills = task.kind === 'research' ? await researchInputs() : null;
   await doctor();
   const image = await imageIdentity();
   const smoke = JSON.parse(await readFile(join(PRIVATE, 'smoke.json'), 'utf8'));
   if (!smoke.passed || smoke.image !== image || smoke.model !== MODEL) throw new Error('Run npm run smoke against this image first.');
+  const researchIdentity = task.kind === 'research' ? { image, model: MODEL, fingerprint: await researchFingerprint(researchSkills) } : null;
+  if (researchIdentity && !qualification) await requireResearchQualification(qualificationPath, researchIdentity);
   const base = await gitAt(ROOT, ['rev-parse', 'main']);
   if (base !== await gitAt(ROOT, ['rev-parse', 'origin/main']) ||
       await gitAt(ROOT, ['remote', 'get-url', 'origin']) !== REMOTE) throw new Error('Synchronize main with Combine origin first.');
   const branch = await gitAt(ROOT, ['branch', '--show-current']);
-  if (branch !== 'main' && branch !== selection.branch) throw new Error('Chat checkout must be clean main or the exact selected task branch.');
-  await requireWorkspace(ROOT, branch, base);
-  const issue = JSON.parse(await checked('gh', ['issue', 'view', String(selection.issue), '--repo', REPOSITORY,
+  if (!qualification && branch !== 'main' && branch !== selection.branch) throw new Error('Chat checkout must be clean main or the exact selected task branch.');
+  if (!qualification) await requireWorkspace(ROOT, branch, base);
+  const issue = qualification ? { number: 'qualification', title: 'Qualify background public-source research',
+    body: 'Using the pinned Universal Modder mashup route and collision guidance, explain why a fixed flat-ground control-transfer proof does not establish arbitrary host-world collision. Inspect the actual public guide files at the pinned commit and cite their source. State one remaining local proof and stop criteria. This is runner qualification only: do not investigate or claim completion of GTA research issues31/32.', comments: [] } : JSON.parse(await checked('gh', ['issue', 'view', String(selection.issue), '--repo', REPOSITORY,
     '--json', 'number,title,body,labels,comments,state'], options));
+  if (!qualification) {
   const blockerCount = await checked('gh', ['api', `repos/${REPOSITORY}/issues/${selection.issue}`,
     '--jq', '.issue_dependencies_summary.blocked_by'], options);
   const blocked = /^[0-9]+$/.test(blockerCount) ? Number(blockerCount) : null;
   requireReadyIssue(issue, selection.issue, blocked);
+  }
   const id = `issue-${selection.issue}-${randomUUID()}`;
   const runDir = join(PRIVATE, 'runs', id);
   await mkdir(runDir, { recursive: true, mode: 0o700 });
@@ -112,11 +123,13 @@ async function run() {
     const repo = await sourceClone(id, base, controller.signal);
     const auth = await authHome(id);
     const skills = {};
-    for (const [key, name] of [['implement', 'implement'], ['tdd', 'tdd'], ['review', 'code-review']]) {
+    Object.assign(skills, researchSkills ?? {});
+    const skillNames = task.kind === 'research' ? [] : [['implement', 'implement'], ['tdd', 'tdd'], ['review', 'code-review']];
+    for (const [key, name] of skillNames) {
       skills[key] = await readFile(join(homedir(), '.codex/skills', name, 'SKILL.md'), 'utf8');
     }
     const lockHash = createHash('sha256').update(await readFile(join(TOOL, 'package-lock.json'))).digest('hex');
-    await json(join(runDir, 'job.json'), { id, issue, branch: selection.branch, base, repo, auth, task, skills, image, lockHash });
+    await json(join(runDir, 'job.json'), { id, issue, branch: selection.branch, base, repo, auth, task, skills, image, lockHash, researchIdentity });
     console.log(`Starting one approved issue #${issue.number} on ${selection.branch}; private evidence ${runDir}`);
     const result = await execute(process.execPath, [join(TOOL, 'scripts/worker.mjs'), runDir], {
       cwd: TOOL, env: { PATH: process.env.PATH, HOME: auth, LANG: 'C.UTF-8', TERM: 'dumb', ...hostGitEnv() },
@@ -125,11 +138,12 @@ async function run() {
       onLine: line => { if (line.startsWith(`${id}:`)) console.log(line); },
     });
     await writeFile(join(runDir, 'worker.log'), result.stdout + result.stderr, { mode: 0o600 });
-    await requireWorkspace(ROOT, branch, base);
+    if (!qualification) await requireWorkspace(ROOT, branch, base);
     const row = JSON.parse(await readFile(join(runDir, 'result.json'), 'utf8'));
     if (result.code !== 0 || result.reason || row.status !== 'accepted') {
       throw new Error(`Task stopped (${row.status}); preserved source/branch and evidence in ${runDir}.`);
     }
+    if (qualification) await recordResearchQualification(qualificationPath, researchIdentity, row);
     console.log(`PASS: #${issue.number} checks, fresh Standards/Spec reviews and branch invariants. Host publication remains pending.`);
   } finally { clearTimeout(timer); }
 }
@@ -137,12 +151,13 @@ async function run() {
 try {
   // Parse before creating artifacts, contacting Docker or copying authentication.
   if (command === 'run') parseTaskArgs(args);
-  else if (!['doctor', 'build-image', 'smoke'].includes(command) || args.length) throw new Error('Commands: doctor, build-image, smoke, run -- --issue <number> --branch <task-branch>');
+  else if (!['doctor', 'build-image', 'smoke', 'research-smoke'].includes(command) || args.length) throw new Error('Commands: doctor, build-image, smoke, research-smoke, run -- --issue <number> --branch <task-branch>');
   await mkdir(PRIVATE, { recursive: true, mode: 0o700 });
   await chmod(PRIVATE, 0o700);
   if (command === 'doctor') await doctor();
   else if (command === 'build-image') await buildImage();
   else if (command === 'smoke') await smoke();
+  else if (command === 'research-smoke') await run(true);
   else await run();
 } catch (error) {
   // Print only bounded, coordinator-authored errors; detailed child output belongs privately.

@@ -1,6 +1,6 @@
 # Sandcastle for Combine
 
-Run one approved coding issue in a private source-only clone, check it without
+Run one approved coding or public-source research issue in a private source-only clone, check it without
 credentials, then review it in two fresh sessions. The host owns GitHub, PRs and
 merging. The runner stops after that issue.
 
@@ -44,16 +44,16 @@ The host fetches the full selected issue and comments from `Jpatching/combine`
 and requires `OPEN`, `ready-for-agent` and zero open native blockers. Missing
 dependency information fails readiness. An issue also needs a reviewed entry in
 the `TASKS` table in `scripts/settings.mjs`, defining allowed source files and
-checks. Issue text never supplies executable check commands. The initial entry
-is the approved Markdown-link proof; future tasks need their own reviewed entry.
+checks. Issue text never supplies executable check commands. Coding #12 retains its Markdown-link proof. Research #31 and #32 have reviewed
+profiles allowing only their respective reports. Future tasks need their own reviewed entry.
 
 The runner clones committed `main` from Combine's public remote and removes the
 clone's remote before inference. It does not copy the host working tree, private
 directories or other worktrees. If remote `main` has moved, synchronize and run
 again rather than overriding the revision check.
 
-The implementer uses a fresh Sandcastle Docker container and commits scoped task
-changes. Separate verification runs `python3 scripts/verify.py`, focused task
+The implementer or background researcher uses a fresh Sandcastle Docker container
+and commits scoped task changes. Separate verification runs `python3 scripts/verify.py`, focused task
 checks and external acceptance. Standards and Spec review run in parallel fresh
 containers with read-only source and Git metadata. Both must approve the checked
 revision. Findings stop acceptance; corrections require another bounded run
@@ -73,6 +73,66 @@ root/source/Git mounts, dropped capabilities and no-new-privileges enforce the r
 boundary. This CLI setting is never used for a host review process. Containers receive neither host
 home/configuration nor the Docker socket, project credentials, game assets,
 profiles or unrelated private files. Generated tests run inside containers.
+
+## Public-source research
+
+After runner acceptance and all native issue blockers are closed, dispatch one
+approved research issue through the same `run` entrypoint:
+
+```sh
+npm run run -- --issue 31 --branch research/gtaiv-native-collision
+npm run run -- --issue 32 --branch research/gtaiv-physical-collision
+```
+
+Each invocation runs independently and still requires a clean checkout at
+synchronized committed `main`, current smoke/image identity and issue readiness.
+Use separate attached task workspaces for parallel host work. The approved paths
+are `research/results/gtaiv-120059-native-collision-feasibility.md` and
+`research/results/gtaiv-120059-physical-collision-feasibility.md` respectively.
+
+The host supplies Matt's unmodified original `research` skill and delegates the
+researcher's steps to a separate background worker process. The host remains
+available to coordinate other work while that process reads. There is no nested
+agent claim: the separate completed researcher process is the delegation. Missing
+skills or pinned guidance stop preflight before copying authentication or starting
+inference. The public Universal Modder snapshot must match the existing reviewed
+revision and be clean. Only four allowlisted public text files and their hashes
+are supplied in the prompt; the private snapshot directory is never mounted.
+No UM CLI, native analysis provider, game assets or Windows access is installed
+or exposed to the research container.
+
+The researcher fetches public primary-source text and records immutable revisions.
+Reports distinguish verified source facts, inference, unknowns and the next local
+proof. One bounded evidence record lists immutable public file citations,
+inaccessible sources and a verdict: `source-feasible`, `requires-local-proof`, or
+`blocked`. `runtimeVerified` must be false. The credential-free external report
+check rejects missing/oversized reports, symlink paths, incomplete citations and
+unsupported verdicts. It checks structure; the fresh reviewers assess actual
+source support and ticket completeness. A reviewed `blocked` report is an honest
+accepted research output, not a claim that world collision works. Result records
+identify the background role, completed researcher and evidence verdict.
+
+Before dispatch readiness, qualify the actual research path with:
+
+```sh
+npm run research-smoke
+```
+
+This runs actual subscription inference, report checks and fresh reviews on a
+fixed public-guide question, using a separate source-only clone of committed
+`main`. It permits testing candidate runner source while the primary checkout is
+being edited. Its synthetic qualification brief and report path are fixed host
+configuration; it cannot select, unblock or complete #31/#32. The generated
+qualification report and branch stay in private recovery records and need not be
+published. Passing fixtures alone does not establish research readiness. A successful actual
+qualification records `research-smoke.json` with the image, model and a fingerprint
+of runner implementation, dependency lock and supplied skills/guidance. Production
+research requires that matching marker; a generic login smoke is insufficient.
+Starting qualification invalidates the previous marker, so a failed retry cannot
+leave the candidate qualified. Unrelated handoff edits do not change its identity. The
+same authentication/image requirements, 30-minute limit, cancellation and output
+preservation apply. Run qualification again if the inference/acceptance path
+changes materially; do not bypass production issue or checkout guards.
 
 ## Results and recovery
 

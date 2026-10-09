@@ -27,7 +27,8 @@ export function requireReadyIssue(issue, expected, blocked) {
 }
 
 export function acceptResult(result) {
-  return Boolean(result.branchValid && result.changed && result.checks?.passed &&
+  return Boolean((result.kind !== 'research' || (result.researcherCompleted === true &&
+    ['source-feasible', 'requires-local-proof', 'blocked'].includes(result.evidenceVerdict))) && result.branchValid && result.changed && result.checks?.passed &&
     result.checks.revision === result.revision &&
     ['standards', 'spec'].every(axis => {
       const review = result.reviews?.[axis];

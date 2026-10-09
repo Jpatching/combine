@@ -100,10 +100,21 @@ The second run emitted
 `COMBINE_OVERLAY_QUALIFICATION: PASS (scene geometry; pixels unverified)`, exited
 with code 0 and reported no compiler errors. This is a baseline pass of the
 existing renderer through the authored fixture; no behavioral red → green
-implementation cycle or existing upstream source change is claimed.
+implementation cycle or existing upstream source change is claimed for that
+fixture baseline.
 
-Interactive pixel capture awaits the owner's Unity Editor Software Terms
-dialog. No owned game assets have been loaded. Visible pixels, startup overlay
-enablement and full viewer qualification under #40 remain incomplete; street
-identification under #41 remains blocked. Keep private execution logs and setup
-details outside Git and uploads.
+Subsequent interactive capture confirmed both authored shapes visibly rendered.
+The isolated live viewer also displayed the surrounding map and the exact
+digest-verified selected collision overlay at unchanged placement, with expected
+aggregate child/vertex/triangle coverage. The owner accepted the viewer appearance;
+the bounded viewer qualification under #40 is complete and that ticket is closed.
+These observations extend beyond the authored fixture's limited coverage and
+do not qualify arbitrary resources or active GTA collision.
+
+The [street-location investigation](../../research/results/2026-10-10-gtaiv-viewer-location-verdict.md)
+ended at a precise **inconclusive** stop: the observed building/railway landmarks
+do not yet establish a named junction or selected-mesh coverage of suitable road,
+pavement and height-change checkpoints. Viewer appearance acceptance does not
+establish street placement. No ground-measurement tooling or GTA comparison was
+produced. Keep private execution logs, assets and setup details outside Git and
+uploads.

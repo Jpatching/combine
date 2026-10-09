@@ -5,7 +5,9 @@
     "reviewed": "2026-10-09",
     "package_version": "6.1.0",
     "package_integrity": "sha512-xsXFiXEt2hc5ts+zX3D8zdyZHK5Glbp8GFYSIHMZytDiUCGAQp2crDmkoyiXNNbXXcvem228h+k54xUOYCnI7Q==",
-    "role": "Shipped-artifact and runtime investigation when available source does not establish behaviour"
+    "role": "Shipped-artifact and runtime investigation when available source does not establish behaviour",
+    "installed_tree_sha256": "6195b3ea7ea471725020d1a78e0e8862f1d9fd15f6b9bbe92762295c09981d27",
+    "node_sha256": "d918479037f14dc30c8d21df3767a010fe710685373baec7edf680ca8c3edbee"
   },
   "universal-modder": {
     "repository": "https://github.com/rehan-remade/universal-modder",

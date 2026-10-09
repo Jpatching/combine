@@ -60,10 +60,46 @@ python3 scripts/workbench.py guide rea --help
 ```
 
 The wrapper checks the guide checkout revision and clean state before execution.
+Universal Modder uses a separate private writable knowledge copy under
+`.private/tooling/um-knowledge/`, so recording field notes preserves the guide
+snapshot. REA checks the fingerprint of its installed files and Node executable
+as well as its package version; changed files require review before use.
 REA uses an isolated Node 24.11.0 and exact package 6.1.0. Installation instructions
 are in [REA setup](https://github.com/morluto/rea/blob/f085589957922eaf421db814399e88e415712050/docs/installation.md).
 A fresh checkout needs those ignored local tools prepared separately; the wrapper
 reports missing setup and does not silently download or register anything.
+
+To recreate the local setup on Linux x64, clone the repositories into
+`.private/tool-guides/rea` and `.private/tool-guides/universal-modder`, then check
+out the exact revisions in `research/tool-guides.json`. Read their relevant
+instructions and tool implementations before execution. Download Node's official
+`https://nodejs.org/dist/v24.11.0/node-v24.11.0-linux-x64.tar.xz`; its reviewed
+SHA-256 is `46da9a098973ab7ba4fca76945581ecb2eaf468de347173897044382f10e0a0a`.
+Verify the checksum before extracting into `.private/tooling/rea/`. With that
+runtime first on PATH, install the exact package without lifecycle scripts:
+
+```sh
+PATH="$PWD/.private/tooling/rea/node-v24.11.0-linux-x64/bin:$PATH" \
+  npm install --prefix .private/tooling/rea/package --ignore-scripts --save-exact rea-agents@6.1.0
+```
+
+Check its package-lock integrity and installation fingerprints against
+`research/tool-guides.json`; the current fingerprint includes the installed
+dependencies. If a fresh resolution differs, review its dependency lock and
+installation before refreshing the fingerprint. Universal
+Modder's knowledge search uses Python 3.10+ and PyYAML. Other commands have their
+own dependencies; inspect them before installing anything. No fal credentials,
+external generation service or automatic publishing is part of this setup.
+
+Local setup verification on 2026-10-09: Universal Modder knowledge search returned
+GTA/bridge field notes, and creating/indexing private notes preserved the pinned
+guide checkout. REA's wrapper rejected a deliberately changed installed entry
+point before execution and ran again after exact restoration. REA 6.1.0 returned
+validated static analysis evidence for
+a tiny Combine-owned JavaScript fixture. The comparison page's Chromium smoke
+check passed image previews, SHA-256, JSON download, default verdict/acceptance,
+literal notes, reset, zero external requests and zero page errors. These checks
+do not establish Windows capture, native analysis or gameplay acceptance.
 
 ## See intended behaviour and proof
 

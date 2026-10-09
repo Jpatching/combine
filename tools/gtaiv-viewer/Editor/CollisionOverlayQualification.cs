@@ -143,7 +143,7 @@ namespace CombineQualification
                 header.Write(0x05435352u); header.Write(0x20u);
                 header.Write(6u); header.Write((ushort)0xda78);
             }
-            using (var compressed = new DeflateStream(output, CompressionLevel.Optimal, true))
+            using (var compressed = new DeflateStream(output, System.IO.Compression.CompressionLevel.Optimal, true))
                 compressed.Write(system, 0, system.Length);
             // 0x78DA in the header begins zlib framing. Complete it with Adler-32,
             // even though the pinned reader consumes raw Deflate after that header.

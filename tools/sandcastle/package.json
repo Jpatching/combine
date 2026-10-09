@@ -10,6 +10,7 @@
     "doctor": "node scripts/cli.mjs doctor",
     "build-image": "node scripts/cli.mjs build-image",
     "smoke": "node scripts/cli.mjs smoke",
+    "research-smoke": "node scripts/cli.mjs research-smoke",
     "run": "node scripts/cli.mjs run"
   },
   "dependencies": {

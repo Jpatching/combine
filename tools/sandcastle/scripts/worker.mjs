@@ -7,11 +7,13 @@ import { requireWorkspace, preserveWorkspace, hostGitEnv } from './workspace.mjs
 import { verify, inspectGit, requireIsolatedWorkspace, exportBranchBundle } from './verification.mjs';
 import { retainedSandbox } from './sandbox.mjs';
 import { freshReview } from './review.mjs';
+import { researcherPrompt } from './research.mjs';
 import { acceptResult } from './policy.mjs';
 
 const [runDir] = process.argv.slice(2);
 Object.assign(process.env, hostGitEnv());
 const job = JSON.parse(await readFile(join(runDir, 'job.json'), 'utf8'));
+const research = job.task.kind === 'research';
 const started = performance.now();
 const controller = new AbortController();
 let cancelled = false, sandbox;
@@ -22,7 +24,7 @@ process.on('SIGTERM', cancel);
 process.stdin.on('data', chunk => { if (chunk.toString().includes('CANCEL')) cancel(); });
 const timer = setTimeout(() => controller.abort(), LIMIT_MS);
 timer.unref();
-const row = { id: job.id, issue: job.issue.number, branch: job.branch, base: job.base,
+const row = { kind: job.task.kind ?? 'coding', role: research ? 'background-researcher' : 'implementer', id: job.id, issue: job.issue.number, branch: job.branch, base: job.base,
   pins: PINS, image: job.image, model: MODEL, effort: EFFORT, status: 'running',
   startedAt: new Date().toISOString(), handsOnMinutes: null, interruptions: null, ownerAccepted: null,
   reviews: {}, repo: job.repo, worktree: null };
@@ -54,7 +56,7 @@ try {
           try { if (['error', 'turn.failed'].includes(JSON.parse(event.line).type)) agentError = true; } catch {}
         }
       } },
-    prompt: [brief, job.skills.implement, job.skills.tdd,
+    prompt: research ? researcherPrompt(job, brief) : [brief, job.skills.implement, job.skills.tdd,
       `You own only ${job.task.paths.join(', ')}. Other work is preserved; do not revert it.`,
       `This isolated chat workspace is /home/agent/workspace, branch ${job.branch}, starting revision ${job.base}. Verify it before editing and before committing.`,
       'The host already fetched and approved this single issue and its test seams. Host handles tracker, external verification, fresh Standards/Spec reviews and publication. Read AGENTS.md and referenced repository rules. Use the supplied original Matt skills; missing host skill paths are not installed in this container.',
@@ -67,6 +69,7 @@ try {
   await writeFile(join(runDir, 'implement.txt'), output.stdout, { mode: 0o600 });
   row.usage = output.iterations.map(iteration => iteration.usage ?? null);
   if (agentError || !output.completionSignal) throw new Error('Implementer did not complete successfully.');
+  if (research) row.researcherCompleted = true;
   const inspection = { ...options(), image: job.image };
   row.revision = await inspectGit(row.worktree, job.repo, ['rev-parse', 'HEAD'], inspection);
   await requireIsolatedWorkspace(row.worktree, job.repo, job.branch, row.revision, inspection);
@@ -76,6 +79,11 @@ try {
   if (!paths.length || paths.some(path => !job.task.paths.includes(path))) throw new Error('Empty task diff or out-of-scope source changes.');
   row.changed = true;
   row.checks = await verify(row.worktree, job.repo, job.task, { ...options(), image: job.image });
+  if (research) {
+    const reportCheck = row.checks.executions.find(check => check.command[1] === '/checks/research_report.py');
+    const verdict = reportCheck?.stdout.match(/^PASS: structurally valid source report; evidence verdict=(source-feasible|requires-local-proof|blocked)$/m);
+    row.evidenceVerdict = verdict?.[1] ?? null;
+  }
   await save();
   if (!row.checks.passed) throw new Error('Independent checks failed.');
   // Separate new Codex processes and containers, each with read-only source and Git mounts.
@@ -86,9 +94,10 @@ try {
     const prompt = [
       `Fresh ${axis} review. Review only this axis; source and Git metadata are read-only.`,
       job.skills.review, brief,
+      research ? 'This is source-only research. Check immutable citations against the public source, version applicability, fact/inference/unknown separation and every ticket requirement. Structural acceptance cannot establish semantic correctness or runtime readiness.' : '',
       `Pinned diff: git diff --no-ext-diff --no-textconv ${job.base}...${row.revision}. Inspect the complete diff and tests.`,
       axis === 'standards' ? 'Use AGENTS.md, repository conventions and the skill smell baseline. Distinguish hard violations from judgement calls. Skip tooling-enforced findings.' : 'Check every issue requirement for missing/partial behavior, scope creep and incorrect implementation. Cite the requirement for each finding.',
-      'The host ran the repository gate, focused tests and external acceptance checks successfully. Do not spawn agents or modify files; the host is coordinating the two axes.',
+      'The host ran the repository gate and host-selected external acceptance checks successfully. Do not spawn agents or modify files; the host is coordinating the two axes.',
       `End with exactly one <review>{"approved":true,"findings":[],"revision":"${row.revision}"}</review> object. Set approved false and supply actionable findings if needed.`,
     ].join('\n\n');
     const result = await freshReview(axis, row.worktree, job.repo, home, prompt, row.revision,

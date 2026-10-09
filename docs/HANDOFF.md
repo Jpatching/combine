@@ -4,16 +4,16 @@
 
 Reviewed: 2026-10-09
 
-Task: establish bounded composite collision decoding for [#20](https://github.com/Jpatching/combine/issues/20), then independently verify street placement before Skate integration.
+Task: trace the decoded collision resource to an independently identifiable GTA IV street for [#20](https://github.com/Jpatching/combine/issues/20), before measurement tooling or Skate integration.
 
 Source branch: `implement/gtaiv-composite-collision`
 
-Source revision: `708c017ae9b4ee0beed75d48a06c0c950cc0358e`
+Source revision: `47e8a2c0d46981ffb3b9cfeec5afd98eb91bffbb`
 
-This is the initial reviewed composite candidate. The issue and PR own the final
-publication revision, including the shared-validation review cleanup.
+This is the unchanged decoder revision used for the location investigation.
+The issue and PR own the publication revision of the subsequent evidence update.
 
-Disposition: draft [#38](https://github.com/Jpatching/combine/pull/38) awaits owner source approval. The existing owned file decodes; independent street placement remains blocked.
+Disposition: draft [#38](https://github.com/Jpatching/combine/pull/38) awaits owner source approval. The existing owned file decodes; provenance and a candidate map area are traced, but independent street placement remains blocked.
 
 The owner authorized the bounded investigation and focused implementation with
 TDD, using subagents where efficient. The broader target remains one real GTA IV
@@ -22,6 +22,16 @@ driving. Traffic/pedestrians stay active; riding contact with moving objects is
 deferred. Source integration and gameplay acceptance remain separate.
 
 ## Evidence
+
+The [resource placement investigation](../research/results/2026-10-09-gtaiv-resource-placement.md)
+traces the retained file back to the exact archive entry by digest, finds an IMG
+directive naming that archive, and correlates candidate collision bounds with
+object placements in four WPL map files. That correlation assumes world-space
+WBN coordinates; it does not establish a unique street or active collision.
+The owned child matrices were checked and are exactly identity, not substituted.
+Private identities, map records and coordinates remain in ignored local records.
+No comparison tooling, supported parser implementation, game launch or runtime
+trial was added. The location gate remains inconclusive.
 
 The [source investigation](../research/results/2026-10-09-gtaiv-composite-transforms.md)
 corroborates IV composite offsets, padded matrices, child-to-parent transform
@@ -54,14 +64,21 @@ Review draft #38 for owner source approval; it has not been merged.
 [PR #37](https://github.com/Jpatching/combine/pull/37) is merged and #34 closed;
 its earlier pending-merge handoff is superseded.
 
-Before feeding triangles to Skate, qualify an independent local reference and
-establish that this resource supplies the selected street's active collision.
-The preserved experiment contains no physical checkpoints. Compare scale,
-orientation, floor/curb/wall contact and a clear-space control, with measurements
-and tolerances fixed before a runtime trial. An exporter comparison alone cannot
-prove active host collision. Do not substitute identity transforms, synthetic
-floors or relaxed guards for missing evidence. No runtime launch or integration
-was performed by this source slice.
+Resume from the retained local location records and the resource placement report;
+acquisition and decoding need not be repeated. The missing evidence is an
+independently recognisable street/landmark match and qualified world placement
+for this exact resource. A map-object origin inside collision bounds is only a
+candidate. GTA4Unity's loader omits composite child matrices generally; do not
+present it as a qualified exact-version reference without checking its limits.
+Stop before measurement tooling while this relationship remains ambiguous.
+
+After the location gate passes, choose a handful of distinctive road, pavement
+and height-change checkpoints. Freeze numeric tolerance and repeatability rules
+before measuring; compare GTA observations and mesh predictions at identical
+coordinates and reject unavailable results. Report agreement, disagreement or
+inconclusive. Agreement covers those ground checkpoints only; walls remain the
+next proof. Preserve existing guards and keep placement, active collision and
+Skate integration as separate evidence claims.
 
 ## Session close
 

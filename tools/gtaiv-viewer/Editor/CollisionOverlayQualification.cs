@@ -15,6 +15,13 @@ namespace CombineQualification
         [MenuItem("Combine Qualification/Check authored collision overlay")]
         public static void Run()
         {
+            // Interactive callers can have unrelated unsaved scenes open.
+            // Cancellation must preserve them and cannot become qualification evidence.
+            if (!Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            {
+                Debug.LogWarning("COMBINE_OVERLAY_QUALIFICATION: UNAVAILABLE (cancelled before scene replacement)");
+                return;
+            }
             try
             {
                 CheckCompleteNonflatOverlay();

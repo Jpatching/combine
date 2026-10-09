@@ -38,7 +38,9 @@ from a fixture assertion failure. Confirm the explicit
 `COMBINE_OVERLAY_QUALIFICATION` verdict; an editor process exiting alone is not a
 pass. For local visual inspection, use the menu
 **Combine Qualification → Check authored collision overlay**. It leaves an
-unsaved authored scene with camera/light; keep any screenshot private and open
+unsaved authored scene with camera/light. The interactive route prompts to save
+modified scenes before replacing them; cancelling preserves the current scenes
+and reports qualification unavailable. Keep any screenshot private and open
 it through the existing workbench evidence command before owner acceptance.
 
 ## What the fixture covers

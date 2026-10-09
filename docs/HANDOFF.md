@@ -33,34 +33,39 @@ The [guide-driven proof](../research/results/2026-10-09-guide-driven-proof.md)
 selects the next investigation using the owner-delegated technical judgment.
 It preserves both candidates; permanent process placement remains undecided.
 
-Latest runtime evidence: fresh read-only checks found one GTA process, a stale
-status file and `Scene=unknown` / `CanTest=false` from the source-matched reader.
-The installed public publisher script matches retained source; 32-bit inspection
-found the adapter and CLEO loaded. The cause of stale publication is unresolved.
-No game launch, input, staging or riding trial occurred. See the guide-driven proof
-for scope and limitations. Earlier mount refusals remain tied to
-[their dated revision](https://github.com/Jpatching/combine/issues/20#issuecomment-6078907484).
+Latest runtime evidence: on the retained staged candidate `b403377481a33e407aeb81b78b8d38984aac4735`,
+restoring the minimized GTA window changed stale status into fresh validated
+gameplay with testing available. A bounded mount attempt then refused at
+`over-0.05-metres` before movement playback; fresh GTA control remained available.
+The game and three expected native modules were observed under the staged runtime.
+A subsequent owner-requested window change was verified at 1280×720 with fresh
+gameplay status. These are isolated observations, not completed riding acceptance.
+No runtime source or tolerance was changed. Private evidence remains local.
 
 ## Next step
 
-The owner delegated technical selection to the guides; do not repeat the
-integration-versus-fidelity-versus-world-interaction questionnaire. Use the
-[guide-driven proof](../research/results/2026-10-09-guide-driven-proof.md): reuse the
-dated fixed-input/pose evidence, then qualify the complete real-host handover.
-First diagnose stale status publication, with a fresh process-bound observation
-as the feedback condition. Do not infer collision or mount failure from unknown
-state. REA is reserved for a specific shipped-artifact/native question source
-cannot settle; no native provider or analysis session is claimed ready.
+The owner selected Universal Modder's rebuilt-guest-in-real-host route and asked
+us to assess the missing world-collision connection. The existing route already
+fits that classification; this selects the investigation direction, not a new
+engine or a permanent choice between worker and in-process placement.
 
-Keep rebuilt-Skate behavior distinct from original-game equivalence. Research PR
-approval accepts the findings; live game actions and installation changes remain
-subject to the runtime task boundary. No permanent architecture is selected.
+Use the [world-collision next proof](../research/results/2026-10-09-world-collision-next-proof.md)
+to distinguish reusable source from exact-version gaps and qualify the smallest
+host-geometry observation before designing a broader adapter. Preserve the flat
+patch as a limited diagnostic. Do not repeat its unchanged mount refusal or
+relax its 5 cm guard as a substitute for world collision. The earlier
+[guide-driven proof](../research/results/2026-10-09-guide-driven-proof.md) remains
+useful for control handover and recovery, but its stale-status diagnosis is no
+longer the immediate next task.
 
-Retain [#20](https://github.com/Jpatching/combine/issues/20),
-`integration/gtaiv-skate-loop` and [draft PR #23](https://github.com/Jpatching/combine/pull/23).
-#21/#22 remain blocked. Preserve the in-process and worker candidates, prototypes
-and recovery branches. The separate collision-feasibility research prerequisite
-recorded on #20 is not satisfied by this public-source survey.
+Keep rebuilt-Skate behavior distinct from original-game equivalence. Retain
+[#20](https://github.com/Jpatching/combine/issues/20),
+`integration/gtaiv-skate-loop`, [draft PR #23](https://github.com/Jpatching/combine/pull/23),
+both candidates and recovery branches. #21/#22 remain blocked. The separate
+research-capable Sandcastle prerequisite recorded on #20 remains unmet: this
+session exposes no such connected tool. Public-source preparation does not
+satisfy that prerequisite or establish a working collision bridge. REA native
+provider/session readiness is also unestablished.
 
 ## Session close
 

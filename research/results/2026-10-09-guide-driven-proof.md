@@ -6,6 +6,22 @@ step. This supersedes the pending request to choose between integration, fidelit
 and world interaction. The retained product goal and prior rough-presentation
 acceptance remain the starting point; no new permanent architecture is selected.
 
+## Subsequent owner decision and runtime observation
+
+Later on 2026-10-09, restoring the minimized GTA window produced fresh validated
+gameplay status. A guarded mount trial at staged revision
+`b403377481a33e407aeb81b78b8d38984aac4735` refused at `over-0.05-metres`
+before playback and retained fresh GTA control. A requested live window change
+was verified at 1280×720 with fresh gameplay status. This does not establish a
+publisher defect, accepted riding or the cause of the surface refusal.
+
+The owner then selected assessment of the missing world-collision connection,
+using Universal Modder's rebuilt-guest-in-real-host route. The
+[world-collision next proof](2026-10-09-world-collision-next-proof.md) and
+[handoff](../../docs/HANDOFF.md) now select the next action. The handover contract
+below remains a later integration check; the stale-status investigation and
+unchanged flat-patch mount retries are no longer the immediate task.
+
 ## Selected investigation
 
 Use Universal Modder's **rebuilt guest engine in a real host** route. Its first-slice

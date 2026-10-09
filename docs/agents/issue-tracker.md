@@ -37,7 +37,22 @@ for implementation; apply `ready-for-agent` without sending them through triage.
 
 Complete each authorized source slice through:
 
-**Implement → test → review → commit → push → PR → merge → synchronize local `main`.**
+**One observable behavior → implement and test → review → commit and push → draft PR with evidence → owner approval → squash merge → synchronize local `main`.**
+
+Before requesting approval for a visible change, capture and automatically open
+the actual clip or screenshots locally with `python3 scripts/workbench.py evidence
+<file> [<file> ...]`. Identify the demonstrated behavior and its limitations.
+Keep private media local; the draft PR records source-safe evidence descriptions
+and checks. A file path, passing test or viewer launch is not owner acceptance.
+Wait for explicit approval of the presented candidate before marking the PR ready
+and merging. Material behavior changes after approval require renewed evidence
+and approval. Do not enable automatic merge while acceptance is pending.
+
+Bundle source, tests and handoff updates into one focused commit when practical.
+Use additional commits for meaningful fixes or review responses, then squash the
+finished PR into one commit on `main`. Record the final merged revision on the
+issue; avoid extra commits solely to make HANDOFF name its own commit or merge.
+Preserve published history and retained recovery branches.
 
 Use one focused branch and PR per implementation slice. For a single active chat,
 switch its clean checkout to the task branch before editing. Use a separate
@@ -70,7 +85,7 @@ not a refspec targeting `main`.
 
 Work only on slices whose blockers are complete. When blocked, record the exact
 blocker on the existing issue/PR and preserve the branch. The owner may select
-independent work while it is blocked. Review and required checks must pass before
+independent work while it is blocked. Review, required checks and owner approval must pass before
 merging. Start the next new slice from updated `main` after completion.
 Verify completion with a clean working tree, a merged PR, and identical local
 `main` and `origin/main` revisions after fetching. Source integration does not

@@ -4,68 +4,59 @@
 
 Reviewed: 2026-10-09
 
-Task: [#25 — Prepare reusable investigation and visual evidence workbench](https://github.com/Jpatching/combine/issues/25).
-Fetch its body and comments before resuming. The owner's current request selects work.
+Task: [#25 — workbench approval-flow follow-up](https://github.com/Jpatching/combine/issues/25).
+The owner requested automatic local evidence presentation, explicit approval before
+merge and fewer bookkeeping commits. #25's original source setup is closed;
+this requested follow-up does not reopen its completed setup criteria.
+Fetch its body and comments for the current PR disposition.
 
-Source branch: `chore/workbench-evidence`
+Source branch: `fix/evidence-before-approval`
 
-Source revision: `e961e843acd5b2c2b9ecde9bd3d8719ece9c77ad`
+Source revision: `b983ee2d0c1d68dedbd809dad8a138f189d9b5dd`
 
-Disposition: reviewed source setup on [PR #26](https://github.com/Jpatching/combine/pull/26).
-The linked PR records source integration; #25 owns the live completion verdict.
-No new gameplay acceptance or release is established.
+This is the base revision; the follow-up candidate is identified by the branch
+and its PR, avoiding a self-referential commit.
 
-The owner selected Reverse Engineer Anything and Universal Modder as tools/guides
-for Combine. Use the [workbench guide](WORKBENCH.md) for the durable workflow,
-reviewed guide identities, local tool prerequisites, terminal views and private
-visual comparisons. A future hosted catalogue remains unbuilt and undeployed.
+Disposition: candidate awaiting owner approval. No PR exists at preparation;
+publication and the final revision are recorded on #25. Earlier setup merged in
+[PR #26](https://github.com/Jpatching/combine/pull/26).
 
 ## Evidence
 
-Latest runtime evidence: no new game trial in this setup task. The retained
-[GTA diagnosis](https://github.com/Jpatching/combine/issues/20#issuecomment-6078907484)
-remains tied to `b403377481a33e407aeb81b78b8d38984aac4735`, not this setup revision.
+Latest runtime evidence: the automatic evidence command requested Windows viewers
+for the existing synthetic walkthrough and screenshot. The owner confirmed that
+the evidence opened; acceptance remains pending. This is not GTA gameplay.
+The new command opens local evidence by default and retains `--print-only`.
+Source checks cover viewer routing, literal filenames, invalid files and failures.
 
-- REA 6.1.0 analysed a tiny Combine-owned JavaScript fixture. Its changed-entry-point
-  smoke test refused execution until exact restoration. This does not qualify a
-  native provider, register an active MCP connection or prove game compatibility.
-- Universal Modder local knowledge search ran; creating/indexing private notes
-  preserved the pinned guide. No upstream field-note publication occurred.
-- Actual tmux creation/reopening preserved the prior Codex/Neovim panes, selected
-  window and existing named views. Git, live issues, behaviour and checks views loaded.
-- Chromium smoke verified local image previews, hashes, JSON export, untested/pending
-  defaults, literal notes, reset, no external requests and no browser page errors.
-  These were synthetic fixtures, not gameplay media or Windows recording evidence.
-- The final setup gate passed 49 tests and links in 56 documents. Independent
-  Standards and Spec follow-up reviews reported no remaining actionable findings.
+The [GTA diagnosis](https://github.com/Jpatching/combine/issues/20#issuecomment-6078907484)
+remains tied to `b403377481a33e407aeb81b78b8d38984aac4735`.
+A fresh read-only check using the preserved branch's status module returned
+unknown native state and `CanTest=false`. The current checkout lacks that module,
+so the old runtime helper cannot be used unchanged. No new successful ride or
+surface root cause is established by this follow-up.
 
 ## Next step
 
-Check #25 and PR #26 for the source integration verdict, then work from the owner's
-next selected behaviour. Keep tool smoke evidence separate from gameplay acceptance.
-Use short uncut clips for movement/camera/recovery,
-paired screenshots for static changes, and traces for numerical claims. The local
-comparison page supports review and private records; it does not record a game.
+Present evidence, obtain explicit owner approval, then squash merge the reviewed
+candidate and synchronize main using the [workflow](agents/issue-tracker.md).
+Keep owner confirmation separate from a successful viewer launch.
 
-The retained [Mount -> move -> dismount](https://github.com/Jpatching/combine/issues/20)
-experiment remains blocked by the recorded over-0.05-metres refusal; no accepted
-complete ride exists. Its candidate stays on `integration/gtaiv-skate-loop` and
-[draft PR #23](https://github.com/Jpatching/combine/pull/23). #21/#22 remain blocked.
-If the owner selects riding again, read that issue's live verdict first; game
-execution needs current task authority. Collision research remains separate.
+The next gameplay behavior remains [#20 — Mount -> move -> dismount](https://github.com/Jpatching/combine/issues/20).
+Use `diagnosing-bugs` with the current refusal and the same scenario after a fix.
+Retain `integration/gtaiv-skate-loop` and [draft PR #23](https://github.com/Jpatching/combine/pull/23).
+#21/#22 remain blocked. Follow the [workbench guide](WORKBENCH.md) for the reviewed
+Universal Modder and Reverse Engineer Anything tooling and private evidence rules.
 
 ## Session close
 
-Follow [context maintenance](agents/current-context.md): update the setup issue
-and this pointer with the exact source disposition and next action. Preserve
-private tools, notes, evidence, original installations and retained branches.
-Source checks, runtime observation, owner acceptance and public release remain
-separate claims. Recheck Git and the live tracker before using this snapshot.
+Follow [context maintenance](agents/current-context.md). Bundle handoff updates
+with the source slice; record the final merge revision on the issue.
+Preserve private evidence, tools, original installations and recovery branches.
+Source checks, runtime observation, owner acceptance and release are separate.
 
 ## Historical reference
 
-The [retained GTA context](archive/HANDOFF-2026-10-09-gta-context.md) preserves the
-full riding evidence and research links. Its older source gate counts describe
-that checkpoint, not this workbench task. The [host decision](adr/0001-preserve-offline-gta-gameplay.md)
-and [glossary](../GLOSSARY.md) still govern that experiment.
-Fortnite and earlier experiments remain in the retained GTA context's archive links.
+The [retained GTA context](archive/HANDOFF-2026-10-09-gta-context.md),
+[host decision](adr/0001-preserve-offline-gta-gameplay.md) and
+[glossary](../GLOSSARY.md) retain the integration constraints and prior evidence.

@@ -14,8 +14,9 @@ Source revision: `ba7fb89074860723fd592804de3b06ce2e49da47`
 This is the inspector implementation revision before this handoff update; #34
 owns the final publication revision and review evidence.
 
-Disposition: source implementation complete, pending independent review and draft
-publication. No PR exists for #34 yet. Owned-resource verification is blocked. Owner-approved
+Disposition: source implementation published in draft PR
+[#37](https://github.com/Jpatching/combine/pull/37), awaiting owner approval.
+Owned-resource verification is blocked. Owner-approved
 research PR [#35](https://github.com/Jpatching/combine/pull/35) merged as
 `9cecd6448c35ff8455376be0a96d5c60d5853970`; PR
 [#36](https://github.com/Jpatching/combine/pull/36) merged as
@@ -27,7 +28,9 @@ The [standalone inspector](../tools/gtaiv-collision/README.md) validates one
 bounded geometry root and emits only a verdict/reason pair. GPLv3 terms,
 attribution and pinned format sources are recorded with the tool. Seven focused
 command/parser tests passed using authored synthetic data; the worker repository
-gate passed all 61 tests. These checks do not establish owned-file compatibility.
+gate and coordinator gate passed all 61 tests. Spec review passed with zero
+findings; Standards review requested clearer count names, handled before final
+publication. These checks do not establish owned-file compatibility.
 
 Both Sandcastle jobs returned `requires-local-proof`, passed report checks and
 independent Standards/Spec reviews with zero findings. Host publication review
@@ -51,8 +54,10 @@ not a runtime test of the research reports.
 
 ## Next step
 
-Complete independent Standards/Spec review and publish #34's draft PR for owner
-approval. The source implementation and synthetic checks are complete.
+Review draft PR #37 for owner approval of the source candidate. The source
+implementation and synthetic checks are complete. Keep #34 open until its PR
+is approved and merged; do not treat the research merge approval as approval
+of this new implementation.
 The owner-authorized read-only search of the discovered GTA IV installation found
 no loose `.wbn` or `.wbd` resources; game archives were present. No archive contents
 were inspected, no game data was extracted, and no owned resource was decoded.

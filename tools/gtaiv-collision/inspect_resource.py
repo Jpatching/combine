@@ -48,8 +48,9 @@ def decode_resource(raw):
     if total_size > DECOMPRESSED_CAP:
         raise Refusal('decompressed-cap')
     try:
-        inflater = zlib.decompressobj(-15)
-        data = inflater.decompress(raw[14:], total_size + 1)
+        # The codec bytes are the zlib header; validate its checksum too.
+        inflater = zlib.decompressobj()
+        data = inflater.decompress(raw[12:], total_size + 1)
         if len(data) > total_size or inflater.unconsumed_tail:
             raise Refusal('decompressed-size')
         if not inflater.eof or inflater.unused_data:

@@ -32,11 +32,30 @@ def geometry():
 
 
 def resource(data):
-    compressor = zlib.compressobj(wbits=-15)
-    return struct.pack('<IIIH', 0x05435352, 0x20, 2, 0xda78) + compressor.compress(data) + compressor.flush()
+    return struct.pack('<III', 0x05435352, 0x20, 2) + zlib.compress(data, level=9)
 
 
 class CollisionTests(unittest.TestCase):
+    def test_command_rejects_invalid_zlib_framing(self):
+        raw = resource(geometry())
+        cases = [
+            ('missing-checksum', raw[:-4]),
+            ('truncated-checksum', raw[:-1]),
+            ('corrupt-checksum', raw[:-1] + bytes([raw[-1] ^ 1])),
+            ('trailing-data', raw + b'extra'),
+            ('concatenated-stream', raw + zlib.compress(b'extra', level=9)),
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'private-resource.wbn'
+            command = [sys.executable, str(ROOT / 'tools/gtaiv-collision/inspect_resource.py'), str(path)]
+            for case, payload in cases:
+                with self.subTest(case=case):
+                    path.write_bytes(payload)
+                    result = subprocess.run(command, capture_output=True, text=True, timeout=3)
+                    self.assertEqual(result.returncode, 1)
+                    self.assertEqual(json.loads(result.stdout), {'verdict':'invalid', 'reason':'decompression-error'})
+                    self.assertEqual(result.stderr, '')
+
     def test_rejects_truncation_and_bad_indices(self):
         data = geometry()
         struct.pack_into('<H', data, 0x130, 9)

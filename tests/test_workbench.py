@@ -5,8 +5,9 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import workbench
@@ -14,10 +15,21 @@ import workbench
 
 class EvidenceTests(unittest.TestCase):
     def setUp(self):
+        self.platform = SimpleNamespace(name="posix", environ=os.environ, startfile=Mock())
+        platform_patch = patch.object(workbench, "os", self.platform)
+        platform_patch.start()
+        self.addCleanup(platform_patch.stop)
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
         self.clip = Path(temp.name) / "owner's $(example) clip.mp4"
         self.clip.write_bytes(b"synthetic test placeholder")
+
+    def test_native_windows_requests_viewer_without_starting_real_apps(self):
+        self.platform.name = "nt"
+        with patch.object(workbench, "run") as run:
+            workbench.open_evidence([self.clip])
+        self.platform.startfile.assert_called_once_with(str(self.clip))
+        run.assert_not_called()
 
     def test_wsl_opens_explicit_media_as_literal_windows_path(self):
         windows_path = "C:\\Evidence\\owner's $(example) clip.mp4"

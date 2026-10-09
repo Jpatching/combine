@@ -26,9 +26,14 @@ deferred. Source integration and gameplay acceptance remain separate.
 The owner approved spec #39, its two-ticket dependency chain, and the authored
 resource-to-viewer scene test boundary. The existing current branch is preserved;
 ticket #40 preparation is isolated on `implement/gtaiv-viewer-qualification` in
-its retained implementer worktree. Commit `4854d785f0e325bc09ea4259bce21302e2a53553`
-contains the authored fixture and procedure; it is unmerged. The C# fixture is
-uncompiled/unrun: editor unavailability is not a behavioral red or green.
+its retained implementer worktree. Commit `bed92c18e6e6439419241eca73aeb8ddca4c6838`
+contains the authored fixture, procedure and reviewed compile fix; it is pushed
+and unmerged. The first Unity run stopped at compilation: an ambiguous fixture
+`CompressionLevel` reference and package GUID references. The fixture now fully
+qualifies the compression enum. Independent review found no defects in that fix.
+The second Unity CLI run compiled and emitted `PASS (scene geometry; pixels
+unverified)` with exit 0. This is baseline qualification, not a behavioral
+red-to-green implementation claim.
 
 Pinned GTA4Unity already contains a collision debug renderer implementation,
 disabled by a commented startup call. Its required Unity Editor is 6000.4.0f1 (8cf496087c8f),
@@ -36,8 +41,16 @@ and its actual scene is ECSMain. Unity is a local inspection-tool dependency,
 not a selected Combine host or Skate integration engine. The official editor
 installer matches release metadata size/integrity; editor and Hub installers
 have valid Unity Technologies signatures. Hub's interactive installer launch was
-requested. Installation, account/licence activation, package resolution and
-viewer execution have not been verified. Private installers and setup records
+requested. The owner then reconfirmed proceeding with Unity CLI. The signed CLI
+reports 6000.6.5f1 already installed; the required 6000.4.0f1 was requested
+separately through the CLI. Its registered binary matches revision 8cf496087c8f
+and has a valid signature; installation completed and CLI structural verification
+passed. The authored fixture ran with that exact engine revision and unchanged
+package manifest/lock. Cached GUID references changed without agent edits; Unity
+API migration is a plausible explanation, not independently established.
+Interactive visual capture is blocked by the Windows dialog titled
+"Unity Editor Software Terms"; the owner must review it before proceeding.
+No rendered image has been captured. Private installers and setup records
 remain local. No owned-game bootstrap or game launch occurred.
 
 The [resource placement investigation](../research/results/2026-10-09-gtaiv-resource-placement.md)
@@ -78,11 +91,12 @@ Latest runtime evidence: the earlier gameplay candidate `b403377481a33e407aeb81b
 ## Next step
 
 Resume viewer ticket #40 from its retained fixture and upstream lab. The immediate
-execution prerequisite is an installed, eligible activated Editor and resolved
-pinned packages; the owner handles licence acceptance/sign-in. Clarify the
-viewer-only Unity dependency raised by the owner before further installation
-actions. The approved task remains local viewer qualification, not a replacement
-for GTA IV. Run the authored fixture before changing viewer behavior; a baseline
+execution prerequisite for the visible check is the owner reviewing the Unity
+Editor Software Terms dialog; the owner handles agreement acceptance/sign-in. The owner reconfirmed the viewer-only Unity dependency and authorized CLI use.
+The prepared private `unity run` launcher produced the authored geometry pass.
+The private `unity open` visual trial is waiting at the terms dialog; do not
+start another editor or count the open response as a rendering pass. The approved task remains local viewer qualification, not a replacement
+for GTA IV. The authored baseline
 pass is qualification evidence and does not justify invented red/green work.
 Then verify visible pixels and complete private resource/map rendering. Ticket
 #41 remains blocked until #40 passes; no ground-measurement tooling is authorized.

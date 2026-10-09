@@ -103,8 +103,16 @@ do not establish Windows capture, native analysis or gameplay acceptance.
 
 ## See intended behaviour and proof
 
-Open [the local comparison page](../tools/workbench/evidence.html) in your browser,
-or run `python3 scripts/workbench.py evidence` for its location. Select a reference
+Run `python3 scripts/workbench.py evidence` to open
+[the local comparison page](../tools/workbench/evidence.html) in your browser.
+To present captured evidence directly, run
+`python3 scripts/workbench.py evidence /absolute/path/clip.mp4 /absolute/path/screenshot.png`.
+This requests the local default viewers (Windows viewers when running in WSL);
+`--print-only` prints locations without opening anything. Confirm that the owner
+can see the evidence before requesting acceptance. A successful open request
+does not prove that playback was visible or accepted. Follow the
+[approval and squash-merge workflow](agents/issue-tracker.md#implementation-slices).
+Select a reference
 and candidate clip or screenshot, record the expected/observed behaviour, and save
 the private JSON record beside the original media. The page previews local files,
 computes their SHA-256 when browser support allows, and makes no network requests.

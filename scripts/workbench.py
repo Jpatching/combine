@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Open Combine's terminal views and run its isolated, reviewed guide tools."""
 import argparse
+import base64
 import hashlib
+import os
 from pathlib import Path
 import shlex
 import subprocess
@@ -114,6 +116,33 @@ def installation_digest(directory):
     return digest.hexdigest()
 
 
+def open_evidence(paths, print_only=False):
+    files = [Path(path).expanduser().resolve() for path in paths]
+    if not files:
+        files = [ROOT / "tools/workbench/evidence.html"]
+    for path in files:
+        if not path.is_file():
+            raise ValueError(f"Evidence file does not exist: {path}")
+        if path.suffix.lower() not in {".html", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".webm", ".mov"}:
+            raise ValueError(f"Unsupported evidence format: {path.suffix}")
+    for path in files:
+        print(path.as_uri(), flush=True)
+        if print_only:
+            continue
+        if os.name == "nt":
+            os.startfile(str(path))
+        elif os.environ.get("WSL_DISTRO_NAME"):
+            windows_path = run("wslpath", "-w", str(path), capture=True).stdout.strip()
+            # Encode a PowerShell literal, never interpolate the path as executable code.
+            command = "$ErrorActionPreference='Stop'; Start-Process -FilePath '" + windows_path.replace("'", "''") + "'"
+            encoded = base64.b64encode(command.encode("utf-16-le")).decode("ascii")
+            run("powershell.exe", "-NoProfile", "-NonInteractive", "-EncodedCommand", encoded)
+        else:
+            run("open" if sys.platform == "darwin" else "xdg-open", str(path))
+    if not print_only:
+        print("Requested local viewers. Owner confirmation is still pending.")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -124,7 +153,9 @@ def main():
     upstream = commands.add_parser("guide", help="Run an installed, pinned guide tool")
     upstream.add_argument("tool", choices=["rea", "universal-modder"])
     upstream.add_argument("args", nargs=argparse.REMAINDER)
-    commands.add_parser("evidence", help="Print the local clip/screenshot comparison page location")
+    evidence = commands.add_parser("evidence", help="Open local evidence, or the comparison page when no files are supplied")
+    evidence.add_argument("paths", nargs="*", help="Local clips or screenshots to open")
+    evidence.add_argument("--print-only", action="store_true", help="Print locations without opening viewers")
     args = parser.parse_args()
     try:
         if args.command == "open":
@@ -132,8 +163,7 @@ def main():
         elif args.command == "view":
             view(args.name)
         elif args.command == "evidence":
-            print((ROOT / "tools/workbench/evidence.html").as_uri())
-            print("Open this file in your local browser; select media there without uploading it.")
+            open_evidence(args.paths, args.print_only)
         else:
             guide(args.tool, args.args)
     except (subprocess.CalledProcessError, OSError, ValueError) as error:

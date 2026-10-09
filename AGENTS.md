@@ -25,7 +25,7 @@ read the [domain documentation rules](docs/agents/domain.md).
 
 ## Project reference
 
-- Current status and evidence: [handoff](docs/HANDOFF.md); fetch the linked live issue before resuming its task.
+- Start/resume: [handoff](docs/HANDOFF.md), then its linked live issue. At a task boundary, use [context maintenance](docs/agents/current-context.md).
 - Fortnite + Skate requirements: [interactive-world contract](docs/FORTNITE_SKATE.md).
 - Player overview/controls: [README](README.md).
 - Parked Synergy: [menu guide](docs/TRICKSHOT_MENU.md); actual pinned GSC.

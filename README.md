@@ -10,11 +10,9 @@ separate experiences and contributor-friendly source. Today this is experimental
 source, with no game files, playable download or installer. Each new world needs
 an independently evidenced integration; the ambition is not a universal merger.
 
-**Current outcome: Fortnite + Skate.** No playable integration exists. The
-[current experiment](https://github.com/Jpatching/combine/issues/4) owns the next
-native one-surface proof and its prerequisites. Other work,
-including Synergy's unaccepted trial and unimplemented hit radius, is parked.
-See the [current handoff](docs/HANDOFF.md) for retained evidence and the fresh-start status.
+For the selected task, current verdict and next step, start with the
+[current context](docs/HANDOFF.md), then fetch its linked live issue. Source checks,
+runtime observations and owner gameplay acceptance are separate evidence.
 
 Start with the [reproduction guide](docs/REPRODUCING.md) for source checks,
 the pinned Rust/Synergy build and private-trial prerequisites. Rust is the runtime
@@ -25,7 +23,8 @@ PowerShell support validation and Windows trial preparation.
 | --- | --- | --- |
 | Skate on MW2 Rust with MW2 combat | Owner reports skating worked; baseline recovery/replay incomplete | [Windows baseline](docs/WINDOWS_BASELINE.md) |
 | Minecraft world with MW2 combat and skating | Owner reports Minecraft worked; skating on changed terrain and replay unverified | [Windows baseline](docs/WINDOWS_BASELINE.md) |
-| Actual Synergy trickshot menu in the existing mashup | Original GSC menu integrated; Intervention/input checks recorded; exact-build physical trial unaccepted | [Menu guide](docs/TRICKSHOT_MENU.md), [trial evidence](docs/HANDOFF.md) |
+| Actual Synergy trickshot menu in the existing mashup | Original GSC menu integrated; Intervention/input checks recorded; exact-build physical trial unaccepted | [Menu guide](docs/TRICKSHOT_MENU.md), [trial evidence](docs/archive/HANDOFF-2026-10-07.md) |
+| GTA IV + Skate | Candidate on [PR #23](https://github.com/Jpatching/combine/pull/23); complete repeatable riding remains unaccepted | [Current context](docs/HANDOFF.md) |
 | Interactive Fortnite island + Skate | Gameplay base/client/bridge qualification; building/editing/destruction required; no playable integration | [Contract](docs/FORTNITE_SKATE.md) |
 
 Recipes are strict research metadata. The Python checker does not prepare or

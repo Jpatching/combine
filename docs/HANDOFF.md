@@ -132,9 +132,13 @@ the exposed ground asphalt remains gray. A named junction, selected-resource
 road/pavement coverage and a continuous road height change remain unestablished.
 Industrial, Bohan remains a candidate, not a street-placement pass.
 
-Complete the integration Standards/Spec review and publish the precise outcome
-on #41; preserve draft #38 and owner source-approval gates. No measurement tooling
-or GTA launch is authorized. The next decisive evidence is an independently
+The integration Standards/Spec review found one stale README status paragraph;
+the retained implementer corrected it at `5f2d007`. Both reviewers confirmed
+zero remaining actionable findings. The repository gate passed 73 tests and
+63-document/context checks. #41 is resolved as an inconclusive investigation,
+not a street-placement pass; #39 and draft #38 retain their source-approval gates.
+No measurement tooling or GTA launch is authorized. The next decisive evidence
+is an independently
 identified named junction and proof that this exact mesh covers the intended
 road, pavement and height-change checkpoints, followed by local owner street
 confirmation. Do not silently replace the resource or move it into agreement.

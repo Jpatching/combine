@@ -16,8 +16,8 @@ licence, packages or shader support is an unavailable qualification, not a
 behavioral red result. Do not open the owned-game scene or enter Play first.
 
 Copy [CollisionOverlayQualification.cs](Editor/CollisionOverlayQualification.cs)
-to the isolated upstream checkout's
-`Assets/CombineQualification/Editor/CollisionOverlayQualification.cs`.
+and [CollisionOverlayVisibility.cs](Editor/CollisionOverlayVisibility.cs)
+to the isolated upstream checkout's `Assets/CombineQualification/Editor/` folder.
 The `Editor` folder lets the existing predefined editor assembly reference the
 upstream runtime assembly without moving upstream code into new assemblies.
 This is an executable fixture check, not an NUnit test-runner invocation.
@@ -26,6 +26,7 @@ With locally supplied absolute paths in PowerShell:
 
 ```powershell
 & $unityEditor -batchmode -projectPath $viewerLab `
+  -accept-apiupdate `
   -executeMethod CombineQualification.CollisionOverlayQualification.Run `
   -logFile $privateFixtureLog
 $LASTEXITCODE
@@ -43,6 +44,30 @@ modified scenes before replacing them; cancelling preserves the current scenes
 and reports qualification unavailable. Keep any screenshot private and open
 it through the existing workbench evidence command before owner acceptance.
 
+`-accept-apiupdate` enables Unity's API migration during batch compilation; it
+does not accept licence terms. The pinned Editor moved `GUID` from `UnityEditor`
+to `UnityEngine`. Fresh package compilation can otherwise fail before the fixture
+executes. Retain the private migration log and verify that package manifest/lock
+identities remain unchanged. See [Unity's release notes](https://unity.com/releases/editor/alpha/6000.4.0a4)
+and [command-line reference](https://docs.unity.com/en-us/engine/6000.7/manual/unity-editor/command-line-arguments/editor).
+
+## Inspect the map with and without the overlay
+
+Select the collision-only parent in the Hierarchy, then use **Combine Qualification
+→ Hide selected collision overlay** for the map alone and **Show selected collision
+overlay** to restore it. In the private lab use the dedicated Selected collision overlay parent;
+in the authored fixture it is Authored overlay qualification. Keep the camera
+fixed for both views. These commands change only `MeshRenderer.enabled`; they do
+not move geometry, query ground, load resources or write game files.
+
+Both commands refuse an absent, inactive, empty or mixed selection. Every selected
+mesh renderer must follow the pinned renderer's `col_` naming contract and contain
+a mesh. Select the complete parent to compare the complete resource; selecting
+one child changes that child only. The commands do not independently verify a
+resource's digest, completeness or active GTA collision. Use the earlier lab
+coverage checks and retain private evidence. Map-only visibility is not proof
+that the selected mesh covers a visible road.
+
 ## What the fixture covers
 
 The input is an authored Deflate RSC5 composite with two geometry children,
@@ -56,6 +81,13 @@ expected vertex at its world coordinate (absolute tolerance 0.0001 in the
 authored scene) and complete face topology/winding. Empty, missing or partly
 rendered fixture output fails. The fixture tolerance applies only to this
 authored coordinate check; it does not choose the later GTA measurement tolerance.
+
+The same menu-command boundary also checks hiding/restoring both children at
+their literal coordinates while an unrelated renderer stays visible, and refusal
+of mixed or absent selections. The visibility roundtrip failed on the missing
+Hide command before implementation and passed after adding the commands.
+Selection-refusal checks qualify the guard separately; no extra red/green cycle
+is claimed for those checks.
 
 A passing check establishes those scene-output behaviors only. It does not
 establish visible pixels, startup overlay enablement, arbitrary child transforms,

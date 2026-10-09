@@ -4,14 +4,15 @@
 
 Reviewed: 2026-10-10
 
-Task: record the inconclusive retained-resource street result under [spec #39](https://github.com/Jpatching/combine/issues/39) for [#20](https://github.com/Jpatching/combine/issues/20). [Viewer ticket #40](https://github.com/Jpatching/combine/issues/40) is closed with bounded qualification; [street ticket #41](https://github.com/Jpatching/combine/issues/41) has no open blockers.
+Task: implement a focused selected-overlay visibility comparison under [spec #39](https://github.com/Jpatching/combine/issues/39) for [#20](https://github.com/Jpatching/combine/issues/20). [Viewer ticket #40](https://github.com/Jpatching/combine/issues/40) is closed with bounded qualification; [street ticket #41](https://github.com/Jpatching/combine/issues/41) is resolved as an inconclusive investigation.
 
 Source branch: `implement/gtaiv-composite-collision`
 
-Source revision: `b75eb0372e4a4e917e0b66fbc3c94cf20ea47a98`
+Source revision: `51e258a97d91ac7a6d3368eb6ffa5e3eeba8c133`
 
-This is the integrated viewer fixture/procedure revision. Decoder source remains
-unchanged from `47e8a2c`. The issue owns later publication revisions.
+This is the starting point for the focused visibility implementation.
+The integrated baseline viewer fixture/procedure is `b75eb037`. Decoder source
+remains unchanged from `47e8a2c`. The issue owns later publication revisions.
 
 Disposition: draft [#38](https://github.com/Jpatching/combine/pull/38) awaits owner source approval. The existing owned file decodes; provenance and a candidate map area are traced, but independent street placement remains inconclusive.
 
@@ -22,6 +23,34 @@ driving. Traffic/pedestrians stay active; riding contact with moving objects is
 deferred. Source integration and gameplay acceptance remain separate.
 
 ## Evidence
+
+The owner selected the small `implement`/`tdd` route to continue inspection. The
+new [visibility commands](../tools/gtaiv-viewer/README.md) hide and restore only
+the selected collision-only root's renderers. They do not move meshes or the
+camera, sample ground or launch GTA. The authored resource-to-scene fixture
+exercises those public menu commands: it failed with the Hide command missing,
+then passed after implementation, with unchanged literal geometry and an
+unrelated renderer still enabled. Both runs compiled without C# errors;
+the failed CLI wrapper returned 6 and the passing wrapper returned 0.
+Mixed/absent-selection refusal also passed; no separate red/green cycle is
+claimed for those guard checks. Earlier GUID compilation failures were setup
+unavailability, not behavioral red. Explicit `-accept-apiupdate` enabled API
+migration for the pinned Editor; package manifest/lock and ProjectVersion were
+rechecked unchanged.
+
+The reviewed private bootstrap now places those same selected mesh children
+under a dedicated identity parent. Independent static review found no placement,
+resource or map-loader change. The live trial again verified the digest and
+complete counts, completed normal loading, and emitted both HIDDEN and SHOWN
+markers without C# compilation errors. A fixed-camera map-only/restored pair was
+captured and automatically opened locally. Independent visual review confirmed
+the overlay disappears and returns while landmarks retain their positions.
+Green coverage broadly follows the foreground bridge approach, parts of the yard,
+a small building and roadside/verge surfaces; farther disconnected bridge spans
+remain uncovered. This is visual correspondence, not named street identity or
+qualified coordinate checkpoints. The updated [location verdict](../research/results/2026-10-10-gtaiv-viewer-location-verdict.md)
+remains inconclusive. The new source implementation still needs final independent
+Standards/Spec review and the repository gate before publication.
 
 The owner approved spec #39, its two-ticket dependency chain, and the authored
 resource-to-viewer scene test boundary. The existing current branch is preserved;
@@ -132,12 +161,13 @@ the exposed ground asphalt remains gray. A named junction, selected-resource
 road/pavement coverage and a continuous road height change remain unestablished.
 Industrial, Bohan remains a candidate, not a street-placement pass.
 
-The integration Standards/Spec review found one stale README status paragraph;
+The earlier integration Standards/Spec review found one stale README status paragraph;
 the retained implementer corrected it at `5f2d007`. Both reviewers confirmed
 zero remaining actionable findings. The repository gate passed 73 tests and
 63-document/context checks. #41 is resolved as an inconclusive investigation,
 not a street-placement pass; #39 and draft #38 retain their source-approval gates.
-No measurement tooling or GTA launch is authorized. The next decisive evidence
+The new hide/show comparison improves inspection but does not reopen the ground
+measurement gate. No measurement tooling or GTA launch is authorized. The next decisive evidence
 is an independently
 identified named junction and proof that this exact mesh covers the intended
 road, pavement and height-change checkpoints, followed by local owner street

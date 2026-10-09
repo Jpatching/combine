@@ -54,14 +54,45 @@ namespace CombineQualification
             Require(renderers.Length == 2, "Complete resource must produce both child overlays.");
             // Hand-worked values: GTA (12,26,33) becomes Unity (-12,33,-26), etc.
             // These literals are independent of the viewer and Combine's decoder.
-            CheckMesh(renderers[0], new[] {
+            var firstVertices = new[] {
                 new Vector3(-12, 33, -26), new Vector3(-18, 30, -17),
                 new Vector3(-6, 35, -29)
-            }, new[] { 0, 2, 1 });
-            CheckMesh(renderers[1], new[] {
+            };
+            var firstFaces = new[] { 0, 2, 1 };
+            var secondVertices = new[] {
                 new Vector3(40, 10, -50), new Vector3(32, 10, -50),
                 new Vector3(32, 14, -53), new Vector3(40, 12, -53)
-            }, new[] { 0, 2, 1, 0, 3, 2 });
+            };
+            var secondFaces = new[] { 0, 2, 1, 0, 3, 2 };
+            CheckMesh(renderers[0], firstVertices, firstFaces);
+            CheckMesh(renderers[1], secondVertices, secondFaces);
+
+            // Exercise the user-facing commands, retaining the same scene placement.
+            var unrelated = new GameObject("Unrelated map renderer").AddComponent<MeshRenderer>();
+            Selection.activeGameObject = parent;
+            Require(EditorApplication.ExecuteMenuItem("Combine Qualification/Hide selected collision overlay"),
+                "Hide overlay command unavailable.");
+            foreach (var renderer in renderers)
+                Require(!renderer.enabled, "Map-only view still displays a selected overlay child.");
+            Require(unrelated.enabled, "Map-only command disabled unrelated geometry.");
+            Require(EditorApplication.ExecuteMenuItem("Combine Qualification/Show selected collision overlay"),
+                "Show overlay command unavailable.");
+            CheckMesh(renderers[0], firstVertices, firstFaces);
+            CheckMesh(renderers[1], secondVertices, secondFaces);
+            Require(unrelated.enabled, "Restoring the overlay changed unrelated geometry.");
+
+            // Qualification of the selection guard: mixed roots must stay untouched.
+            unrelated.transform.SetParent(parent.transform, false);
+            Require(!EditorApplication.ExecuteMenuItem("Combine Qualification/Hide selected collision overlay"),
+                "A mixed map/overlay root must not enable the visibility command.");
+            foreach (var renderer in renderers)
+                Require(renderer.enabled, "Refusing a mixed root hid collision geometry.");
+            Require(unrelated.enabled, "Refusing a mixed root hid unrelated geometry.");
+            unrelated.transform.SetParent(null, false);
+            Selection.activeGameObject = null;
+            Require(!EditorApplication.ExecuteMenuItem("Combine Qualification/Hide selected collision overlay"),
+                "An absent selection must not enable the visibility command.");
+            Selection.activeGameObject = parent;
 
             // Leave the authored scene inspectable after the menu invocation.
             var camera = new GameObject("Authored fixture camera").AddComponent<Camera>();

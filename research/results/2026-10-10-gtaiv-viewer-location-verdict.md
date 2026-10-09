@@ -42,6 +42,35 @@ owner confirmation. That appearance acceptance is distinct from street identity.
 The latest side view was requested open locally using its native Windows path,
 avoiding the WSL-path Photos prompt. Owner street confirmation remains absent.
 
+## Focused visibility implementation
+
+Following the owner's `implement` request, selected-overlay Hide/Show commands
+were added at the existing authored resource-to-scene boundary. The fixture
+failed on the missing Hide command before implementation and passed afterward;
+both behavioral runs compiled without C# errors. The failing CLI wrapper returned
+6; the passing wrapper returned 0. Literal world positions and face topology
+remain checked after restoration, and an unrelated renderer remains enabled.
+Mixed and absent selections are refused. Those guard checks are qualification,
+not a separately observed red/green cycle. Earlier package GUID errors prevented
+execution and do not count as behavioral failures.
+
+A reviewed private bootstrap change adds a dedicated identity parent for the
+exact resource's mesh children. Live digest/count checks still passed and loading
+released normally. A same-camera game-view pair was captured after actual HIDDEN
+and SHOWN markers and automatically opened locally. Independent visual review
+confirmed disappearance/restoration of green surfaces with the crane, industrial
+building, truss crossing and skyline retaining their positions. Green geometry
+broadly follows the foreground bridge approach, parts of the yard, a small
+building and roadside/verge surfaces. Farther disconnected bridge spans remain
+uncovered. The arrow-like patterns on the foreground deck appear only with the
+overlay, so they are not independent rendered-map road markings.
+
+This establishes a usable inspection control and broad visual correspondence.
+It does not establish a named junction, exact coordinate agreement, coverage of
+the required ground checkpoints, or active GTA collision. The verdict remains
+**inconclusive** and measurement tooling remains stopped. No game files or private
+coordinates were added to source or tracker evidence.
+
 ## Candidate and independent reference
 
 Industrial, Bohan remains a plausible candidate area. Two firsthand guides place

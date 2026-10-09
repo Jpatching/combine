@@ -18,8 +18,9 @@ Source revision: `fb2be7fb852cb3985b5af31dda54bbb18acac4e9`
 This is the synchronized main base. Fetch #30 for candidate revision, validation
 and publication status.
 
-Disposition: source candidate prepared; no PR exists yet. Live research
-qualification is blocked on subscription reauthentication. The approach reports
+Disposition: [draft PR #33](https://github.com/Jpatching/combine/pull/33) awaits
+owner approval. Actual research qualification passed after the owner renewed the
+subscription login. The approach reports
 remain preserved on `research/integration-approach-review` at `d6f6725` in
 [draft PR #29](https://github.com/Jpatching/combine/pull/29), pending owner approval.
 They are not merged into this branch's main base.
@@ -40,25 +41,29 @@ owner-requested window change was verified at 1280x720 with fresh status.
 No accepted ride, world-collision capability or publisher code defect was proved.
 These earlier observations are not runtime tests of the Sandcastle change.
 
-Sandcastle preflight for #30 passed pinned tools, Docker access and existing
-subscription login. This alone does not establish a working research job. The
-new candidate adds research profiles for #31/#32 and a fixed public-source
-qualification command. The first actual qualification failed before researcher
-completion with `refresh_token_reused`; the source workspace and private failure
-evidence were preserved. Host credentials have not changed since that failure,
-so retrying the same credentials is not useful. No report or research-readiness
-pass was produced. Research execution must preserve
-source-only isolation, reviewed task profiles, source evidence, independent
-reviews and bounded cancellation/preservation; no game/private-data access.
+Sandcastle qualification for #30 passed on source candidate `cbf3e03` after the
+owner renewed the subscription login. The dedicated researcher retrieved four
+pinned public Universal Modder documents, committed a scoped cited report with
+verdict `requires-local-proof`, and passed independent checks and both fresh
+Standards/Spec reviews with zero findings. Branch invariants passed; source and
+an export bundle were preserved. The accepted run took approximately 302 seconds.
+The host recorded a qualification marker bound to the image, model, runner files,
+dependency lock and supplied instructions. No GTA research ticket was dispatched.
+
+The earlier attempt failed before researcher completion with
+`refresh_token_reused`; it remains preserved as failed evidence. Renewed login
+resolved that observed blocker. Source validation passed 19 runner tests and
+54 repository tests; six existing Docker checks and the new research-report
+acceptance/preservation check passed. These checks do not establish GTA collision
+compatibility, gameplay or owner acceptance.
 
 ## Next step
 
-Complete source review and publish #30 as a draft. Renew the host Codex
-subscription login locally, then rerun `npm run research-smoke` from
-`tools/sandcastle`. Do not expose login tokens or private logs. Require a real
-accepted research qualification and owner approval before merge. Only then dispatch #31/#32 when all readiness checks pass. They
-require Matt's original research skill and pinned Universal Modder guidance;
-record actual delegation and evidence, not just a successful fixture test.
+Obtain explicit owner approval of PR #33, then merge and synchronize main under
+the repository workflow. Close #30 only after its completion is recorded. Then
+#31/#32 may be dispatched when their native blockers and all runner readiness
+checks pass. Each actual research task still needs its own report and reviews.
+Do not treat the runner's qualification report as completing either task.
 
 The separate research-capable Sandcastle prerequisite on
 [#20](https://github.com/Jpatching/combine/issues/20) remains unmet until the

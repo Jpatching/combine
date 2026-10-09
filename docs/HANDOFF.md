@@ -4,16 +4,16 @@
 
 Reviewed: 2026-10-09
 
-Task: qualify an isolated local viewer under [spec #39](https://github.com/Jpatching/combine/issues/39), then identify the retained resource street for [#20](https://github.com/Jpatching/combine/issues/20). [Viewer ticket #40](https://github.com/Jpatching/combine/issues/40) blocks [street ticket #41](https://github.com/Jpatching/combine/issues/41).
+Task: identify the retained resource street under [spec #39](https://github.com/Jpatching/combine/issues/39) for [#20](https://github.com/Jpatching/combine/issues/20). [Viewer ticket #40](https://github.com/Jpatching/combine/issues/40) is closed with bounded qualification; [street ticket #41](https://github.com/Jpatching/combine/issues/41) has no open blockers.
 
 Source branch: `implement/gtaiv-composite-collision`
 
-Source revision: `86564dc13f30438afb166bebd31a91aaff9535e8`
+Source revision: `b75eb0372e4a4e917e0b66fbc3c94cf20ea47a98`
 
-This is the integration revision from which viewer preparation started. Decoder
-source remains unchanged from `47e8a2c`. The issue owns later publication revisions.
+This is the integrated viewer fixture/procedure revision. Decoder source remains
+unchanged from `47e8a2c`. The issue owns later publication revisions.
 
-Disposition: draft [#38](https://github.com/Jpatching/combine/pull/38) awaits owner source approval. The existing owned file decodes; provenance and a candidate map area are traced, but independent street placement remains blocked.
+Disposition: draft [#38](https://github.com/Jpatching/combine/pull/38) awaits owner source approval. The existing owned file decodes; provenance and a candidate map area are traced, but independent street placement remains inconclusive.
 
 The owner authorized the bounded investigation and focused implementation with
 TDD, using subagents where efficient. The broader target remains one real GTA IV
@@ -25,10 +25,10 @@ deferred. Source integration and gameplay acceptance remain separate.
 
 The owner approved spec #39, its two-ticket dependency chain, and the authored
 resource-to-viewer scene test boundary. The existing current branch is preserved;
-ticket #40 preparation is isolated on `implement/gtaiv-viewer-qualification` in
-its retained implementer worktree. Commit `bed92c18e6e6439419241eca73aeb8ddca4c6838`
-contains the authored fixture, procedure and reviewed compile fix; it is pushed
-and unmerged. The first Unity run stopped at compilation: an ambiguous fixture
+ticket #40 preparation used `implement/gtaiv-viewer-qualification` in its retained
+implementer worktree. Its authored fixture, procedure and reviewed compile fix
+are integrated at `b75eb037`; the worktree and private setup remain retained.
+The first Unity run stopped at compilation: an ambiguous fixture
 `CompressionLevel` reference and package GUID references. The fixture now fully
 qualifies the compression enum. Independent review found no defects in that fix.
 The second Unity CLI run compiled and emitted `PASS (scene geometry; pixels
@@ -75,8 +75,10 @@ both map and overlay appeared viewable, provisionally. A subsequent warning was
 Windows Photos asking to open the generated PNG through the WSL network-style
 path, not a viewer exception. At the owner's explicit screenshot request the
 warning was inspected, then its one-file Continue opening action was invoked;
-no security setting changed. Full visual acceptance and a unique street match
-remain pending. Private installers and setup records
+no security setting changed. The owner subsequently accepted the live appearance
+("It looks legit"). Independent scoped reviews found no blocking fixture/setup
+defects; #40 was closed with that bounded qualification. This does not approve
+draft #38 for main merge or accept gameplay. Private installers and setup records
 remain local. The Unity viewer read owned files; no host-game launch occurred.
 
 The [resource placement investigation](../research/results/2026-10-09-gtaiv-resource-placement.md)
@@ -117,18 +119,29 @@ Latest runtime evidence: the earlier gameplay candidate `b403377481a33e407aeb81b
 
 ## Next step
 
-Resume viewer ticket #40 from the retained running private live trial and
-owner-only screenshot. Do not repeat installation or resource acquisition.
-Private setup, patch identities and before/after evidence are retained under
-`.private/gtaiv-viewer/`; worker source/README is pushed at `7248517` and unmerged.
-Confirm the actual map/selected-overlay visual evidence and complete the review
-and owner-acceptance gates before unblocking #41. The owner is away from the
-keyboard; the Photos trust prompt was handled for the generated local image.
-No street identity or active GTA contact has been established. The authored
-baseline pass does not justify an invented behavioral red/green claim.
-Ticket #41 remains blocked until #40 passes; no ground-measurement tooling is
-authorized. Camera readout is Unity (-GTA.x, GTA.z, -GTA.y), not a ground sample.
-Keep original assets, private coordinates and images local; do not upload them.
+Resume street ticket #41 from the retained running private live trial; do not
+repeat installation or resource acquisition. Viewer source/procedure is integrated
+and pushed at `b75eb037`; #40 is closed and #41's native open-blocker count is zero.
+Private setup, patch identities and before/after evidence remain under
+`.private/gtaiv-viewer/`. The owner selected a hybrid approach: AI may inspect
+selected viewer screenshots to narrow candidates, followed by owner local
+confirmation. That permission covers selected screenshots only; game files,
+private identities and exact coordinates stay outside Git/issues/uploads.
+
+A camera-only turn produced and locally opened a new landward view; collision
+placement and map transforms were untouched. The candidate is the unfinished
+Northern Expressway at Leavenworth Avenue in Industrial, Bohan, supported by
+[one firsthand guide](https://gamefaqs.gamespot.com/ps3/933036-grand-theft-auto-iv/faqs/54410)
+and [another](https://gamefaqs.gamespot.com/ps3/933036-grand-theft-auto-iv/faqs/52838).
+The waterfront, detached bridge sections, crane and raised approach narrow the
+area; close junction/pavement/height-change correspondence remains unproved.
+The owner was asked whether they recognise the newly opened location image.
+This is a candidate, not a street-placement pass. Independent visual review
+corroborated the candidate area and visible level difference, but found the
+named junction partly obscured, curb profile unclear and continuous ramp
+gradient unproved. A close entrance/junction view remains the decisive evidence.
+No ground-measurement tooling or GTA launch is authorized.
+Camera readout is Unity (-GTA.x, GTA.z, -GTA.y), not a ground sample.
 
 Review draft #38 for owner source approval; it has not been merged.
 [PR #37](https://github.com/Jpatching/combine/pull/37) is merged and #34 closed;

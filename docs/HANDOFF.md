@@ -26,9 +26,14 @@ deferred. Source integration and gameplay acceptance remain separate.
 The owner approved spec #39, its two-ticket dependency chain, and the authored
 resource-to-viewer scene test boundary. The existing current branch is preserved;
 ticket #40 preparation is isolated on `implement/gtaiv-viewer-qualification` in
-its retained implementer worktree. Commit `4854d785f0e325bc09ea4259bce21302e2a53553`
-contains the authored fixture and procedure; it is unmerged. The C# fixture is
-uncompiled/unrun: editor unavailability is not a behavioral red or green.
+its retained implementer worktree. Commit `bed92c18e6e6439419241eca73aeb8ddca4c6838`
+contains the authored fixture, procedure and reviewed compile fix; it is pushed
+and unmerged. The first Unity run stopped at compilation: an ambiguous fixture
+`CompressionLevel` reference and package GUID references. The fixture now fully
+qualifies the compression enum. Independent review found no defects in that fix.
+The second Unity CLI run compiled and emitted `PASS (scene geometry; pixels
+unverified)` with exit 0. This is baseline qualification, not a behavioral
+red-to-green implementation claim.
 
 Pinned GTA4Unity already contains a collision debug renderer implementation,
 disabled by a commented startup call. Its required Unity Editor is 6000.4.0f1 (8cf496087c8f),
@@ -36,9 +41,43 @@ and its actual scene is ECSMain. Unity is a local inspection-tool dependency,
 not a selected Combine host or Skate integration engine. The official editor
 installer matches release metadata size/integrity; editor and Hub installers
 have valid Unity Technologies signatures. Hub's interactive installer launch was
-requested. Installation, account/licence activation, package resolution and
-viewer execution have not been verified. Private installers and setup records
-remain local. No owned-game bootstrap or game launch occurred.
+requested. The owner then reconfirmed proceeding with Unity CLI. The signed CLI
+reports 6000.6.5f1 already installed; the required 6000.4.0f1 was requested
+separately through the CLI. Its registered binary matches revision 8cf496087c8f
+and has a valid signature; installation completed and CLI structural verification
+passed. The authored fixture ran with that exact engine revision and unchanged
+package manifest/lock. Cached GUID references changed without agent edits; Unity
+API migration is a plausible explanation, not independently established.
+The owner approved the terms step; the interactive run then passed the fixture.
+An authored-only render shows both child shapes. Independent review confirmed
+that narrow visibility claim; the dark quadrilateral has low contrast and the
+top-down image does not establish height (the coordinate assertions do).
+The image was captured and opened locally through workbench.
+
+A separately reviewed, reversible private lab configuration selects the exact
+SHA-256-verified resource, preserves the full map loader and identity parent,
+checks complete child/vertex/triangle counts, disables ped spawning and enables
+the existing flight camera. The first live trial failed because upstream IMG
+opening requests read/write access. A read-only open succeeded on the same
+archive; a reviewed one-line lab correction changes only that access request to
+read. Original permissions were preserved; writer APIs remain uninvoked.
+The patched project compiled and repeated the authored fixture PASS with exit 0.
+The next live trial verified the retained digest, matched all expected overlay
+counts, completed map baking, spawned flight and released loading normally with
+geometry loaded, no pending loads and collision ready (not a timeout).
+The unchanged manifest/lock and exact engine revision were rechecked. These are
+private upstream-lab changes, not merged Combine source or a supported viewer.
+The direct fixture does not test the new bootstrap guards or flight lifecycle.
+An unrelated Unity search-index exception was logged; no error-free claim is made.
+
+A live viewer-window screenshot was captured and opened locally. The owner said
+both map and overlay appeared viewable, provisionally. A subsequent warning was
+Windows Photos asking to open the generated PNG through the WSL network-style
+path, not a viewer exception. At the owner's explicit screenshot request the
+warning was inspected, then its one-file Continue opening action was invoked;
+no security setting changed. Full visual acceptance and a unique street match
+remain pending. Private installers and setup records
+remain local. The Unity viewer read owned files; no host-game launch occurred.
 
 The [resource placement investigation](../research/results/2026-10-09-gtaiv-resource-placement.md)
 traces the retained file back to the exact archive entry by digest, finds an IMG
@@ -47,8 +86,9 @@ object placements in four WPL map files. That correlation assumes world-space
 WBN coordinates; it does not establish a unique street or active collision.
 The owned child matrices were checked and are exactly identity, not substituted.
 Private identities, map records and coordinates remain in ignored local records.
-No comparison tooling, supported parser implementation, game launch or runtime
-trial was added. The location gate remains inconclusive.
+That placement investigation added no comparison tooling, supported parser
+implementation, game launch or runtime trial. The location gate remains
+inconclusive after the later viewer trials described above.
 
 The [source investigation](../research/results/2026-10-09-gtaiv-composite-transforms.md)
 corroborates IV composite offsets, padded matrices, child-to-parent transform
@@ -77,15 +117,18 @@ Latest runtime evidence: the earlier gameplay candidate `b403377481a33e407aeb81b
 
 ## Next step
 
-Resume viewer ticket #40 from its retained fixture and upstream lab. The immediate
-execution prerequisite is an installed, eligible activated Editor and resolved
-pinned packages; the owner handles licence acceptance/sign-in. Clarify the
-viewer-only Unity dependency raised by the owner before further installation
-actions. The approved task remains local viewer qualification, not a replacement
-for GTA IV. Run the authored fixture before changing viewer behavior; a baseline
-pass is qualification evidence and does not justify invented red/green work.
-Then verify visible pixels and complete private resource/map rendering. Ticket
-#41 remains blocked until #40 passes; no ground-measurement tooling is authorized.
+Resume viewer ticket #40 from the retained running private live trial and
+owner-only screenshot. Do not repeat installation or resource acquisition.
+Private setup, patch identities and before/after evidence are retained under
+`.private/gtaiv-viewer/`; worker source/README is pushed at `7248517` and unmerged.
+Confirm the actual map/selected-overlay visual evidence and complete the review
+and owner-acceptance gates before unblocking #41. The owner is away from the
+keyboard; the Photos trust prompt was handled for the generated local image.
+No street identity or active GTA contact has been established. The authored
+baseline pass does not justify an invented behavioral red/green claim.
+Ticket #41 remains blocked until #40 passes; no ground-measurement tooling is
+authorized. Camera readout is Unity (-GTA.x, GTA.z, -GTA.y), not a ground sample.
+Keep original assets, private coordinates and images local; do not upload them.
 
 Review draft #38 for owner source approval; it has not been merged.
 [PR #37](https://github.com/Jpatching/combine/pull/37) is merged and #34 closed;

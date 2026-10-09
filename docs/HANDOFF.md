@@ -4,14 +4,14 @@
 
 Reviewed: 2026-10-09
 
-Task: trace the decoded collision resource to an independently identifiable GTA IV street for [#20](https://github.com/Jpatching/combine/issues/20), before measurement tooling or Skate integration.
+Task: qualify an isolated local viewer under [spec #39](https://github.com/Jpatching/combine/issues/39), then identify the retained resource street for [#20](https://github.com/Jpatching/combine/issues/20). [Viewer ticket #40](https://github.com/Jpatching/combine/issues/40) blocks [street ticket #41](https://github.com/Jpatching/combine/issues/41).
 
 Source branch: `implement/gtaiv-composite-collision`
 
-Source revision: `47e8a2c0d46981ffb3b9cfeec5afd98eb91bffbb`
+Source revision: `86564dc13f30438afb166bebd31a91aaff9535e8`
 
-This is the unchanged decoder revision used for the location investigation.
-The issue and PR own the publication revision of the subsequent evidence update.
+This is the integration revision from which viewer preparation started. Decoder
+source remains unchanged from `47e8a2c`. The issue owns later publication revisions.
 
 Disposition: draft [#38](https://github.com/Jpatching/combine/pull/38) awaits owner source approval. The existing owned file decodes; provenance and a candidate map area are traced, but independent street placement remains blocked.
 
@@ -22,6 +22,23 @@ driving. Traffic/pedestrians stay active; riding contact with moving objects is
 deferred. Source integration and gameplay acceptance remain separate.
 
 ## Evidence
+
+The owner approved spec #39, its two-ticket dependency chain, and the authored
+resource-to-viewer scene test boundary. The existing current branch is preserved;
+ticket #40 preparation is isolated on `implement/gtaiv-viewer-qualification` in
+its retained implementer worktree. Commit `4854d785f0e325bc09ea4259bce21302e2a53553`
+contains the authored fixture and procedure; it is unmerged. The C# fixture is
+uncompiled/unrun: editor unavailability is not a behavioral red or green.
+
+Pinned GTA4Unity already contains a collision debug renderer implementation,
+disabled by a commented startup call. Its required Unity Editor is 6000.4.0f1 (8cf496087c8f),
+and its actual scene is ECSMain. Unity is a local inspection-tool dependency,
+not a selected Combine host or Skate integration engine. The official editor
+installer matches release metadata size/integrity; editor and Hub installers
+have valid Unity Technologies signatures. Hub's interactive installer launch was
+requested. Installation, account/licence activation, package resolution and
+viewer execution have not been verified. Private installers and setup records
+remain local. No owned-game bootstrap or game launch occurred.
 
 The [resource placement investigation](../research/results/2026-10-09-gtaiv-resource-placement.md)
 traces the retained file back to the exact archive entry by digest, finds an IMG
@@ -59,6 +76,16 @@ active physical collision. No owned data was uploaded or added to Git.
 Latest runtime evidence: the earlier gameplay candidate `b403377481a33e407aeb81b78b8d38984aac4735` refused a guarded mount at `over-0.05-metres`. No game launch, staging, input or runtime test occurred for the composite decoder.
 
 ## Next step
+
+Resume viewer ticket #40 from its retained fixture and upstream lab. The immediate
+execution prerequisite is an installed, eligible activated Editor and resolved
+pinned packages; the owner handles licence acceptance/sign-in. Clarify the
+viewer-only Unity dependency raised by the owner before further installation
+actions. The approved task remains local viewer qualification, not a replacement
+for GTA IV. Run the authored fixture before changing viewer behavior; a baseline
+pass is qualification evidence and does not justify invented red/green work.
+Then verify visible pixels and complete private resource/map rendering. Ticket
+#41 remains blocked until #40 passes; no ground-measurement tooling is authorized.
 
 Review draft #38 for owner source approval; it has not been merged.
 [PR #37](https://github.com/Jpatching/combine/pull/37) is merged and #34 closed;

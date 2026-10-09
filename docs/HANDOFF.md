@@ -29,25 +29,32 @@ The [approach review](../research/results/2026-10-09-integration-approach-review
 compares the two guides, the preserved candidates and evidence-supported
 alternatives. The follow-up [repository interface audit](../research/results/2026-10-09-repository-interface-audit.md)
 checks concrete source interfaces, exact revisions and remaining replication gaps.
-Recommendations are research findings, not an architecture decision.
+The [guide-driven proof](../research/results/2026-10-09-guide-driven-proof.md)
+selects the next investigation using the owner-delegated technical judgment.
+It preserves both candidates; permanent process placement remains undecided.
 
-Latest runtime evidence: no new runtime trial belongs to this research task.
-The [GTA diagnosis](https://github.com/Jpatching/combine/issues/20#issuecomment-6078907484)
-remains tied to `b403377481a33e407aeb81b78b8d38984aac4735`; mount refused above
-0.05 metres and no surface root cause or complete accepted ride was established.
-The later workbench check reported unknown native state and `CanTest=false`;
-its old helper depends on a status module absent from main. Reconcile source,
-helper and installed runtime before any separately authorized live trial.
+Latest runtime evidence: fresh read-only checks found one GTA process, a stale
+status file and `Scene=unknown` / `CanTest=false` from the source-matched reader.
+The installed public publisher script matches retained source; 32-bit inspection
+found the adapter and CLEO loaded. The cause of stale publication is unresolved.
+No game launch, input, staging or riding trial occurred. See the guide-driven proof
+for scope and limitations. Earlier mount refusals remain tied to
+[their dated revision](https://github.com/Jpatching/combine/issues/20#issuecomment-6078907484).
 
 ## Next step
 
-Review the research and source-interface audit with the owner using `grill-with-docs`.
-Keep the distinction between the reused rebuilt Skate simulation and the original
-Skate executable explicit; behavior parity is not established. Decide which
-uncertainty to test before choosing further implementation. Research
-PR approval accepts the written findings; it does not authorize a proposed runtime
-experiment or select a permanent architecture. If the findings reveal a larger
-unresolved effort, use `ask-matt` to route the next phase before creating build tickets.
+The owner delegated technical selection to the guides; do not repeat the
+integration-versus-fidelity-versus-world-interaction questionnaire. Use the
+[guide-driven proof](../research/results/2026-10-09-guide-driven-proof.md): reuse the
+dated fixed-input/pose evidence, then qualify the complete real-host handover.
+First diagnose stale status publication, with a fresh process-bound observation
+as the feedback condition. Do not infer collision or mount failure from unknown
+state. REA is reserved for a specific shipped-artifact/native question source
+cannot settle; no native provider or analysis session is claimed ready.
+
+Keep rebuilt-Skate behavior distinct from original-game equivalence. Research PR
+approval accepts the findings; live game actions and installation changes remain
+subject to the runtime task boundary. No permanent architecture is selected.
 
 Retain [#20](https://github.com/Jpatching/combine/issues/20),
 `integration/gtaiv-skate-loop` and [draft PR #23](https://github.com/Jpatching/combine/pull/23).
@@ -61,7 +68,7 @@ Follow [context maintenance](agents/current-context.md) and the
 [issue/branch/approval workflow](agents/issue-tracker.md).
 Bundle research and handoff updates; record final publication/merge state on #28.
 Continue this research/decision phase in the current context while practical.
-For a fresh session, read this handoff, #28 including comments, PR #29 and both
+For a fresh session, read this handoff, #28 including comments, PR #29 and its linked
 research reports before acting; do not infer that the cited repositories contain
 everything needed to reproduce the desired gameplay.
 Preserve private evidence, tools and original installations. Source checks,

@@ -12,7 +12,7 @@ The unmerged prior [next-proof report](https://github.com/Jpatching/combine/blob
 
 Universal Modder's [mashup skill](https://github.com/rehan-remade/universal-modder/blob/8370faa8e114baf33acdb23079aff552a7728c4b/skills/mashup-mods/SKILL.md) recommends selecting the route and planning an oracle before building. Its [route guidance](https://github.com/rehan-remade/universal-modder/blob/8370faa8e114baf33acdb23079aff552a7728c4b/knowledge/techniques/choosing-a-mashup-route.md) classifies rebuilt Skate in a real host separately from two-real-game passthrough, and requires host-specific game-thread and collision investigation. Its [collision guidance](https://github.com/rehan-remade/universal-modder/blob/8370faa8e114baf33acdb23079aff552a7728c4b/knowledge/techniques/collision-and-combat-bridging.md) describes LibertyCraft acquisition as incremental line probes plus nearby-object sampling, separates representations and directions, and warns about filling arches and treating unknown regions as empty. Its [evidence guidance](https://github.com/rehan-remade/universal-modder/blob/8370faa8e114baf33acdb23079aff552a7728c4b/knowledge/techniques/evidence-levels-for-mashup-claims.md) separates creator reports, source inspection, proposals and real runs. These are methodology sources; their example descriptions were traced to LibertyCraft source below, not treated as GTA compatibility documentation.
 
-**Provenance discrepancy:** all four raw public files at the requested revision were retrieved and read, but their byte hashes differ from the values supplied in the task. LF normalization did not reconcile them. Supplied text remains task context; public bytes are independently cited evidence. This researcher cannot attest that the host-supplied guidance bundle is byte-identical to the public pin, or diagnose why. The host should resolve that discrepancy before claiming pin-integrity qualification for this run.
+**Host provenance correction:** the runner supplies `SHA256` of the public Git text after JavaScript `trim()`, because its Git-output helper strips surrounding whitespace. The researcher compared those values with raw downloaded bytes. Host verification reproduced every supplied hash by trimming the exact pinned blob; this is a raw-bytes-versus-text representation difference, not evidence of changed guidance. The raw hashes below remain useful evidence. No source pin changed. [Runner input hashing](https://github.com/Jpatching/combine/blob/1db98bdf0cd567548da3394d058c779c8be10dcc/tools/sandcastle/scripts/research.mjs), [output normalization](https://github.com/Jpatching/combine/blob/1db98bdf0cd567548da3394d058c779c8be10dcc/tools/sandcastle/scripts/process.mjs).
 
 | File at the cited Universal Modder revision | Supplied SHA256 | Retrieved raw-byte SHA256 |
 | --- | --- | --- |
@@ -77,7 +77,7 @@ Ground height alone cannot pass the wall/overhang test. A finite ray sample cann
 2. Loader support does not settle physics-thread identity, reentrancy, synchronization during loads, or whether callbacks occur while physics/streaming structures are stable. CLEO public SDK/docs do not expose enough host internals to resolve this here.
 3. A miss cannot distinguish empty from unstreamed space without an independently justified availability contract. Positive neighboring controls are useful evidence but not proof that an arbitrary volume is fully loaded.
 4. Exact local query latency, failure behavior, one-sidedness, near-face artifacts, GTA-to-Skate units/axes, and suitable consumer tolerances require local proof. Native source assertions and old creator tests are insufficient.
-5. Supplied Universal Modder hashes and retrieved public bytes disagree. Qualification provenance needs host reconciliation; the research conclusion remains bounded to the cited public contents and supplied task text.
+5. Guidance hash representation is reconciled by the host correction above; it does not resolve any native-interface uncertainty.
 
 Access limits: only public source/docs were fetched. The private owned executable, runtime and native REA provider were neither available nor accessed. `um kb search` was unavailable; no Universal Modder tool was installed or executed. The public CLEO repository supplied SDK/docs, not an inspected GTA host implementation resolving the physics-call contract. Exploratory public repository URLs `GTAmodding/IV-SDK` and `zalgo-dev/LuaModLoader` returned HTTP 404; they are not negative evidence about similarly named projects. The actual LibertyCraft SDK was resolved and inspected from its pinned gitlink. No secondary forum claim, other GTA game's SDK or compatibility-patch package was used to supply the missing interface.
 
@@ -133,7 +133,7 @@ Calibrate the batch cap using pilot worst-case/p95 query cost plus callback/vali
 
 **Reject or stop** for an unknown ABI/layout, ambiguous native resolution, out-of-bounds writes/canary corruption in a later reviewed probe, wrong thread, build/epoch mismatch, stale/unavailable data represented as empty, near-face corruption leaking into accepted results, unexplained normals/fractions, a face-facing miss, filled overhang gap, unstable repeatability, budget breach, host stall/crash or unintended gameplay mutation. Do not relax the flatness guard or substitute ground height for missing walls. If native investigation remains inconclusive, preserve the negative result and let #32 evaluate extraction independently.
 
-Remaining blockers: resolve the guidance hash discrepancy for host provenance; qualify a local native-analysis provider; justify the exact CE query contract and availability/thread conditions; obtain separate runtime-task authority; run the bounded observation proof; then investigate transform/winding and collision installation into the real pinned Skate Session. Moving traffic/doors, rails, broad-city coverage, recovery, rider presentation and owner acceptance remain later requirements. A report or documentation check completes source research only.
+Remaining blockers: qualify a local native-analysis provider; justify the exact CE query contract and availability/thread conditions; obtain separate runtime-task authority; run the bounded observation proof; then investigate transform/winding and collision installation into the real pinned Skate Session. Moving traffic/doors, rails, broad-city coverage, recovery, rider presentation and owner acceptance remain later requirements. A report or documentation check completes source research only.
 
 <research>{
   "verdict": "requires-local-proof",
@@ -227,8 +227,7 @@ Remaining blockers: resolve the guidance hash discrepancy for host provenance; q
   "unknowns": [
     "Exact 1.2.0.59 segment-query resolution, ABI, result layout and filtering remain unestablished.",
     "Safe physics-query phase, streaming availability and lifetime rules remain unestablished.",
-    "Local normal orientation, precision, repeatability, latency and Skate suitability were not measured.",
-    "All four supplied Universal Modder SHA256 values differ from retrieved bytes at the requested revision; host provenance needs reconciliation."
+    "Local normal orientation, precision, repeatability, latency and Skate suitability were not measured."
   ],
   "inaccessibleSources": [
     "Owned GTAIV.exe 1.2.0.59 and private runtime were unavailable and not accessed.",
@@ -237,3 +236,5 @@ Remaining blockers: resolve the guidance hash discrepancy for host provenance; q
     "Exploratory public URLs GTAmodding/IV-SDK and zalgo-dev/LuaModLoader returned HTTP 404; no conclusion drawn about alternate repository locations."
   ]
 }</research>
+
+Host review: imported the accepted Sandcastle source bundle, corrected only the guidance-hash interpretation, and retained `requires-local-proof`. This report does not qualify a native interface or authorize a live call.

@@ -4,73 +4,80 @@
 
 Reviewed: 2026-10-09
 
-Task: finish publication of research [#31](https://github.com/Jpatching/combine/issues/31)
-and [#32](https://github.com/Jpatching/combine/issues/32), then implement
-[#34](https://github.com/Jpatching/combine/issues/34) in a fresh session.
+Task: bounded real-street collision experiment for [#20](https://github.com/Jpatching/combine/issues/20), following the owner's reaffirmed real-GTA-plus-Skate direction.
 
-Source branch: `research/gtaiv-physical-collision`
+Source branch: `prototype/gtaiv-street-collision`
 
-Source revision: `c0ba526b531b5bd272abd41978c2f9efb516c414`
+Source revision: `00fd570d98b86c3479c9607b75eb299172095221`
 
-This is the accepted
-Sandcastle report before host provenance correction and this handoff. Fetch #32
-for the final publication revision and PR link.
+This is the synchronized main starting revision. The experiment branch and #20
+own the preserved result revision; this snapshot does not identify a new runtime.
 
-Disposition: research publication awaiting owner approval. No PR exists for #34. #31/#32 each have a
-separate report branch; their issues own the draft PR links. No implementation
-of #34 has started. The previously approved runner PR #33 merged as
-`1db98bdf0cd567548da3394d058c779c8be10dcc`; #30 is closed.
+Disposition: preserved experiment; blocked at composite collision decoding and transforms, before placement or gameplay. No PR exists for this experiment.
+
+The owner selected a real street demonstration: visible board and recognisable
+Skate animation, push/steer, ollie onto pavement, wall contact, dismount and GTA
+car use. Traffic/pedestrians remain active; riding contact with moving objects
+is deferred. The existing host decision is reaffirmed. The current request
+supersedes the inspector-only task selection, without merging its candidate.
 
 ## Evidence
 
-Both Sandcastle jobs returned `requires-local-proof`, passed report checks and
-independent Standards/Spec reviews with zero findings. Host publication review
-also passed both axes after an editorial correction. The apparent guidance-hash
-discrepancy was resolved: the runner hashes trimmed text, not raw blob bytes.
-All four supplied hashes were reproduced; source pins did not change.
+The [experiment record and reproduction](../tools/gtaiv-street-prototype/README.md)
+distinguish acquisition, authored checks, owned-file inspection and untested
+runtime behavior. A reviewed private adaptation read one local archive and
+acquired one owned WBN. The original inspector rejected its valid zlib trailer;
+an authored fixture reproduces that framing defect. A temporary framing
+correction reaches an unsupported composite root on the owned resource.
+No geometry was decoded and no child transform or world placement was proved.
+The pinned reference's composite reader omits child matrices.
 
-The [physical report](../research/results/gtaiv-120059-physical-collision-feasibility.md)
-identifies a concrete public `.wbn` reader, but incomplete shape/transform coverage
-and unverified exact-version compatibility. The native report on
-`research/gtaiv-native-collision` finds no qualified GTA IV 1.2.0.59 segment/hit/normal
-interface. See #31 for its report and publication revision. Neither research job
-ran the game, decoded owned assets or proved collision fidelity.
+Private acquisition code, source snapshots, input and result records are retained
+under ignored `.private/gtaiv-street-collision/`. Do not upload them. The public
+reproduction uses authored data and loads the exact inspector Git object; its
+optional owned-file mode prints verdicts only. A successful reproduction exit
+is not a supported-resource or runtime verdict.
 
-Latest runtime evidence: the retained staged gameplay candidate
-`b403377481a33e407aeb81b78b8d38984aac4735` refused a guarded mount at
-`over-0.05-metres` before playback, with fresh GTA control retained. Restoring the
-minimized window recovered status; a later window change was verified at 1280x720.
-No accepted ride or world-collision capability was proved. This is earlier evidence,
-not a runtime test of the research reports.
+Latest runtime evidence: the earlier candidate `b403377481a33e407aeb81b78b8d38984aac4735` refused a guarded mount at `over-0.05-metres`; this experiment did not run GTA. A read-only Windows process check found GTA closed.
+
+Inspector [#34](https://github.com/Jpatching/combine/issues/34) and draft
+[#37](https://github.com/Jpatching/combine/pull/37) remain unmerged. Their seven
+synthetic tests and 61-test gate were earlier source checks, not owned-resource
+compatibility. The prior no-extracted-resource blocker has been resolved locally;
+framing and unsupported composite layout now explain the owned-file refusal.
+The inspector candidate itself has not been changed by this experiment.
 
 ## Next step
 
-Review and approve the two research PRs, squash merge them and synchronize main.
-Close #31/#32 only with their final merged revisions recorded. Then start a fresh
-session against the self-contained #34, from synchronized main on a new focused
-branch. Its first experiment inspects one owned collision resource with bounded
-structural validation. The concrete public reader makes this a smaller initial
-unknown than qualifying an undocumented native interface. Unsupported layouts
-must refuse explicitly. A structural pass does not establish world placement,
-active host collision, Skate contact or gameplay.
+Use the reproduction to correct zlib framing through the existing inspector's
+review flow. Establish bounded composite and child-transform support before
+feeding this resource to Skate. Then validate a selected street's world placement
+against GTA physical contact before claiming a collision connection.
+Stop on unsupported required layouts or unexplained placement; do not flatten
+children, substitute synthetic surfaces or relax the retained flatness guard.
+If transform semantics cannot be established, reconsider acquisition.
 
-Keep the native-query route as a comparison and possible future physical oracle.
-Do not start a city extractor or broaden #34 into the full integration. Preserve
-`integration/gtaiv-skate-loop`, draft PR #23, the separate worker candidate and
-recovery branches. #21/#22 remain blocked. PR #29 contains earlier approach research
-and remains unmerged. Do not resume retired Fortnite work or relax flatness guards.
+Preserve `integration/gtaiv-skate-loop`, draft
+[#23](https://github.com/Jpatching/combine/pull/23), the separate worker candidate
+and recovery branches. No permanent process architecture was selected. The full
+visible street milestone remains outstanding; #21/#22 remain blocked. Reconcile
+follow-on specifications/tickets with #20 rather than creating a competing backlog.
 
 ## Session close
 
-Use [context maintenance](agents/current-context.md) and
-[workspace conventions](agents/issue-tracker.md). Fetch #34 and its blockers in the
-fresh session rather than carrying the full research transcript. Keep assets,
-geometry, settings, authentication and raw logs outside Git and AI uploads.
-Draft publication is not merge approval, runtime acceptance or release authority.
+Read the live #20 experiment update and #34 defect evidence, then follow
+[workspace conventions](agents/issue-tracker.md) before edits. Continue from this
+experiment only for its bounded question; promote any useful fix through a
+reviewed source slice. Keep resources, keys, identities, private scripts and
+recordings out of Git and AI uploads. Runtime proof, owner acceptance and merge
+are separate. No game launch, staging or runtime capture occurred in this trial.
 
 ## Historical reference
 
-The [retained GTA context](archive/HANDOFF-2026-10-09-gta-context.md),
-[host decision](adr/0001-preserve-offline-gta-gameplay.md),
-[workbench guide](WORKBENCH.md), [Sandcastle guide](../tools/sandcastle/README.md)
-and [glossary](../GLOSSARY.md) retain supporting facts and boundaries.
+[Host decision](adr/0001-preserve-offline-gta-gameplay.md),
+[glossary](../GLOSSARY.md), [workbench](WORKBENCH.md),
+[physical collision research](../research/results/gtaiv-120059-physical-collision-feasibility.md),
+[retained GTA context](archive/HANDOFF-2026-10-09-gta-context.md).
+Research #31/#32 is merged; its source evidence did not establish geometry or
+runtime compatibility. Earlier inspector handoff is preserved on
+`implement/gtaiv-collision-inspector` at `fcb4acc0c643d7244a8cae1db83c9e08b1a07887`.

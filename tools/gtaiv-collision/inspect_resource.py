@@ -86,24 +86,24 @@ def decode_resource(raw):
     if not all(math.isfinite(value) for value in factor + center):
         raise Refusal('nonfinite-coordinate')
     vertex_offset = pointer(root + 0xb0)
-    nv, nf = read('<2i', root + 0xc8)
-    if nv > VERTEX_CAP or nf > FACE_CAP:
+    vertex_count, face_count = read('<2i', root + 0xc8)
+    if vertex_count > VERTEX_CAP or face_count > FACE_CAP:
         raise Refusal('count-cap')
-    if nv < 3 or nf < 1:
+    if vertex_count < 3 or face_count < 1:
         raise Refusal('invalid-count')
-    span(vertex_offset, nv * 6)
-    span(polygon_offset, nf * 32)
-    ranges = [(0, 12), (root, root+0xd0), (vertex_offset, vertex_offset+nv*6), (polygon_offset, polygon_offset+nf*32)]
+    span(vertex_offset, vertex_count * 6)
+    span(polygon_offset, face_count * 32)
+    ranges = [(0, 12), (root, root+0xd0), (vertex_offset, vertex_offset+vertex_count*6), (polygon_offset, polygon_offset+face_count*32)]
     for i, (start, end) in enumerate(ranges):
         if any(start < other_end and other_start < end for other_start, other_end in ranges[:i]):
             raise Refusal('overlapping-spans')
-    vertices = tuple(tuple(q*s+c for q,s,c in zip(read('<3h', vertex_offset+6*i), factor, center)) for i in range(nv))
-    if any(read('<H', polygon_offset + 32*i + 22)[0] & 0x7fff for i in range(nf)):
+    vertices = tuple(tuple(q*s+c for q,s,c in zip(read('<3h', vertex_offset+6*i), factor, center)) for i in range(vertex_count))
+    if any(read('<H', polygon_offset + 32*i + 22)[0] & 0x7fff for i in range(face_count)):
         raise Refusal('unsupported-quad', 'unsupported')
-    if any(value & 0x8000 for i in range(nf) for value in read('<4H', polygon_offset + 32*i + 16)):
+    if any(value & 0x8000 for i in range(face_count) for value in read('<4H', polygon_offset + 32*i + 16)):
         raise Refusal('unsupported-index-flags', 'unsupported')
-    faces = tuple(tuple(index & 0x7fff for index in read('<3H', polygon_offset+32*i+16)) for i in range(nf))
-    if any(index >= nv for face in faces for index in face):
+    faces = tuple(tuple(index & 0x7fff for index in read('<3H', polygon_offset+32*i+16)) for i in range(face_count))
+    if any(index >= vertex_count for face in faces for index in face):
         raise Refusal('invalid-index')
     if not all(math.isfinite(value) for vertex in vertices for value in vertex):
         raise Refusal('nonfinite-coordinate')

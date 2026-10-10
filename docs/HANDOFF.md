@@ -8,7 +8,7 @@ Task: implement the owner-approved faster test loop and qualified ground route u
 
 Source branch: `implement/gtaiv-qualified-ground`
 
-Source revision: `bfc8eba32dcfd4c26f4af055f9e9ecd0ee303f1c`
+Source revision: `a9760d0a8ca99269376dfa086c144463410615a4`
 
 The ground source is published in [draft PR #57](https://github.com/Jpatching/combine/pull/57)
 for [#53](https://github.com/Jpatching/combine/issues/53), stacked with explicit owner
@@ -24,7 +24,8 @@ layer and availability; mesh support is evaluated independently at returned pose
 The clean rebuilt Windows Session ramp and suspended-worker cancellation trials
 pass. Ordinary F6 still uses the preserved
 flat route: a qualified street supplier and native success/loaded evidence are
-pending. No installed game files or runtime candidates changed.
+pending. Owner-approved temporary runtime diagnostics were restored; see the
+latest runtime evidence below. The qualified triangle route remains inactive.
 
 The test-command prerequisite is published on #23 at the fixed review base above. The
 parent integration conflict is resolved at `457a7cfeedd16e016c9683323dfb807d858b5752`,
@@ -80,11 +81,16 @@ contracts and `git diff --check` also passed. Draft #57 owns current CI status;
 the issue owns source acceptance and the publication record.
 
 Latest runtime evidence: installed runtime reference remains `b403377481a33e407aeb81b78b8d38984aac4735`.
-The [latest diagnostic](https://github.com/Jpatching/combine/issues/20#issuecomment-6099798185)
-records flat-guard refusals with GTA control retained and a temporary relative-sample
-diagnostic installed after isolated backup/restart. Changing observations while the
-owner moved are not a stationary ground survey. No complete riding/restart proof,
-visible board or solved GTA rider acceptance exists. Preserve its private rollback.
+The [automated diagnosis](../research/results/2026-10-10-gtaiv-automated-ground-diagnosis.md)
+and [issue evidence](https://github.com/Jpatching/combine/issues/20#issuecomment-6101121798)
+record a privately captured flat-guard refusal and six actual boolean-success
+ground calls through an isolated conditional-return declaration. Buffer heights,
+loaded collision and intended layer remain unverified. A memory-read/write probe
+caught an exception; missing scoped permission is a likely prerequisite mismatch.
+Windows denied the scoped filename rename; rollback verified. Global permissions
+and ACLs stayed unchanged. Exact retained files/manifest were restored and fresh
+unmounted GTA control verified after normal restart. No complete riding/restart
+proof, visible board or solved GTA rider acceptance exists. Preserve private recovery.
 
 The existing four checkpoints and comparison command remain available. Owner
 location confirmation is complete; precise surface/layer associations and paired
@@ -95,7 +101,10 @@ moving geometry. A finite height alone is not success/loaded evidence.
 ## Next step
 
 Keep both PRs in draft pending their required acceptance; source approval does not
-establish GTA gameplay acceptance. Use the existing cursor-free checkpoint capture
+establish GTA gameplay acceptance. Obtain paired successful ground heights through
+the earlier plugin-owned buffer interface or a permitted scoped diagnostic; actual
+boolean returns alone do not qualify a street. Reuse the private offline-menu
+runner and current-run log reader. Use the existing cursor-free checkpoint capture
 to inspect all four anchor bases in the retained isolated viewer. Resolve exact
 surface/layer association, then obtain three genuine successful, loaded,
 matching-layer GTA readings per fixed point. Neither a running Unity process nor
@@ -126,7 +135,9 @@ Follow [context maintenance](agents/current-context.md) and
 private resources/placement, source branches and runtime recovery. Do not close
 #20 or #52 on authored test evidence. Owner acceptance and merge remain pending.
 Keep assets, identities, exact coordinates, settings, recordings and logs outside
-Git and AI uploads. Only the isolated standalone Session worker ran; no GTA staging or launch occurred.
+Git and AI uploads. Bounded GTA diagnostics and normal restarts ran with owner
+approval; their temporary script/definition changes were restored. The standalone
+Session passes remain distinct from GTA gameplay acceptance.
 
 ## Historical reference
 

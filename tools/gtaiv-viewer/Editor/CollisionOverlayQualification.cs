@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using IVUnity;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -25,7 +26,7 @@ namespace CombineQualification
             try
             {
                 CheckCompleteNonflatOverlay();
-                Debug.Log("COMBINE_OVERLAY_QUALIFICATION: PASS (scene geometry; pixels unverified)");
+                Debug.Log("COMBINE_OVERLAY_QUALIFICATION: PASS (authored geometry, checkpoint pairs and cleanup)");
                 if (Application.isBatchMode) EditorApplication.Exit(0);
             }
             catch (Exception error)
@@ -105,6 +106,7 @@ namespace CombineQualification
                 CheckMesh(renderers[0], firstVertices, firstFaces);
                 CheckMesh(renderers[1], secondVertices, secondFaces);
                 Require(unrelated.enabled, "Checkpoint command changed unrelated rendering.");
+                CheckCheckpointCapture(parent, renderers, markers);
                 File.WriteAllText(checkpointFile,
                     "{\"checkpoints\":[{\"label\":\"R1\",\"fixed_world_gta\":[12,24,32.6666667]}," +
                     "{\"label\":\"P1\",\"fixed_world_gta\":[0,0,0]}]}");
@@ -146,6 +148,106 @@ namespace CombineQualification
             light.type = LightType.Directional;
             light.transform.rotation = Quaternion.Euler(50, -30, 0);
             SceneView.RepaintAll();
+        }
+
+        private static void CheckCheckpointCapture(GameObject parent, MeshRenderer[] renderers,
+            GameObject markers)
+        {
+            string destination = Path.Combine(Path.GetTempPath(), "combine-authored-capture-" + Guid.NewGuid().ToString("N"));
+            string prior = Environment.GetEnvironmentVariable("COMBINE_VIEWER_CHECKPOINT_CAPTURE");
+            var originalCamera = new GameObject("Capture preservation camera").AddComponent<Camera>();
+            originalCamera.tag = "MainCamera";
+            originalCamera.transform.position = new Vector3(75, 65, 25);
+            originalCamera.transform.rotation = Quaternion.Euler(30, 15, 0);
+            originalCamera.fieldOfView = 47;
+            var fixtureLight = new GameObject("Capture fixture light").AddComponent<Light>();
+            fixtureLight.type = LightType.Directional;
+            fixtureLight.transform.rotation = Quaternion.Euler(50, -30, 0);
+            var camerasBefore = Resources.FindObjectsOfTypeAll<Camera>().Where(c => c.gameObject.scene.IsValid()).ToArray();
+            var labels = markers.GetComponentsInChildren<TextMesh>();
+            var labelRotations = labels.Select(label => label.transform.rotation).ToArray();
+            try
+            {
+                Environment.SetEnvironmentVariable("COMBINE_VIEWER_CHECKPOINT_CAPTURE", destination);
+                Require(EditorApplication.ExecuteMenuItem("Combine Qualification/Capture selected checkpoint views"),
+                    "Checkpoint capture command unavailable.");
+                Require(Directory.Exists(destination) && Directory.GetFiles(destination, "*.png").Length == 8,
+                    "Both complete checkpoint view pairs must be written.");
+                foreach (string label in new[] { "R1", "P1" })
+                foreach (string view in new[] { "oblique", "overhead" })
+                {
+                    var map = new Texture2D(2, 2);
+                    var overlay = new Texture2D(2, 2);
+                    try
+                    {
+                        Require(map.LoadImage(File.ReadAllBytes(Path.Combine(destination, label + "-" + view + "-map-only.png"))) &&
+                            overlay.LoadImage(File.ReadAllBytes(Path.Combine(destination, label + "-" + view + "-restored.png"))),
+                            "Checkpoint view images unavailable.");
+                        Require(map.width == 960 && map.height == 720 && overlay.width == 960 && overlay.height == 720,
+                            "Checkpoint view dimensions differ.");
+                        var before = map.GetPixels32();
+                        var after = overlay.GetPixels32();
+                        int different = 0;
+                        int anchor = 0;
+                        for (int i = 0; i < before.Length; i++)
+                        {
+                            if (Math.Abs(before[i].r - after[i].r) + Math.Abs(before[i].g - after[i].g) +
+                                Math.Abs(before[i].b - after[i].b) > 20) different++;
+                            // Orange anchor strokes in the middle third prove the base
+                            // stayed framed; the authored mesh supplies the pair difference.
+                            int x = i % map.width, y = i / map.width;
+                            if (x > 320 && x < 640 && y > 240 && y < 480 &&
+                                before[i].r > 140 && before[i].g > 35 && before[i].g < 180 && before[i].b < 80)
+                                anchor++;
+                        }
+                        Require(different > 100, "Restored image has no meaningful authored overlay pixels.");
+                        Require(anchor > 5, "Checkpoint base is not visible near the view center.");
+                    }
+                    finally { UnityEngine.Object.DestroyImmediate(map); UnityEngine.Object.DestroyImmediate(overlay); }
+                }
+                Require(Selection.activeGameObject == parent && GameObject.Find("Collision checkpoint markers") == markers,
+                    "Capture changed the selected root or marker set.");
+                foreach (var renderer in renderers) Require(renderer.enabled, "Capture failed to restore overlay visibility.");
+                Require(originalCamera.transform.position == new Vector3(75, 65, 25) &&
+                    Quaternion.Angle(originalCamera.transform.rotation, Quaternion.Euler(30, 15, 0)) < 0.001f &&
+                    originalCamera.fieldOfView == 47 && originalCamera.enabled,
+                    "Capture changed the original camera.");
+                Require(Resources.FindObjectsOfTypeAll<Camera>().Count(c => c.gameObject.scene.IsValid()) == camerasBefore.Length,
+                    "Capture leaked a temporary camera.");
+                for (int i = 0; i < labels.Length; i++) Require(labels[i].transform.rotation == labelRotations[i],
+                    "Capture changed a retained marker label orientation.");
+                Require(Vector3.Distance(markers.transform.Find("R1").position,
+                    new Vector3(-12, 32.6666667f, -24)) < 0.0001f &&
+                    Vector3.Distance(markers.transform.Find("P1").position,
+                    new Vector3(34.6666667f, 11.3333333f, -51)) < 0.0001f,
+                    "Capture moved retained checkpoint anchors.");
+                CheckMesh(renderers[0], new[] {new Vector3(-12, 33, -26), new Vector3(-18, 30, -17),
+                    new Vector3(-6, 35, -29)}, new[] {0, 2, 1});
+                CheckMesh(renderers[1], new[] {new Vector3(40, 10, -50), new Vector3(32, 10, -50),
+                    new Vector3(32, 14, -53), new Vector3(40, 12, -53)}, new[] {0, 2, 1, 0, 3, 2});
+
+                // Existing output is evidence, including failed takes: refusal must
+                // preserve it and the prior partially hidden overlay state.
+                var files = Directory.GetFiles(destination).OrderBy(file => file).ToArray();
+                var contents = files.Select(File.ReadAllBytes).ToArray();
+                renderers[0].enabled = false;
+                Require(EditorApplication.ExecuteMenuItem("Combine Qualification/Capture selected checkpoint views"),
+                    "Capture refusal command unavailable.");
+                Require(Directory.GetFiles(destination).Length == files.Length,
+                    "Refused capture changed retained output files.");
+                for (int i = 0; i < files.Length; i++) Require(contents[i].SequenceEqual(File.ReadAllBytes(files[i])),
+                    "Refused capture replaced retained evidence.");
+                Require(!renderers[0].enabled && renderers[1].enabled && Selection.activeGameObject == parent,
+                    "Refused capture changed visibility or selection.");
+                renderers[0].enabled = true;
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("COMBINE_VIEWER_CHECKPOINT_CAPTURE", prior);
+                if (Directory.Exists(destination)) Directory.Delete(destination, true);
+                UnityEngine.Object.DestroyImmediate(originalCamera.gameObject);
+                UnityEngine.Object.DestroyImmediate(fixtureLight.gameObject);
+            }
         }
 
         private static void CheckMesh(MeshRenderer renderer, Vector3[] expected, int[] triangles)

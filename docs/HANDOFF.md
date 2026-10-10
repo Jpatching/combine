@@ -12,11 +12,12 @@ Source branch: `implement/sandcastle-gta-decisions`
 Source revision: `911925c81d8997dff08f7768d348b65020509049`
 
 This is the synchronized-main base of the focused configuration slice. The issue
-and eventual draft PR own its publication revision and review evidence.
+and draft PR own its final publication revision and review evidence.
 
-Disposition: source candidate prepared for a draft PR. No PR exists yet. Owner
-source approval and merge remain pending; actual subscription authentication and
-research qualification are blocked. No production GTA research job has started.
+Disposition: [draft PR #48](https://github.com/Jpatching/combine/pull/48) is published
+and awaiting owner source approval. Merge remains pending; actual subscription
+authentication and research qualification are blocked. No production GTA research
+job has started.
 
 The owner approved splitting contact, board/rider presentation and live proof
 into decision tickets and using Sandcastle for public-source research. This slice
@@ -30,14 +31,18 @@ commands, independent synchronized-main workspaces and report-only scope. Existi
 coding and research profiles, version pins and runner safeguards remain unchanged.
 Runner syntax and 19 unit tests passed outside the workspace sandbox; the initial
 sandboxed check failed in the existing child-process tests. The repository gate
-passed 62 tests and link/context checks across 59 documents. Actual candidate
+passed 62 tests and link/context checks across 59 documents. Credential-free
+`npm run integration` passed all seven Docker tests. Fresh independent Standards
+and Spec review each reported zero actionable findings for the source candidate.
+CI `repository-checks` and `sandcastle-runner` passed at
+`684137af806fa1a3ead0741e080b5ebe8712a5ac`; the draft PR owns final publication
+and any later review/check results. Actual candidate
 `research-smoke` failed before researcher completion, report checks or review:
 subscription inference returned HTTP 401 Unauthorized. A subsequent actual login
 smoke independently returned HTTP 401. Docker, pinned tool checks and reported
 login status passed; they did not establish inference access. The failed run's
 private recovery remains preserved and its qualification marker is absent.
-Independent source review remains pending. Passing portable checks is not a
-production research result.
+Passing portable and Docker checks is not a production research result.
 
 Latest runtime evidence: the preserved gameplay candidate
 `b403377481a33e407aeb81b78b8d38984aac4735` remains the runtime reference. The
@@ -49,8 +54,7 @@ or gameplay trial occurred for this configuration slice.
 
 ## Next step
 
-Finish fresh Standards and Spec review and publish the focused draft PR. Restore
-working subscription inference, then pass actual `research-smoke` on the candidate
+Restore working subscription inference, then pass actual `research-smoke` on the candidate
 configuration. Obtain owner source approval before merging and synchronize clean
 main. Keep dispatch qualification open until those requirements pass; then verify
 each child's native readiness and the matching research qualification before

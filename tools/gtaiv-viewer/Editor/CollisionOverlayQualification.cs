@@ -81,6 +81,48 @@ namespace CombineQualification
             CheckMesh(renderers[1], secondVertices, secondFaces);
             Require(unrelated.enabled, "Restoring the overlay changed unrelated geometry.");
 
+            // The public checkpoint command must anchor markers to unchanged resource
+            // geometry. These literal centroids were worked from the authored shapes.
+            string checkpointFile = Path.GetTempFileName();
+            string priorFile = Environment.GetEnvironmentVariable("COMBINE_VIEWER_CHECKPOINTS");
+            try
+            {
+                File.WriteAllText(checkpointFile,
+                    "{\"checkpoints\":[{\"label\":\"R1\",\"fixed_world_gta\":[12,24,32.6666667]}," +
+                    "{\"label\":\"P1\",\"fixed_world_gta\":[-34.6666667,51,11.3333333]}]}");
+                Environment.SetEnvironmentVariable("COMBINE_VIEWER_CHECKPOINTS", checkpointFile);
+                Require(EditorApplication.ExecuteMenuItem("Combine Qualification/Mark selected collision checkpoints"),
+                    "Checkpoint marker command unavailable.");
+                var markers = GameObject.Find("Collision checkpoint markers");
+                Require(markers != null && markers.transform.childCount == 2,
+                    "Complete checkpoint markers missing.");
+                Require(Vector3.Distance(markers.transform.Find("R1").position,
+                    new Vector3(-12, 32.6666667f, -24)) < 0.0001f, "Road marker misplaced.");
+                Require(Vector3.Distance(markers.transform.Find("P1").position,
+                    new Vector3(34.6666667f, 11.3333333f, -51)) < 0.0001f, "Pavement marker misplaced.");
+                Require(markers.GetComponentsInChildren<Collider>().Length == 0,
+                    "Inspection markers must not introduce physical contact.");
+                CheckMesh(renderers[0], firstVertices, firstFaces);
+                CheckMesh(renderers[1], secondVertices, secondFaces);
+                Require(unrelated.enabled, "Checkpoint command changed unrelated rendering.");
+                File.WriteAllText(checkpointFile,
+                    "{\"checkpoints\":[{\"label\":\"R1\",\"fixed_world_gta\":[12,24,32.6666667]}," +
+                    "{\"label\":\"P1\",\"fixed_world_gta\":[0,0,0]}]}");
+                Require(EditorApplication.ExecuteMenuItem("Combine Qualification/Mark selected collision checkpoints"),
+                    "Checkpoint refusal command unavailable.");
+                Require(GameObject.Find("Collision checkpoint markers") == markers &&
+                    markers.transform.childCount == 2, "Refused point set replaced retained markers.");
+                Require(EditorApplication.ExecuteMenuItem("Combine Qualification/Clear collision checkpoint markers"),
+                    "Marker clearing command unavailable.");
+                Require(GameObject.Find("Collision checkpoint markers") == null,
+                    "Temporary marker clearing left scene objects.");
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("COMBINE_VIEWER_CHECKPOINTS", priorFile);
+                File.Delete(checkpointFile);
+            }
+
             // Qualification of the selection guard: mixed roots must stay untouched.
             unrelated.transform.SetParent(parent.transform, false);
             Require(!EditorApplication.ExecuteMenuItem("Combine Qualification/Hide selected collision overlay"),

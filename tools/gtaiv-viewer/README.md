@@ -15,8 +15,9 @@ compilation must succeed before a fixture result can exist. Missing editor,
 licence, packages or shader support is an unavailable qualification, not a
 behavioral red result. Do not open the owned-game scene or enter Play first.
 
-Copy [CollisionOverlayQualification.cs](Editor/CollisionOverlayQualification.cs)
-and [CollisionOverlayVisibility.cs](Editor/CollisionOverlayVisibility.cs)
+Copy [CollisionOverlayQualification.cs](Editor/CollisionOverlayQualification.cs),
+[CollisionOverlayVisibility.cs](Editor/CollisionOverlayVisibility.cs) and
+[CollisionCheckpointMarkers.cs](Editor/CollisionCheckpointMarkers.cs)
 to the isolated upstream checkout's `Assets/CombineQualification/Editor/` folder.
 The `Editor` folder lets the existing predefined editor assembly reference the
 upstream runtime assembly without moving upstream code into new assemblies.
@@ -75,6 +76,30 @@ approach/yard/roadside surfaces are covered; farther bridge spans are not. This
 pair alone did not identify a named street or qualify ground checkpoints. See the
 [location verdict](../../research/results/2026-10-10-gtaiv-viewer-location-verdict.md).
 
+## Mark the retained checkpoint candidates
+
+With the collision-only parent selected, use **Combine Qualification → Mark
+selected collision checkpoints**. Supply a private JSON file through
+`COMBINE_VIEWER_CHECKPOINTS` or the file picker. Its `checkpoints` array contains
+one to four unique labels from `R1`, `P1`, `H1`, `H2`, each with a
+`fixed_world_gta` array of three finite numbers `[x, y, z]`. The retained private
+checkpoint-selection record already supplies these fields; keep it outside Git.
+
+The command places temporary orange anchors and yellow labels at the supplied
+points, mapped to Unity `(-x, z, -y)`. Every point must match a world-space triangle
+centroid in the selected mesh within 0.001 m, allowing float import precision.
+This check preserves the supplied point; it is not the GTA measurement tolerance.
+The marker root has no colliders and does not move the selected resource. Failed
+validation preserves existing markers. **Clear collision checkpoint markers**
+removes the temporary roots and their materials. Marker scene objects are unsaved.
+
+A shown marker proves only scene membership. Inspect each anchor base against the
+map alone and the restored overlay to establish its intended surface and height
+layer. Labels float above their anchors and cannot establish contact on their own.
+No GTA query, surface qualification or gameplay result is supplied by this tool.
+Prefer commands executed inside the Editor to automation that moves the shared
+Windows cursor; previous cursor-driven captures were vulnerable to user input.
+
 ## What the fixture covers
 
 The input is an authored Deflate RSC5 composite with two geometry children,
@@ -95,6 +120,16 @@ of mixed or absent selections. The visibility roundtrip failed on the missing
 Hide command before implementation and passed after adding the commands.
 Selection-refusal checks qualify the guard separately; no extra red/green cycle
 is claimed for those checks.
+
+The extended fixture supplies two authored centroid anchors, invokes the public
+marker command, checks their literal positions, absence of colliders and unchanged
+mesh geometry, then checks invalid-point refusal preserves the previous set and
+Clear removes it. It restores the input environment and deletes its own temporary
+synthetic JSON. Marker creation failed with the command missing before
+implementation, then passed. Cleanup separately failed because Unity's ordinary
+object search excludes `DontSave` objects, then passed after transient scene roots
+were included. Final pinned-Editor execution emitted PASS, no C# compiler errors
+and wrapper exit 0. These are authored behavior checks, not live surface proof.
 
 A passing check establishes those scene-output behaviors only. It does not
 establish visible pixels, startup overlay enablement, arbitrary child transforms,
@@ -117,8 +152,9 @@ The sole bundled managed plugin is SharpZipLib, SHA-256
 That digest identifies the inspected bytes, not an independent security audit.
 Native imports for `ragezip.dll` and `libsquish.dll` exist elsewhere; the authored
 Deflate collision path does not call those imports. The fixture constructs the
-loader without calling `LoadGameFiles`, uses no filesystem writes and never
-enters Play. Unity still writes project caches and the supplied private log.
+loader without calling `LoadGameFiles` and never enters Play. The marker check
+writes and deletes a temporary authored JSON file. Unity also writes project
+caches and the supplied private log.
 
 For a later real-map trial, bootstrap reads the owned executable for a key,
 reads archives recursively and can cache a key offset in the process working
@@ -154,8 +190,12 @@ The [street-location investigation](../../research/results/2026-10-10-gtaiv-view
 initially ended inconclusive. A later connected Hide/Show pair and original
 gameplay references support the named local connection to Industrial, Bohan,
 around Drill Street / Lompoc Avenue and the unfinished Northern Expressway
-approach. Exact selected-mesh coverage of road, pavement and height-change
-checkpoints and owner location confirmation remain pending. The complete ground
-preparation gate has not passed. No ground-measurement tooling or GTA comparison was
-produced. Keep private execution logs, assets and setup details outside Git and
+approach. The owner has confirmed the intended location. Exact selected-mesh surface/layer
+qualification of road, pavement and height-change checkpoints remains incomplete.
+The live marked Hide/Show pair shows R1/P1/H2; H1 is outside the frame and the
+visible anchor bases are insufficiently clear. See the
+[checkpoint tooling record](../../research/results/2026-10-10-gtaiv-checkpoint-tooling.md).
+The [comparison command](../gtaiv-collision/README.md#compare-qualified-ground-readings)
+is tested with authored readings, but no paired GTA readings or ground agreement
+exist. Private execution logs, assets and setup details stay outside Git and
 uploads.

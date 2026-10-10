@@ -131,3 +131,43 @@ All 19 focused tests passed. `python3 scripts/verify.py` is the repository gate.
 No Python typechecker is configured here. Synthetic tests and the owned-file
 verdict do not establish placement, active GTA collision, physical units/winding,
 Skate contact, streaming, traffic/doors, grind semantics or gameplay acceptance.
+
+## Compare qualified ground readings
+
+Run `python3 tools/gtaiv-collision/compare_ground.py <private-points.json>
+<private-readings.json>` (Windows: `py -3` instead of `python3`). This read-only
+command compares supplied observations; it does not query GTA or establish their
+validity. Each input is a regular UTF-8 JSON file limited to 64 KiB. Duplicate JSON
+keys, malformed identities and invalid point sets refuse with source-safe
+`inconclusive / invalid-input`. Keep both files private.
+
+Both documents require integer `schema_version: 1`, the same lowercase 64-character
+`selected_sha256` and a `checkpoints` array. The points document must contain
+exactly one of each label `R1`, `P1`, `H1`, `H2`, with finite numeric GTA horizontal
+`position: [x, y]`, finite `mesh_height_m` and boolean `qualified`. Set qualification
+true only after independently establishing the exact intended surface/layer.
+The preparation record is not this comparison schema: freeze a qualified point
+set from its unchanged retained coordinates before collecting GTA observations.
+
+The readings document contains up to four uniquely labelled points, each with
+`readings`. Each reading supplies `position: [x, y]`, `height_m` and actual boolean
+`query_success`, `ground_loaded`, `intended_surface`. A finite height alone does
+not prove native query success or the intended layer. The collector must supply
+that evidence separately; this source slice contains no native collector.
+
+Each qualified point needs exactly three finite valid readings at identical fixed
+horizontal coordinates. Maximum spread is 0.02 m; every height must differ from
+its mesh prediction by at most 0.05 m. Both limits are inclusive. Unloaded, failed,
+wrong-layer, non-finite, shifted or unstable readings are inconclusive. A stable
+valid reading beyond tolerance gives disagreement, including when another point
+is unavailable. All four complete passing points are required for agreement.
+Do not fit offsets, average away failures or discard retained points.
+
+Output contains only verdicts, fixed labels and reasons; it omits supplied
+coordinates, heights, file paths and identities. Exit codes are 0 agreement,
+1 disagreement and 2 inconclusive. Agreement covers these ground points only;
+curb/wall contact and playable skating require separate evidence.
+Six authored command test groups cover boundary values, missing/invalid readings,
+identity/point-set refusal, failure precedence and duplicate-key rejection.
+See the [tooling record](../../research/results/2026-10-10-gtaiv-checkpoint-tooling.md)
+for actual execution and remaining physical qualification.

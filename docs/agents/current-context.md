@@ -29,7 +29,7 @@
    Its context check flags untracked Markdown in `docs/`, `research/results/`
    and the root glossary without reading ignored/private files. It checks
    HANDOFF structure and links, not the truth or freshness of runtime claims.
-5. Report one disposition: merged and synchronized; pushed but blocked with the
+5. Report one disposition: draft PR awaiting owner approval; merged and synchronized; pushed but blocked with the
    exact blocker; or a preserved experiment with its question and verdict.
    State any remaining uncommitted work. Follow the existing review/merge gate.
 

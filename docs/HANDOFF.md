@@ -2,75 +2,118 @@
 
 ## Current task
 
-Reviewed: 2026-10-09
+Reviewed: 2026-10-10
 
-Task: [#20 — Mount → move → dismount](https://github.com/Jpatching/combine/issues/20).
-Fetch its body and comments before resuming. The owner's current request selects work.
+Task: qualify four retained street checkpoints and then prove one repeatable GTA/Skate mount/move/dismount loop under [#20](https://github.com/Jpatching/combine/issues/20), continuing the bounded placement work of [#39](https://github.com/Jpatching/combine/issues/39).
 
-Source branch: `integration/gtaiv-skate-loop`
+Source branch: `implement/gtaiv-ground-checkpoints`
 
-Source revision: `b403377481a33e407aeb81b78b8d38984aac4735`
+Source revision: `dca76b746bc021e846a44570790adcfd089836ee`
 
-Disposition: pushed; [PR #23](https://github.com/Jpatching/combine/pull/23) is draft and unmerged; complete gameplay acceptance is pending.
+This is the fixed parent/starting revision. The issue records the final child
+publication revision; this snapshot travels with that commit.
 
-**A complete repeatable GTA IV + Skate ride has not passed.** Offline GTA IV supplies
-normal city gameplay; Skate supplies riding. The owner approved evaluating a separate
-worker alongside the preserved in-process candidate. See the
-[host decision](adr/0001-preserve-offline-gta-gameplay.md) and [glossary](../GLOSSARY.md).
-The issue owns acceptance and approved scope; this file is the starting pointer.
+Disposition: focused checkpoint tooling is on the owner-authorized stacked branch above draft [#38](https://github.com/Jpatching/combine/pull/38); [#20](https://github.com/Jpatching/combine/issues/20) owns its child draft-PR link and final publication revision. Both source approval and physical qualification remain pending. The owner confirmed the intended Burger Shot / Drill Street / Lompoc Avenue area; exact checkpoint surface/layer qualification is incomplete. Ground verdict: inconclusive.
+
+The owner authorized unchanged-resource qualification, paired GTA readings only
+after that gate, and a preserved-candidate uncut gameplay trial with restart
+repeat after collision qualification. Shared mouse automation is stopped. Preserve
+all branches, candidates and private failed/partial evidence. The wider target is
+actual Skate mechanics and visible board presentation in GTA IV, with dismount
+returning ordinary GTA movement, camera and vehicle use. This source slice changes
+inspection tooling, not the Skate runtime or mounting guard.
 
 ## Evidence
 
-Latest runtime evidence: [2026-10-09 diagnosis](https://github.com/Jpatching/combine/issues/20#issuecomment-6078907484).
+The [checkpoint tooling record](../research/results/2026-10-10-gtaiv-checkpoint-tooling.md)
+contains the current implementation, actual failures/passes and limitations.
+The authored marker command failed before implementation and passed afterward;
+transient cleanup separately failed and then passed after correction. Final pinned
+Unity 6000.4.0f1 fixture emitted PASS, no C# compiler errors and wrapper exit 0.
+Six authored comparison-command test groups pass. The pre-documentation repository
+gate passed 79 tests and 65-document/context checks; the issue owns publication
+checks and final independent reviews.
 
-- At the source revision above, two unchanged-location mount attempts refused with
-  `over-0.05-metres`, retaining GTA control. Playback never began. This reproduces
-  a rejecting condition; the surface root cause remains unknown.
-- Earlier trials passed actual worker mount/dismount and worker-failure control
-  restoration. A later camera-definition fix passed camera destruction during
-  mounted dismount. These are separate observations, not one accepted full ride.
-  [Earlier progress](https://github.com/Jpatching/combine/issues/20#issuecomment-6067861907),
-  [camera correction](https://github.com/Jpatching/combine/issues/20#issuecomment-6068900739).
-- Push, both steering directions, usable camera, walking/vehicle recovery,
-  scale/alignment and corrected mounted fault-camera recovery have not passed
-  together. Owner gameplay acceptance remains pending; #21/#22 remain blocked.
-- The latest diagnosis records 43 repository tests and links in 47 tracked
-  documents passing. PR #23 has three successful CI jobs at the recorded revision.
-  These are source checks, not playable acceptance. Full upstream host tests remain
-  unverified because pinned `src/tests/map_startup.rs` is missing.
+The retained resource identity and aggregate counts remain unchanged. Normal live
+viewer loading and actual Hide/Show markers accompany the latest reliable
+same-camera pair, opened locally. R1/P1/H2 labels are visible; H1 is outside the
+frame. Independent image review supports general association but cannot identify
+all exact anchor bases and height layers. That live trial used the first marker
+implementation; the final cleanup fix was verified only in the authored fixture.
+Partial captures and a foreground-refused attempt remain private. Stale duplicate
+frames are excluded as fresh evidence. No real GTA readings or gameplay clip were
+produced. PC evidence viewing exists; phone playback is not configured.
+
+Earlier [checkpoint preparation](../research/results/2026-10-10-gtaiv-ground-checkpoint-preparation.md)
+retains four exact mesh-centroid candidates and frozen rules. Owner location
+confirmation, previously pending in that dated record, is now complete. The
+[street-reference follow-up](../research/results/2026-10-10-gtaiv-street-reference.md)
+and [location verdict](../research/results/2026-10-10-gtaiv-viewer-location-verdict.md)
+support the named local connection around Industrial, Bohan and the unfinished
+Northern Expressway approach. That bounded connection does not qualify active
+GTA collision. [#40](https://github.com/Jpatching/combine/issues/40) is closed with
+viewer qualification; [#41](https://github.com/Jpatching/combine/issues/41)'s initial
+inconclusive investigation is historical, not a passed complete ground gate.
+
+Decoder source remains `47e8a2c0d46981ffb3b9cfeec5afd98eb91bffbb`.
+The [composite investigation](../research/results/2026-10-09-gtaiv-composite-transforms.md)
+and [placement investigation](../research/results/2026-10-09-gtaiv-resource-placement.md)
+record its bounded geometry/transform support and remaining limits. Private
+bootstrap/read-access setup stays outside tracked source; resource placement and
+pins were preserved. Selected Game-only viewer screenshots are authorized for
+AI inspection; game files, private identities and exact coordinates stay private.
+
+Latest runtime evidence: preserved GTA/Skate candidate `b403377481a33e407aeb81b78b8d38984aac4735` previously refused a guarded mount at `over-0.05-metres`, with fresh GTA control retained. Earlier separate native trials established mounted dismount control restoration and camera destruction after a definition fix. A complete push/steer/recovery loop and visible board presentation remain unaccepted. No GTA launch or runtime change occurred in the checkpoint tooling slice.
 
 ## Next step
 
-Resume #20 only from its current live verdict. The recorded mount refusal is the
-first blocker to riding. Use a bounded reproduction tied to the exact source and
-installed runtime, then test a specific hypothesis; repeat setup only when integrity,
-location or runtime state has changed. Game execution needs current task authority.
+Finish intended surface/layer proof at unchanged R1/P1/H1/H2 coordinates using
+clear anchor-base views, including H1, through commands executed inside the
+Editor without shared-pointer automation. Reuse the existing viewer, retained
+resource, named connection and private evidence; avoid repeating acquisition or
+installation. Centroid membership and labels alone are insufficient.
 
-Collision feasibility research remains separate from live riding diagnosis. Read the
-issue's latest research prerequisite before starting it; this context cleanup does
-not select a new architecture, relax the surface guard or authorize a launch.
+Once qualified, freeze the full point set and collect three explicitly successful,
+loaded, intended-surface GTA ground readings at each identical horizontal point.
+Maximum repeat spread is 0.02 m; every reading must be within 0.05 m absolute
+vertical error of the mesh prediction. Both limits are inclusive. Failed,
+unloaded, non-finite, shifted, unstable or wrong-layer results are unavailable.
+The [comparison command](../tools/gtaiv-collision/README.md#compare-qualified-ground-readings)
+implements those rules but supplies no native collector. A finite returned height
+alone does not establish native success. Any stable valid error above 0.05 m gives disagreement;
+only all four complete passes give agreement; otherwise inconclusive. Preserve
+points and placement; do not fit offsets or average away a failure.
 
-Preserved research is dated evidence, not the next task:
-[worker evaluation](../research/results/2026-10-08-separate-skate-worker.md),
-[native diagnostics](../research/results/2026-10-08-gtaiv-live-diagnostic-tooling.md),
-[helper alternatives](../research/results/2026-10-08-gtaiv-runtime-helper-alternatives.md),
-[MW2/GTA comparison](../research/results/2026-10-08-skate-mw2-gtaiv-integration.md).
-GTA source and runtime instructions remain on the
-[recorded candidate](https://github.com/Jpatching/combine/blob/b403377481a33e407aeb81b78b8d38984aac4735/tools/gtaiv-skate/README.md).
+After collision qualification, reuse the preserved candidate for a 20–40 second
+uncut mount, push, steer, dismount and ordinary GTA recovery trial, then repeat
+after normal restart. Keep failed/refused trials visible with concise private
+SSH-readable behavior/result/clip/blocker records. Source integration is not
+runtime acceptance. Ground agreement covers these points only; curb/wall contact,
+visible board/animation and fuller street riding remain separate requirements.
 
 ## Session close
 
-Follow the [context maintenance procedure](agents/current-context.md) at a task
-boundary: preserve findings, record the exact verdict and next step, and state whether
-work is merged, pushed but blocked, or a preserved experiment. A temporary handoff
-links these artifacts. Source integration, runtime observation and owner acceptance
-remain separate. Recheck Git and the live tracker before relying on this snapshot.
+Follow [context maintenance](agents/current-context.md) and
+[workspace conventions](agents/issue-tracker.md). The owner authorized a focused
+stacked PR based on #38 rather than expanding its cumulative diff. Preserve
+published history; the child waits for parent integration and explicit source
+acceptance before merge. The issue records the final revision, checks and PR.
+Start a fresh independent implementation ticket only from durable current status;
+compact when relevant context must survive. Clearing this chat does not clean Git.
+
+Preserve draft [#23](https://github.com/Jpatching/combine/pull/23), in-process/worker
+candidates, recovery branches and private setup/media. #21/#22 remain blocked.
+Keep game assets, exact coordinates, settings, identities and raw logs outside
+Git and uploads. Source review, owner source approval, measurements, gameplay,
+owner gameplay acceptance and release are distinct claims.
 
 ## Historical reference
 
-Fortnite/#4 is historical context for the current GTA work:
-[previous snapshot](archive/HANDOFF-2026-10-09-fortnite-context.md),
-[Fortnite contract](FORTNITE_SKATE.md).
-Recovery, parked Synergy and earlier MW2/Minecraft observations remain in the
-[October 7 archive](archive/HANDOFF-2026-10-07.md). Preserve retained branches and
-original runtime backups; consult `git worktree list` before resuming an experiment.
+[Host decision](adr/0001-preserve-offline-gta-gameplay.md),
+[glossary](../GLOSSARY.md), [workbench](WORKBENCH.md),
+[physical collision report](../research/results/gtaiv-120059-physical-collision-feasibility.md),
+[native query report](../research/results/gtaiv-120059-native-collision-feasibility.md).
+The separate street experiment is preserved at
+`a4fec7364c957bd4bf80e3fb6eb80e04ba6eb054` on
+`prototype/gtaiv-street-collision`; its acquisition code is not incorporated here.
+PR #37 is merged; the earlier #34 pending-merge handoff is superseded.

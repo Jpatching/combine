@@ -159,3 +159,21 @@ test('Sandcastle cancellation retains dirty source, task branch and baseline', a
   }
   await access(join(sandbox.worktreePath, 'CHECKPOINT.txt'));
 });
+
+test('public-source report verifier rejects unsupported evidence and preserves the report', async () => {
+  const { dir, repo, base } = await fixture();
+  const path = 'research/results/report.md';
+  await mkdir(join(repo, 'research/results'), { recursive: true });
+  await writeFile(join(repo, 'scripts/verify.py'), 'assert True\n');
+  const revision = 'a'.repeat(40);
+  const url = `https://github.com/owner/source/blob/${revision}/collision.cpp`;
+  const text = `# Public-source report\n\n## Verified source facts\n[Source](${url}).\n\n## Source inference\nPort unproven.\n\n## Unknowns\nRuntime behavior.\n\n## Next local proof\nObserve a floor.\n\n<research>${JSON.stringify({ verdict: 'requires-local-proof', runtimeVerified: false, sources: [{ url, revision }], unknowns: ['Runtime behavior'], inaccessibleSources: [] })}</research>\n`;
+  const task = { checks: [['python3', '/checks/research_report.py', path]] };
+  await writeFile(join(repo, path), text);
+  assert.equal((await verify(repo, repo, task)).passed, true);
+  const invalid = text.replace('"runtimeVerified":false', '"runtimeVerified":true');
+  await writeFile(join(repo, path), invalid);
+  assert.equal((await verify(repo, repo, task)).passed, false);
+  await preserveWorkspace(repo, base, dir, args => inspectGit(repo, repo, args));
+  assert.equal(await readFile(join(dir, 'source', path), 'utf8'), invalid);
+});

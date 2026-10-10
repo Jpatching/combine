@@ -15,8 +15,23 @@ export const PINS = { sandcastle: '0.12.0', codex: '0.160.1', node: '24.10.0', t
 // These checks are reviewed host configuration, never commands from issue text.
 export const TASKS = {
   12: {
+    kind: 'coding',
     paths: ['scripts/verify.py', 'tests/test_doc_links.py'],
     checks: [['python3', '-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_doc_links.py', '-v'],
       ['python3', '/checks/markdown_links.py']],
   },
 };
+
+export const UM_REVISION = '8370faa8e114baf33acdb23079aff552a7728c4b';
+export const UM_GUIDES = ['skills/mashup-mods/SKILL.md',
+  'knowledge/techniques/choosing-a-mashup-route.md',
+  'knowledge/techniques/collision-and-combat-bridging.md',
+  'knowledge/techniques/evidence-levels-for-mashup-claims.md'];
+export function researchProfile(report) {
+  return { kind: 'research', paths: [report],
+    checks: [['python3', '/checks/research_report.py', report]], report };
+}
+TASKS[31] = researchProfile('research/results/gtaiv-120059-native-collision-feasibility.md');
+TASKS[32] = researchProfile('research/results/gtaiv-120059-physical-collision-feasibility.md');
+// This qualification is not a GitHub issue and cannot dispatch a blocked research ticket.
+export const RESEARCH_QUALIFICATION = researchProfile('research/results/sandcastle-research-qualification.md');

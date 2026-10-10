@@ -33,5 +33,8 @@ export function researchProfile(report) {
 }
 TASKS[31] = researchProfile('research/results/gtaiv-120059-native-collision-feasibility.md');
 TASKS[32] = researchProfile('research/results/gtaiv-120059-physical-collision-feasibility.md');
+TASKS[45] = researchProfile('research/results/gtaiv-120059-street-contact-route.md');
+TASKS[46] = researchProfile('research/results/gtaiv-120059-board-rider-interface.md');
+TASKS[47] = researchProfile('research/results/gtaiv-120059-live-proof-seam.md');
 // This qualification is not a GitHub issue and cannot dispatch a blocked research ticket.
 export const RESEARCH_QUALIFICATION = researchProfile('research/results/sandcastle-research-qualification.md');

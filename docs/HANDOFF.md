@@ -8,11 +8,13 @@ Task: implement the owner-approved faster test loop and qualified ground route u
 
 Source branch: `integration/gtaiv-skate-loop`
 
-Source revision: `fd9f8c4933d3aed193273a2ce5d78fb076886972`
+Source revision: `b27929a16e420a8cfa1d319825966a90309ca566`
 
-This is the fixed review base for the test-command prerequisite; the issue and
-existing draft [PR #23](https://github.com/Jpatching/combine/pull/23) own final
-publication revisions. No gameplay acceptance or merge is claimed.
+This is the retained source tip before integrating synchronized `main`
+(`82d35ad1e43620389abb69fa6bcb591cca1d6279`). The handoff conflict resolution
+passed independent Standards and Spec review. Existing draft
+[PR #23](https://github.com/Jpatching/combine/pull/23) owns the final published
+revision and current CI status. No gameplay acceptance or merge to `main` is claimed.
 
 Disposition: one portable authored adapter check command now runs the existing
 JavaScript, Rust and C++ checks. CI uses the same command and gains the previously
@@ -21,9 +23,13 @@ this is consolidation and added coverage, not a claim that none ran before.
 
 The owner approved a focused stacked `implement/gtaiv-qualified-ground` branch
 from this retained source for [the ground source slice](https://github.com/Jpatching/combine/issues/53).
-This explicit exception avoids waiting for #23 gameplay acceptance before building
-its ground fix. It does not authorize an automatic merge or real-street activation
-before qualification. New ground, board and rider changes stay off this broad PR.
+The ground source is now published separately in
+[draft PR #57](https://github.com/Jpatching/combine/pull/57) at
+`bfc8eba32dcfd4c26f4af055f9e9ecd0ee303f1c`, awaiting owner source acceptance.
+Its authored ramp and standalone Windows Session evidence belong to that PR;
+none of its source is incorporated here. This exception does not authorize an
+automatic merge or real-street activation before qualification. New ground,
+board and rider changes stay off this broad PR.
 
 ## Evidence
 
@@ -34,7 +40,11 @@ with named failures. Temporary executables are isolated and removed. Six existin
 Rust dead-code warnings remain. `python3 scripts/verify.py` passed 79 tests and
 68 document/context checks before this handoff update. Independent Standards and
 Spec review of the focused runner/CI/README diff each reported zero findings.
-These are source checks; the Windows Session harness and GTA were not run.
+The integration merge candidate also passed the repository gate (79 tests and
+68 document/context checks), all seven portable adapter suites in 1.29 seconds,
+and staged whitespace checks. Independent Standards and Spec reviews of that
+candidate each reported zero findings. These are source checks; the Windows
+Session harness and GTA were not run for this integration update.
 
 Latest runtime evidence: installed runtime reference remains `b403377481a33e407aeb81b78b8d38984aac4735`.
 The [latest diagnostic](https://github.com/Jpatching/combine/issues/20#issuecomment-6099798185)
@@ -51,11 +61,17 @@ moving geometry. A finite height alone is not success/loaded evidence.
 
 ## Next step
 
-Finish the focused source-check publication on #23, then switch the attached clean
-checkout to the approved stacked ground branch for #53. Establish the failing
-non-flat reproduction before implementing the triangle route. Change mounting,
-collision and containment together; pair each observation with its query position.
-Preserve the flat fallback guard and all retained candidates.
+Keep #23 and #57 in draft pending their required acceptance; inspect each PR for
+its current revision and checks. Keep #57 separate and follow its source acceptance
+before integrating it. For #39, establish the exact private surface/layer anchors
+and collect three successful, loaded, matching-layer readings per checkpoint
+within the stated spread and mesh tolerances. The remaining approved task graph
+is [qualification/trial #54](https://github.com/Jpatching/combine/issues/54),
+[board #55](https://github.com/Jpatching/combine/issues/55), then
+[rider-interface proof #56](https://github.com/Jpatching/combine/issues/56).
+#54 waits for #53 and retained qualification #39. Ordinary F6 still uses the
+preserved flat route; no qualified street supplier has been activated. Preserve
+the mounting guard and all retained candidates.
 
 Use the existing real-Session Windows harness for native proofs and bounded live
 observer for GTA. The owner launches/focuses GTA; the runner must refuse lost focus,
@@ -84,7 +100,9 @@ Git and AI uploads. No runtime staging or launch occurred for this prerequisite.
 [glossary](../GLOSSARY.md), [workbench](WORKBENCH.md),
 [visible ride record](../research/results/2026-10-10-gtaiv-visible-ride.md),
 [checkpoint preparation](../research/results/2026-10-10-gtaiv-ground-checkpoint-preparation.md),
-[checkpoint tooling](../research/results/2026-10-10-gtaiv-checkpoint-tooling.md).
+[checkpoint tooling](../research/results/2026-10-10-gtaiv-checkpoint-tooling.md),
+[physical collision report](../research/results/gtaiv-120059-physical-collision-feasibility.md),
+[retained GTA context](archive/HANDOFF-2026-10-09-gta-context.md).
 Earlier branch snapshots remain in Git history; their retired next steps do not
 select current work. Full upstream host tests remain unverified because the pinned
 source references missing `src/tests/map_startup.rs`.

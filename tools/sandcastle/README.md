@@ -45,7 +45,8 @@ and requires `OPEN`, `ready-for-agent` and zero open native blockers. Missing
 dependency information fails readiness. An issue also needs a reviewed entry in
 the `TASKS` table in `scripts/settings.mjs`, defining allowed source files and
 checks. Issue text never supplies executable check commands. Coding #12 retains its Markdown-link proof. Research #31 and #32 have reviewed
-profiles allowing only their respective reports. Future tasks need their own reviewed entry.
+profiles allowing only their respective reports. The GTA decision profiles #45–#47
+also allow only their named reports. Future tasks need their own reviewed entry.
 
 The runner clones committed `main` from Combine's public remote and removes the
 clone's remote before inference. It does not copy the host working tree, private
@@ -89,6 +90,37 @@ synchronized committed `main`, current smoke/image identity and issue readiness.
 Use separate attached task workspaces for parallel host work. The approved paths
 are `research/results/gtaiv-120059-native-collision-feasibility.md` and
 `research/results/gtaiv-120059-physical-collision-feasibility.md` respectively.
+
+The approved GTA riding decisions have these dispatch commands. Run each command
+from `tools/sandcastle` in its own attached, clean task workspace at synchronized
+committed `main`, with the qualified local setup available in that workspace:
+
+```sh
+npm run run -- --issue 45 --branch research/gtaiv-street-contact-route
+npm run run -- --issue 46 --branch research/gtaiv-board-rider-interface
+npm run run -- --issue 47 --branch research/gtaiv-live-proof-seam
+```
+
+Their only writable reports are, respectively:
+
+- `research/results/gtaiv-120059-street-contact-route.md`
+- `research/results/gtaiv-120059-board-rider-interface.md`
+- `research/results/gtaiv-120059-live-proof-seam.md`
+
+[Dispatch qualification](https://github.com/Jpatching/combine/issues/44) must be
+approved, merged and closed before these native-blocked tickets can start. Changing
+the profiles changes the qualification fingerprint: run actual `research-smoke`
+against this candidate and retain the matching marker after synchronization.
+Do not run production research from an unmerged enabling branch or bypass the
+clean-main, readiness or fingerprint checks. Each task remains an independent
+bounded run; parallel host work requires independent synchronized-main workspaces.
+
+These workers assess public source and recommend the next local proof. They cannot
+qualify Windows ground contact, render the board, deliver GTA input or prove riding
+and recovery. Those checks require the retained Windows candidate and local PC
+evidence. Neither a source-feasible report nor runner acceptance is gameplay
+acceptance. Unmerged gameplay source must be read from the immutable public
+revision named in each issue, rather than assumed present in the main clone.
 
 The host supplies Matt's unmodified original `research` skill and delegates the
 researcher's steps to a separate background worker process. The host remains

@@ -4,24 +4,29 @@
 
 Reviewed: 2026-10-10
 
-Task: qualify four retained street checkpoints and then prove one repeatable GTA/Skate mount/move/dismount loop under [#20](https://github.com/Jpatching/combine/issues/20), continuing the bounded placement work of [#39](https://github.com/Jpatching/combine/issues/39).
+Task: prioritize a visible guarded flat-patch GTA/Skate mount/move/dismount trial under [#20](https://github.com/Jpatching/combine/issues/20), continuing the bounded placement work of [#39](https://github.com/Jpatching/combine/issues/39).
 
-Source branch: `implement/gtaiv-ground-checkpoints`
+Source branch: `integration/gtaiv-skate-loop`
 
-Source revision: `dca76b746bc021e846a44570790adcfd089836ee`
+Source revision: `849c631a2ec456ea1491f59f1e0bdfa540d867b6`
 
-This is the fixed parent/starting revision. The issue records the final child
-publication revision; this snapshot travels with that commit.
+This is the capture-support integration checkpoint. The issue records later
+publication revisions; the installed adapter remains the separate runtime identity below.
 
-Disposition: focused checkpoint tooling is on the owner-authorized stacked branch above draft [#38](https://github.com/Jpatching/combine/pull/38); [#20](https://github.com/Jpatching/combine/issues/20) owns its child draft-PR link and final publication revision. Both source approval and physical qualification remain pending. The owner confirmed the intended Burger Shot / Drill Street / Lompoc Avenue area; exact checkpoint surface/layer qualification is incomplete. Ground verdict: inconclusive.
+Disposition: the owner selected visible ride proof before completing street
+qualification. Reuse the preserved candidate on a surface accepted by its unchanged
+flat-patch guard. Street qualification remains unresolved; this diagnostic does not
+prove decoded mesh contact. Draft [#23](https://github.com/Jpatching/combine/pull/23)
+is the existing integration PR. Draft [#42](https://github.com/Jpatching/combine/pull/42)
+and parent [#38](https://github.com/Jpatching/combine/pull/38) remain preserved and
+unmerged. No source or gameplay acceptance is implied.
 
-The owner authorized unchanged-resource qualification, paired GTA readings only
-after that gate, and a preserved-candidate uncut gameplay trial with restart
-repeat after collision qualification. Shared mouse automation is stopped. Preserve
-all branches, candidates and private failed/partial evidence. The wider target is
-actual Skate mechanics and visible board presentation in GTA IV, with dismount
-returning ordinary GTA movement, camera and vehicle use. This source slice changes
-inspection tooling, not the Skate runtime or mounting guard.
+The target trial is 20–40 seconds uncut: mount, push, both steering directions,
+dismount and ordinary GTA recovery, then repeat after normal restart. Preserve
+failed/refused takes. Shared mouse automation is stopped; private keyboard helpers
+must refuse unless GTA is already focused. Keep branches, candidates and evidence.
+The wider target still includes visible board presentation, actual street contact
+and normal GTA vehicle use.
 
 ## Evidence
 
@@ -41,8 +46,10 @@ frame. Independent image review supports general association but cannot identify
 all exact anchor bases and height layers. That live trial used the first marker
 implementation; the final cleanup fix was verified only in the authored fixture.
 Partial captures and a foreground-refused attempt remain private. Stale duplicate
-frames are excluded as fresh evidence. No real GTA readings or gameplay clip were
-produced. PC evidence viewing exists; phone playback is not configured.
+frames are excluded as fresh evidence. No paired GTA readings have passed. The [visible ride record](../research/results/2026-10-10-gtaiv-visible-ride.md)
+records an actual brief mount and native control/camera recovery, an incomplete
+32-second clip opened locally, and a second attempt refused before input because
+status became stale. PC evidence viewing works; phone playback is not configured.
 
 Earlier [checkpoint preparation](../research/results/2026-10-10-gtaiv-ground-checkpoint-preparation.md)
 retains four exact mesh-centroid candidates and frozen rules. Owner location
@@ -63,11 +70,38 @@ bootstrap/read-access setup stays outside tracked source; resource placement and
 pins were preserved. Selected Game-only viewer screenshots are authorized for
 AI inspection; game files, private identities and exact coordinates stay private.
 
-Latest runtime evidence: preserved GTA/Skate candidate `b403377481a33e407aeb81b78b8d38984aac4735` previously refused a guarded mount at `over-0.05-metres`, with fresh GTA control retained. Earlier separate native trials established mounted dismount control restoration and camera destruction after a definition fix. A complete push/steer/recovery loop and visible board presentation remain unaccepted. No GTA launch or runtime change occurred in the checkpoint tooling slice.
+Latest runtime evidence: preserved candidate `b403377481a33e407aeb81b78b8d38984aac4735`
+loaded from the staged runtime and mounted briefly. No fresh push/steer verdict
+arrived; `surface/input/time unavailable` ended the ride, followed by verified
+native player control and owned-camera destruction. The owner saw entry into Skate
+without board/animation. A second take refused before input; GTA remained running
+but status was stale. A subsequent health check found GTA responsive but
+minimized/not focused; the owner was asked to restore it manually. A complete
+loop and restart repeat remain unproved. Runtime
+files and guard are unchanged. Earlier refusal and camera-fix trials are retained.
 
 ## Next step
 
-Finish intended surface/layer proof at unchanged R1/P1/H1/H2 coordinates using
+Restore the minimized GTA window manually, then re-establish fresh on-foot
+gameplay in the preserved runtime with a connected
+neutral controller and GTA focused. Start private recording before the mount,
+run the existing guarded push/steer playback, dismount and observe walking
+recovery. Open the actual clip locally. Retain refusal and incomplete evidence;
+repeat after normal restart only when prerequisites are established. The existing
+short recorder has a private 32-second copy; Linux encoding avoids installing a
+new Windows capture dependency. Preserve the first incomplete take and the
+second pre-input refusal. Universal Modder recording CLI help passed, but
+Windows FFmpeg was unavailable in the bounded lookup; no UM recording is claimed.
+
+Capture-support source now generates per-point oblique/overhead Hide/Show pairs
+inside Unity without desktop input. An isolated authored fixture executed missing
+menu failure, then passed eight meaningful images and scene restoration; existing
+output refusal also passed. This is inspection tooling only and has not qualified
+any live checkpoint. Preserve it for the subsequent street step. Final shared-centroid validation
+fix also passed the authored fixture; both independent review axes have no
+remaining actionable finding.
+
+After the visible diagnostic, finish intended surface/layer proof at unchanged R1/P1/H1/H2 coordinates using
 clear anchor-base views, including H1, through commands executed inside the
 Editor without shared-pointer automation. Reuse the existing viewer, retained
 resource, named connection and private evidence; avoid repeating acquisition or
@@ -84,12 +118,16 @@ alone does not establish native success. Any stable valid error above 0.05 m giv
 only all four complete passes give agreement; otherwise inconclusive. Preserve
 points and placement; do not fit offsets or average away a failure.
 
-After collision qualification, reuse the preserved candidate for a 20–40 second
-uncut mount, push, steer, dismount and ordinary GTA recovery trial, then repeat
-after normal restart. Keep failed/refused trials visible with concise private
-SSH-readable behavior/result/clip/blocker records. Source integration is not
+Keep all trial attempts visible with concise private SSH-readable
+behavior/result/clip/blocker records. Source integration is not
 runtime acceptance. Ground agreement covers these points only; curb/wall contact,
 visible board/animation and fuller street riding remain separate requirements.
+
+The [presentation comparison](../research/results/2026-10-10-gtaiv-visible-ride.md#why-presentation-is-missing)
+shows that Session already evaluates animation, but the GTA wire carries only
+position/heading. Next visible presentation slice: prove an exact-version drawing
+interface, then a board driven by the accepted pose with dismount/failure cleanup,
+followed by rider pose mapping. Asset import alone does not supply that interface.
 
 ## Session close
 

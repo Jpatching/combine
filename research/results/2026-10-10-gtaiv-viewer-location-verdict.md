@@ -3,9 +3,12 @@
 Question: can the exact retained collision resource be tied to an identifiable
 street at unchanged placement, before building ground-comparison tooling?
 
-Verdict: **inconclusive**. The qualified viewer narrows the candidate area and
-shows useful building/railway correspondence. It does not yet establish a named
-junction or selected-resource coverage of the required ground checkpoints.
+Verdict: **named local connection supported; ground-preparation gate incomplete**.
+The retained overlay is linked to Industrial, Bohan, around Drill Street / Lompoc
+Avenue and the unfinished Northern Expressway approach. Exact selected-resource
+coverage of road, pavement and height-change checkpoints and owner location
+confirmation remain pending. Ground agreement is inconclusive: no paired
+GTA/mesh measurements exist.
 
 Scope: approved [spec #39](https://github.com/Jpatching/combine/issues/39), completed
 [viewer qualification #40](https://github.com/Jpatching/combine/issues/40), and
@@ -14,7 +17,7 @@ Source preparation is integrated at `b75eb037`; decoder source remains unchanged
 from `47e8a2c`. Draft [#38](https://github.com/Jpatching/combine/pull/38) remains
 subject to owner source approval. This report does not accept gameplay or merge.
 
-## Established evidence
+## Earlier evidence before named identification
 
 - Earlier exact-version Unity runs passed the authored resource-to-scene fixture,
   including literal asymmetric positions, scale, orientation, height and topology.
@@ -39,7 +42,7 @@ subject to owner source approval. This report does not accept gameplay or merge.
 The owner accepted the earlier viewer appearance and selected a hybrid approach:
 AI inspection of selected screenshots to narrow candidates, followed by local
 owner confirmation. That appearance acceptance is distinct from street identity.
-The latest side view was requested open locally using its native Windows path,
+The earlier side view was requested open locally using its native Windows path,
 avoiding the WSL-path Photos prompt. Owner street confirmation remains absent.
 
 ## Focused visibility implementation
@@ -66,10 +69,9 @@ uncovered. The arrow-like patterns on the foreground deck appear only with the
 overlay, so they are not independent rendered-map road markings.
 
 This establishes a usable inspection control and broad visual correspondence.
-It does not establish a named junction, exact coordinate agreement, coverage of
-the required ground checkpoints, or active GTA collision. The verdict remains
-**inconclusive** and measurement tooling remains stopped. No game files or private
-coordinates were added to source or tracker evidence.
+That pair alone did not establish a named junction, exact coordinate agreement,
+coverage of the required ground checkpoints, or active GTA collision. Its verdict
+was **inconclusive**. No game files or private coordinates were added to source or tracker evidence.
 
 The focused source revision is `2f228b4ae128090d59dde36ffe67cdd916ed5ec6`, reviewed
 against `51e258a`. Independent Standards and Spec reviews found no actionable
@@ -78,27 +80,49 @@ checks. Unity compilation and live pixel evidence are separate from that gate.
 The final authored rerun after sharing unchanged literal expectations emitted
 PASS with no C# errors and CLI exit 0; exact staged source and pins were rechecked.
 
-## Candidate and independent reference
+## Earlier candidate and independent reference
 
-Industrial, Bohan remains a plausible candidate area. Two firsthand guides place
-the unfinished Northern Expressway approach at Leavenworth Avenue and describe
+Industrial, Bohan was initially a plausible candidate area. Two firsthand guides
+place the unfinished Northern Expressway approach at Leavenworth Avenue and describe
 the separated bridge sections: [Ratchet12345's guide](https://gamefaqs.gamespot.com/ps3/933036-grand-theft-auto-iv/faqs/54410)
 and [YuGiOhFm2002's guide](https://gamefaqs.gamespot.com/ps3/933036-grand-theft-auto-iv/faqs/52838).
 Those descriptions support a candidate; they do not uniquely identify the ground
-junction in the new views. The curved railway seen beside the building must not
+junction in those earlier views. The curved railway seen beside the building must not
 be substituted for the guides' unfinished road approach.
 
-## Stop condition and next decisive evidence
+## Named connection: later same-day follow-up
 
-Street placement has not passed. No GTA launch, ground-comparison tooling,
-checkpoint measurements, comparison tolerance or wall proof was produced.
+New camera-only views connect Burger Shot, the adjoining streets, Menala Metal's
+tank-roof building, the railway and the unfinished waterfront deck in one scene.
+The latest same-camera map-only/restored pair was automatically opened locally.
+The retained file's digest still matches and live digest/count/normal-loading
+markers remain available, including actual HIDDEN/SHOWN markers and zero C# error
+entries. Neither selected resource nor map placement was adjusted.
+
+[Rusk's original base GTA IV guide](https://gamefaqs.gamespot.com/xbox360/933037-grand-theft-auto-iv/faqs/53734)
+places Industrial Burger Shot at Drill Street / Lompoc Avenue, Menala Metal near
+Jackhammer Street / Lompoc Avenue, and the separated unfinished bridge approach
+at Northern Expressway / Leavenworth Avenue. The primary investigator inspected Psy's original
+gameplay images/map to distinguish that waterfront route from the alternative
+South Bohan construction approach. See the cited [street-reference follow-up](2026-10-10-gtaiv-street-reference.md).
+
+Independent visual review supports the resource's connection to this named local
+street area. Ground roadway/frontage and elevated geometry are visible checkpoint
+candidates. Patchy overlay appearance proves neither complete coverage nor gaps;
+depth interference is possible. This resolves the general street-name search,
+not precise checkpoint geometry or active GTA ground collision. The previous
+inconclusive investigation remains historical; this is new, bounded evidence.
+
+## Remaining gate and next decisive evidence
+
+The complete ground-preparation gate has not passed. No GTA launch,
+ground-comparison tooling, checkpoint measurements, comparison tolerance or wall proof was produced.
 This is an inconclusive result rather than disagreement: no paired GTA/mesh
 measurements exist.
 
-To reopen the gate, independently identify a named junction connecting the
-observed landmark group, obtain the owner's local location confirmation, and
-establish that the exact selected mesh covers suitable road, pavement and height-
-change surfaces at its retained coordinates. A nearby street, camera position or
+The named local connection is now supported. Obtain the owner's local location
+confirmation and establish that the exact selected mesh covers suitable road,
+pavement and height-change surfaces at its retained coordinates. A nearby street, camera position or
 railway level alone is insufficient. If those surfaces are outside this resource,
 do not silently substitute another resource or move this one into agreement.
 

@@ -4,7 +4,7 @@
 
 Reviewed: 2026-10-10
 
-Task: implement a focused selected-overlay visibility comparison under [spec #39](https://github.com/Jpatching/combine/issues/39) for [#20](https://github.com/Jpatching/combine/issues/20). [Viewer ticket #40](https://github.com/Jpatching/combine/issues/40) is closed with bounded qualification; [street ticket #41](https://github.com/Jpatching/combine/issues/41) is resolved as an inconclusive investigation.
+Task: identify the retained resource's street using the qualified selected-overlay comparison under [spec #39](https://github.com/Jpatching/combine/issues/39) for [#20](https://github.com/Jpatching/combine/issues/20). [Viewer ticket #40](https://github.com/Jpatching/combine/issues/40) is closed with bounded qualification; [street ticket #41](https://github.com/Jpatching/combine/issues/41) recorded an initial inconclusive investigation, now followed by a supported named local connection.
 
 Source branch: `implement/gtaiv-composite-collision`
 
@@ -14,7 +14,7 @@ This is the reviewed focused visibility implementation, compared with `51e258a`.
 The integrated baseline viewer fixture/procedure is `b75eb037`. Decoder source
 remains unchanged from `47e8a2c`. The issue owns later publication revisions.
 
-Disposition: draft [#38](https://github.com/Jpatching/combine/pull/38) awaits owner source approval. The existing owned file decodes; provenance and a candidate map area are traced, but independent street placement remains inconclusive.
+Disposition: draft [#38](https://github.com/Jpatching/combine/pull/38) awaits owner source approval. The exact retained resource is now linked to Industrial, Bohan, around Drill Street / Lompoc Avenue and the unfinished Northern Expressway approach. Required ground-checkpoint coverage and owner location confirmation remain pending; no GTA/mesh agreement is established.
 
 The owner authorized the bounded investigation and focused implementation with
 TDD, using subagents where efficient. The broader target remains one real GTA IV
@@ -23,6 +23,20 @@ driving. Traffic/pedestrians stay active; riding contact with moving objects is
 deferred. Source integration and gameplay acceptance remain separate.
 
 ## Evidence
+
+The latest camera-only follow-up connects Burger Shot, Menala Metal's tank-roof
+building, adjoining streets, railway and separated unfinished bridge spans in
+one scene. A same-camera map-only/restored pair was captured through actual
+Hide/Show commands and automatically opened locally. The retained digest was
+rechecked unchanged; live complete-count and normal-loading markers remain
+available with both visibility markers and zero C# error entries. An independent
+visual reviewer supports the named nearby junction using the original base-game
+landmark guide and gameplay/map references. This resolves the general street-name
+search, not exact checkpoint coverage or active GTA collision. See the
+[street-reference follow-up](../research/results/2026-10-10-gtaiv-street-reference.md)
+and updated [location verdict](../research/results/2026-10-10-gtaiv-viewer-location-verdict.md).
+No source implementation, mesh placement, measurement tooling or host-game
+launch changed during this follow-up. Private evidence remains local.
 
 The owner selected the small `implement`/`tdd` route to continue inspection. The
 new [visibility commands](../tools/gtaiv-viewer/README.md) hide and restore only
@@ -47,9 +61,10 @@ captured and automatically opened locally. Independent visual review confirmed
 the overlay disappears and returns while landmarks retain their positions.
 Green coverage broadly follows the foreground bridge approach, parts of the yard,
 a small building and roadside/verge surfaces; farther disconnected bridge spans
-remain uncovered. This is visual correspondence, not named street identity or
-qualified coordinate checkpoints. The updated [location verdict](../research/results/2026-10-10-gtaiv-viewer-location-verdict.md)
-remains inconclusive. Independent Standards and Spec reviews found no actionable
+remain uncovered. That earlier pair established visual correspondence, not named
+street identity or qualified coordinate checkpoints. Its initially inconclusive
+location finding is superseded by the bounded named connection above.
+Independent Standards and Spec reviews found no actionable
 findings. The repository gate passed 73 tests and 63-document/context checks.
 The final authored rerun after expectation reuse also compiled without C# errors,
 emitted PASS and completed with CLI exit 0; staged source and pins matched exactly.
@@ -121,8 +136,8 @@ WBN coordinates; it does not establish a unique street or active collision.
 The owned child matrices were checked and are exactly identity, not substituted.
 Private identities, map records and coordinates remain in ignored local records.
 That placement investigation added no comparison tooling, supported parser
-implementation, game launch or runtime trial. The location gate remains
-inconclusive after the later viewer trials described above.
+implementation, game launch or runtime trial. Later viewer trials support the
+named local connection; precise ground checkpoints remain unqualified.
 
 The [source investigation](../research/results/2026-10-09-gtaiv-composite-transforms.md)
 corroborates IV composite offsets, padded matrices, child-to-parent transform
@@ -151,47 +166,41 @@ Latest runtime evidence: the earlier gameplay candidate `b403377481a33e407aeb81b
 
 ## Next step
 
-The bounded location investigation has reached an **inconclusive stop**, recorded
-in the [viewer location verdict](../research/results/2026-10-10-gtaiv-viewer-location-verdict.md).
-The camera-only close/side views and exact location record are retained privately.
-The resource digest still matches; no acquisition, installation or decoder work
-needs repeating. Selected-resource count checks are not individual landmark
-identification of every child.
+The general street-name search is resolved: Industrial, Bohan, around Drill
+Street / Lompoc Avenue, near Jackhammer Street and the unfinished Northern
+Expressway approach. Reuse the retained private named-connection record and
+opened connected screenshot pair. Do not repeat acquisition, installation,
+decoding or general skyline searches.
 
-Independent visual review resolves the curved elevated deck as railway, not a
-road ramp. Its overlay and the neighbouring building match rendered geometry;
-the exposed ground asphalt remains gray. A named junction, selected-resource
-road/pavement coverage and a continuous road height change remain unestablished.
-Industrial, Bohan remains a candidate, not a street-placement pass.
+Pin a handful of distinctive road, pavement and road-height-change checkpoints
+on the exact selected resource at its retained coordinates. Ground-level roadway
+and frontage are now visible candidates, but patchy overlay rendering establishes
+neither complete coverage nor gaps. A railway level is not a road height change.
+Complete local owner location confirmation separately. Count checks do not
+individually identify every child or qualify the chosen ground points.
 
-The earlier integration Standards/Spec review found one stale README status paragraph;
-the retained implementer corrected it at `5f2d007`. Both reviewers confirmed
-zero remaining actionable findings. The repository gate passed 73 tests and
-63-document/context checks. #41 is resolved as an inconclusive investigation,
-not a street-placement pass; #39 and draft #38 retain their source-approval gates.
-The new hide/show comparison improves inspection but does not reopen the ground
-measurement gate. No measurement tooling or GTA launch is authorized. The next decisive evidence
-is an independently
-identified named junction and proof that this exact mesh covers the intended
-road, pavement and height-change checkpoints, followed by local owner street
-confirmation. Do not silently replace the resource or move it into agreement.
+The earlier integration Standards/Spec reviews found no remaining actionable
+findings after a README correction at `5f2d007`; the focused visibility source
+also passed independent review and the repository gate (73 tests and 63-document
+checks). #41's earlier inconclusive disposition is historical. The complete
+ground-preparation gate remains incomplete, and #39 and draft #38 retain their
+approval boundaries. Measurement tooling and GTA launch remain outside this
+spec. Do not substitute another resource or move this one into agreement.
 
 The owner's hybrid permission covers selected viewer screenshots for AI
 inspection; game files, private identities and exact coordinates remain private.
-The latest side view was requested open locally through its native Windows path.
+The latest connected pair was opened locally through its native Windows paths.
 Camera readout is Unity (-GTA.x, GTA.z, -GTA.y), not a ground sample.
 
 Review draft #38 for owner source approval; it has not been merged.
 [PR #37](https://github.com/Jpatching/combine/pull/37) is merged and #34 closed;
 its earlier pending-merge handoff is superseded.
 
-Resume from the retained local location records and the resource placement report;
-acquisition and decoding need not be repeated. The missing evidence is an
-independently recognisable street/landmark match and qualified world placement
-for this exact resource. A map-object origin inside collision bounds is only a
-candidate. GTA4Unity's loader omits composite child matrices generally; do not
-present it as a qualified exact-version reference without checking its limits.
-Stop before measurement tooling while this relationship remains ambiguous.
+The independently recognisable street/landmark connection is supported. Qualified
+ground points are the remaining placement evidence. A map-object origin inside
+collision bounds is only a candidate. GTA4Unity's loader omits composite child
+matrices generally; this retained resource's matrices are explicitly identity.
+Do not extend that bounded qualification to other resources.
 
 After the location gate passes, choose a handful of distinctive road, pavement
 and height-change checkpoints. Freeze numeric tolerance and repeatability rules

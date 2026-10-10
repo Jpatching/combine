@@ -68,11 +68,11 @@ resource's digest, completeness or active GTA collision. Use the earlier lab
 coverage checks and retain private evidence. Map-only visibility is not proof
 that the selected mesh covers a visible road.
 
-The retained live trial emitted HIDDEN and SHOWN markers and produced a fixed-
+The earlier retained live trial emitted HIDDEN and SHOWN markers and produced a fixed-
 camera game-view pair, opened locally. Independent visual review confirmed green
 surfaces disappear and return while map landmarks stay aligned. Some foreground
 approach/yard/roadside surfaces are covered; farther bridge spans are not. This
-does not identify a named street or qualify ground checkpoints. See the
+pair alone did not identify a named street or qualify ground checkpoints. See the
 [location verdict](../../research/results/2026-10-10-gtaiv-viewer-location-verdict.md).
 
 ## What the fixture covers
@@ -151,9 +151,11 @@ These observations extend beyond the authored fixture's limited coverage and
 do not qualify arbitrary resources or active GTA collision.
 
 The [street-location investigation](../../research/results/2026-10-10-gtaiv-viewer-location-verdict.md)
-ended at a precise **inconclusive** stop: the observed building/railway landmarks
-do not yet establish a named junction or selected-mesh coverage of suitable road,
-pavement and height-change checkpoints. Viewer appearance acceptance does not
-establish street placement. No ground-measurement tooling or GTA comparison was
+initially ended inconclusive. A later connected Hide/Show pair and original
+gameplay references support the named local connection to Industrial, Bohan,
+around Drill Street / Lompoc Avenue and the unfinished Northern Expressway
+approach. Exact selected-mesh coverage of road, pavement and height-change
+checkpoints and owner location confirmation remain pending. The complete ground
+preparation gate has not passed. No ground-measurement tooling or GTA comparison was
 produced. Keep private execution logs, assets and setup details outside Git and
 uploads.

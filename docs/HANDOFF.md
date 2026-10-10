@@ -14,10 +14,10 @@ Source revision: `911925c81d8997dff08f7768d348b65020509049`
 This is the synchronized-main base of the focused configuration slice. The issue
 and draft PR own its final publication revision and review evidence.
 
-Disposition: [draft PR #48](https://github.com/Jpatching/combine/pull/48) is published
-and awaiting owner source approval. Merge remains pending; actual subscription
-authentication and research qualification are blocked. No production GTA research
-job has started.
+Disposition: [draft PR #48](https://github.com/Jpatching/combine/pull/48) has owner
+approval conditional on passing qualification and checks. Actual subscription
+inference and research qualification now pass. Final handoff review and CI remain
+before the authorized squash merge. No production GTA research job has started.
 
 The owner approved splitting contact, board/rider presentation and live proof
 into decision tickets and using Sandcastle for public-source research. This slice
@@ -36,12 +36,13 @@ passed 62 tests and link/context checks across 59 documents. Credential-free
 and Spec review each reported zero actionable findings for the source candidate.
 CI `repository-checks` and `sandcastle-runner` passed at
 `684137af806fa1a3ead0741e080b5ebe8712a5ac`; the draft PR owns final publication
-and any later review/check results. Actual candidate
-`research-smoke` failed before researcher completion, report checks or review:
-subscription inference returned HTTP 401 Unauthorized. A subsequent actual login
-smoke independently returned HTTP 401. Docker, pinned tool checks and reported
-login status passed; they did not establish inference access. The failed run's
-private recovery remains preserved and its qualification marker is absent.
+and any later review/check results. After the owner renewed the Codex login,
+actual subscription `smoke` passed. Actual candidate `research-smoke` was accepted:
+the background researcher completed, checks passed, evidence verdict was
+`requires-local-proof`, and both fresh reviewers approved with zero findings.
+The matching qualification marker was written. Earlier qualification and login
+smoke attempts failed with HTTP 401 before any research result; their private
+recovery remains preserved. No authentication rejection cause is claimed.
 Passing portable and Docker checks is not a production research result.
 
 Latest runtime evidence: the preserved gameplay candidate
@@ -54,13 +55,12 @@ or gameplay trial occurred for this configuration slice.
 
 ## Next step
 
-Restore working subscription inference, then pass actual `research-smoke` on the candidate
-configuration. Obtain owner source approval before merging and synchronize clean
-main. Keep dispatch qualification open until those requirements pass; then verify
-each child's native readiness and the matching research qualification before
-launching its independent bounded worker. Do not bypass authentication or substitute
-fixture passes. Record actual starts and results separately from preflight and
-qualification.
+Finish affected-document review and CI, then complete the owner-authorized squash
+merge and synchronize clean main. Keep dispatch qualification open until those
+requirements pass; then verify each child's native readiness and the matching
+research qualification before launching its independent bounded worker. Do not
+bypass authentication or substitute fixture passes. Record actual starts and
+results separately from preflight and qualification.
 
 The decision workers supply source evidence and next local proofs. Ground
 qualification, visible board/rider presentation and the uncut riding/recovery

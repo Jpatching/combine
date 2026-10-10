@@ -115,8 +115,11 @@ inconclusive investigation remains historical; this is new, bounded evidence.
 
 ## Remaining gate and next decisive evidence
 
-The complete ground-preparation gate has not passed. No GTA launch,
-ground-comparison tooling, checkpoint measurements, comparison tolerance or wall proof was produced.
+The later [checkpoint preparation](2026-10-10-gtaiv-ground-checkpoint-preparation.md)
+retains four mesh-centroid candidates and fixes numeric comparison/repetition
+rules before host measurements. Surface association remains provisional; the
+complete ground-preparation gate has not passed. No GTA launch, ground-query or
+comparison implementation, paired checkpoint measurements or wall proof exists.
 This is an inconclusive result rather than disagreement: no paired GTA/mesh
 measurements exist.
 
@@ -126,7 +129,7 @@ pavement and height-change surfaces at its retained coordinates. A nearby street
 railway level alone is insufficient. If those surfaces are outside this resource,
 do not silently substitute another resource or move this one into agreement.
 
-Only after that gate passes should the ground experiment freeze tolerances and
-repeatability rules, then compare observations and predictions at identical
-coordinates. Ground agreement would cover those checkpoints only; walls and
+Only after that gate passes should the ground experiment compare observations
+and predictions at identical coordinates under the already fixed rules.
+Ground agreement would cover those checkpoints only; walls and
 active GTA collision remain separate proofs.

@@ -4,7 +4,7 @@
 
 Reviewed: 2026-10-10
 
-Task: identify the retained resource's street using the qualified selected-overlay comparison under [spec #39](https://github.com/Jpatching/combine/issues/39) for [#20](https://github.com/Jpatching/combine/issues/20). [Viewer ticket #40](https://github.com/Jpatching/combine/issues/40) is closed with bounded qualification; [street ticket #41](https://github.com/Jpatching/combine/issues/41) recorded an initial inconclusive investigation, now followed by a supported named local connection.
+Task: prepare distinctive ground checkpoints on the retained resource after establishing its named local connection under [spec #39](https://github.com/Jpatching/combine/issues/39) for [#20](https://github.com/Jpatching/combine/issues/20). [Viewer ticket #40](https://github.com/Jpatching/combine/issues/40) is closed with bounded qualification; [street ticket #41](https://github.com/Jpatching/combine/issues/41) recorded an initial inconclusive investigation, now followed by a supported named local connection.
 
 Source branch: `implement/gtaiv-composite-collision`
 
@@ -14,7 +14,7 @@ This is the reviewed focused visibility implementation, compared with `51e258a`.
 The integrated baseline viewer fixture/procedure is `b75eb037`. Decoder source
 remains unchanged from `47e8a2c`. The issue owns later publication revisions.
 
-Disposition: draft [#38](https://github.com/Jpatching/combine/pull/38) awaits owner source approval. The exact retained resource is now linked to Industrial, Bohan, around Drill Street / Lompoc Avenue and the unfinished Northern Expressway approach. Required ground-checkpoint coverage and owner location confirmation remain pending; no GTA/mesh agreement is established.
+Disposition: draft [#38](https://github.com/Jpatching/combine/pull/38) awaits owner source approval. The exact retained resource is linked to Industrial, Bohan, around Drill Street / Lompoc Avenue and the unfinished Northern Expressway approach. Four mesh-coordinate checkpoint candidates are retained privately and comparison rules are frozen; precise surface qualification and owner location confirmation remain pending. No GTA/mesh agreement is established.
 
 The owner authorized the bounded investigation and focused implementation with
 TDD, using subagents where efficient. The broader target remains one real GTA IV
@@ -23,6 +23,21 @@ driving. Traffic/pedestrians stay active; riding contact with moving objects is
 deferred. Source integration and gameplay acceptance remain separate.
 
 ## Evidence
+
+The owner then requested checkpoint preparation. A closer camera-only Hide/Show
+pair was captured and opened locally. Read-only analysis through the existing
+decoder matched the retained digest and counts and retained four exact face-
+centroid candidates: road, replacement pavement, lower and upper road approach.
+Independent image review supports the road/approach candidates, rejects apparent
+pavement on a parked trailer and moves the upper target away from the divider.
+Camera display readings support provisional image association only. A stalled
+clipboard helper was stopped by exact task identity; no result from it is used.
+An underpass association and an ambiguous intermediate/lower-layer candidate
+were excluded. No ground-query implementation or GTA measurements were added.
+The [checkpoint preparation record](../research/results/2026-10-10-gtaiv-ground-checkpoint-preparation.md)
+fixes comparison rules before host measurements: three valid readings, maximum
+0.02 m spread and maximum 0.05 m absolute vertical error for every reading.
+The point set still needs precise surface qualification and owner confirmation.
 
 The latest camera-only follow-up connects Burger Shot, Menala Metal's tank-roof
 building, adjoining streets, railway and separated unfinished bridge spans in
@@ -172,12 +187,14 @@ Expressway approach. Reuse the retained private named-connection record and
 opened connected screenshot pair. Do not repeat acquisition, installation,
 decoding or general skyline searches.
 
-Pin a handful of distinctive road, pavement and road-height-change checkpoints
-on the exact selected resource at its retained coordinates. Ground-level roadway
-and frontage are now visible candidates, but patchy overlay rendering establishes
-neither complete coverage nor gaps. A railway level is not a road height change.
-Complete local owner location confirmation separately. Count checks do not
-individually identify every child or qualify the chosen ground points.
+Continue from the four retained coordinate candidates in the
+[checkpoint preparation record](../research/results/2026-10-10-gtaiv-ground-checkpoint-preparation.md).
+Confirm the replacement pedestrian-strip centroid and upper same-carriageway
+centroid, resolving any lower-layer ambiguity before finalising the point set.
+Patchy overlay rendering establishes neither complete coverage nor gaps.
+A railway level is not a road height change. Complete local owner location
+confirmation separately. Count checks do not individually identify every child
+or qualify the chosen ground points.
 
 The earlier integration Standards/Spec reviews found no remaining actionable
 findings after a README correction at `5f2d007`; the focused visibility source
@@ -202,13 +219,13 @@ collision bounds is only a candidate. GTA4Unity's loader omits composite child
 matrices generally; this retained resource's matrices are explicitly identity.
 Do not extend that bounded qualification to other resources.
 
-After the location gate passes, choose a handful of distinctive road, pavement
-and height-change checkpoints. Freeze numeric tolerance and repeatability rules
-before measuring; compare GTA observations and mesh predictions at identical
-coordinates and reject unavailable results. Report agreement, disagreement or
-inconclusive. Agreement covers those ground checkpoints only; walls remain the
-next proof. Preserve existing guards and keep placement, active collision and
-Skate integration as separate evidence claims.
+After the complete gate passes, finalise the qualified checkpoint set and use the
+already frozen comparison rules: three stable valid readings, at most 0.02 m
+repeat spread and at most 0.05 m absolute vertical error at identical coordinates.
+Reject unavailable results; do not fit placement or average away failures.
+Report agreement, disagreement or inconclusive. Agreement covers those ground
+checkpoints only; walls remain the next proof. Preserve existing guards and keep
+placement, active collision and Skate integration as separate evidence claims.
 
 ## Session close
 

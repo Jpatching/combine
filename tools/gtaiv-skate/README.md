@@ -17,13 +17,20 @@ Run from the repository root:
 
 ```sh
 python3 scripts/verify.py
-rustc --test tools/gtaiv-skate/tests/connection.rs -o /tmp/combine-connection-tests
-/tmp/combine-connection-tests
-node tools/gtaiv-skate/tests/script.cjs
-node tools/gtaiv-skate/tests/status-script.cjs
+python3 tools/gtaiv-skate/check.py
 # Windows PowerShell:
 # powershell -NoProfile -File tools/gtaiv-skate/tests/status.ps1
 ```
+
+The adapter command is the same authored check suite used by CI: JavaScript mount,
+status and live observer checks; Rust connection, wire and freshness checks; and
+C++ evaluation-input checks. It requires Node.js, Rust with edition 2024 support
+and a C++17 `g++` on PATH. Missing tools or any failed check return a nonzero exit
+status with a named failure. Compiled tests use a temporary directory that is
+removed afterward. It needs no assets, credentials, downloads or game launch.
+The repository gate stays separate so environments without Rust can still run it.
+Pinned native definition checks and Windows status-report checks remain separate;
+authored checks do not establish real Session or GTA gameplay acceptance.
 
 With Rust's `i686-pc-windows-gnu` target and a 32-bit MinGW compiler on PATH:
 
@@ -219,14 +226,7 @@ wait is performed. An idle Session can remain warm; each new ride installs colli
 from the newly sampled grid before activation. Cancellation during an outstanding
 request may discard the warm child. The unchanged 5 cm surface guard still applies.
 
-Additional source checks:
-
-```sh
-rustc --edition=2024 --test tools/gtaiv-skate/tests/wire.rs -o /tmp/combine-worker-wire-tests
-/tmp/combine-worker-wire-tests
-rustc --edition=2024 --test tools/gtaiv-skate/tests/freshness.rs -o /tmp/combine-worker-freshness-tests
-/tmp/combine-worker-freshness-tests
-```
+Worker wire and freshness checks are included in `check.py` above.
 
 `tests/native-worker.cpp` is a standalone Windows smoke harness linked against the
 worker-feature static library. Run it beside the built worker and private asset

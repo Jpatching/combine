@@ -7,6 +7,8 @@ Reviewed: 2026-10-10
 Task: finish the approved decisions in the [GTA riding map](https://github.com/Jpatching/combine/issues/43), following the
 owner's `ask-matt` request for the most efficient next step. Reuse existing work;
 the map supplies decisions before a buildable spec, not gameplay acceptance.
+The owner selected one qualified street block for the first complete playable
+demo, with the GTA character driven by the actual solved Skate pose.
 
 Source branch: `research/gtaiv-street-contact-route`
 
@@ -19,7 +21,9 @@ Disposition: [contact research PR](https://github.com/Jpatching/combine/pull/49)
 and [board/rider research PR](https://github.com/Jpatching/combine/pull/50) are
 published drafts with passing CI, awaiting owner approval to merge.
 [Live-proof research PR](https://github.com/Jpatching/combine/pull/51) is also a
-published draft awaiting owner approval; its PR owns the final CI status. The
+published draft with passing CI, awaiting owner approval. All three report PRs
+passed required CI at their report heads before this context update; the contact
+PR owns final checks for this documentation delta. The
 [live-proof issue](https://github.com/Jpatching/combine/issues/47) owns its current
 resolution.
 
@@ -67,8 +71,9 @@ Reuse [Mount/move/dismount](https://github.com/Jpatching/combine/issues/20) for 
 bounded movement/observer diagnosis on the retained guard-accepted patch. With
 fresh focused mounted prerequisites, release F8, hold it for one second, then
 check for a new observer-start marker within three seconds. Missing that marker
-is the reproducible failing signal; classify mount refusal, stale status and lost
-focus separately. Controller delivery is a distinct boundary, not proved by a
+is the proposed reproduction signal; this one-second F8 diagnosis has not run,
+and the root cause remains unresolved. Classify mount refusal, stale status and
+lost focus separately. Controller delivery is a distinct boundary, not proved by a
 keyboard event or observer start. Limit diagnosis to two focused attempts and
 retain failures/refusals.
 
@@ -84,7 +89,9 @@ trial. Point ground agreement does not prove curb/wall contact.
 
 For presentation, first prove one owned board following the actual solved deck
 transform, including visible lifetime and independent rescue cleanup; then tackle
-rider mapping. Mounted appearance and initial street scope remain owner choices.
+rider mapping for the owner-selected GTA character using the actual solved Skate
+pose. Its live bone interface remains unqualified; canned clips do not satisfy
+that choice. The first complete playable demo covers one qualified street block.
 Research, source merge and actual Windows evidence are separate requirements.
 
 ## Session close

@@ -1,0 +1,20 @@
+[package]
+name = "combine-gtaiv-skate"
+version = "0.1.0"
+edition = "2024"
+publish = false
+[features]
+worker = ["dep:windows-sys"]
+[[bin]]
+name = "combine_skate_worker"
+path = "src/bin/worker.rs"
+required-features = ["worker"]
+[workspace]
+[lib]
+crate-type = ["staticlib"]
+[dependencies]
+windows-sys = { version = "0.61.2", optional = true, features = ["Win32_Foundation", "Win32_System_JobObjects", "Win32_Security"] }
+skate-host = { path = "../upstream/skate/crates/skate-host" }
+
+[profile.dev]
+debug = 0

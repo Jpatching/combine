@@ -4,7 +4,7 @@
 
 Reviewed: 2026-10-10
 
-Task: prioritize a visible guarded flat-patch GTA/Skate mount/move/dismount trial under [#20](https://github.com/Jpatching/combine/issues/20), continuing the bounded placement work of [#39](https://github.com/Jpatching/combine/issues/39).
+Task: chart the owner-requested wayfinder map for reliable GTA street contact, visible board and animated rider with ordinary GTA recovery, retaining the incomplete mount/move/dismount work under [#20](https://github.com/Jpatching/combine/issues/20), continuing the bounded placement work of [#39](https://github.com/Jpatching/combine/issues/39).
 
 Source branch: `integration/gtaiv-skate-loop`
 
@@ -13,8 +13,12 @@ Source revision: `849c631a2ec456ea1491f59f1e0bdfa540d867b6`
 This is the capture-support integration checkpoint. The issue records later
 publication revisions; the installed adapter remains the separate runtime identity below.
 
-Disposition: the owner selected visible ride proof before completing street
-qualification. Reuse the preserved candidate on a surface accepted by its unchanged
+Disposition: visible ride trials now have partial entry, owner-reported forward
+movement and retained failure/refusal clips. The owner invoked ask-matt and
+wayfinder before further implementation; a GTA map has not yet been published.
+First playable scope and rider appearance await owner decisions. The prior
+visible-first selection preceded complete street qualification. Reuse the preserved candidate on a surface accepted by its
+unchanged
 flat-patch guard. Street qualification remains unresolved; this diagnostic does not
 prove decoded mesh contact. Draft [#23](https://github.com/Jpatching/combine/pull/23)
 is the existing integration PR. Draft [#42](https://github.com/Jpatching/combine/pull/42)
@@ -70,28 +74,40 @@ bootstrap/read-access setup stays outside tracked source; resource placement and
 pins were preserved. Selected Game-only viewer screenshots are authorized for
 AI inspection; game files, private identities and exact coordinates stay private.
 
-Latest runtime evidence: preserved candidate `b403377481a33e407aeb81b78b8d38984aac4735`
-loaded from the staged runtime and mounted briefly. No fresh push/steer verdict
-arrived; `surface/input/time unavailable` ended the ride, followed by verified
-native player control and owned-camera destruction. The owner saw entry into Skate
-without board/animation. A second take refused before input; GTA remained running
-but status was stale. A subsequent health check found GTA responsive but
-minimized/not focused; the owner was asked to restore it manually. A complete
-loop and restart repeat remain unproved. Runtime
-files and guard are unchanged. Earlier refusal and camera-fix trials are retained.
+Latest runtime evidence: unchanged candidate `b403377481a33e407aeb81b78b8d38984aac4735`
+loaded from the staged runtime. The first take mounted briefly and restored GTA
+after `surface/input/time unavailable`. A later focused take stayed mounted until
+requested F6 cleanup, with verified GTA control/camera recovery, but zero F8
+observer-start markers. The next mount refused above 0.05 m. All three roughly
+32-second low-frame-rate silent clips were retained and opened locally. The owner
+reports forward motion, missing board/animation and inconsistent triggering.
+These are partial observations; full measured push/both-steering/recovery and a
+restart repeat remain unproved. The installed observer matches the current source
+and manifest. A longer F8 test could not execute after the surface refusal.
+Stale status coincided with minimized/unfocused GTA; the owner confirmed Alt-Tabbing
+to type. No crash or exact mounted termination cause is established.
 
 ## Next step
 
-Restore the minimized GTA window manually, then re-establish fresh on-foot
-gameplay in the preserved runtime with a connected
-neutral controller and GTA focused. Start private recording before the mount,
-run the existing guarded push/steer playback, dismount and observe walking
-recovery. Open the actual clip locally. Retain refusal and incomplete evidence;
-repeat after normal restart only when prerequisites are established. The existing
-short recorder has a private 32-second copy; Linux encoding avoids installing a
-new Windows capture dependency. Preserve the first incomplete take and the
-second pre-input refusal. Universal Modder recording CLI help passed, but
-Windows FFmpeg was unavailable in the bounded lookup; no UM recording is claimed.
+Finish the live breadth-first wayfinder discussion: first street-block versus
+broad-city acceptance, and GTA-character animation versus a Skate skater while
+mounted. Keep the destination fixed on existing Skate mechanics/board, real GTA
+contact and normal GTA recovery. Resolve owner preferences before publishing the
+map and child decision issues. The prepared source-safe draft is temporary, not
+an approved tracker spec; do not select the retired Fortnite map.
+
+The initial decisions are contact coverage/layers on exact GTA IV 1.2.0.59,
+board/rider drawing and pose mapping, and a reliable movement/recovery observation
+seam without shared desktop control. Research independent facts in parallel once
+these are published. Wayfinding produces decisions, then hands off to spec/tickets;
+it does not close the incomplete riding task or manufacture runtime acceptance.
+Keep the source/runtime identities separate and preserve existing draft PRs.
+
+Any further authorized ride trial must restore focused GTA and fresh status,
+record before mounting, and retain failed/refused takes. Opening evidence may
+require Alt-Tabbing away from fullscreen GTA; stale background status must block
+input. PC viewing works; phone playback is unavailable. Universal Modder CLI help
+passed, but no UM recording or Windows dependency installation is claimed.
 
 Capture-support source now generates per-point oblique/overhead Hide/Show pairs
 inside Unity without desktop input. An isolated authored fixture executed missing

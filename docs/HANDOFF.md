@@ -8,15 +8,17 @@ Task: implement the owner-approved faster test loop and qualified ground route u
 
 Source branch: `implement/gtaiv-qualified-ground`
 
-Source revision: `b27929a16e420a8cfa1d319825966a90309ca566`
+Source revision: `bfc8eba32dcfd4c26f4af055f9e9ecd0ee303f1c`
 
-This is the fixed review base for [ground source #53](https://github.com/Jpatching/combine/issues/53),
-stacked with explicit owner approval on retained [PR #23](https://github.com/Jpatching/combine/pull/23).
-No PR exists for the ground slice yet; its publication record will own the final
-revision. The exception permits source implementation without merging the parent
+The ground source is published in [draft PR #57](https://github.com/Jpatching/combine/pull/57)
+for [#53](https://github.com/Jpatching/combine/issues/53), stacked with explicit owner
+approval on retained [PR #23](https://github.com/Jpatching/combine/pull/23).
+Its fixed review base is `b27929a16e420a8cfa1d319825966a90309ca566`.
+The exception permits source implementation without merging the parent
 or treating authored geometry as GTA qualification.
 
-Disposition: both adapters now accept bounded triangle collision through explicit
+Disposition: draft PR #57 awaiting owner source review and approval. Both adapters
+now accept bounded triangle collision through explicit
 surface preparation/mount/tick commands. Observations carry query coordinates,
 layer and availability; mesh support is evaluated independently at returned poses.
 The clean rebuilt Windows Session ramp and suspended-worker cancellation trials
@@ -24,7 +26,7 @@ pass. Ordinary F6 still uses the preserved
 flat route: a qualified street supplier and native success/loaded evidence are
 pending. No installed game files or runtime candidates changed.
 
-The test-command prerequisite is published on #23 at the revision above. The
+The test-command prerequisite is published on #23 at the fixed review base above. The
 parent PR currently reports merge conflicts against `main` and no checks for its
 latest revision; earlier successful CI is not evidence for this revision.
 Resolve that integration separately before merging the stack. The
@@ -72,7 +74,8 @@ observation-type suggestion; Spec review found zero blocking findings. Both revi
 the final cancellation harness; wording suggestions were applied. Source
 review does not establish loaded GTA contact or visible rendering. The repository
 gate passed 79 tests/68 document checks for the candidate. Pinned native definition
-contracts and `git diff --check` also passed. Final publication is still required.
+contracts and `git diff --check` also passed. Draft #57 owns current CI status;
+the issue owns source acceptance and the publication record.
 
 Latest runtime evidence: installed runtime reference remains `b403377481a33e407aeb81b78b8d38984aac4735`.
 The [latest diagnostic](https://github.com/Jpatching/combine/issues/20#issuecomment-6099798185)
@@ -89,7 +92,10 @@ moving geometry. A finite height alone is not success/loaded evidence.
 
 ## Next step
 
-Finish candidate validation, review follow-ups and the focused stacked draft PR.
+Resolve the parent integration conflicts before merging the stack; source approval does not
+establish GTA gameplay acceptance. Resume the next slice from its live issue and
+blocking edges after preserving this evidence; keep each agent's file ownership
+explicit and use fresh independent Standards and Spec review contexts.
 Preserve the versioned matching parent/worker pair: old worker frames are rejected.
 A bounded writer thread keeps large geometry uploads off the cancellable supervisor.
 The normal F6 script is deliberately not wired to assume a qualified supplier.

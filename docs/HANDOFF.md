@@ -27,9 +27,11 @@ flat route: a qualified street supplier and native success/loaded evidence are
 pending. No installed game files or runtime candidates changed.
 
 The test-command prerequisite is published on #23 at the fixed review base above. The
-parent PR currently reports merge conflicts against `main` and no checks for its
-latest revision; earlier successful CI is not evidence for this revision.
-Resolve that integration separately before merging the stack. The
+parent integration conflict is resolved at `457a7cfeedd16e016c9683323dfb807d858b5752`,
+incorporating synchronized `main` at `82d35ad1e43620389abb69fa6bcb591cca1d6279`.
+This branch incorporates that parent update while keeping #57 separate from #23.
+Each draft owns its current CI result; earlier successful CI is not evidence for
+a later revision. The
 remaining approved slices are [local qualification/trial #54](https://github.com/Jpatching/combine/issues/54),
 [board #55](https://github.com/Jpatching/combine/issues/55), and
 [rider-interface proof #56](https://github.com/Jpatching/combine/issues/56), with
@@ -92,8 +94,12 @@ moving geometry. A finite height alone is not success/loaded evidence.
 
 ## Next step
 
-Resolve the parent integration conflicts before merging the stack; source approval does not
-establish GTA gameplay acceptance. Resume the next slice from its live issue and
+Keep both PRs in draft pending their required acceptance; source approval does not
+establish GTA gameplay acceptance. Use the existing cursor-free checkpoint capture
+to inspect all four anchor bases in the retained isolated viewer. Resolve exact
+surface/layer association, then obtain three genuine successful, loaded,
+matching-layer GTA readings per fixed point. Neither a running Unity process nor
+fixture output establishes this qualification. Resume the next slice from its live issue and
 blocking edges after preserving this evidence; keep each agent's file ownership
 explicit and use fresh independent Standards and Spec review contexts.
 Preserve the versioned matching parent/worker pair: old worker frames are rejected.
@@ -128,7 +134,9 @@ Git and AI uploads. Only the isolated standalone Session worker ran; no GTA stag
 [glossary](../GLOSSARY.md), [workbench](WORKBENCH.md),
 [visible ride record](../research/results/2026-10-10-gtaiv-visible-ride.md),
 [checkpoint preparation](../research/results/2026-10-10-gtaiv-ground-checkpoint-preparation.md),
-[checkpoint tooling](../research/results/2026-10-10-gtaiv-checkpoint-tooling.md).
+[checkpoint tooling](../research/results/2026-10-10-gtaiv-checkpoint-tooling.md),
+[physical collision report](../research/results/gtaiv-120059-physical-collision-feasibility.md),
+[retained GTA context](archive/HANDOFF-2026-10-09-gta-context.md).
 Earlier branch snapshots remain in Git history; their retired next steps do not
 select current work. Full upstream host tests remain unverified because the pinned
 source references missing `src/tests/map_startup.rs`.

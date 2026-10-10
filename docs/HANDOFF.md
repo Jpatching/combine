@@ -6,45 +6,78 @@ Reviewed: 2026-10-10
 
 Task: implement the owner-approved faster test loop and qualified ground route under [#52](https://github.com/Jpatching/combine/issues/52), retaining [#20](https://github.com/Jpatching/combine/issues/20) for complete GTA riding acceptance.
 
-Source branch: `integration/gtaiv-skate-loop`
+Source branch: `implement/gtaiv-qualified-ground`
 
-Source revision: `b27929a16e420a8cfa1d319825966a90309ca566`
+Source revision: `bfc8eba32dcfd4c26f4af055f9e9ecd0ee303f1c`
 
-This is the retained source tip before integrating synchronized `main`
-(`82d35ad1e43620389abb69fa6bcb591cca1d6279`). The handoff conflict resolution
-passed independent Standards and Spec review. Existing draft
-[PR #23](https://github.com/Jpatching/combine/pull/23) owns the final published
-revision and current CI status. No gameplay acceptance or merge to `main` is claimed.
+The ground source is published in [draft PR #57](https://github.com/Jpatching/combine/pull/57)
+for [#53](https://github.com/Jpatching/combine/issues/53), stacked with explicit owner
+approval on retained [PR #23](https://github.com/Jpatching/combine/pull/23).
+Its fixed review base is `b27929a16e420a8cfa1d319825966a90309ca566`.
+The exception permits source implementation without merging the parent
+or treating authored geometry as GTA qualification.
 
-Disposition: one portable authored adapter check command now runs the existing
-JavaScript, Rust and C++ checks. CI uses the same command and gains the previously
-omitted connection tests. Existing CI already covered the other adapter checks;
-this is consolidation and added coverage, not a claim that none ran before.
+Disposition: draft PR #57 awaiting owner source review and approval. Both adapters
+now accept bounded triangle collision through explicit
+surface preparation/mount/tick commands. Observations carry query coordinates,
+layer and availability; mesh support is evaluated independently at returned poses.
+The clean rebuilt Windows Session ramp and suspended-worker cancellation trials
+pass. Ordinary F6 still uses the preserved
+flat route: a qualified street supplier and native success/loaded evidence are
+pending. No installed game files or runtime candidates changed.
 
-The owner approved a focused stacked `implement/gtaiv-qualified-ground` branch
-from this retained source for [the ground source slice](https://github.com/Jpatching/combine/issues/53).
-The ground source is now published separately in
-[draft PR #57](https://github.com/Jpatching/combine/pull/57) at
-`bfc8eba32dcfd4c26f4af055f9e9ecd0ee303f1c`, awaiting owner source acceptance.
-Its authored ramp and standalone Windows Session evidence belong to that PR;
-none of its source is incorporated here. This exception does not authorize an
-automatic merge or real-street activation before qualification. New ground,
-board and rider changes stay off this broad PR.
+The test-command prerequisite is published on #23 at the fixed review base above. The
+parent integration conflict is resolved at `457a7cfeedd16e016c9683323dfb807d858b5752`,
+incorporating synchronized `main` at `82d35ad1e43620389abb69fa6bcb591cca1d6279`.
+This branch incorporates that parent update while keeping #57 separate from #23.
+Each draft owns its current CI result; earlier successful CI is not evidence for
+a later revision. The
+remaining approved slices are [local qualification/trial #54](https://github.com/Jpatching/combine/issues/54),
+[board #55](https://github.com/Jpatching/combine/issues/55), and
+[rider-interface proof #56](https://github.com/Jpatching/combine/issues/56), with
+native blocking edges. #54 waits for #53 and retained qualification #39; board
+waits for that ground milestone, then rider follows board.
 
 ## Evidence
 
-`python3 tools/gtaiv-skate/check.py` passed all seven existing authored suites
-in approximately 1.1 seconds, including execution from another working directory.
-Missing-tool and deliberately failing temporary compiler checks returned nonzero
-with named failures. Temporary executables are isolated and removed. Six existing
-Rust dead-code warnings remain. `python3 scripts/verify.py` passed 79 tests and
-68 document/context checks before this handoff update. Independent Standards and
-Spec review of the focused runner/CI/README diff each reported zero findings.
-The integration merge candidate also passed the repository gate (79 tests and
-68 document/context checks), all seven portable adapter suites in 1.29 seconds,
-and staged whitespace checks. Independent Standards and Spec reviews of that
-candidate each reported zero findings. These are source checks; the Windows
-Session harness and GTA were not run for this integration update.
+`python3 tools/gtaiv-skate/check.py` passes all seven authored suites, including
+six connection, four wire and two freshness tests (approximately 1–3 seconds).
+The unchanged flat API rejects an authored slope; the triangle route accepts it.
+Initial new-interface tests failed compilation before implementation; an executed
+wire test then failed because invalid geometry observations were accepted, and
+passes after decoder validation. These are precise source red/green claims, not
+a freshly reproduced GTA failure.
+
+The pinned x86 Windows worker/library and C++ harness compile and link. The first
+target build caught an ambiguous integer type missed by portable tests; explicit
+u64 sequence typing fixed it. The real standalone `native-ground-clean.exe --surface-only`
+trial passed mounting on an authored ramp, 90 pushed ticks across changing heights,
+height following, unavailable/wrong-layer refusal and remount recovery. The final
+clean rebuilt trial also passed cancellation of maximum-sized preparation against
+a suspended owned child, child exit within two seconds and fresh Session recovery;
+maximum observed parent call was 1.664 ms. The focused `--surface-cancel-only`
+trial passed twice. It does not directly instrument the writer's blocked state.
+The same clean executable's default flat-worker trial passed push/steer, warm
+remount, collision revision, stale-pose discard, suspended-child refusal and
+terminated-child recovery; maximum parent call was 1.462 ms. A final text-only
+success-message correction was relinked as `native-ground-final.exe`.
+The in-process Rust library also builds; native execution of that backend remains
+unverified. Existing upstream private-interface
+warnings remain, along with module dead-code warnings in focused builds.
+
+The cancellation regression first failed against an old executable. Symbol and
+disassembly inspection showed its pipe write still ran on the supervisor; the
+relinked executable contains the dedicated writer thread. Comparing exported
+source alone had missed the stale executable. Clean uninstrumented rebuilds
+establish the reported passes; keep the focused regression and relink after builds.
+
+Independent Standards review found no blocking violation and one optional named
+observation-type suggestion; Spec review found zero blocking findings. Both reviewed
+the final cancellation harness; wording suggestions were applied. Source
+review does not establish loaded GTA contact or visible rendering. The repository
+gate passed 79 tests/68 document checks for the candidate. Pinned native definition
+contracts and `git diff --check` also passed. Draft #57 owns current CI status;
+the issue owns source acceptance and the publication record.
 
 Latest runtime evidence: installed runtime reference remains `b403377481a33e407aeb81b78b8d38984aac4735`.
 The [latest diagnostic](https://github.com/Jpatching/combine/issues/20#issuecomment-6099798185)
@@ -61,17 +94,18 @@ moving geometry. A finite height alone is not success/loaded evidence.
 
 ## Next step
 
-Keep #23 and #57 in draft pending their required acceptance; inspect each PR for
-its current revision and checks. Keep #57 separate and follow its source acceptance
-before integrating it. For #39, establish the exact private surface/layer anchors
-and collect three successful, loaded, matching-layer readings per checkpoint
-within the stated spread and mesh tolerances. The remaining approved task graph
-is [qualification/trial #54](https://github.com/Jpatching/combine/issues/54),
-[board #55](https://github.com/Jpatching/combine/issues/55), then
-[rider-interface proof #56](https://github.com/Jpatching/combine/issues/56).
-#54 waits for #53 and retained qualification #39. Ordinary F6 still uses the
-preserved flat route; no qualified street supplier has been activated. Preserve
-the mounting guard and all retained candidates.
+Keep both PRs in draft pending their required acceptance; source approval does not
+establish GTA gameplay acceptance. Use the existing cursor-free checkpoint capture
+to inspect all four anchor bases in the retained isolated viewer. Resolve exact
+surface/layer association, then obtain three genuine successful, loaded,
+matching-layer GTA readings per fixed point. Neither a running Unity process nor
+fixture output establishes this qualification. Resume the next slice from its live issue and
+blocking edges after preserving this evidence; keep each agent's file ownership
+explicit and use fresh independent Standards and Spec review contexts.
+Preserve the versioned matching parent/worker pair: old worker frames are rejected.
+A bounded writer thread keeps large geometry uploads off the cancellable supervisor.
+The normal F6 script is deliberately not wired to assume a qualified supplier.
+Do not enable it by turning a finite native ground height into successful availability.
 
 Use the existing real-Session Windows harness for native proofs and bounded live
 observer for GTA. The owner launches/focuses GTA; the runner must refuse lost focus,
@@ -92,7 +126,7 @@ Follow [context maintenance](agents/current-context.md) and
 private resources/placement, source branches and runtime recovery. Do not close
 #20 or #52 on authored test evidence. Owner acceptance and merge remain pending.
 Keep assets, identities, exact coordinates, settings, recordings and logs outside
-Git and AI uploads. No runtime staging or launch occurred for this prerequisite.
+Git and AI uploads. Only the isolated standalone Session worker ran; no GTA staging or launch occurred.
 
 ## Historical reference
 

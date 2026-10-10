@@ -29,3 +29,47 @@ fn last_validated_bridge_pose_survives_publication_until_original_deadline() {
     assert!(pose.fresh(7, 9, 3, start, f32::NAN, &surface).is_none());
     assert!(AcceptedPose::new(7, 9, 3, [f32::NAN, 200., 11., 90.], start).is_none());
 }
+#[test]
+fn qualified_observation_follows_its_query_while_fresh_pose_uses_own_mesh_height() {
+    let surface = Surface::from_triangles(
+        vec![
+            [[0., 0., 0.], [8., 0., 2.], [0., 8., 0.]],
+            [[8., 0., 2.], [8., 8., 2.], [0., 8., 0.]],
+        ],
+        [1., 1., 0.25],
+        1.,
+        7,
+    )
+    .unwrap();
+    let start = Instant::now();
+    let pose = AcceptedPose::new(7, 9, 3, [6., 2., 2.5, 90.], start).unwrap();
+    assert_eq!(
+        pose.fresh_observation(7, 9, 3, start, 0.25, &surface, Some(([1., 1.], 7, 1))),
+        Some([6., 2., 2.5, 90.])
+    );
+    assert!(pose.fresh(7, 9, 3, start, 0.25, &surface).is_none());
+    assert!(
+        pose.fresh_observation(7, 9, 3, start, 0.25, &surface, Some(([6., 2.], 7, 1)))
+            .is_none()
+    );
+    assert!(
+        pose.fresh_observation(7, 9, 3, start, 0.25, &surface, Some(([1., 1.], 7, 0)))
+            .is_none()
+    );
+    assert!(
+        pose.fresh_observation(
+            7,
+            9,
+            3,
+            start + Duration::from_millis(251),
+            0.25,
+            &surface,
+            Some(([1., 1.], 7, 1))
+        )
+        .is_none()
+    );
+    assert!(
+        pose.fresh_observation(8, 9, 3, start, 0.25, &surface, Some(([1., 1.], 7, 1)))
+            .is_none()
+    );
+}

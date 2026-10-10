@@ -43,3 +43,70 @@ fn gta_cardinal_headings_preserve_skate_forward_orientation() {
         assert!((gta_heading(forward) - heading).abs() < 0.0001);
     }
 }
+#[test]
+fn qualified_slope_keeps_riding_when_query_and_pose_move_to_different_heights() {
+    let triangles = vec![
+        [[0., 0., 0.], [8., 0., 2.], [0., 8., 0.]],
+        [[8., 0., 2.], [8., 8., 2.], [0., 8., 0.]],
+    ];
+    let surface = Surface::from_triangles(triangles, [1., 1., 0.25], 1., 7).unwrap();
+    assert!(surface.observation([1., 1.], 0.25, 7, 1));
+    assert!(surface.observation([6., 2.], 1.5, 7, 1));
+    assert!(surface.contains_pose([6., 2., 2.5]));
+    assert!(!surface.observation([6., 2.], 0.25, 7, 1));
+    assert!(!surface.observation([6., 2.], 1.5, 8, 1));
+    assert!(!surface.observation([6., 2.], 1.5, 7, 0));
+    assert!(!surface.contains_pose([9., 2., 2.5]));
+    assert_eq!(surface.triangles().len(), 2);
+}
+#[test]
+fn geometry_refuses_ambiguous_invalid_or_uncovered_ground_without_weakening_flat_guard() {
+    let t = [[0., 0., 0.], [8., 0., 2.], [0., 8., 0.]];
+    for (triangles, layer) in [
+        (vec![t], 0),
+        (vec![], 7),
+        (vec![[[0.; 3]; 3]], 7),
+        (vec![[[f32::NAN, 0., 0.], t[1], t[2]]], 7),
+        (vec![t; 4097], 7),
+        (vec![t, t.map(|p| [p[0], p[1], p[2] + 1.])], 7),
+    ] {
+        assert!(Surface::from_triangles(triangles, [1., 1., 0.25], 1., layer).is_err());
+    }
+    let surface = Surface::from_triangles(vec![t], [1., 1., 0.25], 1., 7).unwrap();
+    assert!(!surface.observation([9., 0.], 2.25, 7, 1));
+    assert!(!surface.observation([1., 1.], 0.25, 7, 2));
+    assert!(!surface.observation([f32::NAN, 1.], 0.25, 7, 1));
+    assert!(!surface.contains_pose([1., 1., 4.]));
+    assert!(!surface.contains_pose([1., 1., f32::NAN]));
+    let points = (0..25)
+        .map(|i| [-4. + (i % 5) as f32 * 2., -4. + (i / 5) as f32 * 2., 0.])
+        .collect();
+    let flat = Surface::new(points, [0.; 3], 1.).unwrap();
+    assert!(flat.contains([0., 0., 1.], 0.05));
+    assert!(!flat.contains([0., 0., 1.], 0.051));
+}
+#[test]
+fn flat_api_still_refuses_authored_slope_while_triangle_route_retains_it() {
+    let points: Vec<_> = (0..25)
+        .map(|i| {
+            let x = -4. + (i % 5) as f32 * 2.;
+            [x, -4. + (i / 5) as f32 * 2., x * 0.25]
+        })
+        .collect();
+    assert!(Surface::new(points, [0.; 3], 1.).is_err());
+    let surface = Surface::from_triangles(
+        vec![
+            [[-4., -4., -1.], [4., -4., 1.], [-4., 4., -1.]],
+            [[4., -4., 1.], [4., 4., 1.], [-4., 4., -1.]],
+            // A vertical collision face is retained, without becoming support.
+            [[4., -4., 1.], [4., 4., 1.], [4., 4., 3.]],
+        ],
+        [0.; 3],
+        1.,
+        7,
+    )
+    .unwrap();
+    assert!(surface.observation([2., 0.], 0.5, 7, 1));
+    assert!(surface.contains_pose([2., 0., 1.5]));
+    assert_eq!(surface.triangles().len(), 3);
+}

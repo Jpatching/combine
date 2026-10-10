@@ -25,7 +25,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut clock: Option<Clock> = None;
     let mut identity = 0;
     let mut revision = 0;
-    let mut sequence = 0;
+    let mut sequence: u64 = 0;
     let mut riding = false;
     let mut input = io::stdin().lock();
     let mut output = io::stdout().lock();
@@ -40,7 +40,25 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 {
                     return Err("stale prepare".into());
                 }
-                let next = Surface::new(request.points.to_vec(), request.origin, request.scale)?;
+                let next = if request.layer != 0 {
+                    if request.valid != 1
+                        || request.query != [request.origin[0], request.origin[1]]
+                        || request.ground != request.origin[2]
+                    {
+                        return Err("unqualified prepare".into());
+                    }
+                    Surface::from_triangles(
+                        request.triangles.clone(),
+                        request.origin,
+                        request.scale,
+                        request.layer,
+                    )?
+                } else {
+                    if !request.triangles.is_empty() {
+                        return Err("unselected geometry".into());
+                    }
+                    Surface::new(request.points.to_vec(), request.origin, request.scale)?
+                };
                 if let Some(active) = session.as_mut() {
                     active.suspend_input();
                     let collision = active.collision_builder().build(next.triangles(), vec![])?;
@@ -67,9 +85,21 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 if !riding
                     || request.ride != identity
                     || request.revision != revision
-                    || request.sequence != sequence + 1
+                    || Some(request.sequence) != sequence.checked_add(1)
                 {
                     return Err("stale tick".into());
+                }
+                let selected = surface.as_ref().ok_or("surface missing")?;
+                if selected.is_geometry()
+                    && !selected.observation(
+                        request.query,
+                        request.ground,
+                        request.layer,
+                        request.valid,
+                    )
+                    || !selected.is_geometry() && request.layer != 0
+                {
+                    return Err("unqualified tick".into());
                 }
                 let active = session.as_mut().ok_or("session missing")?;
                 if clock.is_none() {
@@ -111,7 +141,13 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             return Err("invalid pose".into());
         }
         let pos = selected.to_gta(pose.root.w_axis.truncate().to_array());
-        if request.kind != 3 && !selected.contains(pos, request.ground) {
+        if request.kind != 3
+            && !(if selected.is_geometry() {
+                selected.contains_pose(pos)
+            } else {
+                selected.contains(pos, request.ground)
+            })
+        {
             return Err("surface exit".into());
         }
         let heading = gta_heading(pose.root.z_axis.truncate().to_array());

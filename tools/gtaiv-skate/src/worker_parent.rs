@@ -2,7 +2,7 @@
 use crate::{
     Packet,
     accepted_pose::AcceptedPose,
-    connection::Surface,
+    connection::{GeometryBuilder, Surface},
     wire::{Request, Response},
 };
 use std::os::windows::{io::AsRawHandle, process::CommandExt};
@@ -88,7 +88,8 @@ impl Bridge {
                 return;
             };
             let mut child: Option<std::process::Child> = None;
-            let mut stdin = None;
+            let mut writes: Option<SyncSender<Request>> = None;
+            let mut writer: Option<std::thread::JoinHandle<()>> = None;
             let mut responses = None;
             let mut active = false;
             loop {
@@ -106,7 +107,10 @@ impl Bridge {
                             let _ = owned.kill();
                             let _ = owned.wait();
                         }
-                        stdin = None;
+                        writes = None;
+                        if let Some(owned) = writer.take() {
+                            let _ = owned.join();
+                        }
                         responses = None;
                         active = false;
                     }
@@ -127,7 +131,18 @@ impl Bridge {
                             let _ = spawned.wait();
                             return Err(());
                         }
-                        stdin = spawned.stdin.take();
+                        let mut stdin = spawned.stdin.take().ok_or(())?;
+                        let (write_tx, write_rx) = mpsc::sync_channel::<Request>(1);
+                        // A large prepare frame can exceed the pipe buffer. Keep writes off
+                        // the supervisor so its deadline/cancellation can kill a stalled child.
+                        writer = Some(std::thread::spawn(move || {
+                            while let Ok(request) = write_rx.recv() {
+                                if request.write(&mut stdin).is_err() {
+                                    break;
+                                }
+                            }
+                        }));
+                        writes = Some(write_tx);
                         let mut stdout = spawned.stdout.take().ok_or(())?;
                         let (tx, rx) = mpsc::sync_channel(1);
                         std::thread::spawn(move || {
@@ -142,7 +157,11 @@ impl Bridge {
                         responses = Some(rx);
                         child = Some(spawned);
                     }
-                    request.write(stdin.as_mut().ok_or(())?).map_err(|_| ())?;
+                    writes
+                        .as_ref()
+                        .ok_or(())?
+                        .try_send(request.clone())
+                        .map_err(|_| ())?;
                     let started = Instant::now();
                     let limit = if request.kind == 1 {
                         Duration::from_secs(60)
@@ -185,7 +204,12 @@ impl Bridge {
                         let _ = owned.kill();
                         let _ = owned.wait();
                     }
-                    stdin = None;
+                    writes = None;
+                    // Killing the child closes the blocked pipe; dropping the bounded
+                    // channel wakes an idle writer before waiting for its termination.
+                    if let Some(owned) = writer.take() {
+                        let _ = owned.join();
+                    }
                     responses = None;
                     active = false;
                     if token.load(Ordering::Acquire) == request.ride {
@@ -199,6 +223,10 @@ impl Bridge {
             if let Some(mut owned) = child {
                 let _ = owned.kill();
                 let _ = owned.wait();
+            }
+            drop(writes);
+            if let Some(owned) = writer {
+                let _ = owned.join();
             }
         });
         Self {
@@ -215,6 +243,7 @@ impl Bridge {
 #[derive(Default)]
 pub struct Adapter {
     points: Vec<[f32; 3]>,
+    geometry: GeometryBuilder,
     exe: Option<PathBuf>,
     bridge: Option<Bridge>,
     surface: Option<Surface>,
@@ -240,6 +269,7 @@ impl Adapter {
         self.deferred = None;
         let active = self.surface.take().is_some();
         self.points.clear();
+        self.geometry = GeometryBuilder::default();
         self.pose = [f32::NAN; 4];
         self.accepted = None;
         if !active {
@@ -283,6 +313,54 @@ impl Adapter {
         if !heading.is_finite() {
             return 0;
         }
+        self.prepare(surface, origin, heading, scale, points, 0, vec![])
+    }
+    pub fn surface_begin(&mut self, layer: u32, triangles: u32) -> i32 {
+        if self.surface.is_some() {
+            return 0;
+        }
+        self.geometry.begin(layer, triangles)
+    }
+    pub fn surface_vertex(&mut self, p: [f32; 3]) -> i32 {
+        if self.surface.is_some() {
+            return 0;
+        }
+        self.geometry.vertex(p)
+    }
+    pub fn mount_surface(
+        &mut self,
+        origin: [f32; 3],
+        heading: f32,
+        scale: f32,
+        layer: u32,
+        valid: u32,
+    ) -> i32 {
+        let Ok((surface, triangles)) = self.geometry.finish(origin, scale, layer, valid) else {
+            return 0;
+        };
+        if !heading.is_finite() {
+            return 0;
+        }
+        self.prepare(
+            surface,
+            origin,
+            heading,
+            scale,
+            [[0.; 3]; 25],
+            layer,
+            triangles,
+        )
+    }
+    fn prepare(
+        &mut self,
+        surface: Surface,
+        origin: [f32; 3],
+        heading: f32,
+        scale: f32,
+        points: [[f32; 3]; 25],
+        layer: u32,
+        triangles: Vec<[[f32; 3]; 3]>,
+    ) -> i32 {
         if self.bridge.is_none() {
             let Some(exe) = self.exe.clone() else {
                 return 0;
@@ -308,6 +386,10 @@ impl Adapter {
             heading,
             scale,
             points,
+            layer,
+            valid: if layer != 0 { 1 } else { 0 },
+            query: [origin[0], origin[1]],
+            triangles,
             ..Request::default()
         };
         b.generation.store(b.ride, Ordering::Release);
@@ -370,6 +452,26 @@ impl Adapter {
         self.pose.get(index as usize).copied().unwrap_or(f32::NAN)
     }
     pub fn tick(&mut self, now: u32, ground: f32, p: &Packet) -> i32 {
+        self.tick_at(now, ground, p, None)
+    }
+    pub fn tick_surface(
+        &mut self,
+        now: u32,
+        xy: [f32; 2],
+        ground: f32,
+        layer: u32,
+        valid: u32,
+        p: &Packet,
+    ) -> i32 {
+        self.tick_at(now, ground, p, Some((xy, layer, valid)))
+    }
+    fn tick_at(
+        &mut self,
+        now: u32,
+        ground: f32,
+        p: &Packet,
+        observation: Option<([f32; 2], u32, u32)>,
+    ) -> i32 {
         let Some(b) = self.bridge.as_mut() else {
             return 0;
         };
@@ -379,6 +481,11 @@ impl Adapter {
         let Some(surface) = self.surface.as_ref() else {
             return 0;
         };
+        if observation.is_some_and(|o| {
+            !surface.query_matches_pose(o.0, [self.pose[0], self.pose[1], self.pose[2]])
+        }) {
+            return 0;
+        }
         let candidate = match b.snapshot.try_lock() {
             Ok(s) => {
                 if s.ride != b.ride || s.revision != b.revision || s.state != 1 {
@@ -387,11 +494,27 @@ impl Adapter {
                 }
                 self.accepted = AcceptedPose::new(s.ride, s.revision, b.epoch, s.pose, s.updated);
                 self.accepted.as_ref().and_then(|pose| {
-                    pose.fresh(b.ride, b.revision, b.epoch, Instant::now(), ground, surface)
+                    pose.fresh_observation(
+                        b.ride,
+                        b.revision,
+                        b.epoch,
+                        Instant::now(),
+                        ground,
+                        surface,
+                        observation,
+                    )
                 })
             }
             Err(std::sync::TryLockError::WouldBlock) => self.accepted.as_ref().and_then(|pose| {
-                pose.fresh(b.ride, b.revision, b.epoch, Instant::now(), ground, surface)
+                pose.fresh_observation(
+                    b.ride,
+                    b.revision,
+                    b.epoch,
+                    Instant::now(),
+                    ground,
+                    surface,
+                    observation,
+                )
             }),
             Err(std::sync::TryLockError::Poisoned(_)) => return 0,
         };
@@ -410,6 +533,11 @@ impl Adapter {
             revision: b.revision,
             now,
             ground,
+            query: observation
+                .map(|o| o.0)
+                .unwrap_or([self.pose[0], self.pose[1]]),
+            layer: observation.map(|o| o.1).unwrap_or(0),
+            valid: observation.map(|o| o.2).unwrap_or(0),
             buttons: p.buttons,
             left: p.left,
             ..Request::default()

@@ -1,4 +1,4 @@
-use crate::connection::{Clock, Surface, gta_heading, skate_heading};
+use crate::connection::{Clock, GeometryBuilder, Surface, gta_heading, skate_heading};
 use skate_host::bridge::{Controls, Session};
 use std::{
     cell::RefCell,
@@ -17,6 +17,7 @@ struct Ride {
 #[derive(Default)]
 struct Adapter {
     points: Vec<[f32; 3]>,
+    geometry: GeometryBuilder,
     ride: Option<Ride>,
     assets: Option<PathBuf>,
 }
@@ -79,47 +80,78 @@ pub extern "C" fn combine_mount(x: f32, y: f32, ground: f32, heading: f32, scale
         }
         let surface =
             Surface::new(std::mem::take(&mut a.points), [x, y, ground], scale).map_err(|_| ())?;
-        let root = a.assets.as_ref().ok_or(())?;
-        if !root.is_dir() {
-            return Err(());
-        }
-        let mut session = Session::new(
-            root,
-            surface.triangles(),
-            vec![],
-            [0., 1., 0.],
-            skate_heading(heading),
-        )
-        .map_err(|_| ())?;
-        let pose = session
-            .activate([0., 1., 0.], skate_heading(heading))
-            .map_err(|_| ())?;
-        let position = surface.to_gta(pose.root.w_axis.truncate().to_array());
-        Clock::new(0, session.period()).map_err(|_| ())?;
-        if !surface.contains(position, ground) {
-            return Err(());
-        }
-        a.ride = Some(Ride {
-            session,
-            surface,
-            clock: None,
-            pose: [position[0], position[1], position[2], heading],
-        });
-        Ok(())
+        start_ride(a, surface, ground, heading)
     })
 }
+fn start_ride(a: &mut Adapter, surface: Surface, ground: f32, heading: f32) -> Result<(), ()> {
+    let root = a.assets.as_ref().ok_or(())?;
+    if !root.is_dir() {
+        return Err(());
+    }
+    let mut session = Session::new(
+        root,
+        surface.triangles(),
+        vec![],
+        [0., 1., 0.],
+        skate_heading(heading),
+    )
+    .map_err(|_| ())?;
+    let pose = session
+        .activate([0., 1., 0.], skate_heading(heading))
+        .map_err(|_| ())?;
+    let position = surface.to_gta(pose.root.w_axis.truncate().to_array());
+    Clock::new(0, session.period()).map_err(|_| ())?;
+    if !(if surface.is_geometry() {
+        surface.contains_pose(position)
+    } else {
+        surface.contains(position, ground)
+    }) {
+        return Err(());
+    }
+    a.ride = Some(Ride {
+        session,
+        surface,
+        clock: None,
+        pose: [position[0], position[1], position[2], heading],
+    });
+    Ok(())
+}
+
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn combine_tick(now: u32, ground: f32, packet: *const Packet) -> i32 {
+    tick_at(now, ground, None, packet)
+}
+fn tick_at(
+    now: u32,
+    ground: f32,
+    observation: Option<([f32; 2], u32, u32)>,
+    packet: *const Packet,
+) -> i32 {
     guarded(|a| {
         if packet.is_null() {
             return Err(());
         }
         let p = unsafe { &*packet };
         let ride = a.ride.as_mut().ok_or(())?;
-        if !ride
-            .surface
-            .contains([ride.pose[0], ride.pose[1], ride.pose[2]], ground)
-        {
+        let accepted = match observation {
+            Some((xy, layer, valid)) => {
+                ride.surface.is_geometry()
+                    && ride
+                        .surface
+                        .query_matches_pose(xy, [ride.pose[0], ride.pose[1], ride.pose[2]])
+                    && ride.surface.observation(xy, ground, layer, valid)
+                    && ride
+                        .surface
+                        .contains_pose([ride.pose[0], ride.pose[1], ride.pose[2]])
+            }
+            None => {
+                !ride.surface.is_geometry()
+                    && ride
+                        .surface
+                        .contains([ride.pose[0], ride.pose[1], ride.pose[2]], ground)
+            }
+        };
+        if !accepted {
             return Err(());
         }
         if ride.clock.is_none() {
@@ -141,7 +173,11 @@ pub unsafe extern "C" fn combine_tick(now: u32, ground: f32, packet: *const Pack
             return Err(());
         }
         let pos = ride.surface.to_gta(pose.root.w_axis.truncate().to_array());
-        if !ride.surface.contains(pos, ground) {
+        if !(if ride.surface.is_geometry() {
+            ride.surface.contains_pose(pos)
+        } else {
+            ride.surface.contains(pos, ground)
+        }) {
             return Err(());
         }
         // Skate root local +Z is forward, GTA heading zero points along +Y.
@@ -169,3 +205,58 @@ pub extern "C" fn combine_poll() -> i32 {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn combine_reset() {}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn combine_surface_begin(layer: u32, triangles: u32) -> i32 {
+    guarded(|a| {
+        if a.ride.is_some() || a.geometry.begin(layer, triangles) != 1 {
+            Err(())
+        } else {
+            Ok(())
+        }
+    })
+}
+#[unsafe(no_mangle)]
+pub extern "C" fn combine_surface_vertex(x: f32, y: f32, z: f32) -> i32 {
+    guarded(|a| {
+        if a.ride.is_some() || a.geometry.vertex([x, y, z]) != 1 {
+            Err(())
+        } else {
+            Ok(())
+        }
+    })
+}
+#[unsafe(no_mangle)]
+pub extern "C" fn combine_mount_surface(
+    x: f32,
+    y: f32,
+    ground: f32,
+    heading: f32,
+    scale: f32,
+    layer: u32,
+    valid: u32,
+) -> i32 {
+    guarded(|a| {
+        a.ride = None;
+        let (surface, _) = a
+            .geometry
+            .finish([x, y, ground], scale, layer, valid)
+            .map_err(|_| ())?;
+        if !heading.is_finite() {
+            return Err(());
+        }
+        start_ride(a, surface, ground, heading)
+    })
+}
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn combine_tick_surface(
+    now: u32,
+    x: f32,
+    y: f32,
+    ground: f32,
+    layer: u32,
+    valid: u32,
+    packet: *const Packet,
+) -> i32 {
+    tick_at(now, ground, Some(([x, y], layer, valid)), packet)
+}

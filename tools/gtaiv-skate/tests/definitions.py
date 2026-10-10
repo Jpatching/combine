@@ -22,6 +22,21 @@ with tempfile.TemporaryDirectory() as directory:
             "DESTROY_CAM must receive the camera handle by value, not its address"
         assert commands["GET_GROUND_Z_FOR_3D_COORD"]["attrs"]["is_condition"] is True
         assert commands["GET_GROUND_Z_FOR_3D_COORD"]["output"][0]["type"] == "float"
+        # Position/layer/availability must survive CLEO decoding as distinct values.
+        expected_surface_inputs = {
+            "SURFACE_BEGIN": [("layer", "int"), ("triangles", "int")],
+            "SURFACE_VERTEX": [("x", "float"), ("y", "float"), ("z", "float")],
+            "MOUNT_SURFACE": [("x", "float"), ("y", "float"), ("ground", "float"),
+                              ("heading", "float"), ("scale", "float"),
+                              ("layer", "int"), ("available", "int")],
+            "TICK_SURFACE": [("timer", "int"), ("x", "float"), ("y", "float"),
+                             ("ground", "float"), ("layer", "int"), ("available", "int")],
+        }
+        for suffix, fields in expected_surface_inputs.items():
+            command = commands["COMBINE_SKATE_" + suffix]
+            assert [(item["name"], item["type"]) for item in command["input"]] == fields
+            assert command["num_params"] == len(fields) + 1
+            assert command["output"] == [{"name": "value", "type": "int"}]
         assert ("COMBINE_SKATE_EVAL_INPUT" in commands) is evaluation
         assert ("COMBINE_SKATE_EVAL_KEY" in commands) is evaluation
     invalid = Path(directory) / "changed-pin.json"

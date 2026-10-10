@@ -11,6 +11,53 @@ This is a runtime candidate, not observed skating acceptance. #20 remains open;
 #21 and #22 must wait for its observed behavior and owner acceptance. Qualification
 context is [#10](https://github.com/Jpatching/combine/issues/10).
 
+## Authored triangle-ground candidate (#53)
+
+The focused [source slice](https://github.com/Jpatching/combine/issues/53) adds
+an explicit triangle route alongside the unchanged flat-grid fallback. Both
+backends supply these triangles to the existing Session; neither replaces Skate
+physics. Normal `combine_skate.js` still uses the flat route. It does not select
+private geometry or manufacture successful ground observations. Connecting F6 to
+the qualified street supplier and exact-version availability evidence belongs to
+the blocked [local trial](https://github.com/Jpatching/combine/issues/54).
+
+The public C ABI and matching `COMBINE_SKATE_*` commands provide this sequence:
+
+1. Stop the previous ride, then `SURFACE_BEGIN(layer, triangleCount)` with a
+   nonzero selected layer and 1–4096 triangles.
+2. Send exactly three GTA-space vertices per triangle using `SURFACE_VERTEX`.
+   Invalid or incomplete preparation is refused. Geometry is immutable per ride.
+3. `MOUNT_SURFACE(x, y, ground, heading, scale, layer, available)` requires a
+   successful, loaded, intended-layer observation at the mount coordinates.
+   Only `available=1` is accepted. This is a caller contract, not evidence that
+   a query succeeded; finite height alone must never supply this flag.
+4. Poll asynchronous preparation before taking control. On each update use
+   `TICK_SURFACE(timer, queryX, queryY, ground, layer, available)` with the
+   position at which ground was observed. The C ABI additionally takes the
+   existing controller packet. Stop and restore ownership on refusal.
+
+Observation agreement compares the mesh and host at the query position within
+5 cm; pose containment uses mesh support at the returned pose position. Ambiguous
+overlapping support, missing coverage and unavailable observations are refused.
+Layer numbers are supplied by a qualified caller, not discovered GTA layers.
+The geometry constructor bounds input; it cannot prove decoded GTA placement,
+loading or contact. Ground agreement does not prove curb/wall response.
+
+Worker frames now carry an explicit version header. Geometry appears only in a
+bounded preparation payload; ordinary ticks carry a position-bearing observation.
+Mixed old/new worker and parent binaries are rejected. Build/stage matching
+candidates together, only after normal shutdown and with retained rollback.
+
+The existing standalone Windows harness accepts `--surface-only` to run actual
+Session ramp movement, unavailable-observation refusal, cancellation of a large
+preparation against its suspended worker and remount recovery
+without GTA. It requires a matching worker/library and the existing private asset
+pointer. The authored ground function is a test oracle, never GTA query evidence.
+Use `--surface-cancel-only` for the focused cancellation/recovery regression.
+Relink the harness after rebuilding the worker-feature library; matching source
+files alone do not establish that an existing executable contains the change.
+Source/object compilation alone does not establish a passing native trial.
+
 ## Source checks and build
 
 Run from the repository root:
@@ -214,7 +261,10 @@ GTA immediately in either candidate.
 A dedicated supervisor owns process and pipe operations; GTA commands only submit
 to a capacity-one queue or read the latest validated snapshot. One bounded deferred
 prepare request remains pending while prior cleanup occupies that queue; polling
-submits it without blocking, and cancellation clears it. Fixed binary
+submits it without blocking, and cancellation clears it. A dedicated writer with
+a bounded queue keeps large geometry pipe writes off the supervisor, allowing
+it to observe cancellation and terminate its owned child while writes are blocked.
+Versioned binary
 messages carry ride generation, request sequence and collision revision. Output
 with mismatching identity, nonfinite pose or invalid period is refused. Riding
 ends after a response gap above 250 ms. Temporary snapshot publication contention

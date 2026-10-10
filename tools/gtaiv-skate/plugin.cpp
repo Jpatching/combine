@@ -18,6 +18,10 @@ int combine_poll();void combine_reset();
 void combine_stop(); int combine_vertex(float,float,float);
 int combine_mount(float,float,float,float,float);
 int combine_tick(uint32_t,float,const Packet*); float combine_value(int);
+int combine_surface_begin(uint32_t,uint32_t);
+int combine_surface_vertex(float,float,float);
+int combine_mount_surface(float,float,float,float,float,uint32_t,uint32_t);
+int combine_tick_surface(uint32_t,float,float,float,uint32_t,uint32_t,const Packet*);
 }
 namespace {
 using Context=void*; using Handler=int(*)(Context);
@@ -161,19 +165,39 @@ int vertex(Context c) {
     DWORD empty=0;script_thread.compare_exchange_strong(empty,GetCurrentThreadId());
     sdk.output_int(c,on_thread()?combine_vertex(x,y,z):0);return 0;
 }
-int mount(Context c) {
+int surface_begin(Context c) {
+    const auto layer=static_cast<uint32_t>(sdk.integer(c));
+    const auto triangles=static_cast<uint32_t>(sdk.integer(c));
+    DWORD empty=0;script_thread.compare_exchange_strong(empty,GetCurrentThreadId());
+    sdk.output_int(c,on_thread()?combine_surface_begin(layer,triangles):0);return 0;
+}
+int surface_vertex(Context c) {
+    const float x=sdk.number(c),y=sdk.number(c),z=sdk.number(c);
+    sdk.output_int(c,on_thread()?combine_surface_vertex(x,y,z):0);return 0;
+}
+int mount_route(Context c,bool geometry) {
     const float x=sdk.number(c),y=sdk.number(c),z=sdk.number(c),heading=sdk.number(c),scale=sdk.number(c);
+    const auto layer=geometry?static_cast<uint32_t>(sdk.integer(c)):0u;
+    const auto available=geometry?static_cast<uint32_t>(sdk.integer(c)):0u;
     XINPUT_STATE state{};
     const bool input=XInputGetState(0,&state)==ERROR_SUCCESS;
     wchar_t path[32768];const auto length=GetModuleFileNameW(plugin_instance,path,32768);
     const bool configured=on_thread()&&length>0&&length<32768&&combine_config(path,length);
-    const auto ok=configured&&input?combine_mount(x,y,z,heading,scale):0;
+    const auto ok=configured&&input?(geometry
+        ?combine_mount_surface(x,y,z,heading,scale,layer,available)
+        :combine_mount(x,y,z,heading,scale)):0;
     sdk.log(ok==2?"COMBINE_SKATE preparation submitted":ok==1?"COMBINE_SKATE mounted actual Session":"COMBINE_SKATE initialization rejected");
     sdk.output_int(c,ok);return 0;
 }
-int tick(Context c) {
-    const auto timer=static_cast<uint32_t>(sdk.integer(c)); const float ground=sdk.number(c);
-    const bool valid=sdk.integer(c)!=0;
+int mount(Context c) {return mount_route(c,false);}
+int mount_surface(Context c) {return mount_route(c,true);}
+int tick_route(Context c,bool geometry) {
+    const auto timer=static_cast<uint32_t>(sdk.integer(c));
+    const float x=geometry?sdk.number(c):0.f,y=geometry?sdk.number(c):0.f;
+    const float ground=sdk.number(c);
+    const auto layer=geometry?static_cast<uint32_t>(sdk.integer(c)):0u;
+    const auto available=sdk.integer(c);
+    const bool valid=geometry?available==1:available!=0;
     AcquireSRWLockExclusive(&ownership_lock);
     heartbeat=GetTickCount();const bool reset_requested=reset_pending||!owned;
     ReleaseSRWLockExclusive(&ownership_lock);
@@ -186,10 +210,13 @@ int tick(Context c) {
         evaluation_input.apply(p,owned&&!reset_pending&&evaluation_allowed(state),GetTickCount());
         ReleaseSRWLockExclusive(&ownership_lock);
 #endif
-        ok=combine_tick(timer,ground,&p);
+        ok=geometry?combine_tick_surface(timer,x,y,ground,layer,1,&p)
+                   :combine_tick(timer,ground,&p);
     } else if(on_thread()) combine_stop();
     sdk.output_int(c,ok);return 0;
 }
+int tick(Context c) {return tick_route(c,false);}
+int tick_surface(Context c) {return tick_route(c,true);}
 int poll(Context c) {
     XINPUT_STATE state{};
     sdk.output_int(c,on_thread()&&XInputGetState(0,&state)==ERROR_SUCCESS?combine_poll():0);
@@ -209,6 +236,10 @@ BOOL WINAPI DllMain(HINSTANCE instance,DWORD reason,LPVOID) {
     sdk.command("COMBINE_SKATE_READY",ready,nullptr);sdk.command("COMBINE_SKATE_TOGGLE",toggle,nullptr);
     sdk.command("COMBINE_SKATE_STOP",stop,nullptr);sdk.command("COMBINE_SKATE_VERTEX",vertex,nullptr);
     sdk.command("COMBINE_SKATE_MOUNT",mount,nullptr);sdk.command("COMBINE_SKATE_TICK",tick,nullptr);
+    sdk.command("COMBINE_SKATE_SURFACE_BEGIN",surface_begin,nullptr);
+    sdk.command("COMBINE_SKATE_SURFACE_VERTEX",surface_vertex,nullptr);
+    sdk.command("COMBINE_SKATE_MOUNT_SURFACE",mount_surface,nullptr);
+    sdk.command("COMBINE_SKATE_TICK_SURFACE",tick_surface,nullptr);
     sdk.command("COMBINE_SKATE_VALUE",value,nullptr);
     sdk.command("COMBINE_SKATE_POLL",poll,nullptr);
     sdk.command("COMBINE_SKATE_CLAIM",claim,nullptr);sdk.command("COMBINE_SKATE_RELEASE",release,nullptr);

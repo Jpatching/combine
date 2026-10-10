@@ -8,7 +8,7 @@ Task: implement the owner-approved faster test loop and qualified ground route u
 
 Source branch: `implement/gtaiv-qualified-ground`
 
-Source revision: `b859bb9f8fb3f3c73a6d27789354f2129fcdac43`
+Source revision: `96d1c058f3216e3d50d3e1bf38d7731661bd704d`
 
 The ground source is published in [draft PR #57](https://github.com/Jpatching/combine/pull/57)
 for [#53](https://github.com/Jpatching/combine/issues/53), stacked with explicit owner
@@ -62,9 +62,27 @@ The same clean executable's default flat-worker trial passed push/steer, warm
 remount, collision revision, stale-pose discard, suspended-child refusal and
 terminated-child recovery; maximum parent call was 1.462 ms. A final text-only
 success-message correction was relinked as `native-ground-final.exe`.
-The in-process Rust library also builds; native execution of that backend remains
-unverified. Existing upstream private-interface
+The separate `native-surface.exe --in-process` harness now executes the public
+ABI against the actual Session. An optimized default-feature library passed
+authored ramp movement, unavailable/wrong-layer refusal, discarded dismounted
+poses and remount recovery with a 16 MiB standalone stack. The default debug
+build first overflowed a 2 MiB stack; increasing only its stack allowed mounting
+but exposed a 383 ms tick and 406 ms tick-start gap, beyond the 250 ms limit
+on time continuity. Optimizing the library resolved that observed riding refusal. The passing
+run took 97.354 seconds; maximum measured mount/poll/tick call was 20,863.339 ms,
+dominated by synchronous mounting. The same optimized library also passed with
+the original 2 MiB stack in 93.294 seconds; its maximum measured call was
+17,569.624 ms. Configuration, upload and stop are outside that metric. This is
+standalone authored evidence, not GTA thread suitability. The builder now offers `--release`
+for the in-process candidate; the tested library was built with manual Cargo
+release commands, not that new CLI option. Existing upstream private-interface
 warnings remain, along with module dead-code warnings in focused builds.
+The new harness also passed its explicitly selected worker mode with native
+exit zero in 23.448 seconds, using a source-matched retained library/worker;
+maximum measured mount/poll/tick call was 1.024 ms. It verifies the same ramp,
+fault-refusal and remount behaviors, without replacing the earlier worker's
+cancellation/failure proofs. Neither timing metric includes configuration,
+upload or stop.
 
 The cancellation regression first failed against an old executable. Symbol and
 disassembly inspection showed its pipe write still ran on the supervisor; the
@@ -110,6 +128,17 @@ requests do not establish owner viewing or acceptance.
 A final GTA snapshot still matched all retained runtime hashes; the retained game
 was responding but minimized with stale native status. Reestablish fresh
 foreground readiness before any further guarded GTA trial.
+
+A private physical-state probe is prepared but unexecuted. It reuses the reviewed
+plugin-owned height buffer and existing native definitions to observe three fixed
+actual-character-position queries and six before/after character-state records.
+Its reviewed staging/collection source binds shutdown and collection to exact
+process identities, rejects late collection and samples foreground readiness.
+JavaScript and PowerShell syntax checks pass. The two-second scheduling delay
+is not a handshake; interrupted staging requires manual recovery from retained
+transaction/backups. No physical-contact, loaded-collision or floor/layer flag is
+inferred. Do not treat this preparation as a passed runtime trial or checkpoint
+association.
 
 The existing four checkpoints and comparison command remain available. Owner
 location confirmation is complete; precise surface/layer associations and paired

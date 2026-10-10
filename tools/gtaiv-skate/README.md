@@ -58,6 +58,40 @@ Relink the harness after rebuilding the worker-feature library; matching source
 files alone do not establish that an existing executable contains the change.
 Source/object compilation alone does not establish a passing native trial.
 
+`tests/native-surface.cpp` isolates the authored ramp proof for either native
+backend, without worker suspension/cancellation. Link it against the exact built
+static library, keep the private asset pointer beside the executable, and run
+`native-surface.exe --in-process` for the optimized default-feature build or
+`native-surface.exe --worker` beside the matching worker-feature build. It requires
+initial preparation return 1 or 2 respectively, so selecting the wrong backend
+fails. Every remount reconfigures after stop. It checks actual Session push over
+changing ramp heights, height following, unavailable/wrong-layer refusal, stale
+pose clearing and remount recovery; none of these establish GTA qualification.
+
+```sh
+python3 tools/gtaiv-skate/build.py /path/to/source-repository \
+  /private/new-build-directory --release
+i686-w64-mingw32-g++ -std=c++17 -static -static-libgcc -static-libstdc++ \
+  -Wall -Wextra -Werror \
+  tools/gtaiv-skate/tests/native-surface.cpp \
+  /private/new-build-directory/adapter/target/i686-pc-windows-gnu/release/libcombine_gtaiv_skate.a \
+  -o /private/new-build-directory/native-surface.exe \
+  -lversion -lxinput -lws2_32 -lbcrypt -luserenv -lntdll
+```
+
+The optimized default-feature library passed the complete authored trial with
+both the default 2 MiB standalone stack reserve and a diagnostic 16 MiB reserve.
+The debug library overflowed the default stack (`0xC00000FD`); with 16 MiB it
+reached the ramp but refused a tick after a measured 406 ms tick-start gap exceeded
+the adapter's 250 ms continuity limit. Optimization addressed these standalone
+test conditions; this does not establish the available stack, latency or safety
+of an existing GTA thread, or GTA riding acceptance.
+
+Link against the worker-feature library for `--worker`, and relink after
+every library rebuild. The worker's 50 ms bound is asserted for measured mount/poll/tick calls;
+in-process mount/poll/tick calls are timed without claiming that asynchronous
+bound. Configuration, geometry upload and stop are outside that timing metric.
+
 ## Source checks and build
 
 Run from the repository root:

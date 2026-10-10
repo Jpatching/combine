@@ -117,6 +117,67 @@ retained game responding but minimized, with stale native status. Further GTA
 trials require fresh foreground readiness; the earlier post-ground-trial recovery
 pass is not a current readiness claim after the viewer work.
 
+## Standalone in-process authored-surface follow-up
+
+At source workspace `96d1c058f3216e3d50d3e1bf38d7731661bd704d`, a focused
+standalone harness exercised the in-process adapter's public preparation,
+tick and pose ABI against the actual pinned Session. It uses independently
+authored literal ramp geometry, not the retained GTA resource. The selected
+backend must return synchronous preparation `1` or asynchronous preparation `2`
+as appropriate; every remount reconfigures after stop. Production adapter logic
+and installed GTA runtime were not changed.
+
+The first default debug executable overflowed its original 2 MiB stack
+(`0xC00000FD`) before reaching authored assertions. With source and library
+unchanged, a 16 MiB stack allowed mounting but riding refused. Targeted harness
+timing then recorded a 382.812 ms tick and 406 ms tick-start gap before refusal,
+exceeding the adapter's 250 ms limit on time continuity. This supports debug-performance
+as the cause of that refusal; it is not a diagnosed GTA floor failure.
+
+With the same 16 MiB stack and optimized default-feature library, the final
+harness passed actual Session ramp mounting, 90 push ticks across distinct
+heights, height following, unavailable/wrong-layer refusal, stale pose clearing
+and remount recovery. Exit was zero, elapsed time 97.354 seconds and maximum
+measured mount/poll/tick call 20,863.339 ms. Configuration, geometry upload and
+stop are excluded; synchronous mounting dominates that metric. This does not
+establish that these calls are suitable for GTA's live thread. Relinking that
+same optimized library with the original 2 MiB stack also passed the complete
+authored trial: exit zero, 93.294 seconds and maximum measured call 17,569.624 ms.
+The optimized standalone proof therefore does not require the larger stack.
+
+Executed final harness source SHA256:
+`5a92c0eeeb7661ec71407f03d5c566f7c04c24e566662a9857e00e8b3293bb85`.
+The builder offers a separate `--release` choice for optimized in-process output;
+the actual tested library was built with manual Cargo release commands. This
+does not change the default profile or install either candidate. A passing
+authored Session check does not establish GTA ground, gameplay or source acceptance.
+The same final harness also passed `--worker`: explicit native exit zero,
+23.448 seconds and maximum measured mount/poll/tick call 1.024 ms, with the
+expected initial preparation return `2`. A freshly linked standalone executable
+reused the matching retained worker-feature library and worker; adapter Rust
+files/manifests and all 2,905 exported upstream files matched current source and
+the pinned export. The worker's existing suspension/cancellation proofs remain
+separate. An initial runner failed to obtain the native exit code despite all
+pass markers; a corrected runner repeated the trial and verified exit zero.
+
+## Physical-state probe preparation
+
+A fresh private candidate reuses the exact reviewed plugin/definitions and adds
+read-only ordinary character-state observations around three fixed actual-ped-XY
+height queries. Strict boolean state and finite velocity/speed observations remain
+separate from physical contact, collision loading and intended floor identity;
+those fields remain unknown. This is not a four-checkpoint collector.
+
+Independent source review caught process-binding and late-observation gaps.
+Shutdown now binds the preflight-validated PID/start identity; launch identity is
+retained for collection, and the collector refuses already-executed queries on
+attachment. It samples foreground readiness and requires exact public/private
+row correspondence. JavaScript and Windows PowerShell syntax checks pass.
+The two-second delay assists scheduling, not synchronization. Interrupted staging
+requires manual recovery from the preserved transaction/backups; automatic
+interruption recovery is not claimed. No staging, native calls, launch or
+physical-support runtime trial occurred for this candidate.
+
 ## Limits and next step
 
 The earlier boolean-only result left heights unobserved; the follow-up resolves

@@ -112,8 +112,10 @@ namespace CombineQualification
                     UnityEngine.Object.DestroyImmediate(owner.gameObject);
         }
 
-        private static bool MatchesCentroid(GameObject root, Vector3 point)
+        internal static bool MatchesCentroid(GameObject root, Vector3 point)
         {
+            if (float.IsNaN(point.x) || float.IsInfinity(point.x) || float.IsNaN(point.y) ||
+                float.IsInfinity(point.y) || float.IsNaN(point.z) || float.IsInfinity(point.z)) return false;
             foreach (var filter in root.GetComponentsInChildren<MeshFilter>())
             {
                 var vertices = filter.sharedMesh.vertices;

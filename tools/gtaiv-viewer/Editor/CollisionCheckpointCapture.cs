@@ -40,7 +40,7 @@ namespace CombineQualification
                 {
                     if (!anchor.gameObject.activeInHierarchy || !names.Add(anchor.name) ||
                         (anchor.name != "R1" && anchor.name != "P1" && anchor.name != "H1" && anchor.name != "H2") ||
-                        !MatchesCentroid(selection, anchor.position)) throw new InvalidOperationException();
+                        !CollisionCheckpointMarkers.MatchesCentroid(selection, anchor.position)) throw new InvalidOperationException();
                     var text = anchor.GetComponentInChildren<TextMesh>();
                     if (text == null || text.text != anchor.name) throw new InvalidOperationException();
                     anchors.Add(anchor);
@@ -126,23 +126,5 @@ namespace CombineQualification
             }
         }
 
-        private static bool MatchesCentroid(GameObject selected, Vector3 point)
-        {
-            if (float.IsNaN(point.x) || float.IsInfinity(point.x) || float.IsNaN(point.y) ||
-                float.IsInfinity(point.y) || float.IsNaN(point.z) || float.IsInfinity(point.z)) return false;
-            foreach (var filter in selected.GetComponentsInChildren<MeshFilter>())
-            {
-                var vertices = filter.sharedMesh.vertices;
-                var triangles = filter.sharedMesh.triangles;
-                for (int i = 0; i < triangles.Length; i += 3)
-                {
-                    var centroid = (filter.transform.TransformPoint(vertices[triangles[i]]) +
-                        filter.transform.TransformPoint(vertices[triangles[i + 1]]) +
-                        filter.transform.TransformPoint(vertices[triangles[i + 2]])) / 3f;
-                    if (Vector3.Distance(centroid, point) <= 0.001f) return true;
-                }
-            }
-            return false;
-        }
     }
 }

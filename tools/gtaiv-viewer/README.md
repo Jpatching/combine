@@ -16,8 +16,9 @@ licence, packages or shader support is an unavailable qualification, not a
 behavioral red result. Do not open the owned-game scene or enter Play first.
 
 Copy [CollisionOverlayQualification.cs](Editor/CollisionOverlayQualification.cs),
-[CollisionOverlayVisibility.cs](Editor/CollisionOverlayVisibility.cs) and
-[CollisionCheckpointMarkers.cs](Editor/CollisionCheckpointMarkers.cs)
+[CollisionOverlayVisibility.cs](Editor/CollisionOverlayVisibility.cs),
+[CollisionCheckpointMarkers.cs](Editor/CollisionCheckpointMarkers.cs) and
+[CollisionCheckpointCapture.cs](Editor/CollisionCheckpointCapture.cs)
 to the isolated upstream checkout's `Assets/CombineQualification/Editor/` folder.
 The `Editor` folder lets the existing predefined editor assembly reference the
 upstream runtime assembly without moving upstream code into new assemblies.
@@ -100,6 +101,41 @@ No GTA query, surface qualification or gameplay result is supplied by this tool.
 Prefer commands executed inside the Editor to automation that moves the shared
 Windows cursor; previous cursor-driven captures were vulnerable to user input.
 
+## Capture checkpoint anchor views without desktop input
+
+After marking the points, select the same complete collision-only root and use
+**Combine Qualification → Capture selected checkpoint views**, or call
+`CombineQualification.CollisionCheckpointCapture.Capture()` inside the Editor.
+Set `COMBINE_VIEWER_CHECKPOINT_CAPTURE` to a fresh absolute private output directory
+whose parent already exists. The directory must not exist. No file picker,
+Windows cursor, keyboard, foreground window or live camera movement is used.
+
+Each supplied point gets four 960×720 PNGs: `<label>-oblique-map-only.png`,
+`<label>-oblique-restored.png`, `<label>-overhead-map-only.png` and
+`<label>-overhead-restored.png`. A temporary orthographic URP camera centers the
+unchanged anchor base, with an 8 m vertical half extent. Oblique and overhead
+views help inspect overlapping layers; each map-only/restored pair uses exactly
+the same temporary pose and projection. Labels face that camera temporarily.
+The command restores every selected renderer's prior visibility, label
+orientations and selection, and destroys its camera and render textures.
+The main camera, resource meshes, marker anchors and normal input mode stay intact.
+
+Capture requires one active temporary marker root with one to four unique known
+labels, matching label text and current selected-mesh centroid membership. Missing,
+ambiguous or stale markers, an invalid selection, unavailable rendering or an
+existing output destination report `COMBINE_CHECKPOINT_CAPTURE: UNAVAILABLE`.
+Completed output reports `WRITTEN`. Paths, coordinates and exception payloads are
+not logged. Existing evidence is never overwritten; any partial failed output
+remains private and a retry requires a new directory.
+
+These are inspection views, not qualification verdicts. The caller must separately
+establish genuine live loading and complete retained resource coverage before a
+real-map capture; UI disappearance alone can be a loading timeout. Inspect the
+actual pixels locally before accepting an intended surface or height layer.
+The real qualification still requires all four retained points; a supplied subset
+is useful for authored checks only. This command neither streams the map from its
+camera nor queries GTA ground, changes placement or proves curb/wall contact.
+
 ## What the fixture covers
 
 The input is an authored Deflate RSC5 composite with two geometry children,
@@ -131,11 +167,20 @@ object search excludes `DontSave` objects, then passed after transient scene roo
 were included. Final pinned-Editor execution emitted PASS, no C# compiler errors
 and wrapper exit 0. These are authored behavior checks, not live surface proof.
 
-A passing check establishes those scene-output behaviors only. It does not
-establish visible pixels, startup overlay enablement, arbitrary child transforms,
+The capture extension invokes the public menu for two authored points and checks
+all eight PNGs. Each map-only/restored pair must have meaningful overlay pixel
+differences and orange anchor-base pixels near the view center. Literal anchors,
+mesh geometry, original camera, selection and renderer state remain unchanged;
+label orientations and temporary cameras are restored. Reusing an existing
+output directory must preserve its bytes and a partially hidden overlay state.
+The missing capture command failed before implementation, then the authored
+pixel/preservation checks passed with no compiler errors and wrapper exit 0.
+
+A passing check establishes these authored scene/output behaviors only. It does not
+establish live map pixels, startup overlay enablement, arbitrary child transforms,
 malformed-input rejection, complete loading of a different resource, an
-identifiable street or active GTA collision. Visible pixels require a separate
-local camera/Scene view inspection. A later malformed-sibling case must be its
+identifiable street or active GTA collision. Live visible pixels require separate
+local inspection of the actual map-only/restored images. A later malformed-sibling case must be its
 own observed red → implementation → green cycle if a change is necessary.
 
 ## Execution review
@@ -153,7 +198,8 @@ That digest identifies the inspected bytes, not an independent security audit.
 Native imports for `ragezip.dll` and `libsquish.dll` exist elsewhere; the authored
 Deflate collision path does not call those imports. The fixture constructs the
 loader without calling `LoadGameFiles` and never enters Play. The marker check
-writes and deletes a temporary authored JSON file. Unity also writes project
+writes and deletes a temporary authored JSON file and its own synthetic PNG
+output directory. Unity also writes project
 caches and the supplied private log.
 
 For a later real-map trial, bootstrap reads the owned executable for a key,

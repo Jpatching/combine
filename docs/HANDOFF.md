@@ -18,8 +18,10 @@ issue and PR own its final publication and review evidence.
 Disposition: [contact research PR](https://github.com/Jpatching/combine/pull/49)
 and [board/rider research PR](https://github.com/Jpatching/combine/pull/50) are
 published drafts with passing CI, awaiting owner approval to merge.
-[Live-proof research](https://github.com/Jpatching/combine/issues/47) is actually
-running; its live issue owns the current verdict. No result is claimed here.
+[Live-proof research PR](https://github.com/Jpatching/combine/pull/51) is also a
+published draft awaiting owner approval; its PR owns the final CI status. The
+[live-proof issue](https://github.com/Jpatching/combine/issues/47) owns its current
+resolution.
 
 ## Evidence
 
@@ -41,9 +43,13 @@ board proof first. Both actual Sandcastle runs were accepted as
 reviews approved with zero findings, and both required CI checks passed. Neither
 report qualifies Windows contact, drawing or gameplay.
 
-Live-proof research started as bounded source-only run
-`issue-47-966e274b-7618-4656-afab-fb2fac0cd3a7`; checks and reviews remain pending
-in this snapshot. Research workspaces are isolated from the retained game work.
+The [live-proof report](https://github.com/Jpatching/combine/blob/928c4300fa2541f029893e335208fbac78209e4a/research/results/gtaiv-120059-live-proof-seam.md)
+was accepted at `928c4300fa2541f029893e335208fbac78209e4a` with verdict
+`requires-local-proof`. Repository/report/Markdown checks passed, including 62
+tests and links/context across 60 documents; fresh Standards and Spec reviews
+approved with zero findings. This third source-only result establishes a bounded
+diagnosis protocol, not live input delivery or riding. Research workspaces remain
+isolated from the retained game work.
 
 Latest runtime evidence: the preserved gameplay source remains
 `fd9f8c4933d3aed193273a2ce5d78fb076886972`, and installed runtime candidate remains
@@ -57,11 +63,19 @@ remains incomplete; no permanent runtime architecture is selected.
 
 ## Next step
 
-Finish live-proof research and review its result, then diagnose movement/observer
-behavior on the retained guard-accepted patch. The owner selected visible riding
-first: capture the preserved 20–40 second uncut mount/push/both-steering/dismount
-loop with ordinary GTA recovery, then repeat after restart. Preserve the candidates,
-placement and mounting guard.
+Reuse [Mount/move/dismount](https://github.com/Jpatching/combine/issues/20) for a
+bounded movement/observer diagnosis on the retained guard-accepted patch. With
+fresh focused mounted prerequisites, release F8, hold it for one second, then
+check for a new observer-start marker within three seconds. Missing that marker
+is the reproducible failing signal; classify mount refusal, stale status and lost
+focus separately. Controller delivery is a distinct boundary, not proved by a
+keyboard event or observer start. Limit diagnosis to two focused attempts and
+retain failures/refusals.
+
+The owner selected visible riding first: begin each 20–40 second uncut capture
+before mount, prove pushing, both steering directions, dismount and ordinary GTA
+recovery, then repeat after a normal restart. Preserve the candidates, placement
+and mounting guard.
 
 Before street contact claims, finish retained checkpoint surface/layer associations
 and qualified GTA readings: three valid readings per point, inclusive 2 cm spread

@@ -8,7 +8,7 @@ Task: implement the owner-approved faster test loop and qualified ground route u
 
 Source branch: `implement/gtaiv-qualified-ground`
 
-Source revision: `a9760d0a8ca99269376dfa086c144463410615a4`
+Source revision: `3fb683a9a4d7c88ffbba162ad3a8f9e99f26a443`
 
 The ground source is published in [draft PR #57](https://github.com/Jpatching/combine/pull/57)
 for [#53](https://github.com/Jpatching/combine/issues/53), stacked with explicit owner
@@ -23,7 +23,7 @@ surface preparation/mount/tick commands. Observations carry query coordinates,
 layer and availability; mesh support is evaluated independently at returned poses.
 The clean rebuilt Windows Session ramp and suspended-worker cancellation trials
 pass. Ordinary F6 still uses the preserved
-flat route: a qualified street supplier and native success/loaded evidence are
+flat route: a qualified street supplier and independent loaded/layer evidence are
 pending. Owner-approved temporary runtime diagnostics were restored; see the
 latest runtime evidence below. The qualified triangle route remains inactive.
 
@@ -82,14 +82,21 @@ the issue owns source acceptance and the publication record.
 
 Latest runtime evidence: installed runtime reference remains `b403377481a33e407aeb81b78b8d38984aac4735`.
 The [automated diagnosis](../research/results/2026-10-10-gtaiv-automated-ground-diagnosis.md)
-and [issue evidence](https://github.com/Jpatching/combine/issues/20#issuecomment-6101121798)
-record a privately captured flat-guard refusal and six actual boolean-success
-ground calls through an isolated conditional-return declaration. Buffer heights,
-loaded collision and intended layer remain unverified. A memory-read/write probe
+and [latest issue evidence](https://github.com/Jpatching/combine/issues/20#issuecomment-6101508989)
+record a privately captured flat-guard refusal and the earlier six boolean-success
+ground calls. A subsequent private plugin-owned-buffer trial paired six actual
+boolean-success calls with finite changed heights and intact guards; both fixed
+points had 0 mm spread across three readings. Centre character-height agreement
+was 0 mm with horizontal position within 1 mm; these are rounded diagnostics,
+not four-checkpoint qualification. Per-point loaded collision and intended layer
+remain unverified. A memory-read/write probe
 caught an exception; missing scoped permission is a likely prerequisite mismatch.
 Windows denied the scoped filename rename; rollback verified. Global permissions
-and ACLs stayed unchanged. Exact retained files/manifest were restored and fresh
-unmounted GTA control verified after normal restart. No complete riding/restart
+and ACLs stayed unchanged. The paired-height trial restored and hash-verified
+the exact retained plugin, script, definitions and manifest after normal shutdown.
+The subsequent offline-menu runner passed fresh foreground unmounted GTA
+gameplay/control after normal restart, and a separate hash check matched all
+retained runtime files. No complete riding/restart
 proof, visible board or solved GTA rider acceptance exists. Preserve private recovery.
 
 The existing four checkpoints and comparison command remain available. Owner
@@ -101,9 +108,8 @@ moving geometry. A finite height alone is not success/loaded evidence.
 ## Next step
 
 Keep both PRs in draft pending their required acceptance; source approval does not
-establish GTA gameplay acceptance. Obtain paired successful ground heights through
-the earlier plugin-owned buffer interface or a permitted scoped diagnostic; actual
-boolean returns alone do not qualify a street. Reuse the private offline-menu
+establish GTA gameplay acceptance. Paired native success and height observation
+now pass; independent loaded/layer evidence remains open. Reuse the private offline-menu
 runner and current-run log reader. Use the existing cursor-free checkpoint capture
 to inspect all four anchor bases in the retained isolated viewer. Resolve exact
 surface/layer association, then obtain three genuine successful, loaded,
@@ -115,6 +121,12 @@ Preserve the versioned matching parent/worker pair: old worker frames are reject
 A bounded writer thread keeps large geometry uploads off the cancellable supervisor.
 The normal F6 script is deliberately not wired to assume a qualified supplier.
 Do not enable it by turning a finite native ground height into successful availability.
+The bounded native catalogue review found no already-qualified independent
+arbitrary-point loading/floor oracle. Ordinary GTA physical support at each
+independently associated checkpoint is the next empirical witness to investigate;
+its use as the loading criterion needs an explicit owning-issue decision. Do not
+silently equate success, ped waiting state or character-height agreement with
+loaded matching-layer collision.
 
 Use the existing real-Session Windows harness for native proofs and bounded live
 observer for GTA. The owner launches/focuses GTA; the runner must refuse lost focus,
@@ -136,7 +148,7 @@ private resources/placement, source branches and runtime recovery. Do not close
 #20 or #52 on authored test evidence. Owner acceptance and merge remain pending.
 Keep assets, identities, exact coordinates, settings, recordings and logs outside
 Git and AI uploads. Bounded GTA diagnostics and normal restarts ran with owner
-approval; their temporary script/definition changes were restored. The standalone
+approval; their temporary plugin/script/definition changes were restored. The standalone
 Session passes remain distinct from GTA gameplay acceptance.
 
 ## Historical reference

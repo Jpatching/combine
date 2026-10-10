@@ -82,6 +82,41 @@ not minimized, with current-process status age zero and all runtime hashes
 matching. Module enumeration did not identify the plugin modules;
 that enumeration is not used as plugin-loading evidence.
 
+## Cursor-free checkpoint capture follow-up
+
+At source workspace `b859bb9f8fb3f3c73a6d27789354f2129fcdac43`, a reviewed
+private launcher reused the public capture/marker/visibility sources at
+`0e39f07bd1e9d1ddd4e77259b6731f2b8ebef9a7` and the retained isolated viewer.
+The current signed editor's ProductVersion matched the exact
+`6000.4.0f1_8cf496087c8f` pin. Early attempts refused before staging because of
+a stale discovery filter, an unrecorded pre-cleanup marker version and an
+already-closed project. The binary pin and complete marker source were checked
+before correcting those preparation assumptions; unrelated changes were not
+overwritten.
+
+The actual fresh Play run passed the viewer bootstrap's selected-overlay coverage,
+viewer streaming readiness and fresh four-marker checks, emitted its capture-complete
+marker and returned `inspection-pending`. All 16 expected images were written:
+four checkpoints, two viewpoints and map-only/restored pairs. They passed PNG
+signature/dimension checks and Windows full-pixel decoding at 960 × 720. No C#
+compiler errors were observed. Pixel content and precise anchor-base association
+have not been interpreted or accepted; file integrity does not establish them.
+
+The launcher's independent review caught restoration ownership checks that were
+too early; per-file checks were added immediately before each write/delete.
+Exact original source and metadata bytes, and previous file absences, were
+restored after normally closing only the capture's bound editor. Project-version,
+package-manifest, ECSMain scene and bootstrap preservation hashes passed; the lab
+remains closed.
+The private images and failed preparation records are retained. All 16 images
+were requested in the local evidence viewer; owner viewing and surface/layer
+acceptance remain unverified. No shared
+pointer or synthetic keyboard input was used for this capture.
+A final read-only GTA snapshot matched all retained runtime hashes and found the
+retained game responding but minimized, with stale native status. Further GTA
+trials require fresh foreground readiness; the earlier post-ground-trial recovery
+pass is not a current readiness claim after the viewer work.
+
 ## Limits and next step
 
 The earlier boolean-only result left heights unobserved; the follow-up resolves
@@ -103,7 +138,8 @@ does not identify a static world instance, and a collision request is not a
 readiness result. This is a bounded negative finding, not proof that the engine
 has no internal interface. Old-version SDK offsets remain unqualified for CE.
 
-Next resolve the four checkpoint anchor bases and gather ordinary GTA physical
+Inspect the fresh four-point view sets locally to resolve checkpoint anchor bases,
+then gather ordinary GTA physical
 support at each independently identified surface, alongside fixed paired query
 readings. Physical support is a proposed empirical witness, not evidence already
 collected here. Whether it satisfies the separate loading criterion must be

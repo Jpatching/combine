@@ -8,7 +8,7 @@ Task: implement the owner-approved faster test loop and qualified ground route u
 
 Source branch: `implement/gtaiv-qualified-ground`
 
-Source revision: `3fb683a9a4d7c88ffbba162ad3a8f9e99f26a443`
+Source revision: `b859bb9f8fb3f3c73a6d27789354f2129fcdac43`
 
 The ground source is published in [draft PR #57](https://github.com/Jpatching/combine/pull/57)
 for [#53](https://github.com/Jpatching/combine/issues/53), stacked with explicit owner
@@ -99,6 +99,18 @@ gameplay/control after normal restart, and a separate hash check matched all
 retained runtime files. No complete riding/restart
 proof, visible board or solved GTA rider acceptance exists. Preserve private recovery.
 
+The cursor-free viewer follow-up produced all 16 fresh four-checkpoint view
+images with viewer coverage/readiness/fresh-marker checks, no observed C#
+compiler errors and full PNG decode at 960 × 720. Pixel interpretation and exact
+anchor-base association remain pending. The capture editor was normally closed;
+exact previous scripts, metadata and absences were restored, with project-version,
+package-manifest, ECSMain scene and bootstrap hashes preserved. No shared pointer or keyboard
+input was used. Media and preparation failures remain private; local viewer
+requests do not establish owner viewing or acceptance.
+A final GTA snapshot still matched all retained runtime hashes; the retained game
+was responding but minimized with stale native status. Reestablish fresh
+foreground readiness before any further guarded GTA trial.
+
 The existing four checkpoints and comparison command remain available. Owner
 location confirmation is complete; precise surface/layer associations and paired
 successful GTA readings remain incomplete under [#39](https://github.com/Jpatching/combine/issues/39).
@@ -110,8 +122,8 @@ moving geometry. A finite height alone is not success/loaded evidence.
 Keep both PRs in draft pending their required acceptance; source approval does not
 establish GTA gameplay acceptance. Paired native success and height observation
 now pass; independent loaded/layer evidence remains open. Reuse the private offline-menu
-runner and current-run log reader. Use the existing cursor-free checkpoint capture
-to inspect all four anchor bases in the retained isolated viewer. Resolve exact
+runner and current-run log reader. Inspect the retained fresh cursor-free view
+sets for all four anchor bases locally. Resolve exact
 surface/layer association, then obtain three genuine successful, loaded,
 matching-layer GTA readings per fixed point. Neither a running Unity process nor
 fixture output establishes this qualification. Resume the next slice from its live issue and
@@ -150,6 +162,9 @@ Keep assets, identities, exact coordinates, settings, recordings and logs outsid
 Git and AI uploads. Bounded GTA diagnostics and normal restarts ran with owner
 approval; their temporary plugin/script/definition changes were restored. The standalone
 Session passes remain distinct from GTA gameplay acceptance.
+The viewer capture also restored its exact source/metadata changes and left the
+isolated lab closed. Do not replace its preserved initial marker implementation
+without the same source-identity and recovery checks.
 
 ## Historical reference
 

@@ -2,73 +2,76 @@
 
 ## Current task
 
-Reviewed: 2026-10-09
+Reviewed: 2026-10-10
 
-Task: fix checksummed resource framing in [#34](https://github.com/Jpatching/combine/issues/34), following the bounded street experiment for #20.
+Task: enable the approved Sandcastle GTA decision research in [dispatch qualification](https://github.com/Jpatching/combine/issues/44), part of
+[the GTA riding decision map](https://github.com/Jpatching/combine/issues/43).
 
-Source branch: `implement/gtaiv-collision-inspector`
+Source branch: `implement/sandcastle-gta-decisions`
 
-Source revision: `fcb4acc0c643d7244a8cae1db83c9e08b1a07887`
+Source revision: `911925c81d8997dff08f7768d348b65020509049`
 
-This is the inspector revision before the framing fix. The issue and existing
-PR own the final publication revision and review evidence.
+This is the synchronized-main base of the focused configuration slice. The issue
+and eventual draft PR own its publication revision and review evidence.
 
-Disposition: framing fix prepared for existing draft PR [#37](https://github.com/Jpatching/combine/pull/37); source approval and merge remain pending. Owned resource remains unsupported because its root is composite.
+Disposition: source candidate prepared for a draft PR. No PR exists yet. Owner
+source approval and merge remain pending; actual subscription authentication and
+research qualification are blocked. No production GTA research job has started.
 
-The owner authorized this focused fix using implement and TDD at the existing
-command/parser boundary. The broader selected goal remains real GTA IV plus
-Skate: one street with visible board/animation, curb/wall contact, dismount and
-ordinary GTA driving. Traffic/pedestrians stay active; riding contact with moving
-objects is deferred. No full-city or composite implementation is part of this fix.
+The owner approved splitting contact, board/rider presentation and live proof
+into decision tickets and using Sandcastle for public-source research. This slice
+adds their reviewed report profiles and operating commands. It does not change
+the game, select a runtime architecture or merge retained gameplay experiments.
 
 ## Evidence
 
-The [inspector](../tools/gtaiv-collision/README.md) now validates the full zlib
-stream, including its checksum, within the existing decompression bounds.
-The previous parser skipped the zlib header and rejected the valid checksum as
-trailing junk. Authored fixtures now include a real checksum: the existing
-command test failed before the correction and passed afterward. The added
-invalid-framing command regression fails against the original revision's
-acceptance of a missing checksum. Corrupt/missing/truncated checksums, appended
-data and concatenated streams return invalid after the correction.
-Eight focused command/parser tests and the repository gate's 62 tests passed;
-link/context checks passed across 59 documents. No separate Python typechecker
-is configured in this repository.
+The [Sandcastle guide](../tools/sandcastle/README.md) names the three dispatch
+commands, independent synchronized-main workspaces and report-only scope. Existing
+coding and research profiles, version pins and runner safeguards remain unchanged.
+Runner syntax and 19 unit tests passed outside the workspace sandbox; the initial
+sandboxed check failed in the existing child-process tests. The repository gate
+passed 62 tests and link/context checks across 59 documents. Actual candidate
+`research-smoke` failed before researcher completion, report checks or review:
+subscription inference returned HTTP 401 Unauthorized. A subsequent actual login
+smoke independently returned HTTP 401. Docker, pinned tool checks and reported
+login status passed; they did not establish inference access. The failed run's
+private recovery remains preserved and its qualification marker is absent.
+Independent source review remains pending. Passing portable checks is not a
+production research result.
 
-The separate [street experiment](https://github.com/Jpatching/combine/issues/20#issuecomment-6087765258)
-is preserved at `a4fec7364c957bd4bf80e3fb6eb80e04ba6eb054` on
-`prototype/gtaiv-street-collision`. It acquired one owned WBN in private storage.
-The corrected inspector was run on that same input and returned
-`unsupported / unsupported-root` with exit 2. The experiment classified the root
-as composite. No geometry, child transforms or world placement were decoded.
-Private input remains under ignored `.private/gtaiv-street-collision/` and must
-not be uploaded. This fix does not incorporate the archive-reading experiment.
-
-Latest runtime evidence: the earlier gameplay candidate `b403377481a33e407aeb81b78b8d38984aac4735` refused a guarded mount at `over-0.05-metres`. No GTA launch, staging, input or runtime test occurred for this framing fix.
+Latest runtime evidence: the preserved gameplay candidate
+`b403377481a33e407aeb81b78b8d38984aac4735` remains the runtime reference. The
+[latest riding observations](https://github.com/Jpatching/combine/issues/20#issuecomment-6098478199)
+include a focused mount retained until requested cleanup with no observer-start
+marker, and a guarded mount refusal. The owner reported partial forward movement
+but no visible board or Skate animation. No Windows staging, game launch, input
+or gameplay trial occurred for this configuration slice.
 
 ## Next step
 
-Review the corrected source candidate in draft #37. Its framing defect is fixed;
-its geometry support is still deliberately narrow. Keep #34 open until approved
-and merged. Synthetic success and an unsupported owned-file verdict do not
-establish gameplay acceptance.
+Finish fresh Standards and Spec review and publish the focused draft PR. Restore
+working subscription inference, then pass actual `research-smoke` on the candidate
+configuration. Obtain owner source approval before merging and synchronize clean
+main. Keep dispatch qualification open until those requirements pass; then verify
+each child's native readiness and the matching research qualification before
+launching its independent bounded worker. Do not bypass authentication or substitute
+fixture passes. Record actual starts and results separately from preflight and
+qualification.
 
-The street experiment's next technical blocker is composite collision and child
-transforms. Establish bounded decoding and independently validate selected street
-placement before feeding triangles to Skate. Do not assume identity transforms,
-silently skip shapes, substitute a synthetic floor or relax flatness guards.
-If placement cannot be established, reconsider acquisition. Preserve the runtime
-candidate, worker evaluation, draft [#23](https://github.com/Jpatching/combine/pull/23)
-and recovery branches; #21/#22 remain blocked.
+The decision workers supply source evidence and next local proofs. Ground
+qualification, visible board/rider presentation and the uncut riding/recovery
+trial still need Windows evidence. Preserve the retained branches, candidates,
+resource placement and mounting guard; do not import gameplay work into this PR.
+Existing mount/move/dismount, ollie and grind tickets retain their own acceptance.
 
 ## Session close
 
 Use [context maintenance](agents/current-context.md) and
-[workspace conventions](agents/issue-tracker.md). Read #34's latest fix evidence
-before resuming its candidate, and #20's experiment record before further street
-work. Keep resources, keys, geometry, settings, identities and raw logs private.
-Source approval, merge, gameplay verification and owner acceptance are distinct.
-No merge or runtime launch is implied by this fix.
+[workspace conventions](agents/issue-tracker.md). Read dispatch qualification's
+latest verdict and the map before resuming. Keep assets, exact coordinates,
+private logs/settings, recordings and credentials outside Git and AI uploads.
+Source approval, research acceptance, Windows proof and owner gameplay acceptance
+are separate claims. Do not bypass the runner's clean-main or blocker gates.
 
 ## Historical reference
 
@@ -76,6 +79,5 @@ No merge or runtime launch is implied by this fix.
 [glossary](../GLOSSARY.md), [workbench](WORKBENCH.md),
 [physical collision report](../research/results/gtaiv-120059-physical-collision-feasibility.md),
 [retained GTA context](archive/HANDOFF-2026-10-09-gta-context.md).
-The full street experiment and reaffirmed demonstration scope are preserved on
-`prototype/gtaiv-street-collision`; they are not merged by this source fix.
-Research #31/#32 is merged; its source findings did not establish runtime compatibility.
+The previous framing-fix source and private street experiments remain preserved;
+this dispatch slice does not merge them or establish runtime compatibility.

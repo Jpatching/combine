@@ -78,6 +78,7 @@ static void surface_proof() {
     if(combine_mount_surface(100,200,10,0,1,surfaceLayer,1))throw "incomplete geometry mounted";
     if(std::isfinite(combine_value(0)))throw "incomplete geometry exposed pose";
     // A failed upload is consumed, so retrying cannot reuse its partial vertices.
+    if(combine_surface_vertex(132,168,8.4f))throw "failed geometry accepted another vertex without fresh begin";
     if(combine_mount_surface(100,200,10,0,1,surfaceLayer,1))throw "failed geometry reused";
     std::puts("PASS: missing and incomplete geometry refuse mounting without exposing a pose or reusing partial vertices");
     phase="ramp mount";surface_mount();phase="ramp ride";Packet neutral{},push{0x4000,{0,0},{0,0},{0,0}};

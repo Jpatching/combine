@@ -6,9 +6,13 @@ Reviewed: 2026-10-11
 
 Task: resume [#52](https://github.com/Jpatching/combine/issues/52) with `implement-spec` and finish the ready [#53](https://github.com/Jpatching/combine/issues/53) native refusal proof, retaining [#20](https://github.com/Jpatching/combine/issues/20) for complete GTA riding acceptance.
 
-Source branch: `implement/gtaiv-qualified-ground`
+Source branch: `implement/gtaiv-surface-regression`
 
 Source revision: `2461977092f6d4c9cfed24679868cb5ace470411`
+
+Publication target: existing `implement/gtaiv-qualified-ground` draft PR #57.
+The source follow-up is reviewed on the branch above before publication to that
+retained branch; no new PR or gameplay acceptance is implied.
 
 The ground source is published in [draft PR #57](https://github.com/Jpatching/combine/pull/57)
 for [#53](https://github.com/Jpatching/combine/issues/53), stacked with explicit owner

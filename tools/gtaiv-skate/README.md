@@ -64,9 +64,13 @@ static library, keep the private asset pointer beside the executable, and run
 `native-surface.exe --in-process` for the optimized default-feature build or
 `native-surface.exe --worker` beside the matching worker-feature build. It requires
 initial preparation return 1 or 2 respectively, so selecting the wrong backend
-fails. Every remount reconfigures after stop. It checks actual Session push over
-changing ramp heights, height following, unavailable/wrong-layer refusal, stale
-pose clearing and remount recovery; none of these establish GTA qualification.
+fails. Every remount reconfigures after stop. It checks missing/incomplete geometry
+refusal without pose exposure or partial-preparation reuse, actual Session push
+over changing ramp heights, height following, unavailable/wrong-layer refusal,
+ground disagreement above 5 cm, query-position mismatch, stale-time refusal,
+pose clearing and remount recovery. These are authored checks, not GTA
+qualification; their native execution verdict belongs to the exact tested
+source and binaries.
 
 ```sh
 python3 tools/gtaiv-skate/build.py /path/to/source-repository \

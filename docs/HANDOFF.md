@@ -23,7 +23,13 @@ child starts at `4677e1616b8d41e218f08bdbf13139b73f3ab45d`; the source revision
 above identifies the reviewed implementation. The issue owns the final
 publication revision. See the
 [collector preparation record](../research/results/2026-10-11-gtaiv-ground-collector.md).
-Draft PR #57 remains awaiting owner source review and approval. Both adapters
+The reviewed parent follow-up is synchronized from
+`45d409a1b6e8bb72d6f5361355c44c58228892c4`; its
+[native refusal proof](../research/results/2026-10-11-gtaiv-native-refusal-proof.md)
+passes both standalone backends. Draft PR #57 remains awaiting owner source
+review and approval. Collector CI passed at its previous published head
+`1f8b1ef876394c273f7fad8883fc7902b7283dce`; that result does not cover this
+synchronized candidate. Both adapters
 now accept bounded triangle collision through explicit
 surface preparation/mount/tick commands. Observations carry query coordinates,
 layer and availability; mesh support is evaluated independently at returned poses.
@@ -57,6 +63,20 @@ exact surface/layer interpretation remains pending. Ordinary character support
 has no validated independent loading/layer criterion. No new GTA collection,
 runtime replacement, restart or speed-improvement claim is established. The
 collector record and live issue separate these remaining gates from source work.
+
+The fresh native harness now proves missing/incomplete geometry refusal without
+pose exposure or partial reuse, ground disagreement above 5 cm, query-position
+mismatch and stale-time refusal, alongside the existing ramp/availability/layer
+proofs. All five riding faults clear poses on stop and recover through remount.
+Spec review strengthened partial-consumption proof with an immediate vertex
+refusal without restarting preparation; both freshly relinked backends passed
+that corrected assertion. The worker passed in 49.445 s with a maximum measured
+mount/poll/tick call of 1.027 ms. The optimized in-process candidate passed in
+198.778 s with a maximum measured call of 19,751.443 ms; synchronous preparation
+does not establish GTA thread suitability. Configuration/upload/stop are outside
+these metrics. These complete existing related local test changes; no new
+adapter implementation or red/green claim is made. The dated record separates
+compiler preparation, source matching and standalone execution from gameplay.
 
 `python3 tools/gtaiv-skate/check.py` passes all seven authored suites, including
 six connection, four wire and two freshness tests (approximately 1–3 seconds).
@@ -165,11 +185,22 @@ moving geometry. A finite height alone is not success/loaded evidence.
 
 ## Next step
 
-Keep collector draft #58 pending acceptance, then resolve the local
-R1/P1/H1/H2 surface/layer associations and owning-issue loading-witness decision.
-Prepare/stage the exact reviewed diagnostic through retained recovery, establish
-fresh foreground readiness, and collect the frozen three readings per point.
-Measure this loop against a real previous-loop baseline before calling it faster.
+Present the retained labelled checkpoint pictures locally with plain explanations
+before asking the owner to identify their marker bases. The R1/P1/H1/H2 labels
+alone do not let the owner establish exact surface/layer associations. A private
+gallery now explains and pairs all 16 retained views; its local browser opening
+was requested successfully, without AI pixel upload or interpretation. Owner
+viewing and identification remain unverified. Preserve
+collector #58 and reuse its published command rather than rebuilding collection.
+Independent per-point loading evidence still needs validation and an explicit
+owning-issue decision. Never promote character flags or a successful height
+query into that evidence. #54/#55/#56 remain behind their native blocking edges.
+
+Keep collector draft #58 pending acceptance. After exact surface/layer
+associations and the independent loading method are established, prepare/stage
+the reviewed diagnostic through retained recovery, establish fresh foreground
+readiness, and collect the frozen three readings per point. Measure this loop
+against a real previous-loop baseline before calling it faster.
 
 Keep both PRs in draft pending their required acceptance; source approval does not
 establish GTA gameplay acceptance. Paired native success and height observation

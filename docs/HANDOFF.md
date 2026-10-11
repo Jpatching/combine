@@ -43,17 +43,34 @@ This is one startup/readiness observation, not a repeatability or riding pass.
 The retained private startup preflight imported a root module absent from main.
 Its module pointer was corrected to the verified retained adapter checkout, with
 the original backed up. The bounded menu automation ended without verified
-readiness and sent no input. The owner explicitly selected leaving their
-keyboard/mouse free. Send no keyboard/mouse input and do not activate GTA while
-that restriction applies; read-only background observations may continue.
+readiness and sent no input. The owner temporarily requested free keyboard/mouse,
+then explicitly revoked that restriction: use keyboard/mouse for testing with
+GTA focused. Guarded testing input and controlled restore/focus are authorized;
+lost focus still refuses input.
+
+The retained F6 diagnostic first stopped before input because its transient
+staging pointer was missing. Every staged and retained runtime hash matched the
+saved manifest; only the missing pointer was reconstructed. Runtime bytes were
+unchanged. A reviewed private runner now pins the retained clean source checkout,
+uses its status module, binds key pulses to process/start identity, refuses held
+keys and releases only accepted owned presses. Python and emitted PowerShell
+syntax passed; the compiled key guard refused an invalid owner without input.
+
+The repeated live attempt accepted one owned F6 pulse and observed the exact
+default-route refusal `over-0.05-metres`. A sampled height differed from the centre
+by more than the default flat route permits; this does not prove that the actual
+floor is uneven rather than queried incorrectly. Fresh unmounted GTA control was
+retained. The private clip was verified, remuxed without changing its 155 frames,
+and requested in the local evidence viewer; owner viewing remains unverified.
+No successful mount, push/steer or ground qualification is claimed.
 
 The owner already [confirmed the retained checkpoint pictures show the intended
 surfaces](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
 That supersedes earlier viewing-unverified claims. Reuse the confirmation.
 Independent per-point loaded collision and intended-layer evidence remain
 unqualified. The prepared stationary probe leaves contact/loading/layer unknown
-and cannot qualify that method alone. No new ground measurements or skating
-pass have been recorded in this slice.
+and cannot qualify that method alone. No qualified checkpoint readings or
+skating pass have been recorded in this slice.
 
 [Windowed iteration research](../research/results/2026-10-11-gtaiv-windowed-iteration-tools.md)
 records available capabilities and qualification gaps, not required tool
@@ -61,9 +78,11 @@ installations or passed reload trials. No measured speed improvement exists.
 
 ## Next step
 
-The current foreground-key collector and riding driver remain idle under the
-owner's input restriction; passing source tests do not substitute for their live
-trials. Verify a normal Rockstar restart repeat when authorized to interrupt the game. Keep
+Resolve the observed default flat-route refusal, distinguishing a real uneven
+patch from unqualified ground queries. Reuse the retained non-flat implementation
+after its independent ground and source-acceptance prerequisites; do not relax
+the flat-route guard or infer loaded/layer witness flags from this refusal.
+Verify a normal Rockstar restart repeat when authorized to interrupt the game. Keep
 collectors' lost-focus refusal and owned-input cleanup; this session's
 owner-authorized restore/focus does not remove them.
 Retain failures and private recovery. Resolve the independent support/layer

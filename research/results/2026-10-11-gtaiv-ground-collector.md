@@ -90,3 +90,9 @@ actionable findings on each axis. They inspected source and authored tests;
 they did not reproduce private runtime checks. The repository gate passed 91
 tests and 70 document/context checks; final publication results remain on the
 issue/PR.
+
+The first published CI repository job exposed a Python-version mismatch:
+`hashlib.file_digest` requires a newer runtime than the repository's Python 3.10
+CI. The source now uses bounded streamed SHA-256 hashing and retains the existing
+CI version. Local checks did not catch this environment difference. Final CI
+status belongs to the updated PR head, not the earlier local gate.

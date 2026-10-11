@@ -44,7 +44,10 @@ def artifact_hashes(items, verify=False):
         if verify:
             try:
                 with path.open('rb') as stream:
-                    actual = hashlib.file_digest(stream, 'sha256').hexdigest()
+                    hasher = hashlib.sha256()
+                    for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                        hasher.update(chunk)
+                    actual = hasher.hexdigest()
             except OSError:
                 raise Refusal('artifact-mismatch') from None
             if actual != digest:

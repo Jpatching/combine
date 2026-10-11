@@ -181,7 +181,7 @@ requires all requested surface/layer associations first; missing independent
 loading/layer witnesses still produce an inconclusive comparison.
 
 Keep every input and output below a private directory, outside Git and uploads.
-Use Python 3.11 or later on Windows or WSL. The owner starts and focuses the
+Use Python 3.10 or later on Windows or WSL, matching repository CI. The owner starts and focuses the
 isolated GTA runtime. The command sends one guarded F8 pulse, samples foreground
 readiness throughout the bounded observation, and never steals focus. Its child
 owns key release, refuses an already-held F8 and releases only an accepted own

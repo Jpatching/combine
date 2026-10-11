@@ -4,95 +4,88 @@
 
 Reviewed: 2026-10-11
 
-Task: research windowed GTA IV iteration alongside [ground qualification #39](https://github.com/Jpatching/combine/issues/39).
+Task: make GTA IV testing repeatably windowed and resume automated [ground qualification #39](https://github.com/Jpatching/combine/issues/39).
 
-Preserve the owner's windowed testing preference and investigate existing tools
-for faster local AI-assisted iteration. This is a source-only research side
-task; the live ground experiment remains pending.
+Source branch: `fix/gtaiv-current-context`
 
-Source branch: `research/gtaiv-windowed-iteration`
+Source revision: `844fcdad69be245c4a8df9c36a6c1f1019599d5f`
 
-Source revision: `82d35ad1e43620389abb69fa6bcb591cca1d6279`
+This is the synchronized-main starting point for the documentation correction.
+No PR exists yet for this slice.
 
-This is the synchronized-main starting point; the draft PR owns the final
-publication revision.
-
-Disposition: [draft PR #59](https://github.com/Jpatching/combine/pull/59) awaits
-owner source approval. The standing window-mode instruction is in
-[AGENTS.md](../AGENTS.md). Runtime settings and installed binaries have not been
-changed by this research task. The draft owns its current CI record.
-
-The current request selects this work instead of the older Sandcastle task
-snapshot. Retained source branches and drafts stay preserved: ground
-[PR #57](https://github.com/Jpatching/combine/pull/57), collector
-[PR #58](https://github.com/Jpatching/combine/pull/58), and parent riding
-[PR #23](https://github.com/Jpatching/combine/pull/23). The newer implementations
-are on those retained branches; this research branch starts from main and does
-not integrate them.
+Disposition: source changes in progress; private runtime observations
+are separate. [PR #59](https://github.com/Jpatching/combine/pull/59) is merged at
+the revision above. Its earlier awaiting-approval snapshot is superseded by the
+[merge record on #39](https://github.com/Jpatching/combine/issues/39#issuecomment-6113398089).
+Retain ground [PR #57](https://github.com/Jpatching/combine/pull/57), collector
+[PR #58](https://github.com/Jpatching/combine/pull/58) and riding
+[PR #23](https://github.com/Jpatching/combine/pull/23); this branch does not
+integrate those implementations.
 
 ## Evidence
 
-The research report is
-[windowed iteration tools](../research/results/2026-10-11-gtaiv-windowed-iteration-tools.md).
-It separates upstream capabilities, retained source, prior execution evidence,
-local qualification gaps and recommendations. Documented hot reload is not a
-passed trial on the installed runtime. No tool installation, script reload,
-runtime staging, keyboard input or gameplay trial occurs in this source task.
+Latest runtime evidence: the pinned GTA IV runtime had no persistent windowed
+startup request. A read-only inspection found a minimized captioned window,
+not a reproduced fullscreen transition. The owner confirmed the Rockstar
+launcher and authorized restart, restore and focus for testing. Windows denied
+an ordinary write to the protected runtime folder; the reviewed administrator
+action then created the exact windowed startup setting. Independent byte and
+executable-hash verification passed. Private recovery records preserve the
+prior absent configuration. The game then launched as a new pinned process with
+a captioned window. Initial activation was refused; targeted activation later
+verified foreground without sending keys. The owner confirmed live gameplay.
+An immediate read-only check after activation independently reported fresh
+gameplay, ready/unmounted adapter, enabled player control and connected controller.
+The heartbeat resumed after activation; no adapter failure was demonstrated.
+This is one startup/readiness observation, not a repeatability or riding pass.
 
-The owner has already
-[confirmed that the retained checkpoint pictures show the intended surfaces](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
-Reuse that confirmation. Independent loaded collision and intended-layer
-evidence remain unqualified. The prepared physical-state probe observes the
-actual player position and leaves contact, loading and layer unknown; it does
-not associate that position with a checkpoint by itself.
+The retained private startup preflight imported a root module absent from main.
+Its module pointer was corrected to the verified retained adapter checkout, with
+the original backed up. The bounded menu automation ended without verified
+readiness and sent no input. Keyboard/mouse input and further window activation
+are paused while clarifying the owner's latest input preference.
 
-Latest runtime evidence: a read-only Windows check found one responding GTA IV
-process, minimized and outside the foreground. Fresh unmounted gameplay and
-player control were not established. Window mode itself was not verified.
-Earlier retained runtime, diagnostic candidate and recovery backup hashes
-matched; no active staging transaction was present at that check. These are
-separate observations, not a live support or riding pass. Private raw evidence
-stays local. Persistent Windows execution policy was not changed.
+The owner already [confirmed the retained checkpoint pictures show the intended
+surfaces](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
+That supersedes earlier viewing-unverified claims. Reuse the confirmation.
+Independent per-point loaded collision and intended-layer evidence remain
+unqualified. The prepared stationary probe leaves contact/loading/layer unknown
+and cannot qualify that method alone. No new ground measurements or skating
+pass have been recorded in this slice.
+
+[Windowed iteration research](../research/results/2026-10-11-gtaiv-windowed-iteration-tools.md)
+records available capabilities and qualification gaps, not required tool
+installations or passed reload trials. No measured speed improvement exists.
 
 ## Next step
 
-Source review and the repository gate pass; retain draft #59 for owner approval
-and verify its exact-head CI before merge. Qualify existing hot reload and
-observer capabilities on the exact retained runtime before claiming a faster
-loop; measure setup, trial, recovery and total time against the previous loop.
-The proposed capability qualification is future runtime work, not an execution
-claim or an instruction to install a different hook.
+Respect the current input preference before resuming live automation. Verify a
+normal Rockstar restart repeat when authorized to interrupt the game. Keep
+collectors' lost-focus refusal and owned-input cleanup; this session's
+owner-authorized restore/focus does not remove them.
+Retain failures and private recovery. Resolve the independent support/layer
+observable at one checkpoint under #39, then reuse collector #58 for all four.
+Require three valid readings per point, at most 2 cm spread and 5 cm per-reading
+mesh error, with independent loading/layer evidence. Keep geometry fixed.
 
-Resume the one-checkpoint support experiment through `grill-with-docs`. The
-independent contact/layer observable remains unresolved. The owner restores
-and focuses GTA; testing preflight must establish windowed gameplay readiness.
-Keep the existing collector's foreground refusal and input ownership. Once the
-support method is qualified explicitly on #39, collect three valid readings at
-each of R1/P1/H1/H2 with the unchanged maximum 2 cm spread and 5 cm mesh error.
-Ambiguous evidence remains inconclusive. Geometry placement stays fixed.
-
-[#54](https://github.com/Jpatching/combine/issues/54) retains its qualification
-and source-acceptance blockers before triangle-route activation and the recorded
-mount, push, steering, dismount, recovery and restart repeat. Board #55 and
-rider #56 remain downstream; complete riding acceptance stays under #20.
+[#54](https://github.com/Jpatching/combine/issues/54) retains qualification and
+source-acceptance blockers before riding activation, recovery and restart trials.
+Board #55 and rider #56 follow; full riding acceptance remains under #20.
+Implement a focused tooling fix only for a demonstrated gap.
 
 ## Session close
 
 Follow [context maintenance](agents/current-context.md) and
-[workspace conventions](agents/issue-tracker.md). Keep GTA IV windowed during
-testing as required by AGENTS. Preserve installed runtime files, private recovery,
-retained branches, collector bundles and resource placement. Keep assets,
-coordinates, identities, media, settings and raw logs outside Git and AI uploads.
-The repository gate passed 62 tests and 60 document/context checks; whitespace
-checks passed. Independent Standards and Spec reviews reported zero actionable
-findings. Source research, capability qualification, ground qualification,
-gameplay and owner acceptance remain separate claims.
+[workspace conventions](agents/issue-tracker.md). Keep GTA windowed as required
+by [AGENTS.md](../AGENTS.md). Source checks, private setup, runtime observations
+and owner acceptance remain distinct. Preserve original binaries, retained
+branches and recovery. Settings, identities, coordinates, raw logs and media
+stay private; open actual evidence locally without AI upload.
 
 ## Historical reference
 
 [Host decision](adr/0001-preserve-offline-gta-gameplay.md),
-[glossary](../GLOSSARY.md), [workbench](WORKBENCH.md),
-[retained native proof](https://github.com/Jpatching/combine/blob/45d409a1b6e8bb72d6f5361355c44c58228892c4/research/results/2026-10-11-gtaiv-native-refusal-proof.md),
+[glossary](../GLOSSARY.md),
 [collector source](https://github.com/Jpatching/combine/blob/a1e456cebcebdbc2b3a59033edfbc4629db0f0ab/tools/gtaiv-collision/README.md),
-[physical collision report](../research/results/gtaiv-120059-physical-collision-feasibility.md),
 [retained GTA context](archive/HANDOFF-2026-10-09-gta-context.md).
+Historical methods do not add requirements to the current task.

@@ -8,9 +8,12 @@
 2. Verify the directory, branch, revision and local changes using the
    [workspace conventions](issue-tracker.md). Check the source and installed
    runtime revisions separately when a runtime trial is authorized.
-3. Read the issue's current verdict first. Consult linked evidence for the
-   behavior being changed. Reuse qualified setup until a changed prerequisite
-   or observation gives a reason to repeat it.
+3. Read the issue's current verdict first. A later explicit correction or owner
+   decision supersedes the earlier claim it identifies; issue comments and dated
+   research retain history, not additional requirements. Consult linked evidence
+   for the behavior being changed. Reuse qualified setup until a changed
+   prerequisite or observation gives a reason to repeat it; state that reason
+   before repeating qualification. Unresolved acceptance criteria remain active.
 
 ## Finish or transfer a task
 
@@ -20,6 +23,7 @@
 2. Update the existing issue's current status when new evidence changes it.
    Identify the revision, passed behavior, blocker and next step. Keep acceptance
    criteria separate from isolated trial passes. Retain comments as history.
+   When correcting a claim, name the superseded claim and link its replacement.
 3. Update HANDOFF when the selected task or verdict changes. Keep these sections:
    `Current task`, `Evidence`, `Next step`, `Session close`, `Historical reference`.
    Include `Reviewed`, `Task`, `Source branch`, `Source revision`, `Disposition`
@@ -44,3 +48,12 @@ a side task; link the issue, decisions and evidence instead of duplicating them.
 
 README and AGENTS point to HANDOFF for current status. Historical snapshots and
 dated research remain references; they do not select the next task.
+
+Keep HANDOFF as one current snapshot rather than an accumulating session log.
+Remove completed next steps and stale status when replacing the snapshot; link
+the issue for history. Keep each instruction in one authoritative document and
+use pointers elsewhere. Code and configuration own facts available from a cheap
+local lookup. The glossary contains terms only; ADRs explain consequential
+trade-offs. When a decision is withdrawn or replaced, mark its ADR deprecated or
+superseded; reaffirming it does not retire it. Historical research does not
+become a runbook merely because it describes a past method.

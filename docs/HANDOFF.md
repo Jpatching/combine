@@ -2,13 +2,13 @@
 
 ## Current task
 
-Reviewed: 2026-10-10
+Reviewed: 2026-10-11
 
-Task: implement the owner-approved faster test loop and qualified ground route under [#52](https://github.com/Jpatching/combine/issues/52), retaining [#20](https://github.com/Jpatching/combine/issues/20) for complete GTA riding acceptance.
+Task: resume [#52](https://github.com/Jpatching/combine/issues/52) with `implement-spec` and finish the ready [#53](https://github.com/Jpatching/combine/issues/53) native refusal proof, retaining [#20](https://github.com/Jpatching/combine/issues/20) for complete GTA riding acceptance.
 
 Source branch: `implement/gtaiv-qualified-ground`
 
-Source revision: `96d1c058f3216e3d50d3e1bf38d7731661bd704d`
+Source revision: `2461977092f6d4c9cfed24679868cb5ace470411`
 
 The ground source is published in [draft PR #57](https://github.com/Jpatching/combine/pull/57)
 for [#53](https://github.com/Jpatching/combine/issues/53), stacked with explicit owner
@@ -17,7 +17,14 @@ Its fixed review base is `b27929a16e420a8cfa1d319825966a90309ca566`.
 The exception permits source implementation without merging the parent
 or treating authored geometry as GTA qualification.
 
-Disposition: draft PR #57 awaiting owner source review and approval. Both adapters
+Disposition: the [native refusal follow-up](../research/results/2026-10-11-gtaiv-native-refusal-proof.md)
+passes both standalone backends; draft PR #57 remains awaiting owner source review
+and approval. Its issue owns the final publication revision. Collector
+[draft #58](https://github.com/Jpatching/combine/pull/58) is already published and
+passed all three exact-head CI checks at `1f8b1ef876394c273f7fad8883fc7902b7283dce`;
+its live ground verdict remains inconclusive under
+[#39](https://github.com/Jpatching/combine/issues/39#issuecomment-6110986624).
+Both adapters
 now accept bounded triangle collision through explicit
 surface preparation/mount/tick commands. Observations carry query coordinates,
 layer and availability; mesh support is evaluated independently at returned poses.
@@ -40,6 +47,18 @@ native blocking edges. #54 waits for #53 and retained qualification #39; board
 waits for that ground milestone, then rider follows board.
 
 ## Evidence
+
+The fresh native harness now proves missing/incomplete geometry refusal without
+pose exposure or partial reuse, ground disagreement above 5 cm, query-position
+mismatch and stale-time refusal, alongside the existing ramp/availability/layer
+proofs. All five riding faults clear poses on stop and recover through remount.
+The rebuilt worker passed in 41.277 s with a maximum measured mount/poll/tick
+call of 1.415 ms. The freshly linked optimized in-process candidate passed in
+182.891 s with a maximum measured call of 16,365.877 ms; synchronous preparation
+does not establish GTA thread suitability. Configuration/upload/stop are outside
+these metrics. These complete existing related local test changes; no new
+adapter implementation or red/green claim is made. The dated record separates
+compiler preparation, source matching and standalone execution from gameplay.
 
 `python3 tools/gtaiv-skate/check.py` passes all seven authored suites, including
 six connection, four wire and two freshness tests (approximately 1–3 seconds).
@@ -147,6 +166,17 @@ Use three valid readings per point, maximum 2 cm spread and 5 cm mesh error with
 moving geometry. A finite height alone is not success/loaded evidence.
 
 ## Next step
+
+Present the retained labelled checkpoint pictures locally with plain explanations
+before asking the owner to identify their marker bases. The R1/P1/H1/H2 labels
+alone do not let the owner establish exact surface/layer associations. A private
+gallery now explains and pairs all 16 retained views; its local browser opening
+was requested successfully, without AI pixel upload or interpretation. Owner
+viewing and identification remain unverified. Preserve
+collector #58 and reuse its published command rather than rebuilding collection.
+Independent per-point loading evidence still needs validation and an explicit
+owning-issue decision. Never promote character flags or a successful height
+query into that evidence. #54/#55/#56 remain behind their native blocking edges.
 
 Keep both PRs in draft pending their required acceptance; source approval does not
 establish GTA gameplay acceptance. Paired native success and height observation

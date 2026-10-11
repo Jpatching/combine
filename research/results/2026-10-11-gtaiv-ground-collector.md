@@ -8,6 +8,9 @@ stacked on retained `implement/gtaiv-qualified-ground` at
 the normal new-slice-from-main convention. The source-safe collection work
 advances [#39](https://github.com/Jpatching/combine/issues/39); it does not activate
 blocked [#54](https://github.com/Jpatching/combine/issues/54) or replace draft #57.
+Reviewed implementation: `3fef129c39e61e97c278c156562e6a85719f53d7`, published in
+[draft PR #58](https://github.com/Jpatching/combine/pull/58). Owner acceptance
+and live qualification remain pending; the issue records publication follow-ups.
 
 The [collection command](../../tools/gtaiv-collision/README.md#collect-qualified-ground-readings)
 checks the complete candidate inventory and exact prepared script before one

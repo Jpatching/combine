@@ -8,7 +8,7 @@ Task: implement the owner-approved faster ground collection command for [#39](ht
 
 Source branch: `implement/gtaiv-ground-collector`
 
-Source revision: `4677e1616b8d41e218f08bdbf13139b73f3ab45d`
+Source revision: `3fef129c39e61e97c278c156562e6a85719f53d7`
 
 The ground source is published in [draft PR #57](https://github.com/Jpatching/combine/pull/57)
 for [#53](https://github.com/Jpatching/combine/issues/53), stacked with explicit owner
@@ -17,9 +17,11 @@ Its fixed review base is `b27929a16e420a8cfa1d319825966a90309ca566`.
 The exception permits source implementation without merging the parent
 or treating authored geometry as GTA qualification.
 
-Disposition: collector source candidate in the owner-authorized focused child branch;
-No PR exists for this collector yet. Its fixed starting revision is the source
-revision above; the issue owns the final publication revision. See the
+Disposition: [draft PR #58](https://github.com/Jpatching/combine/pull/58) awaits
+owner source review and the relevant live evidence. The owner-authorized focused
+child starts at `4677e1616b8d41e218f08bdbf13139b73f3ab45d`; the source revision
+above identifies the reviewed implementation. The issue owns the final
+publication revision. See the
 [collector preparation record](../research/results/2026-10-11-gtaiv-ground-collector.md).
 Draft PR #57 remains awaiting owner source review and approval. Both adapters
 now accept bounded triangle collision through explicit
@@ -48,7 +50,9 @@ waits for that ground milestone, then rider follows board.
 The new collection command retains private observations and runs the unchanged
 four-point comparator, with authored command tests passing. Windows observer
 syntax and window/input interop compilation pass without input. These are source
-checks only. All 16 retained images were requested locally without AI upload;
+checks only. Repository gate: 91 tests and 70 document/context checks. Final
+independent Standards and Spec reviews have zero remaining actionable findings.
+All 16 retained images were requested locally without AI upload;
 exact surface/layer interpretation remains pending. Ordinary character support
 has no validated independent loading/layer criterion. No new GTA collection,
 runtime replacement, restart or speed-improvement claim is established. The
@@ -161,7 +165,7 @@ moving geometry. A finite height alone is not success/loaded evidence.
 
 ## Next step
 
-Complete independent collector review and publication, then resolve the local
+Keep collector draft #58 pending acceptance, then resolve the local
 R1/P1/H1/H2 surface/layer associations and owning-issue loading-witness decision.
 Prepare/stage the exact reviewed diagnostic through retained recovery, establish
 fresh foreground readiness, and collect the frozen three readings per point.

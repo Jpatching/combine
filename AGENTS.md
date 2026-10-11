@@ -37,6 +37,10 @@ Repository gate: `python3 scripts/verify.py` (`py -3 scripts/verify.py` on Windo
 Runtime changes need relevant runtime checks. Preparation, launch, gameplay,
 verification, owner acceptance and release are distinct evidence claims.
 
+Keep GTA IV in windowed mode throughout runtime testing. Confirm window mode
+during preflight and after each restart; retain foreground and input-ownership
+safeguards.
+
 Keep game assets, converted data, identities, secrets, recordings, private logs
 and settings outside Git and AI uploads. Preserve original installs and builds;
 isolate runtime copies/caches/profiles. Review plugins/scripts before use.

@@ -17,9 +17,10 @@ Source revision: `82d35ad1e43620389abb69fa6bcb591cca1d6279`
 This is the synchronized-main starting point; the draft PR owns the final
 publication revision.
 
-Disposition: source-only research in progress; no PR exists yet. The standing
-window-mode instruction is in [AGENTS.md](../AGENTS.md). Runtime settings and
-installed binaries have not been changed by this research task.
+Disposition: [draft PR #59](https://github.com/Jpatching/combine/pull/59) awaits
+owner source approval. The standing window-mode instruction is in
+[AGENTS.md](../AGENTS.md). Runtime settings and installed binaries have not been
+changed by this research task. The draft owns its current CI record.
 
 The current request selects this work instead of the older Sandcastle task
 snapshot. Retained source branches and drafts stay preserved: ground
@@ -55,8 +56,8 @@ stays local. Persistent Windows execution policy was not changed.
 
 ## Next step
 
-Finish source review and the repository gate, publish the research as a draft,
-and keep owner approval and merge separate. Qualify existing hot reload and
+Source review and the repository gate pass; retain draft #59 for owner approval
+and verify its exact-head CI before merge. Qualify existing hot reload and
 observer capabilities on the exact retained runtime before claiming a faster
 loop; measure setup, trial, recovery and total time against the previous loop.
 The proposed capability qualification is future runtime work, not an execution

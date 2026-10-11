@@ -70,6 +70,16 @@ static void surface_dismount() {
     if(std::isfinite(combine_value(0)))throw "surface stale output after dismount";
 }
 static void surface_proof() {
+    phase="missing geometry";combine_stop();configure();
+    if(combine_mount_surface(100,200,10,0,1,surfaceLayer,1))throw "missing geometry mounted";
+    if(std::isfinite(combine_value(0)))throw "missing geometry exposed pose";
+    phase="incomplete geometry";
+    if(!combine_surface_begin(surfaceLayer,2) || !combine_surface_vertex(68,168,5.2f))throw "incomplete upload setup refused";
+    if(combine_mount_surface(100,200,10,0,1,surfaceLayer,1))throw "incomplete geometry mounted";
+    if(std::isfinite(combine_value(0)))throw "incomplete geometry exposed pose";
+    // A failed upload is consumed, so retrying cannot reuse its partial vertices.
+    if(combine_mount_surface(100,200,10,0,1,surfaceLayer,1))throw "failed geometry reused";
+    std::puts("PASS: missing and incomplete geometry refuse mounting without exposing a pose or reusing partial vertices");
     phase="ramp mount";surface_mount();phase="ramp ride";Packet neutral{},push{0x4000,{0,0},{0,0},{0,0}};
     for(int n=0;n<30;n++)surface_tick(neutral);
     const float startX=combine_value(0),startY=combine_value(1),startZ=combine_value(2);
@@ -88,15 +98,29 @@ static void surface_proof() {
     if(std::fabs((endZ-startZ)-groundChange)>0.15f)throw "surface actual Session height failed to follow authored ramp";
     surface_dismount();
     std::puts("PASS: real Session mounted authored ramp, rode 90 push ticks across changing heights, followed ramp height and discarded dismounted output");
-    for(int fault=0;fault<2;fault++) {
+    for(int fault=0;fault<5;fault++) {
         phase="fault mount";surface_mount();phase="fault neutral tick";surface_tick(neutral);
-        const float x=combine_value(0),y=combine_value(1);
-        const uint32_t layer=fault?surfaceLayer+1:surfaceLayer,valid=fault?1:0;
-        if(bounded([&]{return combine_tick_surface(GetTickCount(),x,y,authored_ground(x,y),layer,valid,&neutral);}))throw fault?"surface wrong layer accepted":"surface unavailable observation accepted";
+        const char* reasons[]={"unavailable observation accepted","wrong layer accepted","over-5cm ground disagreement accepted","observation at undisplayed position accepted","stale tick accepted"};
+        phase=reasons[fault];
+        // A worker may accept submission before its Session rejects stale time.
+        // Fixed authored time is independent of scheduler delays and cannot renew it.
+        const DWORD staleTime=previousTick+1000;
+        const auto deadline=Time::now()+std::chrono::seconds(2);
+        bool refused=false;
+        do {
+            const float x=combine_value(0)+(fault==3?1.f:0.f),y=combine_value(1);
+            const float ground=authored_ground(x,y)+(fault==2?0.06f:0.f);
+            const uint32_t layer=fault==1?surfaceLayer+1:surfaceLayer,valid=fault==0?0:1;
+            const DWORD now=fault==4?staleTime:GetTickCount();
+            if(!bounded([&]{return combine_tick_surface(now,x,y,ground,layer,valid,&neutral);})) {refused=true;break;}
+            if(fault!=4)break;
+            Sleep(5);
+        } while(Time::now()<deadline);
+        if(!refused)throw reasons[fault];
         surface_dismount();
         phase="recovery mount";surface_mount();phase="recovery tick";surface_tick(neutral);surface_dismount();
     }
-    std::puts("PASS: unavailable authored observation and wrong layer refuse riding; explicit stop clears pose and subsequent remount recovers");
+    std::puts("PASS: unavailable/wrong-layer/mismatched-position/disagreeing ground and stale time refuse riding; stop clears pose and remount recovers");
 }
 int main(int argc,char** argv) {
     if(argc!=2 || (std::strcmp(argv[1],"--in-process")!=0 && std::strcmp(argv[1],"--worker")!=0)) {

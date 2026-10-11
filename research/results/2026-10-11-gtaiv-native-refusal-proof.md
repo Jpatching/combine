@@ -7,7 +7,7 @@ through `implement-spec` and `implement`. The ready source follow-up belongs to
 [#53](https://github.com/Jpatching/combine/issues/53), retaining
 [draft #57](https://github.com/Jpatching/combine/pull/57). Its fixed starting
 revision is `4677e1616b8d41e218f08bdbf13139b73f3ab45d`.
-Reviewed source candidate: `2461977092f6d4c9cfed24679868cb5ace470411`.
+Executed source candidate: `ff1ae268df8dc5a7013ab5824d5a087d2741bc04`.
 
 The existing related local harness changes were preserved and completed through
 verification. They extend the approved public Session ABI checks; no adapter
@@ -18,6 +18,13 @@ or partial-preparation reuse, ground disagreement above 5 cm, query-position
 mismatch and stale time. Every riding refusal is followed by stop, pose clearing
 and a successful remount. Both backends still exercise 90 push ticks across
 distinct authored ramp heights and height following.
+
+Spec review found that repeating an incomplete mount could not distinguish
+consumed upload state from retained incomplete state. The corrected harness
+also requires another vertex to refuse without a fresh preparation start, then
+checks fresh-upload recovery. This closes a test-evidence gap; the existing
+implementation already consumed failed preparation. Standards review also
+corrected the handoff's source branch before publication to the retained PR.
 
 ## Executed checks
 
@@ -33,7 +40,9 @@ cargo build --locked --offline --manifest-path <isolated>/adapter/Cargo.toml \
 ```
 
 The fresh harness source SHA-256 is
-`67f4c53b2d421b88bced2360fd50e2563375b8662c6e9a32aca8c472d3a4589e`.
+`006b13ddffc4edc7dd90ce79673e7b8fda092b6beee614c8433c3a1374d3f86f`.
+After the review correction, both harnesses were freshly relinked against the
+unchanged source-matched libraries and rerun in new isolated directories.
 Compiler packages were restored from Ubuntu's package metadata into temporary
 storage, without a system installation. All builds, asset pointers and logs
 remain private. A reviewed bounded PowerShell runner retained the exact owned
@@ -43,11 +52,12 @@ policy permitted the reviewed runner without persistent policy changes.
 
 | Explicit backend | Native exit | Harness duration | Maximum measured mount/poll/tick call |
 | --- | --- | --- | --- |
-| `--worker` | 0 | 41.277 s | 1.415 ms |
-| `--in-process` | 0 | 182.891 s | 16,365.877 ms |
+| `--worker` | 0 | 49.445 s | 1.027 ms |
+| `--in-process` | 0 | 198.778 s | 19,751.443 ms |
 
 Both passed the complete preparation, movement, five fault cases and recovery
-checks. Wrapper durations were 41.591 s and 183.265 s respectively. Configuration,
+checks, including the corrected consumed-upload assertion. Wrapper durations
+were 49.773 s and 199.134 s respectively. Configuration,
 geometry upload and stop are excluded from the maximum-call metric. Synchronous
 in-process preparation remains unsuitable to assume safe on a GTA thread; this
 trial does not qualify that thread's latency or stack.

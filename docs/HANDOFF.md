@@ -8,7 +8,7 @@ Task: resume [#52](https://github.com/Jpatching/combine/issues/52) with `impleme
 
 Source branch: `implement/gtaiv-surface-regression`
 
-Source revision: `2461977092f6d4c9cfed24679868cb5ace470411`
+Source revision: `ff1ae268df8dc5a7013ab5824d5a087d2741bc04`
 
 Publication target: existing `implement/gtaiv-qualified-ground` draft PR #57.
 The source follow-up is reviewed on the branch above before publication to that
@@ -56,9 +56,11 @@ The fresh native harness now proves missing/incomplete geometry refusal without
 pose exposure or partial reuse, ground disagreement above 5 cm, query-position
 mismatch and stale-time refusal, alongside the existing ramp/availability/layer
 proofs. All five riding faults clear poses on stop and recover through remount.
-The rebuilt worker passed in 41.277 s with a maximum measured mount/poll/tick
-call of 1.415 ms. The freshly linked optimized in-process candidate passed in
-182.891 s with a maximum measured call of 16,365.877 ms; synchronous preparation
+Spec review strengthened partial-consumption proof with an immediate vertex
+refusal without restarting preparation; both freshly relinked backends passed
+that corrected assertion. The worker passed in 49.445 s with a maximum measured
+mount/poll/tick call of 1.027 ms. The optimized in-process candidate passed in
+198.778 s with a maximum measured call of 19,751.443 ms; synchronous preparation
 does not establish GTA thread suitability. Configuration/upload/stop are outside
 these metrics. These complete existing related local test changes; no new
 adapter implementation or red/green claim is made. The dated record separates

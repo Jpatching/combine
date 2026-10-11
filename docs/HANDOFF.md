@@ -2,86 +2,96 @@
 
 ## Current task
 
-Reviewed: 2026-10-10
+Reviewed: 2026-10-11
 
-Task: enable the approved Sandcastle GTA decision research in [dispatch qualification](https://github.com/Jpatching/combine/issues/44), part of
-[the GTA riding decision map](https://github.com/Jpatching/combine/issues/43).
+Task: research windowed GTA IV iteration alongside [ground qualification #39](https://github.com/Jpatching/combine/issues/39).
 
-Source branch: `implement/sandcastle-gta-decisions`
+Preserve the owner's windowed testing preference and investigate existing tools
+for faster local AI-assisted iteration. This is a source-only research side
+task; the live ground experiment remains pending.
 
-Source revision: `911925c81d8997dff08f7768d348b65020509049`
+Source branch: `research/gtaiv-windowed-iteration`
 
-This is the synchronized-main base of the focused configuration slice. The issue
-and draft PR own its final publication revision and review evidence.
+Source revision: `82d35ad1e43620389abb69fa6bcb591cca1d6279`
 
-Disposition: [draft PR #48](https://github.com/Jpatching/combine/pull/48) has owner
-approval conditional on passing qualification and checks. Actual subscription
-inference and research qualification now pass. Final handoff review and CI remain
-before the authorized squash merge. No production GTA research job has started.
+This is the synchronized-main starting point; the draft PR owns the final
+publication revision.
 
-The owner approved splitting contact, board/rider presentation and live proof
-into decision tickets and using Sandcastle for public-source research. This slice
-adds their reviewed report profiles and operating commands. It does not change
-the game, select a runtime architecture or merge retained gameplay experiments.
+Disposition: source-only research in progress; no PR exists yet. The standing
+window-mode instruction is in [AGENTS.md](../AGENTS.md). Runtime settings and
+installed binaries have not been changed by this research task.
+
+The current request selects this work instead of the older Sandcastle task
+snapshot. Retained source branches and drafts stay preserved: ground
+[PR #57](https://github.com/Jpatching/combine/pull/57), collector
+[PR #58](https://github.com/Jpatching/combine/pull/58), and parent riding
+[PR #23](https://github.com/Jpatching/combine/pull/23). The newer implementations
+are on those retained branches; this research branch starts from main and does
+not integrate them.
 
 ## Evidence
 
-The [Sandcastle guide](../tools/sandcastle/README.md) names the three dispatch
-commands, independent synchronized-main workspaces and report-only scope. Existing
-coding and research profiles, version pins and runner safeguards remain unchanged.
-Runner syntax and 19 unit tests passed outside the workspace sandbox; the initial
-sandboxed check failed in the existing child-process tests. The repository gate
-passed 62 tests and link/context checks across 59 documents. Credential-free
-`npm run integration` passed all seven Docker tests. Fresh independent Standards
-and Spec review each reported zero actionable findings for the source candidate.
-CI `repository-checks` and `sandcastle-runner` passed at
-`684137af806fa1a3ead0741e080b5ebe8712a5ac`; the draft PR owns final publication
-and any later review/check results. After the owner renewed the Codex login,
-actual subscription `smoke` passed. Actual candidate `research-smoke` was accepted:
-the background researcher completed, checks passed, evidence verdict was
-`requires-local-proof`, and both fresh reviewers approved with zero findings.
-The matching qualification marker was written. Earlier qualification and login
-smoke attempts failed with HTTP 401 before any research result; their private
-recovery remains preserved. No authentication rejection cause is claimed.
-Passing portable and Docker checks is not a production research result.
+The research report is
+[windowed iteration tools](../research/results/2026-10-11-gtaiv-windowed-iteration-tools.md).
+It separates upstream capabilities, retained source, prior execution evidence,
+local qualification gaps and recommendations. Documented hot reload is not a
+passed trial on the installed runtime. No tool installation, script reload,
+runtime staging, keyboard input or gameplay trial occurs in this source task.
 
-Latest runtime evidence: the preserved gameplay candidate
-`b403377481a33e407aeb81b78b8d38984aac4735` remains the runtime reference. The
-[latest riding observations](https://github.com/Jpatching/combine/issues/20#issuecomment-6098478199)
-include a focused mount retained until requested cleanup with no observer-start
-marker, and a guarded mount refusal. The owner reported partial forward movement
-but no visible board or Skate animation. No Windows staging, game launch, input
-or gameplay trial occurred for this configuration slice.
+The owner has already
+[confirmed that the retained checkpoint pictures show the intended surfaces](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
+Reuse that confirmation. Independent loaded collision and intended-layer
+evidence remain unqualified. The prepared physical-state probe observes the
+actual player position and leaves contact, loading and layer unknown; it does
+not associate that position with a checkpoint by itself.
+
+Latest runtime evidence: a read-only Windows check found one responding GTA IV
+process, minimized and outside the foreground. Fresh unmounted gameplay and
+player control were not established. Window mode itself was not verified.
+Earlier retained runtime, diagnostic candidate and recovery backup hashes
+matched; no active staging transaction was present at that check. These are
+separate observations, not a live support or riding pass. Private raw evidence
+stays local. Persistent Windows execution policy was not changed.
 
 ## Next step
 
-Finish affected-document review and CI, then complete the owner-authorized squash
-merge and synchronize clean main. Keep dispatch qualification open until those
-requirements pass; then verify each child's native readiness and the matching
-research qualification before launching its independent bounded worker. Do not
-bypass authentication or substitute fixture passes. Record actual starts and
-results separately from preflight and qualification.
+Finish source review and the repository gate, publish the research as a draft,
+and keep owner approval and merge separate. Qualify existing hot reload and
+observer capabilities on the exact retained runtime before claiming a faster
+loop; measure setup, trial, recovery and total time against the previous loop.
+The proposed capability qualification is future runtime work, not an execution
+claim or an instruction to install a different hook.
 
-The decision workers supply source evidence and next local proofs. Ground
-qualification, visible board/rider presentation and the uncut riding/recovery
-trial still need Windows evidence. Preserve the retained branches, candidates,
-resource placement and mounting guard; do not import gameplay work into this PR.
-Existing mount/move/dismount, ollie and grind tickets retain their own acceptance.
+Resume the one-checkpoint support experiment through `grill-with-docs`. The
+independent contact/layer observable remains unresolved. The owner restores
+and focuses GTA; testing preflight must establish windowed gameplay readiness.
+Keep the existing collector's foreground refusal and input ownership. Once the
+support method is qualified explicitly on #39, collect three valid readings at
+each of R1/P1/H1/H2 with the unchanged maximum 2 cm spread and 5 cm mesh error.
+Ambiguous evidence remains inconclusive. Geometry placement stays fixed.
+
+[#54](https://github.com/Jpatching/combine/issues/54) retains its qualification
+and source-acceptance blockers before triangle-route activation and the recorded
+mount, push, steering, dismount, recovery and restart repeat. Board #55 and
+rider #56 remain downstream; complete riding acceptance stays under #20.
 
 ## Session close
 
-Use [context maintenance](agents/current-context.md) and
-[workspace conventions](agents/issue-tracker.md). Read dispatch qualification's
-latest verdict and the map before resuming. Keep assets, exact coordinates,
-private logs/settings, recordings and credentials outside Git and AI uploads.
-Source approval, research acceptance, Windows proof and owner gameplay acceptance
-are separate claims. Do not bypass the runner's clean-main or blocker gates.
+Follow [context maintenance](agents/current-context.md) and
+[workspace conventions](agents/issue-tracker.md). Keep GTA IV windowed during
+testing as required by AGENTS. Preserve installed runtime files, private recovery,
+retained branches, collector bundles and resource placement. Keep assets,
+coordinates, identities, media, settings and raw logs outside Git and AI uploads.
+The repository gate passed 62 tests and 60 document/context checks; whitespace
+checks passed. Independent Standards and Spec reviews reported zero actionable
+findings. Source research, capability qualification, ground qualification,
+gameplay and owner acceptance remain separate claims.
 
 ## Historical reference
 
 [Host decision](adr/0001-preserve-offline-gta-gameplay.md),
 [glossary](../GLOSSARY.md), [workbench](WORKBENCH.md),
+[retained native proof](https://github.com/Jpatching/combine/blob/45d409a1b6e8bb72d6f5361355c44c58228892c4/research/results/2026-10-11-gtaiv-native-refusal-proof.md),
+[collector source](https://github.com/Jpatching/combine/blob/a1e456cebcebdbc2b3a59033edfbc4629db0f0ab/tools/gtaiv-collision/README.md),
 [physical collision report](../research/results/gtaiv-120059-physical-collision-feasibility.md),
 [retained GTA context](archive/HANDOFF-2026-10-09-gta-context.md).
-The previous framing-fix source and private street experiments remain preserved;
-this dispatch slice does not merge them or establish runtime compatibility.

@@ -153,7 +153,7 @@ The readings document contains up to four uniquely labelled points, each with
 `readings`. Each reading supplies `position: [x, y]`, `height_m` and actual boolean
 `query_success`, `ground_loaded`, `intended_surface`. A finite height alone does
 not prove native query success or the intended layer. The collector must supply
-that evidence separately; this source slice contains no native collector.
+that evidence separately.
 
 Each qualified point needs exactly three finite valid readings at identical fixed
 horizontal coordinates. Maximum spread is 0.02 m; every height must differ from
@@ -171,3 +171,110 @@ Six authored command test groups cover boundary values, missing/invalid readings
 identity/point-set refusal, failure precedence and duplicate-key rejection.
 See the [tooling record](../../research/results/2026-10-10-gtaiv-checkpoint-tooling.md)
 for actual execution and remaining physical qualification.
+
+## Collect qualified ground readings
+
+`collect_ground.py` consolidates a prepared local diagnostic and the unchanged
+comparison. It never qualifies a point from native success, a finite height,
+character height agreement or ordinary character-state flags. Live execution
+requires all requested surface/layer associations first; missing independent
+loading/layer witnesses still produce an inconclusive comparison.
+
+Keep every input and output below a private directory, outside Git and uploads.
+Use Python 3.11 or later on Windows or WSL. The owner starts and focuses the
+isolated GTA runtime. The command sends one guarded F8 pulse, samples foreground
+readiness throughout the bounded observation, and never steals focus. Its child
+owns key release, refuses an already-held F8 and releases only an accepted own
+press. A timed-out child is retained; restoration is refused until its exit is
+confirmed, with an explicit recovery-required result.
+
+```text
+python3 tools/gtaiv-collision/collect_ground.py \
+  --checkpoints .private/ground/points.json \
+  --session .private/ground/session.json \
+  --output .private/ground/new-result
+```
+
+The output directory must be new; existing bundles are preserved. Public output
+contains the fixed four labels, verdicts and fixed reasons. Raw measurements,
+physical observations, additional point names, identities, logs and timing stay
+in that bundle. Exit codes match the comparator. Lost readiness, an incomplete
+collection, artifact mismatch and failed restoration cannot become agreement.
+
+The private points schema extends the comparison schema with `query_z_m` and
+nonempty `surface_evidence` and `layer_evidence` references on every point.
+It permits up to 32 uniquely named points; R1/P1/H1/H2 remain mandatory. Additional
+points are collected and retained but never enter the established four-point
+comparison. Missing additional readings make the command incomplete while
+retaining the four-point comparison results. Preserve the original numeric coordinates and independently established
+evidence. JSON input is limited to 1 MiB and rejects duplicate keys.
+
+Preparation is a separate, non-executing mode of the same command:
+
+```text
+python3 tools/gtaiv-collision/collect_ground.py --prepare-probe \
+  --checkpoints .private/ground/points.json \
+  --session .private/ground/session.json \
+  --output .private/ground/new-preparation
+```
+
+Supply a random lowercase 32-hex `token` in the session. Preparation writes a
+strict-data diagnostic script and its exact point/script digests. Review and
+stage it using the existing retained transaction/backups, plugin-owned buffer,
+four-input conditional native definition and character-state definitions.
+Do not install it beside the normal mount script or a competing F8 runner.
+Loaded-plugin replacement requires normal shutdown/restart. This command does
+not install plugins, change permission settings, navigate menus, or activate
+the triangle route. Reuse the reviewed private offline-menu runner when a normal
+restart needs menu navigation; compatible collection repeats keep GTA running.
+
+The live session requires:
+
+- Integer `schema_version: 1`; `process: {pid, start_ms}` for the exact launched
+  run; `executable`, `state_path`, and one or two `log_paths` as private absolute
+  paths. `start_ms` is the process start time in UTC Unix milliseconds.
+- `token` and `checkpoints_sha256` from preparation. `artifacts` is the complete
+  reviewed candidate inventory: eight entries with unique roles `executable`,
+  `plugin`, `worker`, `definitions`, `script`, `watchdog`, `status_script`,
+  `manifest`; each has an absolute `path` and lowercase `sha256`. The installed
+  script must match the generated script digest. Native executable signature,
+  version 1.2.0.59, status freshness, run identity, foreground and artifact
+  identity are checked before the pulse. Files newer than the run refuse.
+- `retained_artifacts`, using the same path/hash schema, for the exact recovery
+  inventory. Optional `restore_script: {path, sha256}` names the existing reviewed
+  private transaction script supporting `-Mode Restore`. It is hash-checked before
+  execution and again before cleanup. Cleanup verifies every retained digest;
+  failure remains visible even after matching heights. Without this option,
+  candidate and retained inventories must match to verify preservation.
+- Optional `witnesses`, keyed by point label, with boolean `ground_loaded` and
+  `intended_surface`, plus nonempty `loading_evidence` and `layer_evidence`
+  references. These are separately established evidence for this observation,
+  never flags inferred by the collector. Missing references invalidate the flag.
+
+The reviewed reader's current-run byte boundaries and quoted-log handling are
+reused, with a start/attempt marker, bounded records, truncation refusal and a
+single matching log. Foreground sampling cannot prove there was no focus change
+between samples. Disk hashes and file times do not instrument loaded memory.
+Restoration verifies bytes, not restarted gameplay or owner acceptance.
+
+Ordinary physical support remains a candidate loading witness under
+[#39](https://github.com/Jpatching/combine/issues/39). The diagnostic retains
+before/after character position, velocity, height and state without classifying
+contact. `waiting=false`, `stopped=true`, height agreement or apparent standing
+cannot independently distinguish unloaded collision or another floor. Validate
+the method and record the owning-issue decision before supplying true witness
+flags; otherwise keep the result inconclusive.
+
+`--authored-events <private-fixture.json>` exercises the same collection/reporting
+boundary with authored observations and labels output `mode: authored`; it runs
+no Windows commands. Tests cover complete and interrupted collection, missing or
+unavailable readings, coordinate mismatch, unknown evidence, freshness/focus,
+artifact mismatch, restoration failure, additional points and bundle preservation.
+The private timing record measures Python preflight, backend wait and total
+duration, plus Windows observer setup before the pulse and observation duration;
+live restart metric counts a verified process replacement across recovery
+(0 or 1), and remains unknown if the final process identity cannot be verified.
+It does not count prior setup or unobserved intermediate restarts. Compare with
+a separately measured previous loop before claiming it is faster. Preparation,
+collection, four-point ground qualification, riding and restart recovery remain
+separate evidence claims.

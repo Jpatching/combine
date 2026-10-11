@@ -2,13 +2,13 @@
 
 ## Current task
 
-Reviewed: 2026-10-10
+Reviewed: 2026-10-11
 
-Task: implement the owner-approved faster test loop and qualified ground route under [#52](https://github.com/Jpatching/combine/issues/52), retaining [#20](https://github.com/Jpatching/combine/issues/20) for complete GTA riding acceptance.
+Task: implement the owner-approved faster ground collection command for [#39](https://github.com/Jpatching/combine/issues/39), preserving the qualified ground work under [#52](https://github.com/Jpatching/combine/issues/52) and complete riding acceptance under [#20](https://github.com/Jpatching/combine/issues/20).
 
-Source branch: `implement/gtaiv-qualified-ground`
+Source branch: `implement/gtaiv-ground-collector`
 
-Source revision: `96d1c058f3216e3d50d3e1bf38d7731661bd704d`
+Source revision: `4677e1616b8d41e218f08bdbf13139b73f3ab45d`
 
 The ground source is published in [draft PR #57](https://github.com/Jpatching/combine/pull/57)
 for [#53](https://github.com/Jpatching/combine/issues/53), stacked with explicit owner
@@ -17,7 +17,11 @@ Its fixed review base is `b27929a16e420a8cfa1d319825966a90309ca566`.
 The exception permits source implementation without merging the parent
 or treating authored geometry as GTA qualification.
 
-Disposition: draft PR #57 awaiting owner source review and approval. Both adapters
+Disposition: collector source candidate in the owner-authorized focused child branch;
+No PR exists for this collector yet. Its fixed starting revision is the source
+revision above; the issue owns the final publication revision. See the
+[collector preparation record](../research/results/2026-10-11-gtaiv-ground-collector.md).
+Draft PR #57 remains awaiting owner source review and approval. Both adapters
 now accept bounded triangle collision through explicit
 surface preparation/mount/tick commands. Observations carry query coordinates,
 layer and availability; mesh support is evaluated independently at returned poses.
@@ -40,6 +44,15 @@ native blocking edges. #54 waits for #53 and retained qualification #39; board
 waits for that ground milestone, then rider follows board.
 
 ## Evidence
+
+The new collection command retains private observations and runs the unchanged
+four-point comparator, with authored command tests passing. Windows observer
+syntax and window/input interop compilation pass without input. These are source
+checks only. All 16 retained images were requested locally without AI upload;
+exact surface/layer interpretation remains pending. Ordinary character support
+has no validated independent loading/layer criterion. No new GTA collection,
+runtime replacement, restart or speed-improvement claim is established. The
+collector record and live issue separate these remaining gates from source work.
 
 `python3 tools/gtaiv-skate/check.py` passes all seven authored suites, including
 six connection, four wire and two freshness tests (approximately 1–3 seconds).
@@ -147,6 +160,12 @@ Use three valid readings per point, maximum 2 cm spread and 5 cm mesh error with
 moving geometry. A finite height alone is not success/loaded evidence.
 
 ## Next step
+
+Complete independent collector review and publication, then resolve the local
+R1/P1/H1/H2 surface/layer associations and owning-issue loading-witness decision.
+Prepare/stage the exact reviewed diagnostic through retained recovery, establish
+fresh foreground readiness, and collect the frozen three readings per point.
+Measure this loop against a real previous-loop baseline before calling it faster.
 
 Keep both PRs in draft pending their required acceptance; source approval does not
 establish GTA gameplay acceptance. Paired native success and height observation

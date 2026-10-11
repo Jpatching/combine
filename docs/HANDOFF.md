@@ -11,10 +11,11 @@ Source branch: `fix/gtaiv-current-context`
 Source revision: `844fcdad69be245c4a8df9c36a6c1f1019599d5f`
 
 This is the synchronized-main starting point for the documentation correction.
-No PR exists yet for this slice.
+The draft PR owns the final publication revision.
 
-Disposition: source changes in progress; private runtime observations
-are separate. [PR #59](https://github.com/Jpatching/combine/pull/59) is merged at
+Disposition: [draft PR #60](https://github.com/Jpatching/combine/pull/60) awaits
+owner source approval; private runtime observations are separate.
+[PR #59](https://github.com/Jpatching/combine/pull/59) is merged at
 the revision above. Its earlier awaiting-approval snapshot is superseded by the
 [merge record on #39](https://github.com/Jpatching/combine/issues/39#issuecomment-6113398089).
 Retain ground [PR #57](https://github.com/Jpatching/combine/pull/57), collector
@@ -42,8 +43,9 @@ This is one startup/readiness observation, not a repeatability or riding pass.
 The retained private startup preflight imported a root module absent from main.
 Its module pointer was corrected to the verified retained adapter checkout, with
 the original backed up. The bounded menu automation ended without verified
-readiness and sent no input. Keyboard/mouse input and further window activation
-are paused while clarifying the owner's latest input preference.
+readiness and sent no input. The owner explicitly selected leaving their
+keyboard/mouse free. Send no keyboard/mouse input and do not activate GTA while
+that restriction applies; read-only background observations may continue.
 
 The owner already [confirmed the retained checkpoint pictures show the intended
 surfaces](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
@@ -59,8 +61,9 @@ installations or passed reload trials. No measured speed improvement exists.
 
 ## Next step
 
-Respect the current input preference before resuming live automation. Verify a
-normal Rockstar restart repeat when authorized to interrupt the game. Keep
+The current foreground-key collector and riding driver remain idle under the
+owner's input restriction; passing source tests do not substitute for their live
+trials. Verify a normal Rockstar restart repeat when authorized to interrupt the game. Keep
 collectors' lost-focus refusal and owned-input cleanup; this session's
 owner-authorized restore/focus does not remove them.
 Retain failures and private recovery. Resolve the independent support/layer
@@ -81,6 +84,9 @@ by [AGENTS.md](../AGENTS.md). Source checks, private setup, runtime observations
 and owner acceptance remain distinct. Preserve original binaries, retained
 branches and recovery. Settings, identities, coordinates, raw logs and media
 stay private; open actual evidence locally without AI upload.
+Repository verification passed 62 tests and 60 document/context checks; whitespace
+checks passed. Independent Standards and Spec review found zero remaining
+actionable findings; reviewers did not inspect private runtime evidence.
 
 ## Historical reference
 

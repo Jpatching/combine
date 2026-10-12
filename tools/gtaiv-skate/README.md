@@ -227,11 +227,11 @@ stock Skate controls. Readiness/mount/failure messages appear in GTA's text area
 The stock ped is a rough visual placeholder for the simulation position and
 heading. A chase camera follows it. Full Skate animation is not included.
 
-At mount, the native ground query samples a 5×5 grid, 4 metres wide. Ambiguous zero-height ground
-results are rejected; genuine zero-height
+At mount, the native ground query samples a 5×5 grid, 8 metres wide. Ambiguous zero-height ground
+results are rejected because the native has no success flag; genuine zero-height
 surfaces are unsupported by this narrow candidate. The selected patch must be
 clear and flat within 5 cm; riding is confined to its central
-3 metres. Coordinates rotate GTA Z-up to Skate Y-up and translate around the
+7 metres. Coordinates rotate GTA Z-up to Skate Y-up and translate around the
 mount position. **One GTA unit = one metre is an assumption requiring runtime
 measurement.** GTA heading 0 maps +Y to Skate −Z; headings/pose axes also need
 runtime observation. This sampled patch is not a complete GTA collision mesh:

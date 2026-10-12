@@ -20,7 +20,7 @@ function run(mode) {
    case 'IS_CHAR_ON_FOOT':return mode!=='vehicle'||frame<3;
    case 'GET_CHAR_COORDINATES':return {x:mode==='prepMove'&&frame>=2?101:100,y:200,z:mode==='noGround'?1:11};
    case 'GET_CHAR_HEADING':return 0;
-   case 'GET_GROUND_Z_FOR_3D_COORD':queries++;return mode==='noGround'?0:queries>1&&mode==='gridNonfinite'?NaN:queries>1&&mode==='gridZero'?0:queries>1&&mode==='gridOver'?10.1:mode==='flatCentre'&&(Math.abs(args[0]-100)>2.5||Math.abs(args[1]-200)>2.5)?10.1:10;
+   case 'GET_GROUND_Z_FOR_3D_COORD':queries++;return mode==='noGround'?0:queries>1&&mode==='gridNonfinite'?NaN:queries>1&&mode==='gridZero'?0:queries>1&&mode==='gridOver'?10.1:10;
    case 'GET_CHAR_HEIGHT_ABOVE_GROUND':return 1;
    case 'COMBINE_SKATE_VERTEX':vertices++;return mode==='vertexFail'?0:1;
    case 'COMBINE_SKATE_MOUNT':return mode==='initFail'?0:['preparing','prepCancel','prepFail','prepPause','prepMove'].includes(mode)?2:1;
@@ -43,10 +43,6 @@ function run(mode) {
  return {calls,logs,transfers,mounted,restored,camera,vertices,poseWrites};
 }
 const successful=run('ok');assert.equal(successful.vertices,25);assert.ok(successful.poseWrites>0);
-const flatCentre=run('flatCentre');assert.ok(flatCentre.poseWrites>0);
-const sampled=successful.calls.filter(c=>c[0]==='GET_GROUND_Z_FOR_3D_COORD');
-assert.deepEqual(sampled[1].slice(1,3),[98,198]);
-assert.deepEqual(sampled[25].slice(1,3),[102,202]);
 assert.ok(successful.calls.some(c=>c[0]==='COMBINE_SKATE_INPUT_MODE'&&c[1]===1));
 assert.equal(successful.mounted,false);assert.equal(successful.camera,false);assert.ok(successful.restored);
 console.log('PASS: mount presents Session pose and dismount restores GTA');

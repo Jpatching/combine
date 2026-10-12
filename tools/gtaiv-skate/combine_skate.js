@@ -3,12 +3,46 @@
 const INPUT_MODE = 1;
 let inputMode = INPUT_MODE;
 const SCALE = 1; // GTA metres assumption: MUST verify against a surveyed real surface.
+// Isolated runtime preparation supplies strict private data after floor qualification.
+const SURFACES = [];
 let ride = null, preparing = null, announced=false, inputConfigured=false, inputRefused=false;
+let selectedSurface = null;
+function surfaceHeight(surface, x, y) {
+    if (!surface || surface.qualified!==true || typeof surface.evidence!=="string" || !surface.evidence
+        || !Number.isInteger(surface.layer) || surface.layer<=0 || surface.layer>0xffffffff
+        || !Array.isArray(surface.center) || surface.center.length!==2 || !surface.center.every(Number.isFinite)
+        || !Number.isFinite(surface.radius) || surface.radius<=0
+        || Math.hypot(x-surface.center[0],y-surface.center[1])>surface.radius
+        || !Array.isArray(surface.triangles) || !surface.triangles.length || surface.triangles.length>4096) return null;
+    const heights=[];
+    for (const triangle of surface.triangles) {
+        if (!Array.isArray(triangle) || triangle.length!==3
+            || triangle.some(v=>!Array.isArray(v)||v.length!==3||!v.every(Number.isFinite))) return null;
+        const [a,b,c]=triangle;
+        const denominator=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);
+        if(Math.abs(denominator)<1e-9)continue;
+        const u=((b[1]-c[1])*(x-c[0])+(c[0]-b[0])*(y-c[1]))/denominator;
+        const v=((c[1]-a[1])*(x-c[0])+(a[0]-c[0])*(y-c[1]))/denominator;
+        const w=1-u-v;
+        if(Math.min(u,v,w)>=-1e-6)heights.push(u*a[2]+v*b[2]+w*c[2]);
+    }
+    if(!heights.length || (Math.max(...heights)-Math.min(...heights))*SCALE>0.001)return null;
+    return heights[0];
+}
+function surfaceObservation(surface,x,y,ground) {
+    const height=surfaceHeight(surface,x,y);
+    return height!==null && Number.isFinite(ground) && Math.abs(height-ground)*SCALE<=0.05;
+}
+function surfaceContainsPose(surface,x,y,z) {
+    const height=surfaceHeight(surface,x,y);
+    return height!==null && Number.isFinite(z) && Math.abs(z-height)*SCALE<3;
+}
 function record(event) {try {log("COMBINE_SKATE "+event);}catch (_) {}}
 function notify(text) { record(text);native("PRINT_STRING_WITH_LITERAL_STRING_NOW", "STRING", text, 2500, 1); }
 function restore() {
     const saved = ride;
     preparing = null;
+    selectedSurface = null;
     const attempt = action => { try { action(); } catch (_) {} };
     attempt(() => native("COMBINE_SKATE_STOP"));
     if (!saved) return;
@@ -45,7 +79,15 @@ function mount(player, ped) {
         notify("Skate: ground unavailable/ambiguous - choose another clear surface");return;
     }
     native("COMBINE_SKATE_STOP");
-    for (let y=0;y<5;y++) for (let x=0;x<5;x++) {
+    if(SURFACES.length) {
+        const matches=SURFACES.filter(surface=>surfaceObservation(surface,pos.x,pos.y,ground));
+        if(matches.length!==1){notify("Skate: qualified floor unavailable - GTA retained");return;}
+        selectedSurface=matches[0];
+        if(!native("COMBINE_SKATE_SURFACE_BEGIN",selectedSurface.layer,selectedSurface.triangles.length)) {restore();return;}
+        for(const triangle of selectedSurface.triangles)for(const vertex of triangle) {
+            if(!native("COMBINE_SKATE_SURFACE_VERTEX",...vertex)){restore();return;}
+        }
+    } else for (let y=0;y<5;y++) for (let x=0;x<5;x++) {
         const px=pos.x+(x-2)*2/SCALE, py=pos.y+(y-2)*2/SCALE;
         const z=native("GET_GROUND_Z_FOR_3D_COORD", px, py, pos.z+2);
         let reason=null;
@@ -58,9 +100,12 @@ function mount(player, ped) {
             native("COMBINE_SKATE_STOP");notify("Skate: choose a clear, flat surface");return;
         }
     }
-    const result=native("COMBINE_SKATE_MOUNT",pos.x,pos.y,ground,native("GET_CHAR_HEADING",ped),SCALE);
+    const heading=native("GET_CHAR_HEADING",ped);
+    const result=selectedSurface
+        ?native("COMBINE_SKATE_MOUNT_SURFACE",pos.x,pos.y,ground,heading,SCALE,selectedSurface.layer,1)
+        :native("COMBINE_SKATE_MOUNT",pos.x,pos.y,ground,heading,SCALE);
     if (!result) {
-        notify("Skate: initialization/controller unavailable");return;
+        restore();notify("Skate: initialization/controller unavailable");return;
     }
     if (result===2) {
         preparing={player,ped,pos,ground,started:native("GET_GAME_TIMER")};
@@ -70,7 +115,7 @@ function mount(player, ped) {
 }
 function finishMount(player,ped,pos) {
     const initial=[0,1,2,3].map(i=>native("COMBINE_SKATE_VALUE",i));
-    if(!initial.every(Number.isFinite)) {restore();notify("Skate: invalid initial pose - GTA retained");return;}
+    if(!initial.every(Number.isFinite) || (selectedSurface && !surfaceContainsPose(selectedSurface,initial[0],initial[1],initial[2]))) {restore();notify("Skate: invalid initial pose - GTA retained");return;}
     const camera=native("CREATE_CAM",14);
     ride={player,ped,camera,lift:pos.z-initial[2],yaw:0,pitch:Math.atan2(2.5,4)*180/Math.PI};
     if (!native("DOES_CAM_EXIST",camera)) {restore();return;}
@@ -102,7 +147,7 @@ try {
                 notify(inputMode===1?"Skate: keyboard/mouse selected - F5 switches while dismounted"
                     :"Skate: controller selected - F5 switches while dismounted");
             }
-            if (!announced) {notify("Skate adapter ready - F6 on a clear flat surface");announced=true;}
+            if (!announced) {notify(SURFACES.length?"Skate adapter ready - F6 on a qualified floor":"Skate adapter ready - F6 on a clear flat surface");announced=true;}
             const player=native("CONVERT_INT_TO_PLAYERINDEX",native("GET_PLAYER_ID"));
             const ped=native("GET_PLAYER_CHAR",player);
             const valid=native("DOES_CHAR_EXIST",ped) && native("IS_PLAYER_PLAYING",player)
@@ -125,7 +170,8 @@ try {
                 if(!state) {restore();notify("Skate: preparation failed - GTA retained");continue;}
                 if(state===1) {
                     const ground=native("GET_GROUND_Z_FOR_3D_COORD",current.x,current.y,current.z+2);
-                    if(!Number.isFinite(ground) || Math.abs(ground-p.ground)*SCALE>0.05) {restore();continue;}
+                    if(!Number.isFinite(ground) || Math.abs(ground-p.ground)*SCALE>0.05
+                        || (selectedSurface && !surfaceObservation(selectedSurface,current.x,current.y,ground))) {restore();continue;}
                     preparing=null;finishMount(player,ped,current);
                 }
                 continue;
@@ -134,11 +180,16 @@ try {
             if(interrupted) {restore();continue;}
             const prior=[0,1,2].map(i=>native("COMBINE_SKATE_VALUE",i));
             const ground=native("GET_GROUND_Z_FOR_3D_COORD",prior[0],prior[1],prior[2]+2);
-            if (!native("COMBINE_SKATE_TICK",native("GET_GAME_TIMER"),ground,valid?1:0)) {
+            const tick=selectedSurface
+                ?surfaceObservation(selectedSurface,prior[0],prior[1],ground)
+                    && native("COMBINE_SKATE_TICK_SURFACE",native("GET_GAME_TIMER"),prior[0],prior[1],ground,selectedSurface.layer,valid?1:0)
+                :native("COMBINE_SKATE_TICK",native("GET_GAME_TIMER"),ground,valid?1:0);
+            if (!tick) {
                 restore();notify("Skate: surface/input/time unavailable - GTA restored");continue;
             }
             const [x,y,z,heading]=[0,1,2,3].map(i=>native("COMBINE_SKATE_VALUE",i));
-            if (![x,y,z,heading].every(Number.isFinite)) {restore();continue;}
+            if (![x,y,z,heading].every(Number.isFinite)
+                || (selectedSurface && !surfaceContainsPose(selectedSurface,x,y,z))) {restore();continue;}
             native("SET_CHAR_COORDINATES",ped,x,y,z+ride.lift);
             native("SET_CHAR_HEADING",ped,heading);
             if(inputMode===1) {

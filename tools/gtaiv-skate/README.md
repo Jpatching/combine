@@ -16,10 +16,15 @@ context is [#10](https://github.com/Jpatching/combine/issues/10).
 The focused [source slice](https://github.com/Jpatching/combine/issues/53) adds
 an explicit triangle route alongside the unchanged flat-grid fallback. Both
 backends supply these triangles to the existing Session; neither replaces Skate
-physics. Normal `combine_skate.js` still uses the flat route. It does not select
-private geometry or manufacture successful ground observations. Connecting F6 to
-the qualified street supplier and exact-version availability evidence belongs to
-the blocked [local trial](https://github.com/Jpatching/combine/issues/54).
+physics. `combine_skate.js` uses the triangle route when isolated preparation
+supplies qualified private `SURFACES` data; an empty array retains the flat route.
+Each entry declares its selected layer, evidence reference, checkpoint centre,
+bounded radius and decoded triangles. Unique mesh/host agreement selects the
+floor. Preparation, current queries and presented poses retain that selection;
+leaving qualified coverage restores GTA control. Data is supplied only after
+independent floor qualification, never inferred from a finite query alone.
+The owner selected a bounded H2 proof before wider checkpoint qualification under
+[the local trial](https://github.com/Jpatching/combine/issues/54).
 
 The public C ABI and matching `COMBINE_SKATE_*` commands provide this sequence:
 

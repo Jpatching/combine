@@ -26,65 +26,34 @@ combined here for review, without merging main or activating triangle riding.
 
 ## Evidence
 
-Latest runtime evidence: on 2026-10-12, the owner confirmed GTA was at the
-retained street spot. A guarded F6 test of the still-loaded, backed-up 4 m
-flat-grid experiment ran in windowed foreground gameplay. Fresh status never
-showed a mount; the adapter reported `over-0.05-metres`. Movement input was
-withheld, and fresh unmounted GTA control was verified afterward. A private
-15-second clip was captured and opened locally for owner viewing. This is a
-second flat-grid refusal at that spot, not a test of the new source or proof
-of physical unevenness, loaded collision, a selected floor/layer or skating.
+Latest runtime evidence: a fresh windowed foreground H2 trial distinguished two
+stacked supporting floors through physical settling and independent decoded
+geometry. Three fixed-coordinate host queries per floor passed the existing
+2 cm spread and 5 cm mesh-agreement gates. Maximum fixed-query error was about
+1.3 mm; physical floor-separation error was 2.8 mm. Captured-observation replay
+rejects swapped floor references, wrong query floors and missing observations.
+The short private clip was opened locally; owner viewing is unconfirmed.
 
-Latest runtime diagnostic: the launcher now retries foreground focus after the
-window responds. A monitored windowed launch reached verified foreground, and
-guarded offline menu input reached fresh gameplay. The baseline preflight and
-retained checkpoint check passed. Temporary physical-support probes then ran at
-R1, P1 and H1. Their traces show settling near a support surface, but do not
-identify which floor GTA selected or reject a wrong floor. No loaded-floor or
-layer criterion passed. The owner stopped the next probe before input; GTA
-closed normally. The original checkpoint script was restored with its exact
-backup hash, and the private inventory-only check passed. GTA is currently
-closed. Probe scripts, traces and recovery records remain private and outside Git.
+Player position and normal GTA control restoration passed. The exact process
+closed normally. The original checkpoint script and full private inventory were
+restored and verified. GTA is closed. This establishes a bounded H2 witness and
+readings, not other checkpoint qualification, loaded-resource identity or riding.
 
-The owner confirmed the retained checkpoint pictures show the intended surfaces:
-[confirmation on #39](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
-Reuse this decision. Independent collision loading/layer evidence and qualified
-checkpoint readings remain unresolved. Full riding acceptance stays under #20.
-The merged PR #59 is historical; its former awaiting-approval status is superseded.
-
-Source integration preserves the authored triangle implementation and collector.
-The new Rust replacement path updates Session collision without remounting on
-both native backends. The exact-source Windows release builds, plugin links and
-changed-slope Session harness passed for in-process and worker variants; the
-worker parent measured under 1 ms per public call in that harness. Pinned
-definition contracts, focused adapter checks and the 105-test repository gate
-passed. These authored tests establish replacement behavior, not GTA floor
-qualification or gameplay acceptance. Private clips, logs, configurations,
-identities and coordinates stay outside Git and AI uploads.
+The owner asked to stop redundant restrictions and pursue an actual ride. The
+source F6 script now selects a triangle route from qualified private surface data,
+retaining asynchronous preparation, selected-layer checks and control recovery.
+Authored script checks pass; matching Windows worker/plugin builds completed.
+The new route has not yet been staged or tested in GTA. Other retained source
+and runtime evidence remains historical; keep private trial data outside Git.
 
 ## Next step
 
-Pursue the owner's broader geometry-backed goal under #52/#39/#54. The owner
-explicitly set completion acceptance to mounting and continued riding on suitable
-GTA floors at different heights, including stacked levels, with collision
-coverage updated as the player moves and normal GTA control restored on dismount
-or query failure. One qualified street block is only a proof step. The existing
-triangle path passes authored tests but normal F6 still invokes the flat-grid
-fallback. The authored replacement command is not yet called from live GTA.
-The startup foreground failure is resolved. Narrow the next decision to one
-bounded witness that names the intended loaded floor at each checkpoint and
-fails when the wrong floor is selected. The owner accepts either a direct signal
-or an independent differential observation with that property. Do not repeat
-the physical-support trace alone or resume an open-ended native ABI search as
-the active plan. Keep those attempts as historical diagnostics. Once the witness
-passes, collect three valid host readings per point under the existing 2 cm
-repeatability and 5 cm mesh-agreement gates, then select and activate the
-triangle path and test stacked-floor riding. No Rust candidate has been staged
-in GTA, and gameplay acceptance remains open.
-Keep the game windowed and preserve input-ownership and restoration checks.
-The source candidate remains in draft PR #62; private diagnostic records remain
-local. Do not mark it ready or merge until review, gameplay checks and owner
-approval pass.
+Run one bounded triangle ride at the proven H2 location, using the matching
+candidate and backed-up private geometry data. This owner-selected proof does not
+wait for all four checkpoints. Keep normal control restoration and windowed,
+foreground input ownership; stop at the first unresolved runtime boundary.
+Qualify other locations and moving collision only after an actual local ride.
+The wider #20 goal and draft PR #62 remain unaccepted and unmerged.
 
 ## Session close
 

@@ -41,6 +41,23 @@ non-finite ground query after offline menu recovery. These observations do not
 establish that the real ground is uneven or that querying is qualified.
 Current runtime state must be checked independently before new input.
 
+Latest execution boundary: the reviewed normal-close helper verified exit without
+forced termination. Staging first refused Linux paths in the private PowerShell
+plan, then refused a write to the protected CLEO adapter folder before replacing
+any runtime file. The private paths were corrected. Windows subsequently reported
+administrator elevation canceled, including the owner's authorized one-time
+CLEO-only permission fix. Neither permission completion nor installation manifest
+exists; GTA IV is currently closed and no checkpoint or mount key was sent.
+The scoped permission helper saves the prior ACL and adds only the current Windows
+account's inherited Modify access to CLEO; its parser/account/rule checks passed.
+Owner approval in chat does not approve the Windows secure-desktop prompt.
+
+Candidate source `25db82b81955a2be90272a9247249aa29520d5b9` passed the
+105-test repository gate. The latest focused rerun passed all four GTA workflow
+tests and the adapter script suite, including transient restoration retaining
+ownership until GTA controls are restored. These are source checks, not a live
+mount result. Private staging, recovery and permission records remain retained.
+
 The owner confirmed the retained checkpoint pictures show the intended surfaces:
 [confirmation on #39](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
 Reuse this decision. Independent collision loading/layer evidence and qualified
@@ -57,10 +74,16 @@ identities and coordinates stay outside Git and AI uploads.
 
 Complete and verify the guarded runner and private evidence hub under #61.
 Use [the evidence hub guide](EVIDENCE_HUB.md) for its commands and private setup.
-Resolve the unresponsive process within the owner's recovery authority and stage
-one reviewed, backed-up runtime bundle with exact source/build provenance. Do not
+The hung-process recovery is complete. Finish the already authorized CLEO-only
+Windows permission operation, requiring one secure-desktop administrator approval,
+then verify non-elevated adapter writes and stage one reviewed, backed-up runtime
+bundle with exact source/build provenance. Reconcile any pending helper before
+retrying; do not repeat canceled prompts automatically. Do not
 regenerate a matching manifest from unverified installed bytes. Normal recovery
 remains the default; any hung termination requires explicit owner approval.
+Open windowed and run only preflight, the retained checkpoint and one recorded
+mount diagnostic before expanding gameplay checks. No new diagnostic tool is
+required to proceed.
 Present one candidate revision/evidence bundle for explicit approval. Do not merge
 until review, checks and owner approval pass.
 

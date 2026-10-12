@@ -8,10 +8,10 @@ Task: implement the owner-approved [persistent candidate and diagnostic workflow
 
 Source branch: `integration/gtaiv-evidence-loop`
 
-Source revision: `844fcdad69be245c4a8df9c36a6c1f1019599d5f`
+Source revision: `0fa71777187f59d88be42eb4a4ec213eff030fdb`
 
-This is the synchronized-main starting point. The candidate PR owns its final
-publication revision.
+The candidate PR owns its final publication revision. The current source includes
+a preserved short-footprint experiment and its revert; the checkout is clean.
 
 Disposition: integrated candidate in preparation; No PR exists for this candidate yet.
 Retain [riding #23](https://github.com/Jpatching/combine/pull/23),
@@ -23,40 +23,20 @@ combined here for review, without merging main or activating triangle riding.
 
 ## Evidence
 
-Latest runtime evidence: on 2026-10-12 read-only checks found one windowed but
-unresponsive GTA IV process with unknown native gameplay state. Authorized normal
-recovery returned `normal-close-refused`; foreground-first opening still timed out.
-The owner subsequently approved one exact-process hung termination: its exit was
-verified and the replacement GTA process is responding, windowed and foreground.
-The signed executable's launcher handoff initially returned `process-changed`;
-the local opener subsequently verified the replacement window without another
-termination. Private selected-window observation was unavailable before recovery;
-no diagnostic key was sent.
-Corrected session preparation identifies `inventory-mismatch-definitions` against
-each of three retained manifests. The new controls are source-tested and freshly
-built in an isolated worker bundle, not installed
-or accepted in gameplay. The retained windowed-game trials reported the default
-flat-route refusal `over-0.05-metres`; subsequent session records describe a
-non-finite ground query after offline menu recovery. These observations do not
-establish that the real ground is uneven or that querying is qualified.
-Current runtime state must be checked independently before new input.
+Latest runtime evidence: a backed-up isolated worker bundle was staged after
+normal GTA shutdown. The owner advanced the offline menu. Preflight and the
+retained checkpoint passed in windowed, foreground gameplay. One mount trial of
+the short 4 m flat-grid experiment refused `over-0.05-metres`; input cleanup and
+fresh unmounted GTA control were verified. The owner confirmed the player was
+standing in the middle of the road. This does not establish physical unevenness,
+loaded collision, a selected floor/layer, or successful skating.
 
-Latest execution boundary: the reviewed normal-close helper verified exit without
-forced termination. Staging first refused Linux paths in the private PowerShell
-plan, then refused a write to the protected CLEO adapter folder before replacing
-any runtime file. The private paths were corrected. Windows subsequently reported
-administrator elevation canceled, including the owner's authorized one-time
-CLEO-only permission fix. Neither permission completion nor installation manifest
-exists; GTA IV is currently closed and no checkpoint or mount key was sent.
-The scoped permission helper saves the prior ACL and adds only the current Windows
-account's inherited Modify access to CLEO; its parser/account/rule checks passed.
-Owner approval in chat does not approve the Windows secure-desktop prompt.
-
-Candidate source `25db82b81955a2be90272a9247249aa29520d5b9` passed the
-105-test repository gate. The latest focused rerun passed all four GTA workflow
-tests and the adapter script suite, including transient restoration retaining
-ownership until GTA controls are restored. These are source checks, not a live
-mount result. Private staging, recovery and permission records remain retained.
+The live GTA process still has the experimental 4 m bundle loaded, while the
+source checkout reverted that experiment to the original 8 m flat fallback.
+Reconcile source, staged artifacts and session before another guarded test.
+Private runtime backups and evidence are retained. The pre-revert experiment
+passed seven focused adapter suites and the 105-test repository gate; those
+checks did not prove a mount fix. No post-revert gate has been claimed.
 
 The owner confirmed the retained checkpoint pictures show the intended surfaces:
 [confirmation on #39](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
@@ -72,27 +52,22 @@ identities and coordinates stay outside Git and AI uploads.
 
 ## Next step
 
-Complete and verify the guarded runner and private evidence hub under #61.
-Use [the evidence hub guide](EVIDENCE_HUB.md) for its commands and private setup.
-The hung-process recovery is complete. Finish the already authorized CLEO-only
-Windows permission operation, requiring one secure-desktop administrator approval,
-then verify non-elevated adapter writes and stage one reviewed, backed-up runtime
-bundle with exact source/build provenance. Reconcile any pending helper before
-retrying; do not repeat canceled prompts automatically. Do not
-regenerate a matching manifest from unverified installed bytes. Normal recovery
-remains the default; any hung termination requires explicit owner approval.
-Open windowed and run only preflight, the retained checkpoint and one recorded
-mount diagnostic before expanding gameplay checks. No new diagnostic tool is
-required to proceed.
-Present one candidate revision/evidence bundle for explicit approval. Do not merge
-until review, checks and owner approval pass.
+Pursue the owner's broader geometry-backed goal under #52/#39/#54. The existing
+triangle path passes authored tests but normal F6 still invokes the flat-grid
+fallback. Establish independent evidence that the intended GTA floor is loaded
+at each fixed checkpoint, then collect three valid host readings per point under
+the existing 2 cm repeatability and 5 cm mesh-agreement gates. Select and activate
+the triangle path only after those prerequisites. A pending owner decision asks
+whether physical support plus repeated mesh agreement can serve as the independent
+loading witness, or whether an exact-version engine collision/layer query is
+required. Do not infer a positive witness from standing or a finite height alone.
 
-Diagnose native query availability at one checkpoint before all-four-point
-collection or triangle activation. Preserve three valid readings per point,
-2 cm maximum spread and 5 cm mesh error, independent loading/layer evidence,
-fixed geometry, the flat-route guard and lost-focus/input-ownership safeguards.
-Ten diagnostic attempts are a maximum; unchanged failures stop a scenario and
-require a new experimental variable. Restart/controller acceptance remains separate.
+REA CLI is installed locally, but no native Ghidra/IDA/Hopper provider is
+available in this session; decompilation of the owned executable has not run.
+Reconcile the live experimental runtime with source before more guarded input.
+Keep the game windowed and preserve input-ownership and restoration checks.
+Present one candidate revision/evidence bundle for explicit approval. Do not
+merge until review, checks and owner approval pass.
 
 ## Session close
 

@@ -81,9 +81,13 @@ try {
   [IO.File]::WriteAllBytes($temporary,[IO.File]::ReadAllBytes($item.Source))
   if((Hash $temporary) -cne $item.SourceHash){throw 'bundle-source-mismatch'}
   Closed
-  if($item.Existed){[IO.File]::Replace($temporary,$item.Target,$null)}else{[IO.File]::Move($temporary,$item.Target)}
+  if($item.Existed){
+   $replaced=$temporary+'.previous'
+   [IO.File]::Replace($temporary,$item.Target,$replaced)
+  }else{[IO.File]::Move($temporary,$item.Target)}
   $written+=$item
   if((Hash $item.Target) -cne $item.SourceHash){throw 'installed-bundle-mismatch'}
+  if($item.Existed){[IO.File]::Delete($replaced)}
  }
  Closed
  foreach($relative in $hashes.Keys){if((Hash (Join-Path $root $relative)) -cne $hashes[$relative]){throw 'baseline-mismatch'}}
@@ -106,8 +110,10 @@ try {
      if((Hash $temporary) -cne $item.ExpectedOld){throw 'backup-unverified'}
      Closed
      if((Hash $item.Target) -cne $item.SourceHash){throw 'independent-target-change'}
-     [IO.File]::Replace($temporary,$item.Target,$null)
+     $replaced=$temporary+'.previous'
+     [IO.File]::Replace($temporary,$item.Target,$replaced)
      if((Hash $item.Target) -cne $item.ExpectedOld){throw 'rollback-unverified'}
+     [IO.File]::Delete($replaced)
     }else{[IO.File]::Delete($item.Target)}
    }
    $rollback='verified'

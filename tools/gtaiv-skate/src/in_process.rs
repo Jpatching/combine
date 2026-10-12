@@ -209,7 +209,8 @@ pub extern "C" fn combine_reset() {}
 #[unsafe(no_mangle)]
 pub extern "C" fn combine_surface_begin(layer: u32, triangles: u32) -> i32 {
     guarded(|a| {
-        if a.ride.is_some() || a.geometry.begin(layer, triangles) != 1 {
+        if a.ride.as_ref().is_some_and(|r| r.surface.refresh_basis().is_none())
+            || a.geometry.begin(layer, triangles) != 1 {
             Err(())
         } else {
             Ok(())
@@ -219,11 +220,35 @@ pub extern "C" fn combine_surface_begin(layer: u32, triangles: u32) -> i32 {
 #[unsafe(no_mangle)]
 pub extern "C" fn combine_surface_vertex(x: f32, y: f32, z: f32) -> i32 {
     guarded(|a| {
-        if a.ride.is_some() || a.geometry.vertex([x, y, z]) != 1 {
+        if a.ride.as_ref().is_some_and(|r| r.surface.refresh_basis().is_none())
+            || a.geometry.vertex([x, y, z]) != 1 {
             Err(())
         } else {
             Ok(())
         }
+    })
+}
+#[unsafe(no_mangle)]
+pub extern "C" fn combine_surface_replace(
+    x: f32, y: f32, ground: f32, layer: u32, valid: u32,
+) -> i32 {
+    guarded(|a| {
+        let ride = a.ride.as_mut().ok_or(())?;
+        let (origin, scale, selected_layer) = ride.surface.refresh_basis().ok_or(())?;
+        let xy = [x, y];
+        if layer != selected_layer || valid != 1
+            || !ride.surface.query_matches_pose(xy, [ride.pose[0], ride.pose[1], ride.pose[2]])
+            || !ride.surface.observation(xy, ground, layer, valid) {
+            return Err(());
+        }
+        let (next, _) = a.geometry.finish_at(origin, scale, layer, valid, xy, ground).map_err(|_| ())?;
+        if !next.contains_pose([ride.pose[0], ride.pose[1], ride.pose[2]]) {
+            return Err(());
+        }
+        let collision = ride.session.collision_builder().build(next.triangles(), vec![]).map_err(|_| ())?;
+        ride.session.install_collision(collision).map_err(|_| ())?;
+        ride.surface = next;
+        Ok(())
     })
 }
 #[unsafe(no_mangle)]

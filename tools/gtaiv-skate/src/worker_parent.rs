@@ -55,6 +55,7 @@ impl Drop for Job {
 struct Snapshot {
     ride: u64,
     revision: u64,
+    sequence: u64,
     state: i32,
     pose: [f32; 4],
     updated: Instant,
@@ -76,6 +77,7 @@ impl Bridge {
         let snapshot = Arc::new(Mutex::new(Snapshot {
             ride: 0,
             revision: 0,
+            sequence: 0,
             state: 0,
             pose: [f32::NAN; 4],
             updated: Instant::now(),
@@ -195,6 +197,7 @@ impl Bridge {
                         let mut state = shared.lock().unwrap();
                         state.ride = response.ride;
                         state.revision = response.revision;
+                        state.sequence = response.sequence;
                         state.state = 1;
                         state.pose = response.pose;
                         state.updated = Instant::now();
@@ -249,6 +252,7 @@ pub struct Adapter {
     surface: Option<Surface>,
     pose: [f32; 4],
     deferred: Option<Request>,
+    pending_surface: Option<(Surface, u64, Instant)>,
     accepted: Option<AcceptedPose>,
 }
 impl Adapter {
@@ -262,11 +266,13 @@ impl Adapter {
             self.surface = None;
             self.pose = [f32::NAN; 4];
             self.accepted = None;
+            self.pending_surface = None;
         }
         self.exe = path.parent().map(|p| p.join("combine_skate_worker.exe"));
     }
     pub fn stop(&mut self) {
         self.deferred = None;
+        self.pending_surface = None;
         let active = self.surface.take().is_some();
         self.points.clear();
         self.geometry = GeometryBuilder::default();
@@ -316,13 +322,13 @@ impl Adapter {
         self.prepare(surface, origin, heading, scale, points, 0, vec![])
     }
     pub fn surface_begin(&mut self, layer: u32, triangles: u32) -> i32 {
-        if self.surface.is_some() {
+        if self.pending_surface.is_some() || self.surface.as_ref().is_some_and(|s| !s.is_geometry()) {
             return 0;
         }
         self.geometry.begin(layer, triangles)
     }
     pub fn surface_vertex(&mut self, p: [f32; 3]) -> i32 {
-        if self.surface.is_some() {
+        if self.pending_surface.is_some() || self.surface.as_ref().is_some_and(|s| !s.is_geometry()) {
             return 0;
         }
         self.geometry.vertex(p)
@@ -401,6 +407,7 @@ impl Adapter {
         }
         self.pose = [f32::NAN; 4];
         self.accepted = None;
+        self.pending_surface = None;
         match b.sender.try_send(request) {
             Ok(()) => {}
             Err(mpsc::TrySendError::Full(request)) => self.deferred = Some(request),
@@ -435,6 +442,16 @@ impl Adapter {
                     if s.state == 1 && s.updated.elapsed() > Duration::from_millis(250) {
                         return 0;
                     }
+                    if let Some((_, sequence, started)) = self.pending_surface.as_ref() {
+                        if s.state == 0 || started.elapsed() > Duration::from_millis(500) {
+                            return 0;
+                        }
+                        if s.sequence < *sequence {
+                            return 2;
+                        }
+                        let (next, _, _) = self.pending_surface.take().unwrap();
+                        self.surface = Some(next);
+                    }
                     self.pose = s.pose;
                     if s.state == 1 {
                         self.accepted =
@@ -465,6 +482,35 @@ impl Adapter {
     ) -> i32 {
         self.tick_at(now, ground, p, Some((xy, layer, valid)))
     }
+    pub fn surface_replace(&mut self, xy: [f32; 2], ground: f32, layer: u32, valid: u32) -> i32 {
+        if self.pending_surface.is_some() || self.deferred.is_some() { return 0; }
+        let Some(old) = self.surface.as_ref() else { return 0; };
+        let Some((origin, scale, selected)) = old.refresh_basis() else { return 0; };
+        if layer != selected || valid != 1
+            || !old.query_matches_pose(xy, [self.pose[0], self.pose[1], self.pose[2]])
+            || !old.observation(xy, ground, layer, valid) { return 0; }
+        let Some(bridge) = self.bridge.as_ref() else { return 0; };
+        if bridge.epoch != EPOCH.load(Ordering::Acquire) { return 0; }
+        match bridge.snapshot.try_lock() {
+            Ok(snapshot) if snapshot.state == 1 && snapshot.ride == bridge.ride
+                && snapshot.revision == bridge.revision => {
+                if snapshot.sequence != bridge.sequence || snapshot.pose != self.pose { return 3; }
+            }
+            Err(std::sync::TryLockError::WouldBlock) => return 3,
+            _ => return 0,
+        }
+        let Ok((next, triangles)) = self.geometry.finish_at(origin, scale, layer, valid, xy, ground) else { return 0; };
+        if !next.contains_pose([self.pose[0], self.pose[1], self.pose[2]]) { return 0; }
+        let Some(b) = self.bridge.as_mut() else { return 0; };
+        if b.epoch != EPOCH.load(Ordering::Acquire) { return 0; }
+        let Some(sequence) = b.sequence.checked_add(1) else { return 0; };
+        let request = Request { kind: 4, ride: b.ride, sequence, revision: b.revision,
+            origin, scale, query: xy, ground, layer, valid, triangles, ..Request::default() };
+        match b.sender.try_send(request) {
+            Ok(()) => { b.sequence = sequence; self.pending_surface = Some((next, sequence, Instant::now())); 2 }
+            Err(_) => 0,
+        }
+    }
     fn tick_at(
         &mut self,
         now: u32,
@@ -472,6 +518,9 @@ impl Adapter {
         p: &Packet,
         observation: Option<([f32; 2], u32, u32)>,
     ) -> i32 {
+        if self.pending_surface.is_some() {
+            if self.poll() != 1 { return 0; }
+        }
         let Some(b) = self.bridge.as_mut() else {
             return 0;
         };

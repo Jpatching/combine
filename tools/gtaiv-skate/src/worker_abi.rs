@@ -71,6 +71,10 @@ pub extern "C" fn combine_surface_vertex(x: f32, y: f32, z: f32) -> i32 {
     guarded(|a| a.surface_vertex([x, y, z]))
 }
 #[unsafe(no_mangle)]
+pub extern "C" fn combine_surface_replace(x: f32, y: f32, ground: f32, layer: u32, valid: u32) -> i32 {
+    guarded(|a| a.surface_replace([x, y], ground, layer, valid))
+}
+#[unsafe(no_mangle)]
 pub extern "C" fn combine_mount_surface(
     x: f32,
     y: f32,

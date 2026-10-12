@@ -21,6 +21,7 @@ int combine_mount(float,float,float,float,float);
 int combine_tick(uint32_t,float,const Packet*); float combine_value(int);
 int combine_surface_begin(uint32_t,uint32_t);
 int combine_surface_vertex(float,float,float);
+int combine_surface_replace(float,float,float,uint32_t,uint32_t);
 int combine_mount_surface(float,float,float,float,float,uint32_t,uint32_t);
 int combine_tick_surface(uint32_t,float,float,float,uint32_t,uint32_t,const Packet*);
 }
@@ -227,6 +228,17 @@ int surface_vertex(Context c) {
     const float x=sdk.number(c),y=sdk.number(c),z=sdk.number(c);
     sdk.output_int(c,on_thread()?combine_surface_vertex(x,y,z):0);return 0;
 }
+int surface_replace(Context c) {
+    const float x=sdk.number(c),y=sdk.number(c),ground=sdk.number(c);
+    const auto layer=static_cast<uint32_t>(sdk.integer(c));
+    const auto available=static_cast<uint32_t>(sdk.integer(c));
+    AcquireSRWLockShared(&ownership_lock);
+    const bool claimed=owned&&!reset_pending;
+    ReleaseSRWLockShared(&ownership_lock);
+    sdk.output_int(c,on_thread()&&claimed&&foreground_allowed()
+        ?combine_surface_replace(x,y,ground,layer,available):0);
+    return 0;
+}
 int mount_route(Context c,bool geometry) {
     const float x=sdk.number(c),y=sdk.number(c),z=sdk.number(c),heading=sdk.number(c),scale=sdk.number(c);
     const auto layer=geometry?static_cast<uint32_t>(sdk.integer(c)):0u;
@@ -292,6 +304,7 @@ BOOL WINAPI DllMain(HINSTANCE instance,DWORD reason,LPVOID) {
     sdk.command("COMBINE_SKATE_MOUNT",mount,nullptr);sdk.command("COMBINE_SKATE_TICK",tick,nullptr);
     sdk.command("COMBINE_SKATE_SURFACE_BEGIN",surface_begin,nullptr);
     sdk.command("COMBINE_SKATE_SURFACE_VERTEX",surface_vertex,nullptr);
+    sdk.command("COMBINE_SKATE_SURFACE_REPLACE",surface_replace,nullptr);
     sdk.command("COMBINE_SKATE_MOUNT_SURFACE",mount_surface,nullptr);
     sdk.command("COMBINE_SKATE_TICK_SURFACE",tick_surface,nullptr);
     sdk.command("COMBINE_SKATE_VALUE",value,nullptr);

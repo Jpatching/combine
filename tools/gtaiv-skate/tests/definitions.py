@@ -25,6 +25,8 @@ with tempfile.TemporaryDirectory() as directory:
         # Position/layer/availability must survive CLEO decoding as distinct values.
         expected_surface_inputs = {
             "SURFACE_BEGIN": [("layer", "int"), ("triangles", "int")],
+            "SURFACE_REPLACE": [("x", "float"), ("y", "float"), ("ground", "float"),
+                                ("layer", "int"), ("available", "int")],
             "SURFACE_VERTEX": [("x", "float"), ("y", "float"), ("z", "float")],
             "MOUNT_SURFACE": [("x", "float"), ("y", "float"), ("ground", "float"),
                               ("heading", "float"), ("scale", "float"),

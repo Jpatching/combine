@@ -13,6 +13,7 @@ int combine_mount(float,float,float,float,float);int combine_poll();int combine_
 int combine_surface_begin(uint32_t,uint32_t);int combine_surface_vertex(float,float,float);
 int combine_mount_surface(float,float,float,float,float,uint32_t,uint32_t);
 int combine_tick_surface(uint32_t,float,float,float,uint32_t,uint32_t,const Packet*);
+int combine_surface_replace(float,float,float,uint32_t,uint32_t);
 }
 using Time=std::chrono::steady_clock;
 static double maximum=0;
@@ -30,7 +31,11 @@ template<class F> int bounded(F action) {const auto start=Time::now();const int 
 // Literal authored triangles, not game geometry. The independent observation
 // formula below describes the known plane at the last displayed query position.
 static constexpr uint32_t surfaceLayer=7;
-static float authored_ground(float x,float y) {return 10.f+0.05f*(x-100.f)+0.1f*(y-200.f);}
+static bool replacementActive=false;
+static float pivotX=100.f,pivotY=200.f,pivotZ=10.f;
+static float original_ground(float x,float y) {return 10.f+0.05f*(x-100.f)+0.1f*(y-200.f);}
+static float replacement_ground(float x,float y) {return pivotZ+0.15f*(x-pivotX)+0.1f*(y-pivotY);}
+static float authored_ground(float x,float y) {return replacementActive?replacement_ground(x,y):original_ground(x,y);}
 static void surface_upload(uint32_t triangles=2) {
     if(!combine_surface_begin(surfaceLayer,triangles))throw "surface upload begin refused";
     const float vertices[][3]={{68,168,5.2f},{132,168,8.4f},{132,232,14.8f},
@@ -38,8 +43,18 @@ static void surface_upload(uint32_t triangles=2) {
     for(uint32_t pair=0;pair<triangles/2;pair++)
         for(const auto& v:vertices)if(!combine_surface_vertex(v[0],v[1],v[2]))throw "surface triangle vertex refused";
 }
+static void shifted_surface_upload(float x,float y) {
+    pivotX=x;pivotY=y;pivotZ=original_ground(x,y);
+    if(!combine_surface_begin(surfaceLayer,2))throw "moving surface upload refused";
+    const float x0=x-64.f,x1=x+64.f,y0=y-64.f,y1=y+64.f;
+    const float vertices[][3]={{x0,y0,replacement_ground(x0,y0)},{x1,y0,replacement_ground(x1,y0)},
+                               {x1,y1,replacement_ground(x1,y1)},{x0,y0,replacement_ground(x0,y0)},
+                               {x1,y1,replacement_ground(x1,y1)},{x0,y1,replacement_ground(x0,y1)}};
+    for(const auto& v:vertices)if(!combine_surface_vertex(v[0],v[1],v[2]))throw "moving surface vertex refused";
+}
 static void surface_mount() {
     previousTick=0;
+    replacementActive=false;
     combine_stop();Sleep(100);configure();
     surface_upload();
     const int prepared=bounded([]{return combine_mount_surface(100,200,10,0,1,surfaceLayer,1);});
@@ -83,6 +98,20 @@ static void surface_proof() {
     std::puts("PASS: missing and incomplete geometry refuse mounting without exposing a pose or reusing partial vertices");
     phase="ramp mount";surface_mount();phase="ramp ride";Packet neutral{},push{0x4000,{0,0},{0,0},{0,0}};
     for(int n=0;n<30;n++)surface_tick(neutral);
+    phase="moving coverage";
+    shifted_surface_upload(combine_value(0),combine_value(1));
+    int refreshed=3;
+    const auto refreshDeadline=Time::now()+std::chrono::seconds(2);
+    while(refreshed==3 && Time::now()<refreshDeadline){
+        const float x=combine_value(0),y=combine_value(1);
+        refreshed=bounded([&]{return combine_surface_replace(x,y,
+            authored_ground(x,y),surfaceLayer,1);});
+        if(refreshed==3){bounded([]{return combine_poll();});Sleep(5);}
+    }
+    while(refreshed==2 && Time::now()<refreshDeadline){refreshed=bounded([&]{return combine_poll();});Sleep(5);}
+    if(refreshed!=1)throw "moving collision coverage unavailable";
+    replacementActive=true;
+    surface_tick(neutral);
     const float startX=combine_value(0),startY=combine_value(1),startZ=combine_value(2);
     float minimumGround=authored_ground(startX,startY),maximumGround=minimumGround;
     for(int n=0;n<90;n++) {

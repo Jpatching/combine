@@ -122,6 +122,29 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 session.as_mut().ok_or("session missing")?.suspend_input();
                 riding = false;
             }
+            4 => {
+                if !riding || request.ride != identity || request.revision != revision
+                    || Some(request.sequence) != sequence.checked_add(1) {
+                    return Err("stale collision replacement".into());
+                }
+                let old = surface.as_ref().ok_or("surface missing")?;
+                let (origin, scale, layer) = old.refresh_basis().ok_or("flat collision replacement")?;
+                let active = session.as_mut().ok_or("session missing")?;
+                let pose = active.pose();
+                let position = old.to_gta(pose.root.w_axis.truncate().to_array());
+                if request.origin != origin || request.scale != scale || request.layer != layer
+                    || request.valid != 1 || !old.query_matches_pose(request.query, position)
+                    || !old.observation(request.query, request.ground, layer, 1) {
+                    return Err("unqualified collision replacement".into());
+                }
+                let next = Surface::from_triangles_at(request.triangles, origin, scale, layer,
+                    request.query, request.ground)?;
+                if !next.contains_pose(position) { return Err("replacement lost rider support".into()); }
+                let collision = active.collision_builder().build(next.triangles(), vec![])?;
+                active.install_collision(collision)?;
+                surface = Some(next);
+                sequence = request.sequence;
+            }
             _ => return Err("unsupported request".into()),
         }
         let active = session.as_ref().ok_or("session missing")?;

@@ -14,6 +14,8 @@ COMMANDS = {
     "TICK": ([("timer","int"),("ground","float"),("valid","int")], "int"),
     "SURFACE_BEGIN": ([("layer","int"),("triangles","int")], "int"),
     "SURFACE_VERTEX": ([("x","float"),("y","float"),("z","float")], "int"),
+    "SURFACE_REPLACE": ([("x","float"),("y","float"),("ground","float"),
+                         ("layer","int"),("available","int")], "int"),
     "MOUNT_SURFACE": ([("x","float"),("y","float"),("ground","float"),
                        ("heading","float"),("scale","float"),("layer","int"),
                        ("available","int")], "int"),

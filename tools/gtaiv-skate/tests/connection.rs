@@ -110,3 +110,23 @@ fn flat_api_still_refuses_authored_slope_while_triangle_route_retains_it() {
     assert!(surface.contains_pose([2., 0., 1.5]));
     assert_eq!(surface.triangles().len(), 3);
 }
+#[test]
+fn stacked_floors_require_an_explicit_selected_layer_and_refresh_supports_current_pose() {
+    let floor = |z: f32| vec![
+        [[0., 0., z], [8., 0., z], [8., 8., z]],
+        [[0., 0., z], [8., 8., z], [0., 8., z]],
+    ];
+    let lower = Surface::from_triangles(floor(0.), [2., 2., 0.], 1., 7).unwrap();
+    let upper = Surface::from_triangles(floor(5.), [2., 2., 5.], 1., 8).unwrap();
+    assert!(lower.observation([4., 4.], 0., 7, 1));
+    assert!(!lower.observation([4., 4.], 5., 8, 1));
+    assert!(upper.observation([4., 4.], 5., 8, 1));
+    assert!(!upper.observation([4., 4.], 0., 7, 1));
+    assert!(Surface::from_triangles([floor(0.), floor(5.)].concat(), [2., 2., 0.], 1., 7).is_err());
+    let moved = vec![
+        [[3., 0., 0.], [11., 0., 0.], [11., 8., 0.]],
+        [[3., 0., 0.], [11., 8., 0.], [3., 8., 0.]],
+    ];
+    assert!(Surface::from_triangles(moved.clone(), [2., 2., 0.], 1., 7).is_err());
+    assert!(Surface::from_triangles_at(moved, [2., 2., 0.], 1., 7, [4., 4.], 0.).is_ok());
+}

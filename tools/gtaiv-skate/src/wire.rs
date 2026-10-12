@@ -2,7 +2,7 @@
 use std::io::{self, Read, Write};
 pub const REQUEST_SIZE: usize = 396;
 const MAGIC: u32 = 0x32534b43;
-const VERSION: u32 = 2;
+const VERSION: u32 = 3;
 const HEADER: usize = 12;
 const MAX_TRIANGLES: usize = 4096;
 pub const RESPONSE_SIZE: usize = 48;
@@ -60,7 +60,7 @@ fn invalid() -> io::Error {
 }
 impl Request {
     pub fn write(&self, w: &mut impl Write) -> io::Result<()> {
-        if self.triangles.len() > MAX_TRIANGLES || self.kind != 1 && !self.triangles.is_empty() {
+        if self.triangles.len() > MAX_TRIANGLES || !matches!(self.kind, 1 | 4) && !self.triangles.is_empty() {
             return Err(invalid());
         }
         let mut b = Vec::with_capacity(REQUEST_SIZE + self.triangles.len() * 36);
@@ -136,11 +136,12 @@ impl Request {
                 i16::from_le_bytes(b[360..362].try_into().unwrap()),
             ],
         };
-        if !(1..=3).contains(&request.kind)
-            || request.kind != 1 && count != 0
+        if !(1..=4).contains(&request.kind)
+            || !matches!(request.kind, 1 | 4) && count != 0
             || request.layer != 0 && (request.valid != 1 || request.kind == 3)
             || request.layer == 0 && (count != 0 || request.valid != 0)
             || request.kind == 1 && request.layer != 0 && count == 0
+            || request.kind == 4 && (request.layer == 0 || count == 0 || request.valid != 1)
             || request.ride == 0
             || request.revision == 0
             || ![request.ground, request.heading, request.scale]

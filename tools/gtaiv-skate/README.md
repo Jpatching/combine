@@ -26,7 +26,7 @@ The public C ABI and matching `COMBINE_SKATE_*` commands provide this sequence:
 1. Stop the previous ride, then `SURFACE_BEGIN(layer, triangleCount)` with a
    nonzero selected layer and 1–4096 triangles.
 2. Send exactly three GTA-space vertices per triangle using `SURFACE_VERTEX`.
-   Invalid or incomplete preparation is refused. Geometry is immutable per ride.
+   Invalid or incomplete preparation is refused.
 3. `MOUNT_SURFACE(x, y, ground, heading, scale, layer, available)` requires a
    successful, loaded, intended-layer observation at the mount coordinates.
    Only `available=1` is accepted. This is a caller contract, not evidence that
@@ -35,6 +35,15 @@ The public C ABI and matching `COMBINE_SKATE_*` commands provide this sequence:
    `TICK_SURFACE(timer, queryX, queryY, ground, layer, available)` with the
    position at which ground was observed. The C ABI additionally takes the
    existing controller packet. Stop and restore ownership on refusal.
+5. To move collision coverage during a geometry ride, upload a complete new
+   triangle set with `SURFACE_BEGIN` and `SURFACE_VERTEX`, then call
+   `SURFACE_REPLACE(queryX, queryY, ground, layer, available)` at the current
+   displayed pose. The old and new meshes must both support that pose and agree
+   with the same qualified ground observation. The layer, mount origin and scale
+   stay fixed. The in-process backend returns 1 after installation. The worker
+   returns 2 while installation is pending; poll until 1 before ticking again.
+   Worker return 3 means an earlier tick is still pending: poll and retry the
+   replacement with a fresh observation. Return 0 requires stopping the ride.
 
 Observation agreement compares the mesh and host at the query position within
 5 cm; pose containment uses mesh support at the returned pose position. Ambiguous
@@ -43,8 +52,8 @@ Layer numbers are supplied by a qualified caller, not discovered GTA layers.
 The geometry constructor bounds input; it cannot prove decoded GTA placement,
 loading or contact. Ground agreement does not prove curb/wall response.
 
-Worker frames now carry an explicit version header. Geometry appears only in a
-bounded preparation payload; ordinary ticks carry a position-bearing observation.
+Worker frames now carry version 3. Geometry appears in bounded preparation and
+replacement payloads; ordinary ticks carry a position-bearing observation.
 Mixed old/new worker and parent binaries are rejected. Build/stage matching
 candidates together, only after normal shutdown and with retained rollback.
 
@@ -68,7 +77,9 @@ fails. Every remount reconfigures after stop. It checks missing/incomplete geome
 refusal without pose exposure or partial-preparation reuse, actual Session push
 over changing ramp heights, height following, unavailable/wrong-layer refusal,
 ground disagreement above 5 cm, query-position mismatch, stale-time refusal,
-pose clearing and remount recovery. These are authored checks, not GTA
+pose clearing and remount recovery. The moving-coverage case changes the ramp
+slope mid-ride and requires Session to follow the new heights. These are authored
+checks, not GTA
 qualification; their native execution verdict belongs to the exact tested
 source and binaries.
 
@@ -128,7 +139,7 @@ The build exports the exact upstream Git object, never its working tree. It
 requires a new destination, uses the committed dependency lock offline, and
 produces `combine_skate.cleo`. The preparer requires the pinned JSON SHA256
 `ba78c1ae32ea2eb800311f4513617e75c6283ac94805db016d157745356eb21b` and refuses
-an existing output. It adds twelve commands and marks
+an existing output. It adds thirteen commands and marks
 `GET_GROUND_Z_FOR_3D_COORD` as conditional in the generated definitions. The
 pinned input remains unchanged. It also passes `DESTROY_CAM`'s camera handle by
 value: the pinned pointer annotation left the owned camera alive after dismount

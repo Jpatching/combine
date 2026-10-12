@@ -39,10 +39,20 @@ impl Surface {
         })
     }
     pub fn from_triangles(
+        triangles: Vec<[[f32; 3]; 3]>,
+        origin: [f32; 3],
+        scale: f32,
+        layer: u32,
+    ) -> Result<Self, &'static str> {
+        Self::from_triangles_at(triangles, origin, scale, layer, [origin[0], origin[1]], origin[2])
+    }
+    pub fn from_triangles_at(
         mut triangles: Vec<[[f32; 3]; 3]>,
         origin: [f32; 3],
         scale: f32,
         layer: u32,
+        support_xy: [f32; 2],
+        support_ground: f32,
     ) -> Result<Self, &'static str> {
         if layer == 0
             || triangles.is_empty()
@@ -84,7 +94,7 @@ impl Surface {
             scale,
             geometry: Some((layer, triangles)),
         };
-        if !surface.observation([origin[0], origin[1]], origin[2], layer, 1) {
+        if !surface.observation(support_xy, support_ground, layer, 1) {
             return Err("unsupported mount ground");
         }
         Ok(surface)
@@ -118,6 +128,9 @@ impl Surface {
     }
     pub fn is_geometry(&self) -> bool {
         self.geometry.is_some()
+    }
+    pub fn refresh_basis(&self) -> Option<([f32; 3], f32, u32)> {
+        self.geometry.as_ref().map(|(layer, _)| (self.origin, self.scale, *layer))
     }
     pub fn query_matches_pose(&self, xy: [f32; 2], pose: [f32; 3]) -> bool {
         xy.iter()
@@ -262,6 +275,17 @@ impl GeometryBuilder {
         layer: u32,
         valid: u32,
     ) -> Result<(Surface, Vec<[[f32; 3]; 3]>), &'static str> {
+        self.finish_at(origin, scale, layer, valid, [origin[0], origin[1]], origin[2])
+    }
+    pub fn finish_at(
+        &mut self,
+        origin: [f32; 3],
+        scale: f32,
+        layer: u32,
+        valid: u32,
+        support_xy: [f32; 2],
+        support_ground: f32,
+    ) -> Result<(Surface, Vec<[[f32; 3]; 3]>), &'static str> {
         let staged = std::mem::take(self);
         if valid != 1
             || layer != staged.layer
@@ -275,7 +299,9 @@ impl GeometryBuilder {
             .chunks_exact(3)
             .map(|c| [c[0], c[1], c[2]])
             .collect();
-        let surface = Surface::from_triangles(triangles.clone(), origin, scale, layer)?;
+        let surface = Surface::from_triangles_at(
+            triangles.clone(), origin, scale, layer, support_xy, support_ground,
+        )?;
         Ok((surface, triangles))
     }
 }

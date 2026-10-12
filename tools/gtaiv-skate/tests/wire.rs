@@ -103,7 +103,7 @@ fn geometry_frames_refuse_oversize_payloads_wrong_version_and_invalid_observatio
     request.write(&mut bytes).unwrap();
     bytes[4] = 1;
     assert!(Request::read(&mut &bytes[..]).is_err());
-    bytes[4] = 2;
+    bytes[4] = 3;
     bytes[8..12].copy_from_slice(&u32::MAX.to_le_bytes());
     assert!(Request::read(&mut &bytes[..]).is_err());
     let mut invalid = vec![];
@@ -113,5 +113,30 @@ fn geometry_frames_refuse_oversize_payloads_wrong_version_and_invalid_observatio
     }
     .write(&mut invalid)
     .unwrap();
+    assert!(Request::read(&mut &invalid[..]).is_err());
+}
+#[test]
+fn replacement_carries_new_geometry_and_rejects_unqualified_frames() {
+    let replacement = Request {
+        kind: 4,
+        ride: 1,
+        revision: 1,
+        sequence: 2,
+        layer: 7,
+        valid: 1,
+        query: [100., 200.],
+        ground: 10.,
+        triangles: vec![[[84., 168., 6.], [148., 168., 9.], [148., 232., 15.]]],
+        ..Request::default()
+    };
+    let mut bytes = vec![];
+    replacement.write(&mut bytes).unwrap();
+    let decoded = Request::read(&mut &bytes[..]).unwrap();
+    assert_eq!(decoded.kind, 4);
+    assert_eq!(decoded.sequence, 2);
+    assert_eq!(decoded.query, [100., 200.]);
+    assert_eq!(decoded.triangles, replacement.triangles);
+    let mut invalid = vec![];
+    Request { valid: 0, ..replacement }.write(&mut invalid).unwrap();
     assert!(Request::read(&mut &invalid[..]).is_err());
 }

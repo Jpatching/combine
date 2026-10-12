@@ -46,7 +46,12 @@ refused `fresh-gameplay`. Local menu capture timed out or classified `unknown`.
 No F7 probe input or ground reading was sent, so no physical-support, loading or
 layer verdict exists. The game then closed normally and the original checkpoint
 script was restored and hash verified. GTA is currently closed. The unmerged
-prototype and private records remain outside Git.
+prototype and private records remain outside Git. A separate baseline relaunch
+using the restored original script also prepared a matching windowed session,
+then refused `fresh-gameplay` and produced an `unknown` local menu classification.
+It closed normally without test input. The same startup boundary on both
+configurations does not identify the cause; stop repeating it until a changed
+diagnostic variable can produce new evidence.
 
 The owner confirmed the retained checkpoint pictures show the intended surfaces:
 [confirmation on #39](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
@@ -73,10 +78,11 @@ coverage updated as the player moves and normal GTA control restored on dismount
 or query failure. One qualified street block is only a proof step. The existing
 triangle path passes authored tests but normal F6 still invokes the flat-grid
 fallback. The authored replacement command is not yet called from live GTA.
-First recover a classifiable offline menu and fresh windowed foreground gameplay
-without guessing at menu input. Then run a bounded physical-support probe with a
-wrong-floor control and an unchanged checkpoint; accept it only if the observed
-motion distinguishes the intended floor. Establish independent evidence that the
+First diagnose why the reviewed launch reaches neither a classifiable offline
+menu nor fresh windowed foreground gameplay; change one startup variable before
+another run and do not guess at menu input. Then run a bounded physical-support
+probe with a wrong-floor control and an unchanged checkpoint. Accept it only if
+the observed motion distinguishes the intended floor. Establish independent evidence that the
 intended GTA floor is loaded at each fixed checkpoint, then collect three valid
 host readings per point under the existing 2 cm repeatability and 5 cm
 mesh-agreement gates. Select and activate the triangle path only after

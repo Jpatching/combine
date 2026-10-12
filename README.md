@@ -35,36 +35,9 @@ launch these experiences. Unfinished preparation scaffolding is not playable pro
 
 ## Parked Synergy trial
 
-Use the versioned review folder and shortcuts identified in the
-[archived trial handoff](docs/archive/HANDOFF-2026-10-07.md): **Test Synergy**, **Open trial files** and
-**Read checklist**. Players need a separately prepared lawful local Windows
-runtime and game data; preserve original installations and use isolated copies.
-The [actual Synergy checklist](templates/synergy-checklist.txt) owns this trial's
-controls and physical input checks (default bindings below; prompts reflect remaps).
-
-| Action | DualSense | Keyboard / mouse |
-| --- | --- | --- |
-| Open | Hold L2 + press R3 (Aim + Melee) | Hold right mouse + press V |
-| Up / down | L2 / R2 (Aim / Fire) | Right / left mouse |
-| Select | Square (Use) | E |
-| Back; close at root | R3 (Melee) | V |
-| Sliders | L1 / R1 (Tactical / Frag) | G / F |
-
-Release the opening chord before navigating. Choose Weapon Options → Give
-Weapons → Sniper Rifles → Intervention. Menu capture should block gameplay;
-after closing, return all controls to neutral before freshly firing on foot.
-Physical close/reopen, focus/reconnect and quit/relaunch still require the owner
-trial. Other original sections are visible; their effects are not verified.
-
-The destination is actual pinned Synergy plus the agreed sniper near-pass hit
-radius, without Combine practice additions. **Hit radius was selected first for the menu**, per [D-019](docs/DECISIONS.md#d-019-hit-radius-first-and-resume-reconciliation--2026-10-05).
-The later request starts Fortnite-with-Skate wayfinding: Fortnite’s interactive world and
-Skate movement, tricks and grinds, with no MW2 combat or Synergy in that experience. Hit radius is not implemented: Off by default, first enable 0.25 metres, steps to 5 metres,
-Normal/One-shot damage after ordinary cover/reach qualification. The
-[menu guide](docs/TRICKSHOT_MENU.md) owns the complete contract.
-Rainy remains a research candidate with IW4x/Bot Warfare and function-replacement
-compatibility gaps reported by the preceding investigation; it has not been
-installed, launched or gameplay-tested and does not replace Synergy.
+The [menu guide](docs/TRICKSHOT_MENU.md) contains controls and the retained
+contract. The [archived trial](docs/archive/HANDOFF-2026-10-07.md) is historical
+evidence. Resume this experience only when the owner selects it.
 
 ## Source, checks and history
 

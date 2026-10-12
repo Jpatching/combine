@@ -40,34 +40,21 @@ class HandoffTests(unittest.TestCase):
         (self.root / "docs/HANDOFF.md").write_text(text, encoding="utf-8")
         check_handoff(self.root)
 
-    def test_complete_snapshot_and_explicit_absence_of_pr_are_accepted(self):
+    def test_complete_snapshot_is_still_accepted(self):
         self.check(HANDOFF)
-        self.check(HANDOFF.replace("[PR](https://github.com/Jpatching/combine/pull/23) remains blocked.",
-                                  "No PR exists; preserved experiment."))
 
-    def test_missing_empty_or_duplicate_section_is_rejected(self):
-        for text in (HANDOFF.replace("## Next step", "## Other"),
-                     HANDOFF.replace("Reproduce the recorded blocker.", ""),
-                     HANDOFF + "\n## Next step\nAnother instruction.\n"):
-            with self.subTest(text=text), self.assertRaisesRegex(ValidationError, "Next step"):
+    def test_short_issue_pointer_without_snapshot_fields_is_accepted(self):
+        self.check("Resume [ground support](https://github.com/Jpatching/combine/issues/39).\n")
+
+    def test_empty_handoff_is_rejected(self):
+        for text in ("", " \n"):
+            with self.subTest(text=text), self.assertRaisesRegex(ValidationError, "empty"):
                 self.check(text)
 
-    def test_missing_empty_or_duplicate_disposition_is_rejected(self):
-        for text in (HANDOFF.replace("Disposition:", "Other:"),
-                     HANDOFF.replace("Disposition: pushed; [PR](https://github.com/Jpatching/combine/pull/23) remains blocked.",
-                                     "Disposition: "),
-                     HANDOFF + "\nDisposition: merged\n"):
-            with self.subTest(text=text), self.assertRaisesRegex(ValidationError, "Disposition"):
+    def test_missing_current_issue_is_rejected(self):
+        for text in ("Resume a task.\n", "https://github.com/Jpatching/combine/pull/23"):
+            with self.subTest(text=text), self.assertRaisesRegex(ValidationError, "current issue"):
                 self.check(text)
-
-    def test_short_revision_and_missing_tracker_links_are_rejected(self):
-        for old, new, message in (
-            ("b" * 40, "b403377", "full source revision"),
-            ("https://github.com/Jpatching/combine/issues/20", "historical.txt", "current issue"),
-            ("https://github.com/Jpatching/combine/pull/23", "historical.txt", "link the PR"),
-        ):
-            with self.subTest(message=message), self.assertRaisesRegex(ValidationError, message):
-                self.check(HANDOFF.replace(old, new))
 
 
 if __name__ == "__main__":

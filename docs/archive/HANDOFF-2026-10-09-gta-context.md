@@ -1,3 +1,6 @@
+> Historical snapshot. Resume from the [live handoff](../HANDOFF.md).
+> Instructions and next steps below describe the earlier task.
+
 # Current context
 
 ## Current task

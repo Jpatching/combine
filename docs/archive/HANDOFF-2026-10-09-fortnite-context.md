@@ -1,3 +1,6 @@
+> Historical snapshot. Resume from the [live handoff](../HANDOFF.md).
+> Instructions and next steps below describe the earlier task.
+
 # Historical Fortnite context — preserved 2026-10-09
 
 The [contract](../FORTNITE_SKATE.md) owns the intended interactive-world outcome.

@@ -1,3 +1,6 @@
+> Historical research. Consult specific evidence for the current question; old
+> priorities and next steps are superseded by the [live handoff](HANDOFF.md).
+
 # Research record — 2026-10-03
 
 ## Assessment

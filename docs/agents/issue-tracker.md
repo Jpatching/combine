@@ -10,8 +10,9 @@ outside Issues and Git.
 
 - Create: `gh issue create --repo Jpatching/combine --title "..." --body-file <file>`.
   Prepare multiline bodies in a temporary file and review them before publishing.
-- Read: `gh issue view <number> --repo Jpatching/combine --comments`;
-  also fetch `--json number,title,body,labels,comments,state` when structured data is needed.
+- Read current status: `gh issue view <number> --repo Jpatching/combine --json body,title,state`.
+  Fetch `--comments` for a named evidence question or when the selected skill
+  requires the full ticket.
 - List: `gh issue list --repo Jpatching/combine --state open --json number,title,body,labels,comments`,
   with appropriate label and state filters.
 - Comment: `gh issue comment <number> --repo Jpatching/combine --body-file <file>`.

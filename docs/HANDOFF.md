@@ -1,98 +1,29 @@
-# Current context
+# Resume Combine
 
-## Current task
+Reviewed: 2026-10-12
 
-Reviewed: 2026-10-11
+The owner's current request selects work. Start with the current summary and
+acceptance criteria on [workflow #61](https://github.com/Jpatching/combine/issues/61).
+Read historical comments or reports only to answer a specific unresolved question.
 
-Task: research windowed GTA IV iteration alongside [ground qualification #39](https://github.com/Jpatching/combine/issues/39).
+Cleanup source branch: `chore/lean-context`; draft PR preparation.
 
-Preserve the owner's windowed testing preference and investigate existing tools
-for faster local AI-assisted iteration. This is a source-only research side
-task; the live ground experiment remains pending.
+Current work: simplify context documents and audit tests in one cleanup PR,
+then resolve [ground support #39](https://github.com/Jpatching/combine/issues/39)
+at one reproducible checkpoint using the existing capture and private phone view.
 
-Source branch: `research/gtaiv-windowed-iteration`
+The GTA candidate remains on `integration/gtaiv-evidence-loop`,
+[draft PR #62](https://github.com/Jpatching/combine/pull/62).
+Startup focus and guarded offline-menu entry have passed. The original checkpoint
+script is restored and its inventory checked; GTA was closed at the last check.
+The physical-support traces do not identify the selected floor. Ground support,
+stacked-floor riding and owner gameplay acceptance remain unresolved.
 
-Source revision: `82d35ad1e43620389abb69fa6bcb591cca1d6279`
+Next runtime result must identify the intended floor and reject a wrong floor.
+Reuse accepted checkpoint pictures. Capture the short trial and relevant
+measurements in the existing private evidence hub. Add tooling only when a
+specific observed limitation requires it.
 
-This is the synchronized-main starting point; the draft PR owns the final
-publication revision.
-
-Disposition: [draft PR #59](https://github.com/Jpatching/combine/pull/59) awaits
-owner source approval. The standing window-mode instruction is in
-[AGENTS.md](../AGENTS.md). Runtime settings and installed binaries have not been
-changed by this research task. The draft owns its current CI record.
-
-The current request selects this work instead of the older Sandcastle task
-snapshot. Retained source branches and drafts stay preserved: ground
-[PR #57](https://github.com/Jpatching/combine/pull/57), collector
-[PR #58](https://github.com/Jpatching/combine/pull/58), and parent riding
-[PR #23](https://github.com/Jpatching/combine/pull/23). The newer implementations
-are on those retained branches; this research branch starts from main and does
-not integrate them.
-
-## Evidence
-
-The research report is
-[windowed iteration tools](../research/results/2026-10-11-gtaiv-windowed-iteration-tools.md).
-It separates upstream capabilities, retained source, prior execution evidence,
-local qualification gaps and recommendations. Documented hot reload is not a
-passed trial on the installed runtime. No tool installation, script reload,
-runtime staging, keyboard input or gameplay trial occurs in this source task.
-
-The owner has already
-[confirmed that the retained checkpoint pictures show the intended surfaces](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
-Reuse that confirmation. Independent loaded collision and intended-layer
-evidence remain unqualified. The prepared physical-state probe observes the
-actual player position and leaves contact, loading and layer unknown; it does
-not associate that position with a checkpoint by itself.
-
-Latest runtime evidence: a read-only Windows check found one responding GTA IV
-process, minimized and outside the foreground. Fresh unmounted gameplay and
-player control were not established. Window mode itself was not verified.
-Earlier retained runtime, diagnostic candidate and recovery backup hashes
-matched; no active staging transaction was present at that check. These are
-separate observations, not a live support or riding pass. Private raw evidence
-stays local. Persistent Windows execution policy was not changed.
-
-## Next step
-
-Source review and the repository gate pass; retain draft #59 for owner approval
-and verify its exact-head CI before merge. Qualify existing hot reload and
-observer capabilities on the exact retained runtime before claiming a faster
-loop; measure setup, trial, recovery and total time against the previous loop.
-The proposed capability qualification is future runtime work, not an execution
-claim or an instruction to install a different hook.
-
-Resume the one-checkpoint support experiment through `grill-with-docs`. The
-independent contact/layer observable remains unresolved. The owner restores
-and focuses GTA; testing preflight must establish windowed gameplay readiness.
-Keep the existing collector's foreground refusal and input ownership. Once the
-support method is qualified explicitly on #39, collect three valid readings at
-each of R1/P1/H1/H2 with the unchanged maximum 2 cm spread and 5 cm mesh error.
-Ambiguous evidence remains inconclusive. Geometry placement stays fixed.
-
-[#54](https://github.com/Jpatching/combine/issues/54) retains its qualification
-and source-acceptance blockers before triangle-route activation and the recorded
-mount, push, steering, dismount, recovery and restart repeat. Board #55 and
-rider #56 remain downstream; complete riding acceptance stays under #20.
-
-## Session close
-
-Follow [context maintenance](agents/current-context.md) and
-[workspace conventions](agents/issue-tracker.md). Keep GTA IV windowed during
-testing as required by AGENTS. Preserve installed runtime files, private recovery,
-retained branches, collector bundles and resource placement. Keep assets,
-coordinates, identities, media, settings and raw logs outside Git and AI uploads.
-The repository gate passed 62 tests and 60 document/context checks; whitespace
-checks passed. Independent Standards and Spec reviews reported zero actionable
-findings. Source research, capability qualification, ground qualification,
-gameplay and owner acceptance remain separate claims.
-
-## Historical reference
-
-[Host decision](adr/0001-preserve-offline-gta-gameplay.md),
-[glossary](../GLOSSARY.md), [workbench](WORKBENCH.md),
-[retained native proof](https://github.com/Jpatching/combine/blob/45d409a1b6e8bb72d6f5361355c44c58228892c4/research/results/2026-10-11-gtaiv-native-refusal-proof.md),
-[collector source](https://github.com/Jpatching/combine/blob/a1e456cebcebdbc2b3a59033edfbc4629db0f0ab/tools/gtaiv-collision/README.md),
-[physical collision report](../research/results/gtaiv-120059-physical-collision-feasibility.md),
-[retained GTA context](archive/HANDOFF-2026-10-09-gta-context.md).
+For execution boundaries and task completion, use
+[workspace conventions](agents/issue-tracker.md). Keep recovery records and private
+media local. Technical history is evidence consulted on demand, not a work queue.

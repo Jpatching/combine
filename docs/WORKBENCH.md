@@ -17,7 +17,7 @@ Review                     -> source checks / runtime verdict / owner acceptance
 Next session               -> issue evidence + HANDOFF pointer
 ```
 
-Start from [current context](HANDOFF.md), then read the live issue and comments.
+Start from [current context](HANDOFF.md), then read the live issue body. Consult comments for specific evidence.
 For [Mount -> move -> dismount](https://github.com/Jpatching/combine/issues/20),
 the intended sequence is normal GTA walking, mount, push, left/right steering,
 dismount, then normal walking/vehicle use. The recorded blocker is a mount refusal

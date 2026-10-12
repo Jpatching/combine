@@ -8,7 +8,9 @@
 2. Verify the directory, branch, revision and local changes using the
    [workspace conventions](issue-tracker.md). Check the source and installed
    runtime revisions separately when a runtime trial is authorized.
-3. Read the issue's current verdict first. Consult linked evidence for the
+3. Read the issue's current verdict first. A named correction or owner decision
+   supersedes the historical claim it identifies; unresolved criteria remain active.
+   Consult linked evidence for the
    behavior being changed. Reuse qualified setup until a changed prerequisite
    or observation gives a reason to repeat it.
 
@@ -20,6 +22,9 @@
 2. Update the existing issue's current status when new evidence changes it.
    Identify the revision, passed behavior, blocker and next step. Keep acceptance
    criteria separate from isolated trial passes. Retain comments as history.
+   Name and link a superseded claim when correcting it. For #61, private run
+   records own diagnostic progress; publish one source-safe summary at a changed
+   verdict or task boundary instead of a documentation PR for every attempt.
 3. Update HANDOFF when the selected task or verdict changes. Keep these sections:
    `Current task`, `Evidence`, `Next step`, `Session close`, `Historical reference`.
    Include `Reviewed`, `Task`, `Source branch`, `Source revision`, `Disposition`

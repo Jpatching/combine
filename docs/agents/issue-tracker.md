@@ -54,7 +54,18 @@ finished PR into one commit on `main`. Record the final merged revision on the
 issue; avoid extra commits solely to make HANDOFF name its own commit or merge.
 Preserve published history and retained recovery branches.
 
-Use one focused branch and PR per implementation slice. For a single active chat,
+For the owner-approved GTA evidence workflow (#61), group the retained riding,
+non-flat source, collector and workflow fixes into one integration candidate and
+one draft PR. Preserve retained branches/PRs. Bounded diagnosis may continue
+within the agreed runtime authority; a failed trial does not require another PR
+or approval to investigate. Stop a repeated scenario after two identical failures
+without new evidence; change one variable in the next diagnostic experiment.
+Present the candidate revision, source checks, runtime verdicts, unresolved
+criteria and private clips together. Owner approval remains explicit in chat;
+material changes require renewed evidence. This candidate exception replaces
+per-fragment source approvals, not ground qualification or gameplay acceptance.
+
+For other work, use one focused branch and PR per implementation slice. For a single active chat,
 switch its clean checkout to the task branch before editing. Use a separate
 worktree when parallel work or retained experiment state needs isolation, and
 attach the working chat to that checkout. A worktree is a separate folder checked

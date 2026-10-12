@@ -16,6 +16,8 @@ INPUT_CAP = 16 * 1024 * 1024
 DECOMPRESSED_CAP = 32 * 1024 * 1024
 VERTEX_CAP = 32767
 FACE_CAP = 100000
+CHILD_CAP = 256
+RIGID_TOLERANCE = 1e-5
 
 
 @dataclass(frozen=True)
@@ -76,50 +78,119 @@ def decode_resource(raw):
             raise Refusal('invalid-pointer')
         return value & 0x0fffffff
 
-    root = pointer(8)
-    span(root, 5)
-    if data[root + 4] != 4:
-        raise Refusal('unsupported-root', 'unsupported')
-    span(root, 0xd0)
-    polygon_offset = pointer(root + 0x8c)
-    factor = read('<3f', root + 0x90)
-    center = read('<3f', root + 0xa0)
-    if not all(math.isfinite(value) for value in factor + center):
-        raise Refusal('nonfinite-coordinate')
-    vertex_offset = pointer(root + 0xb0)
-    vertex_count, face_count = read('<2i', root + 0xc8)
-    if vertex_count > VERTEX_CAP or face_count > FACE_CAP:
-        raise Refusal('count-cap')
-    if vertex_count < 3 or face_count < 1:
-        raise Refusal('invalid-count')
-    span(vertex_offset, vertex_count * 6)
-    span(polygon_offset, face_count * 32)
-    ranges = [(0, 12), (root, root+0xd0), (vertex_offset, vertex_offset+vertex_count*6), (polygon_offset, polygon_offset+face_count*32)]
-    for i, (start, end) in enumerate(ranges):
-        if any(start < other_end and other_start < end for other_start, other_end in ranges[:i]):
+    ranges = [(0, 12)]
+
+    def reserve(offset, size):
+        span(offset, size)
+        if any(offset < end and start < offset + size for start, end in ranges):
             raise Refusal('overlapping-spans')
-    vertices = tuple(tuple(q*s+c for q,s,c in zip(read('<3h', vertex_offset+6*i), factor, center)) for i in range(vertex_count))
-    if any(read('<H', polygon_offset + 32*i + 22)[0] & 0x7fff for i in range(face_count)):
-        raise Refusal('unsupported-quad', 'unsupported')
-    if any(value & 0x8000 for i in range(face_count) for value in read('<4H', polygon_offset + 32*i + 16)):
-        raise Refusal('unsupported-index-flags', 'unsupported')
-    faces = tuple(tuple(index & 0x7fff for index in read('<3H', polygon_offset+32*i+16)) for i in range(face_count))
-    if any(index >= vertex_count for face in faces for index in face):
-        raise Refusal('invalid-index')
+        ranges.append((offset, offset + size))
+
+    def validate_triangle(vertices, face, reason):
+        a, b, c = (vertices[i] for i in face)
+        u, v = tuple(b[i]-a[i] for i in range(3)), tuple(c[i]-a[i] for i in range(3))
+        cross = (u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0])
+        if not all(math.isfinite(value) for value in cross) or not any(cross):
+            raise Refusal(reason)
+
+    def geometry(root, used_vertices=0, used_faces=0):
+        span(root, 0xf0 if data[root + 4] == 10 else 0xe0)
+        polygon_offset = pointer(root + 0x8c)
+        factor = read('<3f', root + 0x90)
+        center = read('<3f', root + 0xa0)
+        if not all(math.isfinite(value) for value in factor + center):
+            raise Refusal('nonfinite-coordinate')
+        vertex_offset = pointer(root + 0xb0)
+        vertex_count, face_count = read('<2i', root + 0xc8)
+        if vertex_count + used_vertices > VERTEX_CAP or face_count + used_faces > FACE_CAP:
+            raise Refusal('count-cap')
+        if vertex_count < 3 or face_count < 1:
+            raise Refusal('invalid-count')
+        span(vertex_offset, vertex_count * 6)
+        span(polygon_offset, face_count * 32)
+        reserve(root, 0xf0 if data[root + 4] == 10 else 0xe0)
+        reserve(vertex_offset, vertex_count * 6)
+        reserve(polygon_offset, face_count * 32)
+        vertices = tuple(tuple(q*s+c for q,s,c in zip(read('<3h', vertex_offset+6*i), factor, center)) for i in range(vertex_count))
+        if not all(math.isfinite(value) for vertex in vertices for value in vertex):
+            raise Refusal('nonfinite-coordinate')
+        faces = []
+        for index in range(face_count):
+            indices = read('<4H', polygon_offset + 32*index + 16)
+            if any(value & 0x8000 for value in indices):
+                raise Refusal('unsupported-index-flags', 'unsupported')
+            if any(value >= vertex_count for value in indices):
+                raise Refusal('invalid-index')
+            polygon_faces = (indices[:3],) if indices[3] == 0 else (indices[:3], (indices[2], indices[3], indices[0]))
+            if len(faces) + len(polygon_faces) + used_faces > FACE_CAP:
+                raise Refusal('count-cap')
+            if len(set(indices if indices[3] else indices[:3])) != (4 if indices[3] else 3):
+                raise Refusal('invalid-face')
+            normal = read('<3f', polygon_offset + 32*index)
+            if not all(math.isfinite(value) for value in normal) or not any(normal):
+                raise Refusal('invalid-face')
+            for face in polygon_faces:
+                validate_triangle(vertices, face, 'invalid-face')
+                faces.append(face)
+        return Inspection(vertices, tuple(faces))
+
+    root = pointer(8)
+    kind = read('<B', root + 4)[0]
+    if kind in (4, 10):
+        return geometry(root)
+    if kind != 12:
+        raise Refusal('unsupported-root', 'unsupported')
+    reserve(root, 0xa0)
+    count, capacity = read('<2H', root + 0x90)
+    if count != capacity:
+        raise Refusal('unsupported-child-counts', 'unsupported')
+    if not 1 <= count <= CHILD_CAP:
+        raise Refusal('child-count-cap')
+    children = pointer(root + 0x80)
+    matrices = pointer(root + 0x84)
+    reserve(children, count * 4)
+    reserve(matrices, count * 64)
+    boxes = pointer(root + 0x8c)
+    reserve(boxes, count * 32)
+    internal = read('<I', root + 0x88)[0]
+    if internal:
+        internal = pointer(root + 0x88)
+        if internal != matrices:
+            reserve(internal, count * 64)
+    vertices, faces = [], []
+    for index in range(count):
+        lower, upper = read('<3f', boxes + index * 32), read('<3f', boxes + index * 32 + 16)
+        if (not all(math.isfinite(value) for value in lower + upper)
+                or any(a > b for a, b in zip(lower, upper))):
+            raise Refusal('invalid-child-box')
+        child = pointer(children + index * 4)
+        if read('<B', child + 4)[0] not in (4, 10):
+            raise Refusal('unsupported-child', 'unsupported')
+        mesh = geometry(child, len(vertices), len(faces))
+        matrix = tuple(read('<3f', matrices + index * 64 + row * 16) for row in range(4))
+        if not all(math.isfinite(value) for row in matrix for value in row):
+            raise Refusal('nonfinite-transform')
+        if internal and any(read('<3f', internal + index * 64 + row * 16) != matrix[row]
+                            for row in range(4)):
+            raise Refusal('unsupported-internal-motion', 'unsupported')
+        a, b, c = matrix[:3]
+        determinant = (a[0]*(b[1]*c[2]-b[2]*c[1])
+                       - a[1]*(b[0]*c[2]-b[2]*c[0])
+                       + a[2]*(b[0]*c[1]-b[1]*c[0]))
+        if (abs(determinant - 1) > RIGID_TOLERANCE
+                or any(abs(sum(matrix[i][axis] * matrix[j][axis] for axis in range(3))
+                           - (1 if i == j else 0)) > RIGID_TOLERANCE
+                       for i in range(3) for j in range(i, 3))):
+            raise Refusal('unsupported-transform', 'unsupported')
+        base = len(vertices)
+        vertices.extend(tuple(sum(vertex[row] * matrix[row][axis] for row in range(3))
+                              + matrix[3][axis] for axis in range(3)) for vertex in mesh.vertices)
+        faces.extend(tuple(base + value for value in face) for face in mesh.faces)
     if not all(math.isfinite(value) for vertex in vertices for value in vertex):
         raise Refusal('nonfinite-coordinate')
-    for index, face in enumerate(faces):
-        if len(set(face)) != 3:
-            raise Refusal('invalid-face')
-        a,b,c = (vertices[i] for i in face)
-        u,v = tuple(b[i]-a[i] for i in range(3)), tuple(c[i]-a[i] for i in range(3))
-        cross = (u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0])
-        normal = read('<3f', polygon_offset + 32*index)
-        if not all(math.isfinite(value) for value in normal) or not any(normal):
-            raise Refusal('invalid-face')
-        if not all(math.isfinite(value) for value in cross) or not any(cross):
-            raise Refusal('invalid-face')
-    return Inspection(vertices, faces)
+    for face in faces:
+        validate_triangle(vertices, face, 'invalid-transformed-face')
+    return Inspection(tuple(vertices), tuple(faces))
 
 
 def inspect_file(path):

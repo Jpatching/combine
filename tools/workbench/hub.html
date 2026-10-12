@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Combine — candidate evidence</title><link rel="stylesheet" href="/hub.css"><script src="/hub.js" defer></script></head>
+<body>
+<header><span class="eyebrow">COMBINE · PRIVATE WORKBENCH</span><h1>One candidate. Visible evidence.</h1>
+<p id="connection" role="status">Connecting to your evidence…</p></header>
+<main>
+<section id="candidate"><h2 id="title">GTA IV riding candidate</h2><p id="question"></p>
+<div class="facts"><div><span>Source checks</span><strong id="source-checks">Untested</strong></div>
+<div><span>Gameplay acceptance</span><strong>Pending your review</strong></div></div>
+<p class="revision" id="revision"></p><p id="issues"></p></section>
+<div class="columns"><section><h2>What counts as passing</h2><ul id="criteria"></ul></section>
+<section><h2>Current blocker</h2><ul id="blockers"></ul><h3>Next useful experiment</h3><p id="next"></p></section></div>
+<section><h2>Continue testing</h2><p>Request a bounded diagnostic in the current game session. Two unchanged failures stop that scenario. A stop lets owned inputs and cleanup finish.</p>
+<form id="request"><label>Scenario<select id="scenario" required></select></label>
+<label>Maximum attempts<input id="attempts" type="number" min="1" max="10" value="10" required></label>
+<button type="submit">Request tests</button></form><p id="feedback" role="status"></p><div id="batches"></div></section>
+<section><div class="section-heading"><h2>Evidence and attempts</h2><span id="count"></span></div>
+<p>Passed means the named diagnostic passed. Ground qualification, a complete ride and merge approval have their own criteria.</p>
+<div id="evidence"><p>No attempts recorded yet.</p></div></section>
+</main><footer>Media stays on your machine. Approval remains in chat and identifies the exact candidate revision.</footer>
+</body></html>

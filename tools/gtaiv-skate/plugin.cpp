@@ -1,0 +1,309 @@
+// CLEO Redux SDK bbf6773fe8cc1bfa95c73509a25928f97b0d8d13.
+// GTA natives stay in JS. The optional worker runs Session outside GTA.
+#include <windows.h>
+#include <xinput.h>
+#include <cstdint>
+#include <cstring>
+#include <vector>
+#include <atomic>
+#include "status_sink.h"
+#include "riding_input.h"
+#ifdef COMBINE_SKATE_EVALUATION
+#include "evaluation_input.h"
+#endif
+static_assert(sizeof(void*)==4,"GTA IV is x86");
+extern "C" {
+struct Packet {uint16_t buttons; int16_t left[2],right[2]; uint8_t triggers[2];};
+int combine_config(const wchar_t*,uint32_t);
+int combine_poll();void combine_reset();
+void combine_stop(); int combine_vertex(float,float,float);
+int combine_mount(float,float,float,float,float);
+int combine_tick(uint32_t,float,const Packet*); float combine_value(int);
+int combine_surface_begin(uint32_t,uint32_t);
+int combine_surface_vertex(float,float,float);
+int combine_mount_surface(float,float,float,float,float,uint32_t,uint32_t);
+int combine_tick_surface(uint32_t,float,float,float,uint32_t,uint32_t,const Packet*);
+}
+namespace {
+using Context=void*; using Handler=int(*)(Context);
+struct SDK {
+    long(*version)(); int(*host)(); void(*log)(const char*);
+    void(*command)(const char*,Handler,const char*);
+    intptr_t(*integer)(Context); float(*number)(Context);
+    void(*output_int)(Context,intptr_t); void(*output_float)(Context,float);
+    void(*after)(void(*)(unsigned int,int)); void(*runtime_init)(void(*)());
+} sdk{};
+HINSTANCE plugin_instance=nullptr;
+std::atomic<DWORD> script_thread{0}; bool enabled=false, key_held=false;
+INIT_ONCE identity_once=INIT_ONCE_STATIC_INIT;
+std::atomic<bool> callback_seen{false};
+SRWLOCK ownership_lock=SRWLOCK_INIT;
+DWORD heartbeat=0; bool owned=false, reset_pending=false; intptr_t owner[3]{};
+std::atomic<int> input_mode{0};
+std::atomic<bool> preparation_active{false};
+bool input_switch_held=false;
+bool identity();
+bool foreground_allowed() {
+    const auto window=GetForegroundWindow();DWORD process=0;
+    GetWindowThreadProcessId(window,&process);
+    return window && process==GetCurrentProcessId() && !IsIconic(window)
+        && (GetWindowLong(window,GWL_STYLE)&WS_CAPTION)==WS_CAPTION;
+}
+bool key_down(int key) {return (GetAsyncKeyState(key)&0x8000)!=0;}
+bool input_available() {
+    if(!foreground_allowed())return false;
+    XINPUT_STATE state{};
+    return input_mode.load()==1 || XInputGetState(0,&state)==ERROR_SUCCESS;
+}
+bool read_input(Packet& packet,XINPUT_STATE& state) {
+    packet={};
+    if(!input_available())return false;
+    if(input_mode.load()==1)
+        return combine_input::keyboard(packet,true,key_down('W'),key_down('A'),key_down('D'));
+    if(XInputGetState(0,&state)!=ERROR_SUCCESS)return false;
+    packet={state.Gamepad.wButtons,{state.Gamepad.sThumbLX,state.Gamepad.sThumbLY},
+        {state.Gamepad.sThumbRX,state.Gamepad.sThumbRY},{state.Gamepad.bLeftTrigger,state.Gamepad.bRightTrigger}};
+    return true;
+}
+int select_input(Context c) {
+    const auto mode=sdk.integer(c);
+    AcquireSRWLockExclusive(&ownership_lock);
+    const bool allowed=identity() && !owned && !preparation_active.load() && (mode==0 || mode==1);
+    if(allowed)input_mode.store(static_cast<int>(mode));
+    ReleaseSRWLockExclusive(&ownership_lock);
+    sdk.output_int(c,allowed?1:0);return 0;
+}
+int input_ready(Context c) {sdk.output_int(c,identity()&&input_available()?1:0);return 0;}
+int input_toggle(Context c) {
+    const bool held=key_down(VK_F5),rising=held&&!input_switch_held;
+    input_switch_held=held;
+    int selected=-1;
+    AcquireSRWLockExclusive(&ownership_lock);
+    if(rising && identity() && foreground_allowed() && !owned && !preparation_active.load()) {
+        selected=1-input_mode.load();input_mode.store(selected);
+    }
+    ReleaseSRWLockExclusive(&ownership_lock);
+    sdk.output_int(c,selected);return 0;
+}
+#ifdef COMBINE_SKATE_EVALUATION
+EvaluationInput evaluation_input;
+bool identity();
+bool evaluation_allowed(const XINPUT_STATE& input) {
+    DWORD process=0;GetWindowThreadProcessId(GetForegroundWindow(),&process);
+    const auto& pad=input.Gamepad;
+    const auto centred=[](int axis) {return axis>=-4096 && axis<=4096;};
+    return foreground_allowed() && process==GetCurrentProcessId()
+        && !key_down('W') && !key_down('A') && !key_down('D') && pad.wButtons==0
+        && centred(pad.sThumbLX) && centred(pad.sThumbLY)
+        && centred(pad.sThumbRX) && centred(pad.sThumbRY)
+        && pad.bLeftTrigger<30 && pad.bRightTrigger<30;
+}
+int evaluation_arm(Context c) {
+    const int profile=static_cast<int>(sdk.integer(c));
+    const int duration=static_cast<int>(sdk.integer(c));
+    XINPUT_STATE input{};
+    const bool connected=XInputGetState(0,&input)==ERROR_SUCCESS;
+    const bool permitted=identity() && input_available() && (input_mode.load()==1 || connected)
+        && evaluation_allowed(input);
+    AcquireSRWLockExclusive(&ownership_lock);
+    evaluation_input.clear();
+    const bool ok=permitted && owned && !reset_pending
+        && evaluation_input.arm(profile,duration,GetTickCount());
+    ReleaseSRWLockExclusive(&ownership_lock);
+    sdk.output_int(c,ok?1:0);return 0;
+}
+int evaluation_owner(Context c) {
+    intptr_t saved[3];
+    AcquireSRWLockShared(&ownership_lock);
+    for(int i=0;i<3;++i)saved[i]=owned&&!reset_pending?owner[i]:-1;
+    ReleaseSRWLockShared(&ownership_lock);
+    for(auto v:saved)sdk.output_int(c,v);
+    return 0;
+}
+int evaluation_time(Context c) {sdk.output_int(c,GetTickCount());return 0;}
+int evaluation_key(Context c) {
+    const auto action=sdk.integer(c);
+    const int key=action==0?VK_F8:action==1?VK_F9:action==2?VK_F7:0;
+    const auto window=GetForegroundWindow();
+    DWORD process=0;GetWindowThreadProcessId(window,&process);
+    sdk.output_int(c,key&&identity()&&process==GetCurrentProcessId()
+        && window && !IsIconic(window) && (GetWindowLong(window,GWL_STYLE)&WS_CAPTION)==WS_CAPTION
+        && (GetAsyncKeyState(key)&0x8000)?1:0);return 0;
+}
+#endif
+// Caller holds the ownership lock; normal builds have no playback state.
+void clear_evaluation() {
+#ifdef COMBINE_SKATE_EVALUATION
+    evaluation_input.clear();
+#endif
+}
+template<class T> bool bind(HMODULE module,const char* name,T&target) {
+    auto address=GetProcAddress(module,name); std::memcpy(&target,&address,sizeof(target)); return target!=nullptr;
+}
+BOOL CALLBACK check_identity(PINIT_ONCE,PVOID,PVOID*) {
+    char path[MAX_PATH]; const auto length=GetModuleFileNameA(nullptr,path,MAX_PATH);
+    if (!length||length>=MAX_PATH) return TRUE;
+    DWORD unused=0; const auto size=GetFileVersionInfoSizeA(path,&unused);
+    if (!size||size>1024*1024) return TRUE;
+    std::vector<unsigned char> data(size); VS_FIXEDFILEINFO* info=nullptr; UINT info_size=0;
+    if (!GetFileVersionInfoA(path,0,size,data.data())
+        || !VerQueryValueA(data.data(),"\\",reinterpret_cast<void**>(&info),&info_size)
+        || info_size<sizeof(*info)) return TRUE;
+    enabled=sdk.host()==9 && info->dwSignature==0xfeef04bd
+        && info->dwFileVersionMS==0x00010002 && info->dwFileVersionLS==0x0000003b;
+    sdk.log(enabled?"COMBINE_SKATE identity ready; gameplay unverified":"COMBINE_SKATE identity rejected");
+    return TRUE;
+}
+bool identity() {InitOnceExecuteOnce(&identity_once,check_identity,nullptr,nullptr);return enabled;}
+void after(unsigned int,int) {if(identity()) callback_seen.store(true);}
+bool on_thread() {
+    const auto current=GetCurrentThreadId();
+    return current==script_thread.load() && identity() && callback_seen.load();
+}
+void reset() {combine_reset();preparation_active.store(false);AcquireSRWLockExclusive(&ownership_lock);clear_evaluation();reset_pending=true;script_thread.store(0);ReleaseSRWLockExclusive(&ownership_lock);}
+int claim(Context c) {
+    intptr_t saved[3];for(auto &v:saved)v=sdk.integer(c);
+    AcquireSRWLockExclusive(&ownership_lock);
+    clear_evaluation();
+    for(int i=0;i<3;++i)owner[i]=saved[i];
+    owned=true;reset_pending=false;heartbeat=GetTickCount();
+    ReleaseSRWLockExclusive(&ownership_lock);return 0;
+}
+int release(Context) {
+    AcquireSRWLockExclusive(&ownership_lock);clear_evaluation();owned=false;reset_pending=false;
+    ReleaseSRWLockExclusive(&ownership_lock);return 0;
+}
+int rescue(Context c) {
+    intptr_t saved[3];
+    AcquireSRWLockExclusive(&ownership_lock);
+    const bool pending=owned&&(reset_pending||GetTickCount()-heartbeat>2000);
+    for(int i=0;i<3;++i)saved[i]=pending?owner[i]:-1;
+    if(pending) {clear_evaluation();reset_pending=true;combine_reset();}
+    ReleaseSRWLockExclusive(&ownership_lock);
+    for(auto v:saved)sdk.output_int(c,v);
+    return 0;
+}
+int ready(Context c) {sdk.output_int(c,identity() && callback_seen.load() ? 1:0);return 0;}
+int status(Context c) {
+    const auto scene=static_cast<int>(sdk.integer(c));
+    const bool control=sdk.integer(c)!=0, on_foot=sdk.integer(c)!=0;
+    AcquireSRWLockShared(&ownership_lock);
+    const bool mounted=owned;
+    ReleaseSRWLockShared(&ownership_lock);
+    XINPUT_STATE input{};
+    combine_status::publish(scene,control,on_foot,identity()&&callback_seen.load(),mounted,
+        XInputGetState(0,&input)==ERROR_SUCCESS,input_mode.load(),input_available());
+    return 0;
+}
+int toggle(Context c) {
+    const bool held=(GetAsyncKeyState(VK_F6)&0x8000)!=0;
+    const bool rising=held&&!key_held; key_held=held;
+    DWORD process=0;GetWindowThreadProcessId(GetForegroundWindow(),&process);
+    const bool foreground=process==GetCurrentProcessId();
+    sdk.output_int(c,rising&&foreground?1:0); return 0;
+}
+int stop(Context) {
+    if(on_thread()) {
+#ifdef COMBINE_SKATE_EVALUATION
+        AcquireSRWLockExclusive(&ownership_lock);clear_evaluation();ReleaseSRWLockExclusive(&ownership_lock);
+#endif
+        combine_stop();
+        preparation_active.store(false);
+    }
+    return 0;
+}
+int vertex(Context c) {
+    const float x=sdk.number(c),y=sdk.number(c),z=sdk.number(c);
+    DWORD empty=0;script_thread.compare_exchange_strong(empty,GetCurrentThreadId());
+    sdk.output_int(c,on_thread()?combine_vertex(x,y,z):0);return 0;
+}
+int surface_begin(Context c) {
+    const auto layer=static_cast<uint32_t>(sdk.integer(c));
+    const auto triangles=static_cast<uint32_t>(sdk.integer(c));
+    DWORD empty=0;script_thread.compare_exchange_strong(empty,GetCurrentThreadId());
+    sdk.output_int(c,on_thread()?combine_surface_begin(layer,triangles):0);return 0;
+}
+int surface_vertex(Context c) {
+    const float x=sdk.number(c),y=sdk.number(c),z=sdk.number(c);
+    sdk.output_int(c,on_thread()?combine_surface_vertex(x,y,z):0);return 0;
+}
+int mount_route(Context c,bool geometry) {
+    const float x=sdk.number(c),y=sdk.number(c),z=sdk.number(c),heading=sdk.number(c),scale=sdk.number(c);
+    const auto layer=geometry?static_cast<uint32_t>(sdk.integer(c)):0u;
+    const auto available=geometry?static_cast<uint32_t>(sdk.integer(c)):0u;
+    const bool input=input_available();
+    wchar_t path[32768];const auto length=GetModuleFileNameW(plugin_instance,path,32768);
+    const bool configured=on_thread()&&length>0&&length<32768&&combine_config(path,length);
+    const auto ok=configured&&input?(geometry
+        ?combine_mount_surface(x,y,z,heading,scale,layer,available)
+        :combine_mount(x,y,z,heading,scale)):0;
+    preparation_active.store(ok==2);
+    sdk.log(ok==2?"COMBINE_SKATE preparation submitted":ok==1?"COMBINE_SKATE mounted actual Session":"COMBINE_SKATE initialization rejected");
+    sdk.output_int(c,ok);return 0;
+}
+int mount(Context c) {return mount_route(c,false);}
+int mount_surface(Context c) {return mount_route(c,true);}
+int tick_route(Context c,bool geometry) {
+    const auto timer=static_cast<uint32_t>(sdk.integer(c));
+    const float x=geometry?sdk.number(c):0.f,y=geometry?sdk.number(c):0.f;
+    const float ground=sdk.number(c);
+    const auto layer=geometry?static_cast<uint32_t>(sdk.integer(c)):0u;
+    const auto available=sdk.integer(c);
+    const bool valid=geometry?available==1:available!=0;
+    AcquireSRWLockExclusive(&ownership_lock);
+    heartbeat=GetTickCount();const bool reset_requested=reset_pending||!owned;
+    ReleaseSRWLockExclusive(&ownership_lock);
+    XINPUT_STATE state{};Packet p{}; int ok=0;
+    if(on_thread() && !reset_requested && valid && read_input(p,state)) {
+#ifdef COMBINE_SKATE_EVALUATION
+        AcquireSRWLockExclusive(&ownership_lock);
+        evaluation_input.apply(p,owned&&!reset_pending&&evaluation_allowed(state),GetTickCount());
+        ReleaseSRWLockExclusive(&ownership_lock);
+#endif
+        ok=geometry?combine_tick_surface(timer,x,y,ground,layer,1,&p)
+                   :combine_tick(timer,ground,&p);
+    } else if(on_thread()) combine_stop();
+    sdk.output_int(c,ok);return 0;
+}
+int tick(Context c) {return tick_route(c,false);}
+int tick_surface(Context c) {return tick_route(c,true);}
+int poll(Context c) {
+    const auto result=on_thread()&&input_available()?combine_poll():0;
+    if(result!=2)preparation_active.store(false);
+    sdk.output_int(c,result);
+    return 0;
+}
+int value(Context c) {const auto i=static_cast<int>(sdk.integer(c));sdk.output_float(c,on_thread()?combine_value(i):0.f);return 0;}
+}
+BOOL WINAPI DllMain(HINSTANCE instance,DWORD reason,LPVOID) {
+    if(reason!=DLL_PROCESS_ATTACH)return TRUE;
+    DisableThreadLibraryCalls(instance);plugin_instance=instance;
+    const auto module=GetModuleHandleA("cleo_redux.asi");
+    if(!module||!bind(module,"GetSDKVersion",sdk.version)||!bind(module,"GetHostId",sdk.host)
+       ||!bind(module,"Log",sdk.log)||!bind(module,"RegisterCommand",sdk.command)
+       ||!bind(module,"GetIntParam",sdk.integer)||!bind(module,"GetFloatParam",sdk.number)
+       ||!bind(module,"SetIntParam",sdk.output_int)||!bind(module,"SetFloatParam",sdk.output_float)
+       ||!bind(module,"OnAfterScripts",sdk.after)||!bind(module,"OnRuntimeInit",sdk.runtime_init)||sdk.version()<4)return FALSE;
+    sdk.command("COMBINE_SKATE_READY",ready,nullptr);sdk.command("COMBINE_SKATE_TOGGLE",toggle,nullptr);
+    sdk.command("COMBINE_SKATE_INPUT_MODE",select_input,nullptr);
+    sdk.command("COMBINE_SKATE_INPUT_READY",input_ready,nullptr);
+    sdk.command("COMBINE_SKATE_INPUT_TOGGLE",input_toggle,nullptr);
+    sdk.command("COMBINE_SKATE_STOP",stop,nullptr);sdk.command("COMBINE_SKATE_VERTEX",vertex,nullptr);
+    sdk.command("COMBINE_SKATE_MOUNT",mount,nullptr);sdk.command("COMBINE_SKATE_TICK",tick,nullptr);
+    sdk.command("COMBINE_SKATE_SURFACE_BEGIN",surface_begin,nullptr);
+    sdk.command("COMBINE_SKATE_SURFACE_VERTEX",surface_vertex,nullptr);
+    sdk.command("COMBINE_SKATE_MOUNT_SURFACE",mount_surface,nullptr);
+    sdk.command("COMBINE_SKATE_TICK_SURFACE",tick_surface,nullptr);
+    sdk.command("COMBINE_SKATE_VALUE",value,nullptr);
+    sdk.command("COMBINE_SKATE_POLL",poll,nullptr);
+    sdk.command("COMBINE_SKATE_CLAIM",claim,nullptr);sdk.command("COMBINE_SKATE_RELEASE",release,nullptr);
+    sdk.command("COMBINE_SKATE_RESCUE",rescue,nullptr);
+    sdk.command("COMBINE_GAME_STATUS",status,nullptr);
+#ifdef COMBINE_SKATE_EVALUATION
+    sdk.command("COMBINE_SKATE_EVAL_INPUT",evaluation_arm,nullptr);
+    sdk.command("COMBINE_SKATE_EVAL_OWNER",evaluation_owner,nullptr);
+    sdk.command("COMBINE_SKATE_EVAL_TIME",evaluation_time,nullptr);
+    sdk.command("COMBINE_SKATE_EVAL_KEY",evaluation_key,nullptr);
+#endif
+    sdk.after(after);sdk.runtime_init(reset);return TRUE;
+}

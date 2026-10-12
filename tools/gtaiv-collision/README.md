@@ -16,48 +16,68 @@ The CLI deliberately publishes only the bounded verdict.
 
 ## Supported evidence and conservative limits
 
-This experiment supports only little-endian RSC5 bounds (`0x20`), zlib-framed DEFLATE
-(`0xda78`), a tagged system-memory root pointer at dictionary offset 8, and root
-Geometry (`4`). Quantized signed 16-bit triples are scaled per axis and translated
-by the geometry center. Polygon records are 32 bytes; only unflagged triangles
-with a zero fourth index are accepted. No Unity coordinate conversion is applied.
-The supported layout is source evidence, not exact-version owned-input evidence.
+The read-only parser supports little-endian RSC5 bounds (`0x20`), checksummed
+zlib (`0xda78`), and a tagged system-memory root at dictionary offset 8.
+Geometry (`4`) and BVH (`10`) roots decode their polygon buffers. A single
+composite (`12`) may contain geometry/BVH children with explicit rigid transforms.
+Nested composites and other child shapes refuse the whole resource.
 
-The file cap is **16 MiB**, declared/inflated total memory **32 MiB**, vertices
-**32,767**, polygons **100,000**, and traversal exactly **one geometry root**.
-Header sizes and counts are checked before decompression/array construction.
-Decompression reads at most declared size plus one byte and validates the full
-zlib stream starting at byte 12, including its `0xda78` header and Adler-32
-checksum. Missing/corrupt checksums, incomplete streams and any trailing data
-(including a second compressed stream) are invalid. The pinned reference uses
-raw DEFLATE internally and writes the codec separately; copying that framing
-assumption into this strict parser wrongly rejected a valid owned resource.
-The supported framing now follows the locally verified checksummed stream.
-Checksum-free output is not accepted. System pointers must have tag 5 and a nonzero
-in-range offset; dictionary, geometry, vertex and polygon spans must be disjoint.
-Decoded coordinates and polygon normals must be finite; normals and face
-cross products must be nonzero, indices in range and triangle vertices distinct.
-These are conservative investigation caps, not measured gameplay budgets.
+Signed 16-bit vertices reconstruct as quantized coordinates times axis scale,
+plus geometry center. For composite children, the parser then applies the stored
+basis vectors and translation, retaining GTA coordinates. Both composite count
+fields must agree. The primary matrix is required; the secondary matrix must be
+absent, alias it, or have identical meaningful components. The four padding words
+are ignored, including NaN padding. All twelve meaningful components must be
+finite. Basis dot products must match an orthonormal basis and determinant +1
+within `1e-5`; scale, shear and reflection return unsupported.
 
-Other versions, resource types, codecs, box/BVH/curved geometry, spheres, capsules,
-unknown roots and **all composites** return unsupported. Composite child transforms
-are never traversed or assumed identity. Quads and index flags also refuse because
-the source's fourth-index convention is ambiguous at vertex zero and flag meanings
-have not been qualified. Empty geometry, bad spans/counts/indices, degenerate faces,
-truncation and decompression failures return invalid. Neither outcome supplies an
-empty or replacement world. The command only validates the specified subset;
-unused fields/adjacency/materials are not a fidelity claim.
+Unflagged triangles use a zero fourth-index sentinel. Unflagged quads use a
+nonzero fourth index and split into `(0,1,2)` and `(2,3,0)`, following corroborated
+IV readers. Every index must be in range; triangle/quad corner indices must be
+distinct and every output triangle nondegenerate. High-bit index flags remain
+unsupported. Stored polygon normals must be finite and nonzero. Transformed
+vertices and triangles are rechecked for finite values and precision collapse.
 
-One owned resource was acquired privately during the separate
-[street experiment](https://github.com/Jpatching/combine/issues/20#issuecomment-6087765258).
-The original inspector rejected its valid checksum with `invalid / decompression-error`.
-After this framing correction the same file returns `unsupported / unsupported-root`
-(exit 2): the experiment classified it as a composite, which this parser deliberately
-does not support. No geometry was decoded; this is useful negative evidence,
-not an owned-resource compatibility pass. The acquisition code remains separate
-from this inspector. This experiment does not prove
-placement, active GTA collision, units/winding, Skate contact, streaming,
-traffic/doors, grind semantics or gameplay.
+Limits: **16 MiB** input, **32 MiB** declared/inflated memory, **256** children,
+**32,767 total output vertices**, and **100,000 total output triangles**, including
+quad expansion across children. Counts and complete buffer spans are checked
+before relevant array construction. There is no recursive traversal. Null child
+pointers, invalid pointer tags, truncated arrays, overlapping consumed spans and
+inconsistent counts refuse; a failed child never becomes a partial world.
+Aliasing primary/secondary matrices is explicitly allowed; shared mesh buffers
+are conservatively rejected. Child boxes must have finite, ordered bounds.
+
+The complete zlib stream, starting at byte 12, must validate its checksum and
+consume exactly the declared size. Missing/corrupt checksums, incomplete streams,
+trailing data and concatenated streams are invalid. Unsupported versions, types,
+codecs, shapes and transform semantics return unsupported. Neither refusal
+supplies an empty or replacement world.
+
+**What the verdict covers:** the consumed polygon buffers and transforms, not
+all collision-resource structure or fidelity. BVH search trees are not traversed
+or validated; materials, adjacency, margins and unused pointers are not decoded.
+Child boxes are checked structurally, not for enclosure of the decoded mesh.
+The tool is not a validator for installing an original WBN in GTA.
+
+## Owned-file evidence and remaining gate
+
+On 2026-10-09 the same private owned resource from the
+[street experiment](https://github.com/Jpatching/combine/issues/20#issuecomment-6087765258)
+changed from `unsupported / unsupported-root` to
+`structurally-decoded / validated-geometry`. Its composite children are BVH meshes;
+an intermediate triangle-only candidate refused quads, before the source-backed
+quad extension. The final check applied the explicit child transforms and
+completed the bounded geometry checks. Only the verdict was emitted; no owned
+bytes, coordinates, geometry, paths or identities were published. Acquisition
+remains separate from this inspector; no game was launched or runtime changed.
+
+This is an owned-file decoding result, **not independently verified street
+placement**. There is no existing physical checkpoint proving that this resource
+supplies the selected street's active collision. Before Skate integration, qualify
+an independent local host-contact or exporter reference, compare scale/orientation
+and floor/curb/wall plus a clear-space control, and record a separate verdict.
+The [source investigation](../../research/results/2026-10-09-gtaiv-composite-transforms.md)
+separates source facts, algorithm tests and that remaining physical proof.
 
 ## Source provenance and licensing
 
@@ -86,19 +106,175 @@ does not establish publisher/asset rights.
 
 Changes from the reference are a standalone Python parser with bounded input and
 inflation, strict spans/tag/count/face validation, conservative unsupported results,
-no geometry conversion/export and private diagnostics suppressed. The unsafe
-Unity loops, permissive unknown-root behavior and composite traversal are not
-reproduced. Public source was read as text; no upstream project was executed.
+explicit rigid child transforms, no export and private diagnostics suppressed.
+The permissive Unity loops and silent child skipping are not reproduced. Public source was read as text; no upstream project was executed.
+
+Additional format corroboration and matrix provenance are pinned in the
+[source investigation](../../research/results/2026-10-09-gtaiv-composite-transforms.md).
+CitizenFX source was read for format facts only; no CitizenFX implementation was
+copied or linked. The new Python traversal, transforms and tests were independently
+authored. Existing GPLv3 terms and RageLib attribution remain applicable.
 
 ## Verification
 
-`python3 -m unittest discover -s tests -p test_gtaiv_collision.py -v` tests the
-agreed command/parser boundaries using authored fixtures only. The fixture's
-independently specified triangle is `(1,2,3)`, `(3,2,3)`, `(1,4,3)`; expectations
-are not generated by the decoder. The fixture uses a complete checksummed zlib
-stream. The corrected fixture made the existing command test fail before the
-framing fix; it passes afterward. The invalid-framing regression also fails
-against the original revision, which incorrectly accepts a missing checksum.
-All eight focused tests pass after the correction. The repository gate is
-`python3 scripts/verify.py`. These synthetic checks do not supply owned-resource
-or runtime proof; the separate owned-file result above remains unsupported.
+`python3 tests/test_gtaiv_collision.py -v` exercises the agreed public parser and
+command boundaries with authored data. The base triangle is `(1,2,3)`, `(3,2,3)`,
+`(1,4,3)`. A +90-degree Z rotation followed by `(10,20,30)` translation must produce
+`(8,21,33)`, `(8,23,33)`, `(6,21,33)`, specified independently of the decoder.
+The transformed-child test failed before implementation and passed afterward.
+The quad test likewise failed before its bounded extension. Refusal tests cover
+malformed transforms, internal motion, child spans, total counts, shared buffers,
+unsupported children/flags, invalid quads and transformed precision loss.
+The command returns only a verdict even after an earlier child succeeds.
+
+All 19 focused tests passed. `python3 scripts/verify.py` is the repository gate.
+No Python typechecker is configured here. Synthetic tests and the owned-file
+verdict do not establish placement, active GTA collision, physical units/winding,
+Skate contact, streaming, traffic/doors, grind semantics or gameplay acceptance.
+
+## Compare qualified ground readings
+
+Run `python3 tools/gtaiv-collision/compare_ground.py <private-points.json>
+<private-readings.json>` (Windows: `py -3` instead of `python3`). This read-only
+command compares supplied observations; it does not query GTA or establish their
+validity. Each input is a regular UTF-8 JSON file limited to 64 KiB. Duplicate JSON
+keys, malformed identities and invalid point sets refuse with source-safe
+`inconclusive / invalid-input`. Keep both files private.
+
+Both documents require integer `schema_version: 1`, the same lowercase 64-character
+`selected_sha256` and a `checkpoints` array. The points document must contain
+exactly one of each label `R1`, `P1`, `H1`, `H2`, with finite numeric GTA horizontal
+`position: [x, y]`, finite `mesh_height_m` and boolean `qualified`. Set qualification
+true only after independently establishing the exact intended surface/layer.
+The preparation record is not this comparison schema: freeze a qualified point
+set from its unchanged retained coordinates before collecting GTA observations.
+
+The readings document contains up to four uniquely labelled points, each with
+`readings`. Each reading supplies `position: [x, y]`, `height_m` and actual boolean
+`query_success`, `ground_loaded`, `intended_surface`. A finite height alone does
+not prove native query success or the intended layer. The collector must supply
+that evidence separately.
+
+Each qualified point needs exactly three finite valid readings at identical fixed
+horizontal coordinates. Maximum spread is 0.02 m; every height must differ from
+its mesh prediction by at most 0.05 m. Both limits are inclusive. Unloaded, failed,
+wrong-layer, non-finite, shifted or unstable readings are inconclusive. A stable
+valid reading beyond tolerance gives disagreement, including when another point
+is unavailable. All four complete passing points are required for agreement.
+Do not fit offsets, average away failures or discard retained points.
+
+Output contains only verdicts, fixed labels and reasons; it omits supplied
+coordinates, heights, file paths and identities. Exit codes are 0 agreement,
+1 disagreement and 2 inconclusive. Agreement covers these ground points only;
+curb/wall contact and playable skating require separate evidence.
+Six authored command test groups cover boundary values, missing/invalid readings,
+identity/point-set refusal, failure precedence and duplicate-key rejection.
+See the [tooling record](../../research/results/2026-10-10-gtaiv-checkpoint-tooling.md)
+for actual execution and remaining physical qualification.
+
+## Collect qualified ground readings
+
+`collect_ground.py` consolidates a prepared local diagnostic and the unchanged
+comparison. It never qualifies a point from native success, a finite height,
+character height agreement or ordinary character-state flags. Live execution
+requires all requested surface/layer associations first; missing independent
+loading/layer witnesses still produce an inconclusive comparison.
+
+Keep every input and output below a private directory, outside Git and uploads.
+Use Python 3.10 or later on Windows or WSL, matching repository CI. The owner starts and focuses the
+isolated GTA runtime. The command sends one guarded F8 pulse, samples foreground
+readiness throughout the bounded observation, and never steals focus. Its child
+owns key release, refuses an already-held F8 and releases only an accepted own
+press. A timed-out child is retained; restoration is refused until its exit is
+confirmed, with an explicit recovery-required result.
+
+```text
+python3 tools/gtaiv-collision/collect_ground.py \
+  --checkpoints .private/ground/points.json \
+  --session .private/ground/session.json \
+  --output .private/ground/new-result
+```
+
+The output directory must be new; existing bundles are preserved. Public output
+contains the fixed four labels, verdicts and fixed reasons. Raw measurements,
+physical observations, additional point names, identities, logs and timing stay
+in that bundle. Exit codes match the comparator. Lost readiness, an incomplete
+collection, artifact mismatch and failed restoration cannot become agreement.
+
+The private points schema extends the comparison schema with `query_z_m` and
+nonempty `surface_evidence` and `layer_evidence` references on every point.
+It permits up to 32 uniquely named points; R1/P1/H1/H2 remain mandatory. Additional
+points are collected and retained but never enter the established four-point
+comparison. Missing additional readings make the command incomplete while
+retaining the four-point comparison results. Preserve the original numeric coordinates and independently established
+evidence. JSON input is limited to 1 MiB and rejects duplicate keys.
+
+Preparation is a separate, non-executing mode of the same command:
+
+```text
+python3 tools/gtaiv-collision/collect_ground.py --prepare-probe \
+  --checkpoints .private/ground/points.json \
+  --session .private/ground/session.json \
+  --output .private/ground/new-preparation
+```
+
+Supply a random lowercase 32-hex `token` in the session. Preparation writes a
+strict-data diagnostic script and its exact point/script digests. Review and
+stage it using the existing retained transaction/backups, plugin-owned buffer,
+four-input conditional native definition and character-state definitions.
+Do not install it beside the normal mount script or a competing F8 runner.
+Loaded-plugin replacement requires normal shutdown/restart. This command does
+not install plugins, change permission settings, navigate menus, or activate
+the triangle route. Reuse the reviewed private offline-menu runner when a normal
+restart needs menu navigation; compatible collection repeats keep GTA running.
+
+The live session requires:
+
+- Integer `schema_version: 1`; `process: {pid, start_ms}` for the exact launched
+  run; `executable`, `state_path`, and one or two `log_paths` as private absolute
+  paths. `start_ms` is the process start time in UTC Unix milliseconds.
+- `token` and `checkpoints_sha256` from preparation. `artifacts` is the complete
+  reviewed candidate inventory: eight entries with unique roles `executable`,
+  `plugin`, `worker`, `definitions`, `script`, `watchdog`, `status_script`,
+  `manifest`; each has an absolute `path` and lowercase `sha256`. The installed
+  script must match the generated script digest. Native executable signature,
+  version 1.2.0.59, status freshness, run identity, foreground and artifact
+  identity are checked before the pulse. Files newer than the run refuse.
+- `retained_artifacts`, using the same path/hash schema, for the exact recovery
+  inventory. Optional `restore_script: {path, sha256}` names the existing reviewed
+  private transaction script supporting `-Mode Restore`. It is hash-checked before
+  execution and again before cleanup. Cleanup verifies every retained digest;
+  failure remains visible even after matching heights. Without this option,
+  candidate and retained inventories must match to verify preservation.
+- Optional `witnesses`, keyed by point label, with boolean `ground_loaded` and
+  `intended_surface`, plus nonempty `loading_evidence` and `layer_evidence`
+  references. These are separately established evidence for this observation,
+  never flags inferred by the collector. Missing references invalidate the flag.
+
+The reviewed reader's current-run byte boundaries and quoted-log handling are
+reused, with a start/attempt marker, bounded records, truncation refusal and a
+single matching log. Foreground sampling cannot prove there was no focus change
+between samples. Disk hashes and file times do not instrument loaded memory.
+Restoration verifies bytes, not restarted gameplay or owner acceptance.
+
+Ordinary physical support remains a candidate loading witness under
+[#39](https://github.com/Jpatching/combine/issues/39). The diagnostic retains
+before/after character position, velocity, height and state without classifying
+contact. `waiting=false`, `stopped=true`, height agreement or apparent standing
+cannot independently distinguish unloaded collision or another floor. Validate
+the method and record the owning-issue decision before supplying true witness
+flags; otherwise keep the result inconclusive.
+
+`--authored-events <private-fixture.json>` exercises the same collection/reporting
+boundary with authored observations and labels output `mode: authored`; it runs
+no Windows commands. Tests cover complete and interrupted collection, missing or
+unavailable readings, coordinate mismatch, unknown evidence, freshness/focus,
+artifact mismatch, restoration failure, additional points and bundle preservation.
+The private timing record measures Python preflight, backend wait and total
+duration, plus Windows observer setup before the pulse and observation duration;
+live restart metric counts a verified process replacement across recovery
+(0 or 1), and remains unknown if the final process identity cannot be verified.
+It does not count prior setup or unobserved intermediate restarts. Compare with
+a separately measured previous loop before claiming it is faster. Preparation,
+collection, four-point ground qualification, riding and restart recovery remain
+separate evidence claims.

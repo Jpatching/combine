@@ -156,6 +156,14 @@ def main():
     evidence = commands.add_parser("evidence", help="Open local evidence, or the comparison page when no files are supplied")
     evidence.add_argument("paths", nargs="*", help="Local clips or screenshots to open")
     evidence.add_argument("--print-only", action="store_true", help="Print locations without opening viewers")
+    hub = commands.add_parser("hub", help="Persistent private candidate evidence and guarded test requests")
+    hub.add_argument("args", nargs=argparse.REMAINDER)
+    gta = commands.add_parser("gta", help="Open, inspect, recover or test the isolated GTA IV runtime")
+    gta.add_argument("action", choices=["open", "status", "recover", "test"])
+    gta.add_argument("--config", default=str(ROOT / ".private/evidence-hub/gta.json"))
+    gta.add_argument("--scenario", choices=["preflight", "offline-menus", "checkpoint", "mount-diagnostic", "ground-query"], default="mount-diagnostic")
+    gta.add_argument("--request-id", help="Reuse a request UUID to avoid replaying a test")
+    gta.add_argument("--allow-hung-termination", action="store_true", help="Explicit recovery opt-in for an unresponsive game after normal close fails")
     args = parser.parse_args()
     try:
         if args.command == "open":
@@ -164,6 +172,11 @@ def main():
             view(args.name)
         elif args.command == "evidence":
             open_evidence(args.paths, args.print_only)
+        elif args.command == "hub":
+            run(sys.executable, str(ROOT / "scripts/evidence_hub.py"), *args.args)
+        elif args.command == "gta":
+            from gta_workflow import execute
+            return execute(args.action, args.config, args.scenario, args.request_id, args.allow_hung_termination)
         else:
             guide(args.tool, args.args)
     except (subprocess.CalledProcessError, OSError, ValueError) as error:

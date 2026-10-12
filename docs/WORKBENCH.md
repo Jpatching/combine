@@ -103,6 +103,10 @@ do not establish Windows capture, native analysis or gameplay acceptance.
 
 ## See intended behaviour and proof
 
+For persistent phone review and guarded diagnostic requests, use the
+[private candidate evidence hub](EVIDENCE_HUB.md). The comparison page below
+remains available for manual local file comparison.
+
 Run `python3 scripts/workbench.py evidence` to open
 [the local comparison page](../tools/workbench/evidence.html) in your browser.
 To present captured evidence directly, run

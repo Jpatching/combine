@@ -2,97 +2,90 @@
 
 ## Current task
 
-Reviewed: 2026-10-11
+Reviewed: 2026-10-12
 
-Task: research windowed GTA IV iteration alongside [ground qualification #39](https://github.com/Jpatching/combine/issues/39).
+Task: implement the owner-approved [persistent candidate and diagnostic workflow #61](https://github.com/Jpatching/combine/issues/61), local GTA IV recovery/testing and keyboard/mouse riding; diagnose the mount blocker before full ride acceptance under #20.
 
-Preserve the owner's windowed testing preference and investigate existing tools
-for faster local AI-assisted iteration. This is a source-only research side
-task; the live ground experiment remains pending.
+Source branch: `integration/gtaiv-evidence-loop`
 
-Source branch: `research/gtaiv-windowed-iteration`
+Source revision: `844fcdad69be245c4a8df9c36a6c1f1019599d5f`
 
-Source revision: `82d35ad1e43620389abb69fa6bcb591cca1d6279`
-
-This is the synchronized-main starting point; the draft PR owns the final
+This is the synchronized-main starting point. The candidate PR owns its final
 publication revision.
 
-Disposition: [draft PR #59](https://github.com/Jpatching/combine/pull/59) awaits
-owner source approval. The standing window-mode instruction is in
-[AGENTS.md](../AGENTS.md). Runtime settings and installed binaries have not been
-changed by this research task. The draft owns its current CI record.
-
-The current request selects this work instead of the older Sandcastle task
-snapshot. Retained source branches and drafts stay preserved: ground
-[PR #57](https://github.com/Jpatching/combine/pull/57), collector
-[PR #58](https://github.com/Jpatching/combine/pull/58), and parent riding
-[PR #23](https://github.com/Jpatching/combine/pull/23). The newer implementations
-are on those retained branches; this research branch starts from main and does
-not integrate them.
+Disposition: integrated candidate in preparation; No PR exists for this candidate yet.
+Retain [riding #23](https://github.com/Jpatching/combine/pull/23),
+[non-flat ground #57](https://github.com/Jpatching/combine/pull/57),
+[collector #58](https://github.com/Jpatching/combine/pull/58) and
+[context #60](https://github.com/Jpatching/combine/pull/60).
+The collector ancestry includes the retained riding/non-flat source. It is
+combined here for review, without merging main or activating triangle riding.
 
 ## Evidence
 
-The research report is
-[windowed iteration tools](../research/results/2026-10-11-gtaiv-windowed-iteration-tools.md).
-It separates upstream capabilities, retained source, prior execution evidence,
-local qualification gaps and recommendations. Documented hot reload is not a
-passed trial on the installed runtime. No tool installation, script reload,
-runtime staging, keyboard input or gameplay trial occurs in this source task.
+Latest runtime evidence: on 2026-10-12 read-only checks found one windowed but
+unresponsive GTA IV process with unknown native gameplay state. Authorized normal
+recovery returned `normal-close-refused`; foreground-first opening still timed out.
+The owner subsequently approved one exact-process hung termination: its exit was
+verified and the replacement GTA process is responding, windowed and foreground.
+The signed executable's launcher handoff initially returned `process-changed`;
+the local opener subsequently verified the replacement window without another
+termination. Private selected-window observation was unavailable before recovery;
+no diagnostic key was sent.
+Corrected session preparation identifies `inventory-mismatch-definitions` against
+each of three retained manifests. The new controls are source-tested and freshly
+built in an isolated worker bundle, not installed
+or accepted in gameplay. The retained windowed-game trials reported the default
+flat-route refusal `over-0.05-metres`; subsequent session records describe a
+non-finite ground query after offline menu recovery. These observations do not
+establish that the real ground is uneven or that querying is qualified.
+Current runtime state must be checked independently before new input.
 
-The owner has already
-[confirmed that the retained checkpoint pictures show the intended surfaces](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
-Reuse that confirmation. Independent loaded collision and intended-layer
-evidence remain unqualified. The prepared physical-state probe observes the
-actual player position and leaves contact, loading and layer unknown; it does
-not associate that position with a checkpoint by itself.
+The owner confirmed the retained checkpoint pictures show the intended surfaces:
+[confirmation on #39](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
+Reuse this decision. Independent collision loading/layer evidence and qualified
+checkpoint readings remain unresolved. Full riding acceptance stays under #20.
+The merged PR #59 is historical; its former awaiting-approval status is superseded.
 
-Latest runtime evidence: a read-only Windows check found one responding GTA IV
-process, minimized and outside the foreground. Fresh unmounted gameplay and
-player control were not established. Window mode itself was not verified.
-Earlier retained runtime, diagnostic candidate and recovery backup hashes
-matched; no active staging transaction was present at that check. These are
-separate observations, not a live support or riding pass. Private raw evidence
-stays local. Persistent Windows execution policy was not changed.
+Source integration preserves the reviewed authored triangle implementation and
+collector. Existing native refusal proof qualifies authored behavior, not street
+collision. The new evidence hub records source checks, named runtime diagnostics
+and pending owner acceptance separately. Private clips, logs, configurations,
+identities and coordinates stay outside Git and AI uploads.
 
 ## Next step
 
-Source review and the repository gate pass; retain draft #59 for owner approval
-and verify its exact-head CI before merge. Qualify existing hot reload and
-observer capabilities on the exact retained runtime before claiming a faster
-loop; measure setup, trial, recovery and total time against the previous loop.
-The proposed capability qualification is future runtime work, not an execution
-claim or an instruction to install a different hook.
+Complete and verify the guarded runner and private evidence hub under #61.
+Use [the evidence hub guide](EVIDENCE_HUB.md) for its commands and private setup.
+Resolve the unresponsive process within the owner's recovery authority and stage
+one reviewed, backed-up runtime bundle with exact source/build provenance. Do not
+regenerate a matching manifest from unverified installed bytes. Normal recovery
+remains the default; any hung termination requires explicit owner approval.
+Present one candidate revision/evidence bundle for explicit approval. Do not merge
+until review, checks and owner approval pass.
 
-Resume the one-checkpoint support experiment through `grill-with-docs`. The
-independent contact/layer observable remains unresolved. The owner restores
-and focuses GTA; testing preflight must establish windowed gameplay readiness.
-Keep the existing collector's foreground refusal and input ownership. Once the
-support method is qualified explicitly on #39, collect three valid readings at
-each of R1/P1/H1/H2 with the unchanged maximum 2 cm spread and 5 cm mesh error.
-Ambiguous evidence remains inconclusive. Geometry placement stays fixed.
-
-[#54](https://github.com/Jpatching/combine/issues/54) retains its qualification
-and source-acceptance blockers before triangle-route activation and the recorded
-mount, push, steering, dismount, recovery and restart repeat. Board #55 and
-rider #56 remain downstream; complete riding acceptance stays under #20.
+Diagnose native query availability at one checkpoint before all-four-point
+collection or triangle activation. Preserve three valid readings per point,
+2 cm maximum spread and 5 cm mesh error, independent loading/layer evidence,
+fixed geometry, the flat-route guard and lost-focus/input-ownership safeguards.
+Ten diagnostic attempts are a maximum; unchanged failures stop a scenario and
+require a new experimental variable. Restart/controller acceptance remains separate.
 
 ## Session close
 
 Follow [context maintenance](agents/current-context.md) and
-[workspace conventions](agents/issue-tracker.md). Keep GTA IV windowed during
-testing as required by AGENTS. Preserve installed runtime files, private recovery,
-retained branches, collector bundles and resource placement. Keep assets,
-coordinates, identities, media, settings and raw logs outside Git and AI uploads.
-The repository gate passed 62 tests and 60 document/context checks; whitespace
-checks passed. Independent Standards and Spec reviews reported zero actionable
-findings. Source research, capability qualification, ground qualification,
-gameplay and owner acceptance remain separate claims.
+[workspace conventions](agents/issue-tracker.md). Keep GTA windowed during all
+runtime checks. Source preparation, runtime observation, owner viewing, gameplay
+acceptance and merge are separate claims. Report actual checks and recovery;
+never turn unknown loading/layer evidence into a pass. Retain private recovery
+transactions and all prior branches.
 
 ## Historical reference
 
 [Host decision](adr/0001-preserve-offline-gta-gameplay.md),
-[glossary](../GLOSSARY.md), [workbench](WORKBENCH.md),
-[retained native proof](https://github.com/Jpatching/combine/blob/45d409a1b6e8bb72d6f5361355c44c58228892c4/research/results/2026-10-11-gtaiv-native-refusal-proof.md),
-[collector source](https://github.com/Jpatching/combine/blob/a1e456cebcebdbc2b3a59033edfbc4629db0f0ab/tools/gtaiv-collision/README.md),
-[physical collision report](../research/results/gtaiv-120059-physical-collision-feasibility.md),
-[retained GTA context](archive/HANDOFF-2026-10-09-gta-context.md).
+[glossary](../GLOSSARY.md),
+[ground qualification #39](https://github.com/Jpatching/combine/issues/39),
+[live riding #54](https://github.com/Jpatching/combine/issues/54),
+[complete riding #20](https://github.com/Jpatching/combine/issues/20),
+[native authored proof](../research/results/2026-10-11-gtaiv-native-refusal-proof.md).
+Historical methods do not authorize new work.

@@ -39,13 +39,16 @@ def native(script, *arguments, transaction=None):
     return subprocess.CompletedProcess(command, code)
 
 
-def execute(action, config_path, scenario='mount-diagnostic', request_id=None, allow_hung_termination=False):
+def execute(action, config_path, scenario='mount-diagnostic', request_id=None, allow_hung_termination=False,
+            monitor_timeout=45):
     lease = None
     outcome = 'refused'
     try:
         config_path = Path(config_path).resolve()
         if allow_hung_termination and action != 'recover':
             raise ValueError('hung-termination-needs-recovery')
+        if action == 'monitor' and not 5 <= monitor_timeout <= 120:
+            raise ValueError('monitor-timeout-out-of-range')
         config = json.loads(config_path.read_text())
         if not isinstance(config, dict) or set(config) - {'state', 'inspection', 'window_mode', 'manifest', 'runtime_config'}:
             raise ValueError('configuration-unavailable')
@@ -59,6 +62,10 @@ def execute(action, config_path, scenario='mount-diagnostic', request_id=None, a
             path('inspection')
             return native('tools/workbench/status.ps1', '-StatusModule',
                           windows(ROOT / 'tools/gtaiv-skate/game-status.psm1')).returncode
+        if action == 'monitor':
+            return native('tools/workbench/monitor.ps1', '-Inspection', windows(path('inspection')),
+                          '-StatusModule', windows(ROOT / 'tools/gtaiv-skate/game-status.psm1'),
+                          '-TimeoutSeconds', str(monitor_timeout)).returncode
         store = Store(path('state'))
         if action == 'test':
             from gta_trial import work
@@ -120,7 +127,7 @@ def execute(action, config_path, scenario='mount-diagnostic', request_id=None, a
         print('PASS: game open; current session prepared; gameplay still requires preflight')
         return 0
     except (OSError, ValueError, KeyError, TypeError, RuntimeError, subprocess.SubprocessError) as error:
-        reason = str(error) if str(error) in {'windows-runtime-unavailable', 'recovery-reconciliation-required', 'hung-termination-needs-recovery', 'native-helper-unverified'} else 'configuration-unavailable'
+        reason = str(error) if str(error) in {'windows-runtime-unavailable', 'recovery-reconciliation-required', 'hung-termination-needs-recovery', 'native-helper-unverified', 'monitor-timeout-out-of-range'} else 'configuration-unavailable'
         print('UNAVAILABLE: ' + reason + '; no further game input')
         return 2
     finally:

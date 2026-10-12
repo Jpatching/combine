@@ -46,12 +46,22 @@ class GtaWorkflowTests(unittest.TestCase):
     def test_missing_setup_is_named_without_echoing_private_configuration(self):
         with tempfile.TemporaryDirectory() as directory:
             config = Path(directory) / 'PRIVATE-DO-NOT-ECHO.json'
-            for action in ('open', 'recover', 'status'):
+            for action in ('open', 'recover', 'status', 'monitor'):
                 result = subprocess.run([sys.executable, str(ROOT / 'scripts/workbench.py'),
                     'gta', action, '--config', str(config)], text=True, capture_output=True)
                 self.assertEqual(result.returncode, 2, result.stderr)
                 self.assertIn('configuration-unavailable', result.stdout)
                 self.assertNotIn('PRIVATE-DO-NOT-ECHO', result.stdout + result.stderr)
+
+    def test_monitor_rejects_unbounded_wait_before_touching_windows(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config = Path(directory) / 'gta.json'
+            config.write_text('{}')
+            result = subprocess.run([sys.executable, str(ROOT / 'scripts/workbench.py'),
+                'gta', 'monitor', '--config', str(config), '--monitor-timeout', '121'],
+                text=True, capture_output=True)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn('monitor-timeout-out-of-range', result.stdout)
 
     def test_test_request_is_idempotent_and_missing_setup_is_not_a_game_failure(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -53,6 +53,13 @@ It closed normally without test input. The same startup boundary on both
 configurations does not identify the cause; stop repeating it until a changed
 diagnostic variable can produce new evidence.
 
+The 2026-10-12 monitored launch added a read-only bounded state observer. It
+followed the signed launcher handoff, saw a window that briefly did not respond,
+then reported `foreground-unverified` until its 60-second limit. The reviewed
+launcher independently refused foreground; no game input was sent. GTA closed
+normally afterward. This narrows the current boundary to foreground ownership
+on that launch, without establishing a menu, fresh gameplay or a floor witness.
+
 The owner confirmed the retained checkpoint pictures show the intended surfaces:
 [confirmation on #39](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
 Reuse this decision. Independent collision loading/layer evidence and qualified
@@ -78,9 +85,10 @@ coverage updated as the player moves and normal GTA control restored on dismount
 or query failure. One qualified street block is only a proof step. The existing
 triangle path passes authored tests but normal F6 still invokes the flat-grid
 fallback. The authored replacement command is not yet called from live GTA.
-First diagnose why the reviewed launch reaches neither a classifiable offline
-menu nor fresh windowed foreground gameplay; change one startup variable before
-another run and do not guess at menu input. Then run a bounded physical-support
+First diagnose why the reviewed launch lost foreground ownership after its
+window appeared; use the bounded monitor and change one startup variable before
+another run. Do not guess at menu input. Once fresh windowed foreground gameplay
+is verified, run a bounded physical-support
 probe with a wrong-floor control and an unchanged checkpoint. Accept it only if
 the observed motion distinguishes the intended floor. Establish independent evidence that the
 intended GTA floor is loaded at each fixed checkpoint, then collect three valid

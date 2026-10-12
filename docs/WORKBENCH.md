@@ -18,6 +18,15 @@ Next session               -> issue evidence + HANDOFF pointer
 ```
 
 Start from [current context](HANDOFF.md), then read the live issue and comments.
+For a GTA runtime trial, start `python3 scripts/workbench.py gta monitor --monitor-timeout 120`
+in a separate terminal before `gta open` or `gta test`.
+It prints changes in process, window and fresh gameplay status as fixed labels.
+`fresh-gameplay` means the status publisher matches the current GTA process and
+the window is responsive, windowed and foreground; it does not qualify a floor.
+The monitor sends no input and exits on process identity or window mode violations, 15 seconds
+without fresh status after a verified foreground window, or the overall timeout.
+Keep the trial guarded; a monitor timeout is a diagnostic result, not permission
+to send input. Close the exact process normally after a refused trial.
 For [Mount -> move -> dismount](https://github.com/Jpatching/combine/issues/20),
 the intended sequence is normal GTA walking, mount, push, left/right steering,
 dismount, then normal walking/vehicle use. The recorded blocker is a mount refusal

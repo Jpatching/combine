@@ -14,7 +14,8 @@ The candidate PR owns its final publication revision. The current source include
 the preserved short-footprint experiment and its revert, plus an authored
 mid-ride collision replacement path. The checkout is clean.
 
-Disposition: integrated candidate in preparation; No PR exists for this candidate yet.
+Disposition: [draft integration PR #62](https://github.com/Jpatching/combine/pull/62)
+awaits gameplay qualification and owner acceptance.
 Retain [riding #23](https://github.com/Jpatching/combine/pull/23),
 [non-flat ground #57](https://github.com/Jpatching/combine/pull/57),
 [collector #58](https://github.com/Jpatching/combine/pull/58) and
@@ -74,10 +75,9 @@ Read-only exact-build analysis found the `FindGroundZFor3DCoord` diagnostic
 string, but no code references or usable collision-query ABI. No loaded-layer
 signal or runtime probe has been established. The private Ghidra project is
 retained for tracing the native dispatch or physics call path.
-Reconcile the live experimental runtime with source before more guarded input.
 Keep the game windowed and preserve input-ownership and restoration checks.
-Present one candidate revision/evidence bundle for explicit approval. Do not
-merge until review, checks and owner approval pass.
+The source candidate and bounded evidence are in draft PR #62. Do not mark it
+ready or merge until review, gameplay checks and owner approval pass.
 
 ## Session close
 

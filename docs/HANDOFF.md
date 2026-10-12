@@ -52,18 +52,31 @@ identities and coordinates stay outside Git and AI uploads.
 
 ## Next step
 
-Pursue the owner's broader geometry-backed goal under #52/#39/#54. The existing
+Pursue the owner's broader geometry-backed goal under #52/#39/#54. The owner
+explicitly set completion acceptance to mounting and continued riding on suitable
+GTA floors at different heights, including stacked levels, with collision
+coverage updated as the player moves and normal GTA control restored on dismount
+or query failure. One qualified street block is only a proof step. The existing
 triangle path passes authored tests but normal F6 still invokes the flat-grid
-fallback. Establish independent evidence that the intended GTA floor is loaded
-at each fixed checkpoint, then collect three valid host readings per point under
-the existing 2 cm repeatability and 5 cm mesh-agreement gates. Select and activate
-the triangle path only after those prerequisites. A pending owner decision asks
-whether physical support plus repeated mesh agreement can serve as the independent
-loading witness, or whether an exact-version engine collision/layer query is
-required. Do not infer a positive witness from standing or a finite height alone.
+fallback and its collision geometry is fixed for one ride. Establish independent
+evidence that the intended GTA floor is loaded at each fixed checkpoint, then
+collect three valid host readings per point under the existing 2 cm repeatability
+and 5 cm mesh-agreement gates. Select and activate the triangle path only after
+those prerequisites. An exact-version collision query is under local analysis;
+do not infer a positive witness from standing or a finite height alone.
 
-REA CLI is installed locally, but no native Ghidra/IDA/Hopper provider is
-available in this session; decompilation of the owned executable has not run.
+REA CLI has a privately installed, checksum-verified Ghidra provider. Its first
+read-only pass over the owned executable hit the default startup timeout; a
+longer pass completed an x86 PE overview. REA CLI reimports the target for each
+query, so a persistent, private Ghidra project was created under `/tmp` for
+fast local follow-up. A broad `CWorld` text search found only an unrelated type.
+The exact build's `FindGroundZFor3DCoord` diagnostic string was located, but
+neither analyzed code references nor bounded raw pointer references were found
+for that seed. No collision-query ABI, loaded-layer signal or runtime probe has
+been established. Next trace the native dispatch or physics call path using
+the retained index; stop if call arguments or output bounds remain ambiguous.
+The private project was archived and its archive integrity checked so a fresh
+context can restore it without repeating the ten-minute import.
 Reconcile the live experimental runtime with source before more guarded input.
 Keep the game windowed and preserve input-ownership and restoration checks.
 Present one candidate revision/evidence bundle for explicit approval. Do not

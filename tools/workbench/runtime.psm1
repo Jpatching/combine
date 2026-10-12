@@ -34,10 +34,11 @@ function Get-CombineTrialSnapshot([bool]$RequireUnmounted=$true,[bool]$Menu=$fal
  return @{Game=$g;Report=$r}
 }
 function Test-CombineTrialInventory {
- $roles=@('executable','plugin','worker','definitions','script','watchdog','status_script','manifest')
+ Import-Module (Join-Path $PSScriptRoot 'inventory.psm1') -Force
+ $contract=Get-CombineRuntimeContract;$roles=@($contract.required)
  $count=@($m.artifacts).Count
- if($count -lt 8 -or $count -gt 10 -or @($m.artifacts.role | Select-Object -Unique).Count -ne $count -or @($roles | Where-Object {$_ -notin $m.artifacts.role}).Count -or
-    @($m.artifacts.role | Where-Object {$_ -notin ($roles+@('checkpoint_script','evaluation_script'))}).Count){throw 'runtime-inventory'}
+ if($count -lt $roles.Count -or $count -gt ($roles.Count+$contract.optional.Count) -or @($m.artifacts.role | Select-Object -Unique).Count -ne $count -or @($roles | Where-Object {$_ -notin $m.artifacts.role}).Count -or
+    @($m.artifacts.role | Where-Object {$_ -notin ($roles+@($contract.optional))}).Count){throw 'runtime-inventory'}
  $exe=Get-Item -LiteralPath $m.executable
  if($exe.VersionInfo.FileVersion -ne '1.2.0.59' -or (Get-AuthenticodeSignature -LiteralPath $m.executable).Status -ne 'Valid'){throw 'runtime-identity'}
  foreach($a in $m.artifacts){

@@ -2,8 +2,9 @@ param([Parameter(Mandatory=$true)][string]$Manifest,[Parameter(Mandatory=$true)]
 $ErrorActionPreference='Stop'
 try {
  $old=Get-Content -LiteralPath $Manifest -Raw | ConvertFrom-Json
- $roles=@{executable='GTAIV.exe';plugin='CLEO\CLEO_PLUGINS\combine_skate.cleo';worker='CLEO\CLEO_PLUGINS\combine_skate_worker.exe';
-  definitions='CLEO\.config\gta_iv.json';script='CLEO\combine_skate.js';watchdog='CLEO\combine_skate_watchdog.js';status_script='CLEO\combine_game_status.js'}
+ Import-Module (Join-Path $PSScriptRoot 'inventory.psm1') -Force
+ $contract=Get-CombineRuntimeContract;$roles=@{}
+ foreach($role in $contract.required){if($role -ne 'manifest'){$roles[$role]=$contract.files.$role}}
  $expected=@{}
  function Add-Expected([string]$Relative,[string]$Hash){
   $Relative=$Relative.Replace('/','\')
@@ -42,8 +43,9 @@ try {
   if(!$hash){throw 'manifest-invalid'}
   $artifacts+=@{role=$role;path=(Join-Path $old.Root $relative);sha256=$hash.ToLowerInvariant()}
  }
- foreach($optional in @(@{role='checkpoint_script';relative='CLEO\combine_checkpoint.js'},@{role='evaluation_script';relative='CLEO\combine_evaluation.js'})){
-  if($expected.ContainsKey($optional.relative)){$artifacts+=@{role=$optional.role;path=(Join-Path $old.Root $optional.relative);sha256=$expected[$optional.relative]}}
+ foreach($optional in $contract.optional){
+  $relative=$contract.files.$optional
+  if($expected.ContainsKey($relative)){$artifacts+=@{role=$optional;path=(Join-Path $old.Root $relative);sha256=$expected[$relative]}}
  }
  $artifacts+=@{role='manifest';path=$Manifest;sha256=(Get-FileHash -LiteralPath $Manifest -Algorithm SHA256).Hash.ToLowerInvariant()}
  if($InventoryOnly){

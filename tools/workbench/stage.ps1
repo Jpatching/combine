@@ -26,11 +26,11 @@ try {
  $root=Split-Path -Parent $inspection.Executable
  Safe-Directory $root
  Safe-Directory (Split-Path -Parent $Output)
- $roles=@{plugin='CLEO\CLEO_PLUGINS\combine_skate.cleo';worker='CLEO\CLEO_PLUGINS\combine_skate_worker.exe';
-  definitions='CLEO\.config\gta_iv.json';script='CLEO\combine_skate.js';watchdog='CLEO\combine_skate_watchdog.js';
-  status_script='CLEO\combine_game_status.js';checkpoint_script='CLEO\combine_checkpoint.js';evaluation_script='CLEO\combine_evaluation.js'}
+ Import-Module (Join-Path $PSScriptRoot 'inventory.psm1') -Force
+ $contract=Get-CombineRuntimeContract;$roles=@{}
+ foreach($role in $contract.stage){$roles[$role]=$contract.files.$role}
  if($planData.source_revision -cnotmatch '^[0-9a-f]{40}$' -or @($planData.items).Count -ne 8 -or
-  @($planData.items.role|Select-Object -Unique).Count -ne 8){throw 'bundle-invalid'}
+  @($planData.items.role|Select-Object -Unique).Count -ne $contract.stage.Count){throw 'bundle-invalid'}
  $seen=@{}
  foreach($item in $planData.items){
   if($item.role -notin $roles.Keys -or $seen.ContainsKey([string]$item.role)){throw 'bundle-invalid'}

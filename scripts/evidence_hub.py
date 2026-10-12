@@ -132,11 +132,6 @@ def main():
     candidate = commands.add_parser('candidate'); candidate.add_argument('record')
     checkpoint = commands.add_parser('checkpoint', help='Prepare strict private checkpoint helper data')
     checkpoint.add_argument('--point', required=True); checkpoint.add_argument('--output', required=True)
-    opening = commands.add_parser('open', help='Normal pinned game launch; never restart or install')
-    opening.add_argument('--inspection', required=True); opening.add_argument('--window-mode', required=True)
-    opening.add_argument('--output', required=True); opening.add_argument('--focus', action='store_true')
-    opening.add_argument('--restart', action='store_true', help='Normal close only; never force termination')
-    opening.add_argument('--allow-hung-termination', action='store_true', help='Explicit owner-approved recovery of the exact unresponsive process; may lose unsaved progress')
     work = commands.add_parser('work'); work.add_argument('--once', action='store_true')
     work.add_argument('--config', help='Reviewed private runtime configuration')
     work.add_argument('--authored-results', help='Authored runner fixture JSON; never runtime evidence')
@@ -157,20 +152,6 @@ def main():
         elif args.command == 'checkpoint':
             from checkpoint import prepare
             print(json.dumps(prepare(args.point, args.output)))
-        elif args.command == 'open':
-            import os
-            import subprocess
-            def windows(path):
-                if os.name == 'nt': return str(Path(path).resolve())
-                return subprocess.check_output(['wslpath', '-w', str(Path(path).resolve())], text=True).strip()
-            command = ['powershell' if os.name == 'nt' else 'powershell.exe', '-NoProfile', '-NonInteractive',
-                       '-ExecutionPolicy', 'Bypass', '-File', windows(ROOT / 'tools/workbench/open.ps1'),
-                       '-Inspection', windows(args.inspection), '-WindowMode', windows(args.window_mode),
-                       '-Output', windows(args.output)]
-            if args.focus: command.append('-Focus')
-            if args.restart: command.append('-Restart')
-            if args.allow_hung_termination: command.append('-AllowHungTermination')
-            return subprocess.call(command)
         elif args.command == 'work':
             from gta_trial import work
             fixtures = json.loads(Path(args.authored_results).read_text()) if args.authored_results else None

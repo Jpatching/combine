@@ -374,9 +374,12 @@ def main(argv=None):
         else:
             source = probe_source(points_document, session.get('token'))
             digest = hashlib.sha256(source.encode()).hexdigest()
-            required_roles = {'executable', 'plugin', 'worker', 'definitions', 'script', 'watchdog', 'status_script', 'manifest'}
+            contract = read_json(Path(__file__).resolve().parents[1] / 'workbench/runtime-roles.json')
+            required_roles = set(contract['required'])
+            allowed_roles = required_roles | set(contract['optional'])
             artifacts = session.get('artifacts', [])
-            if len(artifacts) != 8 or {item.get('role') for item in artifacts} != required_roles:
+            observed_roles = {item.get('role') for item in artifacts}
+            if len(artifacts) != len(observed_roles) or not required_roles <= observed_roles <= allowed_roles:
                 raise Refusal('runtime-inventory-incomplete')
             by_role = {item['role']: item for item in artifacts}
             if by_role['executable']['path'] != session.get('executable') or by_role['script']['sha256'] != digest or session.get('checkpoints_sha256') != hashlib.sha256(Path(args.checkpoints).read_bytes()).hexdigest():

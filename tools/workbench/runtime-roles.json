@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "required": ["executable", "plugin", "worker", "definitions", "script", "watchdog", "status_script", "manifest"],
+  "optional": ["checkpoint_script", "evaluation_script"],
+  "stage": ["plugin", "worker", "definitions", "script", "watchdog", "status_script", "checkpoint_script", "evaluation_script"],
+  "files": {
+    "executable": "GTAIV.exe",
+    "plugin": "CLEO\\CLEO_PLUGINS\\combine_skate.cleo",
+    "worker": "CLEO\\CLEO_PLUGINS\\combine_skate_worker.exe",
+    "definitions": "CLEO\\.config\\gta_iv.json",
+    "script": "CLEO\\combine_skate.js",
+    "watchdog": "CLEO\\combine_skate_watchdog.js",
+    "status_script": "CLEO\\combine_game_status.js",
+    "checkpoint_script": "CLEO\\combine_checkpoint.js",
+    "evaluation_script": "CLEO\\combine_evaluation.js"
+  }
+}

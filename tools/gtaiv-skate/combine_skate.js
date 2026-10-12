@@ -12,19 +12,26 @@ function restore() {
     const attempt = action => { try { action(); } catch (_) {} };
     attempt(() => native("COMBINE_SKATE_STOP"));
     if (!saved) return;
+    saved.recovering=true;
+    let recovered=true;
+    const recover=action=>{try{action();}catch(_){recovered=false;}};
     // Independent restoration attempts ensure a missing ped/camera cannot trap control.
-    attempt(() => native("ACTIVATE_SCRIPTED_CAMS", false, false));
-    attempt(() => { if (native("DOES_CAM_EXIST", saved.camera)) {
+    recover(() => native("ACTIVATE_SCRIPTED_CAMS", false, false));
+    recover(() => { if (native("DOES_CAM_EXIST", saved.camera)) {
         native("SET_CAM_PROPAGATE", saved.camera, false);
         native("SET_CAM_ACTIVE", saved.camera, false);
         native("DESTROY_CAM", saved.camera);
     }});
-    attempt(() => { if (native("DOES_CHAR_EXIST", saved.ped)) {
+    recover(() => { if (native("DOES_CHAR_EXIST", saved.ped)) {
         native("FREEZE_CHAR_POSITION", saved.ped, false);
     }});
-    attempt(() => native("SET_PLAYER_CONTROL", saved.player, true));
-    attempt(() => native("COMBINE_SKATE_RELEASE"));
-    ride = null;
+    recover(() => native("SET_PLAYER_CONTROL", saved.player, true));
+    recover(() => {if(!native("IS_PLAYER_CONTROL_ON",saved.player) || native("DOES_CAM_EXIST",saved.camera))throw new Error("recovery-unverified");});
+    if(recovered) {
+        recover(() => native("COMBINE_SKATE_RELEASE"));
+        if(recovered)ride=null;
+    }
+    if(ride && !saved.recoveryAnnounced){record("recovery-pending");saved.recoveryAnnounced=true;}
 }
 function mount(player, ped) {
     if (!native("IS_CHAR_ON_FOOT", ped) || !native("IS_PLAYER_CONTROL_ON", player)
@@ -81,6 +88,7 @@ try {
         wait(0);
         try {
             if (!native("COMBINE_SKATE_READY")) {restore();continue;}
+            if(ride && ride.recovering){restore();continue;}
             if(!inputConfigured) {
                 if(!native("COMBINE_SKATE_INPUT_MODE",INPUT_MODE)) {
                     if(!inputRefused)record("input-mode-refused");
@@ -102,7 +110,7 @@ try {
             const toggle=native("COMBINE_SKATE_TOGGLE");
             if (ride && (toggle || !valid || ped!==ride.ped || player!==ride.player
                 || !native("DOES_CAM_EXIST",ride.camera))) {
-                restore();notify("Skate: GTA controls restored");continue;
+                restore();notify(ride?"Skate: recovery pending - riding blocked":"Skate: GTA controls restored");continue;
             }
             const interrupted=native("IS_PAUSE_MENU_ACTIVE")
                 || (native("HAS_CUTSCENE_LOADED") && !native("HAS_CUTSCENE_FINISHED"));

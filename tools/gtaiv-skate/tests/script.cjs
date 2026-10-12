@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');
 function run(mode) {
- let frame=0,mounted=false,restored=false,camera=false,vertices=0,poseWrites=0,queries=0;
+ let frame=0,mounted=false,restored=false,camera=false,vertices=0,poseWrites=0,queries=0,recoveryFailures=0;
  const calls=[],transfers=[],logs=[];
  const native=(name,...args)=>{
   calls.push([name,...args]);
@@ -33,7 +33,7 @@ function run(mode) {
    case 'CREATE_CAM':camera=true;return 99;
    case 'DOES_CAM_EXIST':return camera;
    case 'DESTROY_CAM':camera=false;return;
-   case 'SET_PLAYER_CONTROL':if(!args[1])transfers.push(frame);mounted=!args[1];if(args[1])restored=true;return;
+   case 'SET_PLAYER_CONTROL':if(args[1]&&mode==='restoreOnce'&&recoveryFailures++===0)throw Error('transient restoration failure');if(!args[1])transfers.push(frame);mounted=!args[1];if(args[1])restored=true;return;
    case 'SET_CHAR_COORDINATES':if(mode==='nativeThrow')throw Error('native failure');poseWrites++;return;
    default:return undefined;
   }
@@ -64,12 +64,16 @@ for(const mode of ['vehicle','nativeThrow']) {
 }
 console.log('PASS: vehicle transition and throwing presentation restore GTA');
 function runWatchdog(mode) {
-const rescueCalls=[];let rescueFrame=0;
+const rescueCalls=[];let rescueFrame=0,rescueCamera=true,rescueControl=false;
 try {vm.runInNewContext(fs.readFileSync('tools/gtaiv-skate/combine_skate_watchdog.js','utf8'),{
  wait:()=>{if(++rescueFrame>1)throw Error('END');},
  native:(name,...args)=>{rescueCalls.push([name,...args]);
   if(name==='COMBINE_SKATE_RESCUE')return {player:0,ped:7,camera:99};
-  if(name==='DOES_CAM_EXIST'||name==='DOES_CHAR_EXIST')return true;
+  if(name==='DOES_CAM_EXIST')return rescueCamera;
+  if(name==='DOES_CHAR_EXIST')return true;
+  if(name==='DESTROY_CAM'){rescueCamera=false;return;}
+  if(name==='SET_PLAYER_CONTROL'){rescueControl=args[1];return;}
+  if(name==='IS_PLAYER_CONTROL_ON')return rescueControl;
   if(mode==='stopThrow'&&name==='COMBINE_SKATE_STOP')throw Error('stop failure');
   if(mode==='releaseThrow'&&name==='COMBINE_SKATE_RELEASE')throw Error('release failure');
  }
@@ -131,3 +135,11 @@ const controller=run('controller');assert.ok(controller.poseWrites>0);
 assert.equal(controller.calls.some(c=>c[0]==='GET_MOUSE_INPUT'),false);
 assert.ok(controller.restored);
 console.log('PASS: dismounted input selection preserves controller riding and camera recovery');
+const transient=run('restoreOnce');
+assert.ok(transient.restored,'a transient control restoration failure must be retried');
+assert.equal(transient.mounted,false);
+const recoveryCalls=transient.calls.filter(c=>c[0]==='SET_PLAYER_CONTROL'&&c[2]===true);
+assert.ok(recoveryCalls.length>=2);
+const firstRelease=transient.calls.findIndex(c=>c[0]==='COMBINE_SKATE_RELEASE');
+assert.ok(firstRelease>transient.calls.lastIndexOf(recoveryCalls[1]));
+console.log('PASS: transient restoration keeps recovery ownership until GTA control is restored');

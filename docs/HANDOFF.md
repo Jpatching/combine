@@ -8,7 +8,7 @@ Task: implement the owner-approved [persistent candidate and diagnostic workflow
 
 Source branch: `integration/gtaiv-evidence-loop`
 
-Source revision: `f71efeafdd8c2007ba9e4a318c9538cf227e9698`
+Source revision: `a7449a90576fe889f76d4e07ea2576cb2a455233`
 
 The candidate PR owns its final publication revision. The current source includes
 the preserved short-footprint experiment and its revert, plus an authored
@@ -35,30 +35,16 @@ withheld, and fresh unmounted GTA control was verified afterward. A private
 second flat-grid refusal at that spot, not a test of the new source or proof
 of physical unevenness, loaded collision, a selected floor/layer or skating.
 
-Latest runtime diagnostic: after the owner accepted an independent in-game
-differential witness as an alternative to a direct engine signal, an opt-in
-physical-support trace was prepared for R1 with an exact backup. Its authored
-preparation/restoration checks passed within a 107-test gate run. The temporary
-script was installed only in the isolated runtime after normal shutdown. An
-initial relaunch refused a private manifest; a corrected inventory-only check
-passed. The next windowed launch prepared a matching session, but preflight
-refused `fresh-gameplay`. Local menu capture timed out or classified `unknown`.
-No F7 probe input or ground reading was sent, so no physical-support, loading or
-layer verdict exists. The game then closed normally and the original checkpoint
-script was restored and hash verified. GTA is currently closed. The unmerged
-prototype and private records remain outside Git. A separate baseline relaunch
-using the restored original script also prepared a matching windowed session,
-then refused `fresh-gameplay` and produced an `unknown` local menu classification.
-It closed normally without test input. The same startup boundary on both
-configurations does not identify the cause; stop repeating it until a changed
-diagnostic variable can produce new evidence.
-
-The 2026-10-12 monitored launch added a read-only bounded state observer. It
-followed the signed launcher handoff, saw a window that briefly did not respond,
-then reported `foreground-unverified` until its 60-second limit. The reviewed
-launcher independently refused foreground; no game input was sent. GTA closed
-normally afterward. This narrows the current boundary to foreground ownership
-on that launch, without establishing a menu, fresh gameplay or a floor witness.
+Latest runtime diagnostic: the launcher now retries foreground focus after the
+window responds. A monitored windowed launch reached verified foreground, and
+guarded offline menu input reached fresh gameplay. The baseline preflight and
+retained checkpoint check passed. Temporary physical-support probes then ran at
+R1, P1 and H1. Their traces show settling near a support surface, but do not
+identify which floor GTA selected or reject a wrong floor. No loaded-floor or
+layer criterion passed. The owner stopped the next probe before input; GTA
+closed normally. The original checkpoint script was restored with its exact
+backup hash, and the private inventory-only check passed. GTA is currently
+closed. Probe scripts, traces and recovery records remain private and outside Git.
 
 The owner confirmed the retained checkpoint pictures show the intended surfaces:
 [confirmation on #39](https://github.com/Jpatching/combine/issues/39#issuecomment-6112509746).
@@ -85,22 +71,16 @@ coverage updated as the player moves and normal GTA control restored on dismount
 or query failure. One qualified street block is only a proof step. The existing
 triangle path passes authored tests but normal F6 still invokes the flat-grid
 fallback. The authored replacement command is not yet called from live GTA.
-First diagnose why the reviewed launch lost foreground ownership after its
-window appeared; use the bounded monitor and change one startup variable before
-another run. Do not guess at menu input. Once fresh windowed foreground gameplay
-is verified, run a bounded physical-support
-probe with a wrong-floor control and an unchanged checkpoint. Accept it only if
-the observed motion distinguishes the intended floor. Establish independent evidence that the
-intended GTA floor is loaded at each fixed checkpoint, then collect three valid
-host readings per point under the existing 2 cm repeatability and 5 cm
-mesh-agreement gates. Select and activate the triangle path only after
-those prerequisites. An exact-version collision query is under local analysis;
-do not infer a positive witness from standing or a finite height alone.
-
-Read-only exact-build analysis found the `FindGroundZFor3DCoord` diagnostic
-string, but no code references or usable collision-query ABI. No loaded-layer
-signal or runtime probe has been established. The private Ghidra project is
-retained for tracing the native dispatch or physics call path.
+The startup foreground failure is resolved. Narrow the next decision to one
+bounded witness that names the intended loaded floor at each checkpoint and
+fails when the wrong floor is selected. The owner accepts either a direct signal
+or an independent differential observation with that property. Do not repeat
+the physical-support trace alone or resume an open-ended native ABI search as
+the active plan. Keep those attempts as historical diagnostics. Once the witness
+passes, collect three valid host readings per point under the existing 2 cm
+repeatability and 5 cm mesh-agreement gates, then select and activate the
+triangle path and test stacked-floor riding. No Rust candidate has been staged
+in GTA, and gameplay acceptance remains open.
 Keep the game windowed and preserve input-ownership and restoration checks.
 The source candidate remains in draft PR #62; private diagnostic records remain
 local. Do not mark it ready or merge until review, gameplay checks and owner

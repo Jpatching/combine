@@ -42,8 +42,8 @@ public static class CombineMonitorWindow {
   if($state -ne $last){[Console]::Out.WriteLine('MONITOR: '+$state);[Console]::Out.Flush();$last=$state}
   if($state -in @('multiple-processes','process-identity-changed','process-exited','windowed-mode-refused')){exit 2}
   if($state -eq 'fresh-gameplay'){exit 0}
-  if($windowAt -ge 0 -and $clock.Elapsed.TotalSeconds-$windowAt -ge 15 -and $state -eq 'waiting-for-fresh-game-state'){
-   [Console]::Out.WriteLine('MONITOR: no-fresh-game-state-after-15s');[Console]::Out.Flush();exit 2
+  if($windowAt -ge 0 -and $clock.Elapsed.TotalSeconds-$windowAt -ge 60 -and $state -eq 'waiting-for-fresh-game-state'){
+   [Console]::Out.WriteLine('MONITOR: no-fresh-game-state-after-60s');[Console]::Out.Flush();exit 2
   }
   Start-Sleep -Milliseconds 500
  }

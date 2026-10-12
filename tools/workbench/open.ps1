@@ -84,8 +84,24 @@ public static class CombineOpenWindow{
  $current=Get-Process -Id $game.Id
  if($current.StartTime.ToUniversalTime().Ticks -ne $game.StartTime.ToUniversalTime().Ticks -or
     ([CombineOpenWindow]::GetWindowLong($current.MainWindowHandle,-16) -band 0x00C00000) -ne 0x00C00000){throw 'Window owner/mode changed'}
+ # A window handle can appear before GTA is responsive. The first focus request
+ # may be ignored during startup, so retry only against the verified game window.
+ $focusAttempts=0
+ if($Focus){
+  while($focusAttempts -lt 3 -and
+      ([CombineOpenWindow]::GetForegroundWindow() -ne $current.MainWindowHandle -or [CombineOpenWindow]::IsIconic($current.MainWindowHandle))){
+   $current=Get-Process -Id $game.Id
+   if($current.StartTime.ToUniversalTime().Ticks -ne $game.StartTime.ToUniversalTime().Ticks -or
+      $current.MainWindowHandle -eq [IntPtr]::Zero -or !$current.Responding -or
+      ([CombineOpenWindow]::GetWindowLong($current.MainWindowHandle,-16) -band 0x00C00000) -ne 0x00C00000){throw 'Window owner/mode changed'}
+   $null=[CombineOpenWindow]::ShowWindowAsync($current.MainWindowHandle,9)
+   $null=[CombineOpenWindow]::SetForegroundWindow($current.MainWindowHandle)
+   $focusAttempts++
+   Start-Sleep -Milliseconds 350
+  }
+ }
  $foreground=[CombineOpenWindow]::GetForegroundWindow() -eq $current.MainWindowHandle -and ![CombineOpenWindow]::IsIconic($current.MainWindowHandle)
- @{pid=$current.Id;start_ticks=$current.StartTime.ToUniversalTime().Ticks;windowed=$true;foreground=$foreground;launcher_handoff=$handoff;termination_attempted=$terminationAttempted;termination_exit_verified=$terminationVerified} |
+ @{pid=$current.Id;start_ticks=$current.StartTime.ToUniversalTime().Ticks;windowed=$true;foreground=$foreground;launcher_handoff=$handoff;focus_attempts_after_ready=$focusAttempts;termination_attempted=$terminationAttempted;termination_exit_verified=$terminationVerified} |
   ConvertTo-Json | Set-Content -LiteralPath $Output -Encoding UTF8
  if(!$foreground){Write-Output 'UNAVAILABLE: foreground-unverified; pinned windowed process present; no input';exit 2}
  Write-Output 'PASS: pinned windowed foreground game ready for guarded offline-menu checks; no keys sent'

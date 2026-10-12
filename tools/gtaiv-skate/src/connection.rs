@@ -21,8 +21,8 @@ impl Surface {
         }
         for (i, p) in points.iter().enumerate() {
             let expected = [
-                origin[0] - 4. / scale + (i % 5) as f32 * 2. / scale,
-                origin[1] - 4. / scale + (i / 5) as f32 * 2. / scale,
+                origin[0] - 2. / scale + (i % 5) as f32 / scale,
+                origin[1] - 2. / scale + (i / 5) as f32 / scale,
             ];
             if (p[0] - expected[0]).abs() > 0.001 / scale
                 || (p[1] - expected[1]).abs() > 0.001 / scale
@@ -161,8 +161,8 @@ impl Surface {
     pub fn contains(&self, p: [f32; 3], ground: f32) -> bool {
         p.iter().all(|v| v.is_finite())
             && ground.is_finite()
-            && (p[0] - self.origin[0]).abs() * self.scale < 3.5
-            && (p[1] - self.origin[1]).abs() * self.scale < 3.5
+            && (p[0] - self.origin[0]).abs() * self.scale < 1.5
+            && (p[1] - self.origin[1]).abs() * self.scale < 1.5
             && (ground - self.origin[2]).abs() * self.scale <= 0.05
             && (p[2] - self.origin[2]).abs() * self.scale < 3.
     }

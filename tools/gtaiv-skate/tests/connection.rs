@@ -4,14 +4,14 @@ use connection::*;
 #[test]
 fn ground_patch_matches_gta_axes_and_rejects_leaving_selected_surface() {
     let points = (0..25)
-        .map(|i| [100. + (i % 5) as f32 * 2., 200. + (i / 5) as f32 * 2., 10.])
+        .map(|i| [100. + (i % 5) as f32, 200. + (i / 5) as f32, 10.])
         .collect();
-    let patch = Surface::new(points, [104., 204., 10.], 1.).unwrap();
-    assert_eq!(patch.to_skate([106., 207., 12.]), [2., 2., -3.]);
-    assert_eq!(patch.to_gta([2., 2., -3.]), [106., 207., 12.]);
-    assert!(patch.contains([107., 207., 10.], 10.));
-    assert!(!patch.contains([109., 207., 10.], 10.));
-    assert!(!patch.contains([107., 207., 10.], 15.));
+    let patch = Surface::new(points, [102., 202., 10.], 1.).unwrap();
+    assert_eq!(patch.to_skate([103., 203., 12.]), [1., 2., -1.]);
+    assert_eq!(patch.to_gta([1., 2., -1.]), [103., 203., 12.]);
+    assert!(patch.contains([103., 203., 10.], 10.));
+    assert!(!patch.contains([104., 203., 10.], 10.));
+    assert!(!patch.contains([103., 203., 10.], 15.));
     assert_eq!(patch.triangles().len(), 32);
 }
 #[test]
@@ -79,7 +79,7 @@ fn geometry_refuses_ambiguous_invalid_or_uncovered_ground_without_weakening_flat
     assert!(!surface.contains_pose([1., 1., 4.]));
     assert!(!surface.contains_pose([1., 1., f32::NAN]));
     let points = (0..25)
-        .map(|i| [-4. + (i % 5) as f32 * 2., -4. + (i / 5) as f32 * 2., 0.])
+        .map(|i| [-2. + (i % 5) as f32, -2. + (i / 5) as f32, 0.])
         .collect();
     let flat = Surface::new(points, [0.; 3], 1.).unwrap();
     assert!(flat.contains([0., 0., 1.], 0.05));
@@ -89,8 +89,8 @@ fn geometry_refuses_ambiguous_invalid_or_uncovered_ground_without_weakening_flat
 fn flat_api_still_refuses_authored_slope_while_triangle_route_retains_it() {
     let points: Vec<_> = (0..25)
         .map(|i| {
-            let x = -4. + (i % 5) as f32 * 2.;
-            [x, -4. + (i / 5) as f32 * 2., x * 0.25]
+            let x = -2. + (i % 5) as f32;
+            [x, -2. + (i / 5) as f32, x * 0.25]
         })
         .collect();
     assert!(Surface::new(points, [0.; 3], 1.).is_err());

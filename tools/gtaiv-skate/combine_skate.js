@@ -46,7 +46,7 @@ function mount(player, ped) {
     }
     native("COMBINE_SKATE_STOP");
     for (let y=0;y<5;y++) for (let x=0;x<5;x++) {
-        const px=pos.x+(x-2)*2/SCALE, py=pos.y+(y-2)*2/SCALE;
+        const px=pos.x+(x-2)/SCALE, py=pos.y+(y-2)/SCALE;
         const z=native("GET_GROUND_Z_FOR_3D_COORD", px, py, pos.z+2);
         let reason=null;
         if(!Number.isFinite(z)) reason="non-finite";

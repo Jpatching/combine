@@ -8,7 +8,7 @@ use std::time::{Duration, Instant};
 #[test]
 fn last_validated_bridge_pose_survives_publication_until_original_deadline() {
     let points = (0..25)
-        .map(|i| [96. + (i % 5) as f32 * 2., 196. + (i / 5) as f32 * 2., 10.])
+        .map(|i| [98. + (i % 5) as f32, 198. + (i / 5) as f32, 10.])
         .collect();
     let surface = Surface::new(points, [100., 200., 10.], 1.).unwrap();
     let start = Instant::now();

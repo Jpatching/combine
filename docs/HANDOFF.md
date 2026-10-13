@@ -15,7 +15,8 @@ bounded mount, push, both steering directions and dismount proof, plus read-only
 recovery reconciliation. Full riding acceptance remains open. The pre-existing
 uncommitted evidence measurement display is preserved separately.
 
-Disposition: no draft PR exists yet for this integration branch.
+Disposition: [draft integration PR #69](https://github.com/Jpatching/combine/pull/69)
+awaits gameplay qualification and owner acceptance.
 Retained [draft PR #62](https://github.com/Jpatching/combine/pull/62) is unchanged
 and awaits gameplay qualification and owner acceptance.
 Retain [riding #23](https://github.com/Jpatching/combine/pull/23),

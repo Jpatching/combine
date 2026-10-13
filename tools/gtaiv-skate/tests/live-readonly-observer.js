@@ -45,7 +45,8 @@ try {
         const char=native("GET_CHAR_COORDINATES",owner.ped);
         const matchesChar=finite&&char&&Number.isFinite(char.x)&&Number.isFinite(char.y)
             &&Math.hypot(pose[0]-char.x,pose[1]-char.y)<=0.05;
-        const poseVerified=Boolean(matchesChar);
+        const allZero=pose.every(v=>v===0);
+        const poseVerified=Boolean(matchesChar)&&!allZero;
         const paused=Boolean(native("IS_PAUSE_MENU_ACTIVE"));
         const cutscene=Boolean(native("HAS_CUTSCENE_LOADED")&&!native("HAS_CUTSCENE_FINISHED"));
         // Ground queries and cached pose reads are observers, not simulation ticks.
@@ -53,7 +54,7 @@ try {
         const matches=poseVerified?SURFACES.filter(s=>{const h=height(s,pose[0],pose[1]);return h!==null&&Number.isFinite(ground)&&Math.abs(h-ground)<=0.05;}):[];
         if(!selected&&matches.length===1)selected=matches[0];
         const support=poseVerified&&selected?height(selected,pose[0],pose[1]):null;
-        const flags={backend_ready:Boolean(native("COMBINE_SKATE_READY")),finite_pose:finite,pose_all_zero:pose.every(v=>v===0),
+        const flags={backend_ready:Boolean(native("COMBINE_SKATE_READY")),finite_pose:finite,pose_all_zero:allZero,
             pose_matches_char_xy:Boolean(matchesChar),pose_observation_verified:poseVerified,
             paused,cutscene,camera_exists:Boolean(native("DOES_CAM_EXIST",owner.camera)),
             same_owner:!previous||(owner.player===previous.player&&owner.ped===previous.ped&&owner.camera===previous.camera),

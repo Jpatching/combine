@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-function observe(mode,unavailablePose=false) {
+function observe(mode,unavailablePose=false,characterAtOrigin=false) {
  let frame=0,time=0;const calls=[],logs=[];
  const allowed=new Set(['COMBINE_SKATE_EVAL_TIME','COMBINE_SKATE_EVAL_OWNER','COMBINE_SKATE_VALUE','GET_CHAR_COORDINATES','IS_PAUSE_MENU_ACTIVE','HAS_CUTSCENE_LOADED','HAS_CUTSCENE_FINISHED','GET_GROUND_Z_FOR_3D_COORD','DOES_CAM_EXIST','COMBINE_SKATE_READY','IS_PLAYER_CONTROL_ON']);
  const surfaces=[{qualified:true,center:[100,200],radius:3,triangles:[[[95,195,10],[105,195,10],[105,205,10]],[[95,195,10],[105,205,10],[95,205,10]]]}];
@@ -9,7 +9,7 @@ function observe(mode,unavailablePose=false) {
    case 'COMBINE_SKATE_EVAL_TIME':return time;
    case 'COMBINE_SKATE_EVAL_OWNER':return frame>=3?{player:-1,ped:-1,camera:-1}:{player:0,ped:7,camera:99};
    case 'COMBINE_SKATE_VALUE':return unavailablePose?0:[frame===1?100:104,200,11,0][args[0]];
-   case 'GET_CHAR_COORDINATES':return {x:frame===1?100:104,y:200,z:12};
+   case 'GET_CHAR_COORDINATES':return {x:characterAtOrigin?0:frame===1?100:104,y:characterAtOrigin?0:200,z:12};
    case 'GET_GROUND_Z_FOR_3D_COORD':return 10;
    case 'DOES_CAM_EXIST':return frame<3;
    case 'COMBINE_SKATE_READY':case 'IS_PLAYER_CONTROL_ON':return true;
@@ -43,5 +43,18 @@ assert.equal(invalid.qualified_support_present,null,'unverified getter must not 
 assert.equal(invalid.height_within_support,null);
 assert.equal(invalid.unique_ground_match,null);
 assert.ok(!unavailable.calls.includes('GET_GROUND_Z_FOR_3D_COORD'),'unverified pose must not issue coordinate-derived query');
+
+
+
+const origin=observe('diagnostic',true,true);
+const originLine=origin.logs.find(s=>s.includes(' owner-started '));
+const originFlags=JSON.parse(originLine.slice(originLine.indexOf(' owner-started ')+15));
+assert.equal(originFlags.pose_all_zero,true);
+assert.equal(originFlags.pose_matches_char_xy,true);
+assert.equal(originFlags.pose_observation_verified,false,'all-zero getter at host XY origin remains unverified');
+assert.equal(originFlags.qualified_support_present,null);
+assert.equal(originFlags.height_within_support,null);
+assert.equal(originFlags.unique_ground_match,null);
+assert.ok(!origin.calls.includes('GET_GROUND_Z_FOR_3D_COORD'));
 
 console.log('PASS: bounded read-only observer distinguishes valid unsupported pose from unavailable getters without exposing pose or identity');

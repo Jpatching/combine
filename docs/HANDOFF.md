@@ -4,18 +4,20 @@
 
 Reviewed: 2026-10-13
 
-Task: finish the working ride and reporting under [workflow #61](https://github.com/Jpatching/combine/issues/61), and organize the owner's [automatic-floor, board, GTA animation and tricks specification #64](https://github.com/Jpatching/combine/issues/64).
+Task: implement the owner's [automatic-floor, board, GTA animation and tricks specification #64](https://github.com/Jpatching/combine/issues/64), starting with the usable ride prerequisite [#20](https://github.com/Jpatching/combine/issues/20) under [workflow #61](https://github.com/Jpatching/combine/issues/61).
 
-Source branch: `integration/gtaiv-evidence-loop`
+Source branch: `integration/gtaiv-skate-spec64`
 
-Source revision: `50bdc0207a3c35ea931c5d1e061e741dff9398f9`
+Source revision: `093497607ee891ee286a55e7e5bf762173786bb8`
 
-The candidate PR owns its final publication revision. Preparation timeout and
-diagnostic/recovery reporting fixes are under review against this source baseline.
-The pre-existing uncommitted evidence measurement display is preserved separately.
+The candidate PR owns its final publication revision. Reviewed source adds a
+bounded mount, push, both steering directions and dismount proof, plus read-only
+recovery reconciliation. Full riding acceptance remains open. The pre-existing
+uncommitted evidence measurement display is preserved separately.
 
-Disposition: [draft integration PR #62](https://github.com/Jpatching/combine/pull/62)
-awaits gameplay qualification and owner acceptance.
+Disposition: no draft PR exists yet for this integration branch.
+Retained [draft PR #62](https://github.com/Jpatching/combine/pull/62) is unchanged
+and awaits gameplay qualification and owner acceptance.
 Retain [riding #23](https://github.com/Jpatching/combine/pull/23),
 [non-flat ground #57](https://github.com/Jpatching/combine/pull/57),
 [collector #58](https://github.com/Jpatching/combine/pull/58) and
@@ -27,8 +29,8 @@ combined here for review, without merging main or activating triangle riding.
 
 Latest runtime evidence: the owner reports mounting works at the teleport spot,
 but stops again elsewhere. Retained local log classification also contains mounted
-notifications. The configured installed candidate names the source baseline above;
-its two prepared surfaces each have a 3 m radius. This establishes neither a
+notifications. The retained prepared setup has two surfaces, each with a 3 m
+radius. It does not match the current source candidate and establishes neither a
 measured complete ride nor automatic floor coverage.
 
 The earlier H2 witness distinguished stacked supporting floors and passed three
@@ -36,18 +38,27 @@ queries per floor through the existing 2 cm spread and 5 cm mesh-agreement gates
 Those observations remain local evidence for the bounded area, not whole-map proof.
 
 The latest automated mount record remains unavailable with recovery unverified.
-A read-only check found one responding windowed GTA process, but foreground and
-fresh adapter readiness were unverified. No new gameplay input or runtime staging
-was performed during this reporting/specification work. Reconcile the retained
-recovery transaction before reusing its queue. Private records remain outside Git.
+Read-only inspection found that the current GTA process differs from the immutable
+saved session and the installed script has independently changed. No gameplay
+keys, focus changes or runtime staging were performed in this implementation run.
+Preserve the independent script and reconcile the specific exited original session
+before reusing its queue. Private records remain outside Git.
+
+Docker daemon, pinned image and Sandcastle doctor checks passed. The subscription
+marker matches the model and image; the separate research qualification
+fingerprint is stale.
+Automatic nearby floors [#65](https://github.com/Jpatching/combine/issues/65) and
+continuous coverage [#66](https://github.com/Jpatching/combine/issues/66) still have
+open blockers and lack reviewed task profiles; neither was dispatched.
 
 ## Next step
 
-Finish one push, both steering directions and dismount trial after fresh windowed
-foreground readiness and recovery verification. Reuse the bounded floor evidence;
-do not repeat four-checkpoint qualification as a prerequisite to this local ride.
-The reporting fix needs matching installed-source verification before its runtime
-behavior is claimed. The wider #20 goal and PR #62 remain unaccepted and unmerged.
+After review, reconcile the retained transaction for the exited original process.
+Coordinate replacement of the independently changed installed script before
+staging a reviewed matching candidate while the game is closed. Then verify fresh
+windowed foreground readiness and run one bounded ride proof. Reuse established
+floor evidence; report movement and control restoration separately from acceptance.
+The wider #20 goal and PR #62 remain unaccepted and unmerged.
 
 Use #64 and its approved slices for automatic nearby floor selection and moving
 coverage without a spot whitelist or arbitrary world-height ceiling, solved board,

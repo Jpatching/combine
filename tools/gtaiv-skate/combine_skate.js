@@ -41,6 +41,9 @@ function surfaceContainsPose(surface,x,y,z) {
     const height=surfaceHeight(surface,x,y);
     return height!==null && Number.isFinite(z) && Math.abs(z-height)*SCALE<3;
 }
+function surfaceMargin(surface,x,y) {
+    return surface.radius-Math.hypot(x-surface.center[0],y-surface.center[1]);
+}
 // A replacement must overlap the accepted pose on the same qualified floor.
 // Keep presenting that pose while the asynchronous worker acknowledges it.
 function refreshSurface(pos,ground) {
@@ -79,12 +82,12 @@ function refreshSurface(pos,ground) {
         if(result!==1)return 0;
         selectedSurface=pending.surface;ride.coverage=null;return 1;
     }
-    const margin=surface=>surface.radius-Math.hypot(pos[0]-surface.center[0],pos[1]-surface.center[1]);
     let next=selectedSurface;
     for(const surface of SURFACES) {
         if(surface!==selectedSurface && sameFloor(surface,selectedSurface,pos[0],pos[1])
             && surfaceObservation(surface,pos[0],pos[1],ground)
-            && surfaceContainsPose(surface,...pos) && margin(surface)>margin(next)+0.25)next=surface;
+            && surfaceContainsPose(surface,...pos)
+            && surfaceMargin(surface,pos[0],pos[1])>surfaceMargin(next,pos[0],pos[1])+0.25)next=surface;
     }
     if(next===selectedSurface)return 1;
     if(!native("COMBINE_SKATE_SURFACE_BEGIN",next.layer,next.triangles.length))return 0;
@@ -149,8 +152,7 @@ function mount(player, ped) {
         }
         // Overlapping patches on one agreeing floor are coverage, not separate floors.
         selectedSurface=matches.reduce((best,surface)=>
-            surface.radius-Math.hypot(pos.x-surface.center[0],pos.y-surface.center[1])
-                >best.radius-Math.hypot(pos.x-best.center[0],pos.y-best.center[1])?surface:best);
+            surfaceMargin(surface,pos.x,pos.y)>surfaceMargin(best,pos.x,pos.y)?surface:best);
         if(!native("COMBINE_SKATE_SURFACE_BEGIN",selectedSurface.layer,selectedSurface.triangles.length)) {restore();return;}
         for(const triangle of selectedSurface.triangles)for(const vertex of triangle) {
             if(!native("COMBINE_SKATE_SURFACE_VERTEX",...vertex)){restore();return;}

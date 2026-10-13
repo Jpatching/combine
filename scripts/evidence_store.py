@@ -10,6 +10,7 @@ import uuid
 SCENARIOS = {'preflight': 'Check current windowed gameplay readiness',
              'offline-menus': 'Resume recognized offline menus in the current process',
              'checkpoint': 'Return Niko to the prepared exterior test checkpoint',
+             'ride-proof': 'Mount, push, steer both ways and verify dismount recovery',
              'mount-diagnostic': 'Identify the first mount/refusal boundary',
              'ground-query': 'Collect independently qualified checkpoint readings'}
 VERDICTS = {'untested', 'unavailable', 'refused', 'failed', 'passed', 'inconclusive'}
@@ -144,6 +145,39 @@ class Store:
             lease = {'id': str(uuid.uuid4()), 'action': action, 'status': 'running', 'started_at': now()}
             db.execute("INSERT OR REPLACE INTO meta VALUES ('runtime_operation', ?)", (json.dumps(lease),))
             return lease
+
+    def begin_reconciliation(self, batch_id):
+        identifier(batch_id)
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            batches = [json.loads(r[0]) for r in db.execute('SELECT data FROM batches')]
+            batch = next((b for b in batches if b['id'] == batch_id), None)
+            operation = db.execute("SELECT value FROM meta WHERE key='runtime_operation'").fetchone()
+            if (not batch or batch['status'] != 'blocked-recovery' or
+                    any(b['status'] == 'running' for b in batches) or
+                    (operation and json.loads(operation[0])['status'] in {'running', 'unverified'})):
+                raise ValueError('recovery-reconciliation-required')
+            lease = {'id': str(uuid.uuid4()), 'action': 'reconcile', 'batch_id': batch_id,
+                     'status': 'running', 'started_at': now()}
+            db.execute("INSERT OR REPLACE INTO meta VALUES ('runtime_operation', ?)", (json.dumps(lease),))
+            return lease
+
+    def reconcile_recovery(self, lease, observation):
+        if observation not in {'fresh-normal-gameplay', 'exact-game-closed'}:
+            raise ValueError('Recovery observation unavailable')
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            current = json.loads(db.execute("SELECT value FROM meta WHERE key='runtime_operation'").fetchone()[0])
+            if current != lease or current['action'] != 'reconcile' or current['status'] != 'running':
+                raise ValueError('Runtime operation ownership changed')
+            batch = json.loads(db.execute('SELECT data FROM batches WHERE id=?', (current['batch_id'],)).fetchone()[0])
+            if batch['status'] != 'blocked-recovery':
+                raise ValueError('Recovery ownership changed')
+            batch.update(status='reconciled-recovery', reconciliation={
+                'observation': observation, 'checked_at': now(), 'lease_id': lease['id']})
+            db.execute('UPDATE batches SET data=? WHERE id=?', (json.dumps(batch), batch['id']))
+            current.update(status='completed', finished_at=now())
+            db.execute("UPDATE meta SET value=? WHERE key='runtime_operation'", (json.dumps(current),))
 
     def finish_runtime_operation(self, lease, status):
         if status not in {'completed', 'refused', 'unverified'}:

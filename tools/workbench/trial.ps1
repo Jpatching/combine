@@ -2,12 +2,37 @@ param(
  [Parameter(Mandatory=$true)][string]$Session,
  [Parameter(Mandatory=$true)][string]$StatusModule,
  [Parameter(Mandatory=$true)][string]$Output,
- [ValidateSet('preflight','mount-diagnostic','ground-query','offline-menus','checkpoint')][string]$Scenario='preflight',
+ [ValidateSet('preflight','mount-diagnostic','ground-query','offline-menus','checkpoint','ride-proof')][string]$Scenario='preflight',
  [string]$MenuImage
 )
 $ErrorActionPreference='Stop'
 $result=@{verdict='refused';boundary='preflight';reason='prerequisites-unavailable';cleanup='not-needed';runtime_identity='unverified'}
 $acted=$false;$mounted=$false
+
+function Wait-CombineEvaluation([string]$Kind) {
+ $timer=[Diagnostics.Stopwatch]::StartNew()
+ while($timer.Elapsed.TotalSeconds -lt 12){
+  $null=Get-CombineTrialSnapshot ($Kind -ne 'ride')
+  foreach($path in $m.log_paths){
+   $file=Get-Item -LiteralPath $path
+   if($file.Length -lt $offsets[$path] -or $file.Length-$offsets[$path] -gt 1048576){throw 'log-boundary'}
+   $stream=[IO.File]::Open($path,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::ReadWrite)
+   try{$null=$stream.Seek($offsets[$path],[IO.SeekOrigin]::Begin);$reader=[IO.StreamReader]::new($stream);$text=$reader.ReadToEnd();$offsets[$path]=$stream.Position}finally{$stream.Dispose()}
+   $lines=($tails[$path]+$text).Split([char]10);$tails[$path]=$lines[-1]
+   if($tails[$path].Length -gt 65536){throw 'log-boundary'}
+   foreach($line in @($lines | Select-Object -SkipLast 1)){
+    if($Kind -eq 'ride' -and $line -match 'COMBINE_EVALUATION (PASS|FAIL): real-input movement=(true|false), left-heading=(positive|negative|unchanged), right-heading=(positive|negative|unchanged), finite-active-camera-moved=(true|false); scale/orientation acceptance unverified'){
+     return ($Matches[1] -eq 'PASS' -and $Matches[2] -eq 'true' -and $Matches[5] -eq 'true' -and (($Matches[3] -eq 'positive' -and $Matches[4] -eq 'negative') -or ($Matches[3] -eq 'negative' -and $Matches[4] -eq 'positive')))
+    }
+    if($Kind -eq 'restored' -and $line -match 'COMBINE_EVALUATION (PASS|FAIL): native GTA control and owned camera destruction after ride'){return $Matches[1] -eq 'PASS'}
+    if($Kind -eq 'walking' -and $line -match 'COMBINE_EVALUATION (PASS|FAIL): ordinary walking displacement after restoration'){return $Matches[1] -eq 'PASS'}
+    if($line -match 'COMBINE_EVALUATION (UNAVAILABLE|REFUSED):'){throw 'evaluation-observation-unavailable'}
+   }
+  }
+  Start-Sleep -Milliseconds 100
+ }
+ throw 'evaluation-observer-timeout'
+}
 
 try {
  Import-Module (Join-Path $PSScriptRoot 'runtime.psm1') -Force
@@ -24,6 +49,7 @@ try {
   $result.verdict='passed';$result.reason='recognized-offline-menu-input-delivered';$result.boundary='offline-menu'
  }elseif($Scenario -eq 'preflight'){$result.verdict='passed';$result.reason='fresh-windowed-foreground-unmounted-gameplay'}
  else {
+  if($Scenario -eq 'ride-proof' -and 'evaluation_script' -notin $m.artifacts.role){throw 'evaluation-unprepared'}
   if($Scenario -eq 'checkpoint' -and ($m.checkpoint_token -cnotmatch '^[0-9a-f]{32}$' -or 'checkpoint_script' -notin $m.artifacts.role)){throw 'checkpoint-unprepared'}
   $offsets=@{};$tails=@{}
   if(@($m.log_paths).Count -lt 1 -or @($m.log_paths).Count -gt 4){throw 'log-boundary'}
@@ -76,11 +102,26 @@ try {
    }
    Start-Sleep -Milliseconds 100
   }
+  if($Scenario -eq 'ride-proof' -and $mounted){
+   $result.boundary='ride';$result.verdict='unavailable';$result.reason='ride-observer-unavailable'
+   Invoke-CombineTrialPulse 66
+   $ride=Wait-CombineEvaluation 'ride'
+   $result.verdict=if($ride){'passed'}else{'failed'};$result.reason=if($ride){'ride-input-observed'}else{'ride-evaluation-failed'}
+   Invoke-CombineTrialPulse
+   $restored=Wait-CombineEvaluation 'restored'
+   if(!$restored){throw 'restoration-observation-failed'}
+   $null=Get-CombineTrialSnapshot $true
+   Invoke-CombineTrialWalking
+   $walk=Wait-CombineEvaluation 'walking'
+   if(!$walk){throw 'walking-observation-failed'}
+   if($ride){$result.reason='ride-proof-observed'}
+  }
  }
 }catch{
+ if($result.reason -eq 'ride-evaluation-failed'){$result.diagnostic=@{verdict=$result.verdict;boundary=$result.boundary;reason=$result.reason}}
  $result.verdict='refused';$result.reason='native-prerequisite-or-observer-refused'
  if($_.Exception.Message -in @('process-identity','foreground','windowed','fresh-gameplay','runtime-inventory',
-  'runtime-identity','input-refused','input-release','stale-menu-image','unknown-offline-menu','log-boundary')){
+  'evaluation-unprepared','evaluation-observation-unavailable','evaluation-observer-timeout','restoration-observation-failed','walking-observation-failed','runtime-identity','input-refused','input-release','stale-menu-image','unknown-offline-menu','log-boundary')){
   $result.reason=$_.Exception.Message
  }
  $_ | Out-String | Set-Content -LiteralPath ($Output+'.error-private.txt')
@@ -91,11 +132,11 @@ try {
    if(!(Test-CombineTrialInputReleased)){throw 'owned-key-release-unverified'}
    $s=Get-CombineTrialSnapshot $false ($Scenario -eq 'offline-menus')
    # Mounted or still preparing must be cancelled through the guarded F6 boundary.
-   if($result.reason -in @('mount-observer-timeout','checkpoint-observer-timeout','checkpoint-recovery-unverified')){throw 'pending-preparation-unverified'}
+   if($result.reason -in @('mount-observer-timeout','checkpoint-observer-timeout','checkpoint-recovery-unverified','evaluation-observer-timeout','evaluation-observation-unavailable','ride-observer-unavailable')){throw 'pending-preparation-unverified'}
    if($s.Report.Adapter -eq 'ready, mounted'){Invoke-CombineTrialPulse;Start-Sleep -Milliseconds 800}
    $null=Get-CombineTrialSnapshot $true ($Scenario -eq 'offline-menus');Test-CombineTrialInventory;$result.cleanup='verified'
   }catch{
-   $result.diagnostic=@{verdict=$result.verdict;boundary=$result.boundary;reason=$result.reason}
+   if(!$result.diagnostic){$result.diagnostic=@{verdict=$result.verdict;boundary=$result.boundary;reason=$result.reason}}
    $result.verdict='unavailable';$result.boundary='recovery';$result.reason='recovery-unverified'
   }
  }

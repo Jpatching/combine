@@ -14,6 +14,7 @@ python3 scripts/workbench.py gta open
 python3 scripts/workbench.py gta status
 python3 scripts/workbench.py gta recover
 python3 scripts/workbench.py gta test --scenario mount-diagnostic
+python3 scripts/workbench.py gta test --scenario ride-proof
 ```
 
 `.private/evidence-hub/gta.json` holds `state`, `inspection`, `window_mode`,
@@ -137,3 +138,23 @@ HTTP/command tests use authored media. `work --once --authored-results <fixture-
 exercises batching without a game and labels every result authored. These fixtures
 cannot establish runtime/gameplay acceptance. Windows syntax, compiled key refusal,
 menu categories, actual capture/cleanup and phone access need their own checks.
+
+## One ride proof and retained recovery
+
+`gta test --scenario ride-proof` uses the installed opt-in evaluation script,
+definitions and plugin. It observes the actual mounted Session, sends F8 for
+bounded push/both-steering/camera observations, dismounts with F6, then observes
+owned-camera destruction and normal GTA walking with F9 and a fixed guarded W
+hold. Every key binds to the verified windowed foreground process. Results do
+not establish physical-controller delivery, visual scale/orientation acceptance,
+all-floor coverage or owner acceptance. Capture remains private.
+
+After independently restored ordinary GTA control, use the local-only command
+`gta reconcile --request-id <blocked-batch-uuid>` with the reviewed local config.
+The named batch remains locked while exact process/start, runtime inventory,
+fresh foreground normal control, and released probe keys are checked. Any
+retained pending helper marker refuses reconciliation. A successful observation
+records reconciliation separately; original attempts and failure reasons remain.
+There is no HTTP recovery override or game input during reconciliation. A closed
+game alone is currently insufficient; open and independently verify normal
+control before retrying. Missing or interrupted verification preserves the block.

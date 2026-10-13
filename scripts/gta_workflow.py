@@ -6,7 +6,7 @@ import subprocess
 import time
 import uuid
 
-from evidence_store import Store, digest
+from evidence_store import Store, digest, identifier
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -67,6 +67,40 @@ def execute(action, config_path, scenario='mount-diagnostic', request_id=None, a
                           '-StatusModule', windows(ROOT / 'tools/gtaiv-skate/game-status.psm1'),
                           '-TimeoutSeconds', str(monitor_timeout)).returncode
         store = Store(path('state'))
+        if action == 'reconcile':
+            if request_id is None:
+                raise ValueError('specific-recovery-batch-required')
+            identifier(request_id)
+            lease = store.begin_reconciliation(request_id)
+            # Conservatively retain every unresolved child marker; never infer key release.
+            def no_pending():
+                if any(store.root.glob('runs/**/pending-*-private.json')) or any(
+                        store.root.glob('launches/**/pending-*-private.json')):
+                    raise ValueError('owned-helper-pending')
+            no_pending()
+            runtime = json.loads(path('runtime_config').read_text())
+            session = Path(runtime['session'])
+            if digest(session) != runtime['session_sha256']:
+                raise ValueError('session-mismatch')
+            folder = store.root / 'launches' / uuid.uuid4().hex
+            folder.mkdir(parents=True, mode=0o700)
+            output = folder / 'reconciliation-private.json'
+            outcome = 'unverified'
+            result = native('tools/workbench/reconcile.ps1', '-Session', windows(session),
+                            '-StatusModule', windows(ROOT / 'tools/gtaiv-skate/game-status.psm1'),
+                            '-Output', windows(output), transaction=folder)
+            outcome = 'refused'
+            if result.returncode:
+                print('UNAVAILABLE: recovery-observation-unavailable; retained failure unchanged')
+                return 2
+            no_pending()
+            observation = json.loads(output.read_text(encoding='utf-8-sig'))
+            if observation != {'observation': 'fresh-normal-gameplay'}:
+                raise ValueError('recovery-observation-unavailable')
+            store.reconcile_recovery(lease, observation['observation'])
+            lease = None
+            print('PASS: specific recovery batch reconciled; original diagnostic retained; no game input')
+            return 0
         if action == 'test':
             from gta_trial import work
             batch = store.request({'id': request_id or str(uuid.uuid4()),
@@ -127,7 +161,7 @@ def execute(action, config_path, scenario='mount-diagnostic', request_id=None, a
         print('PASS: game open; current session prepared; gameplay still requires preflight')
         return 0
     except (OSError, ValueError, KeyError, TypeError, RuntimeError, subprocess.SubprocessError) as error:
-        reason = str(error) if str(error) in {'windows-runtime-unavailable', 'recovery-reconciliation-required', 'hung-termination-needs-recovery', 'native-helper-unverified', 'monitor-timeout-out-of-range'} else 'configuration-unavailable'
+        reason = str(error) if str(error) in {'windows-runtime-unavailable', 'recovery-reconciliation-required', 'hung-termination-needs-recovery', 'native-helper-unverified', 'monitor-timeout-out-of-range', 'owned-helper-pending', 'specific-recovery-batch-required', 'recovery-observation-unavailable'} else 'configuration-unavailable'
         print('UNAVAILABLE: ' + reason + '; no further game input')
         return 2
     finally:

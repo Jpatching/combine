@@ -1,6 +1,6 @@
 $ErrorActionPreference='Stop'
 $root=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-foreach($file in @('tools/workbench/trial.ps1','tools/workbench/runtime.psm1','tools/workbench/menu.ps1',
+foreach($file in @('tools/workbench/reconcile.ps1','tools/workbench/trial.ps1','tools/workbench/runtime.psm1','tools/workbench/menu.ps1',
                   'tools/workbench/prepare-session.ps1','tools/workbench/open.ps1','tools/workbench/status.ps1',
                   'tools/workbench/stage.ps1','tools/gtaiv-collision/observe_ground.ps1')){
  $tokens=$null;$errors=$null

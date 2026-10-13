@@ -56,7 +56,7 @@ def attempt(store, scenario, config_path):
                        '--checkpoints', config['checkpoints'], '--session', str(session),
                        '--output', str(folder / 'collection')]
         result.update(boundary='preflight', reason='native-runner-unavailable', cleanup='unknown')
-        if scenario in {'mount-diagnostic', 'offline-menus', 'checkpoint'}:
+        if scenario in {'mount-diagnostic', 'ride-proof', 'offline-menus', 'checkpoint'}:
             # Capture must start before the native driver can send input.
             from gta_capture import Capture
             capture = Capture(folder)
@@ -67,7 +67,7 @@ def attempt(store, scenario, config_path):
             command.extend(['-MenuImage', win(folder / 'menu-private.png')])
         with (folder / 'runner-private.log').open('w') as log:
             process = subprocess.Popen(command, stdout=log, stderr=log, text=True)
-            try: process.wait(timeout=100)
+            try: process.wait(timeout=120 if scenario == 'ride-proof' else 100)
             except subprocess.TimeoutExpired:
                 # Never terminate a child that may own a key or race its recovery.
                 (folder / 'pending-child-private.json').write_text(json.dumps({'pid': process.pid, 'started_at': now()}))

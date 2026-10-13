@@ -33,6 +33,59 @@ class GtaWorkflowTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 store.begin_runtime_operation('recover')
 
+    def test_specific_recovery_reconciliation_holds_runtime_and_retains_history(self):
+        sys.path.insert(0, str(ROOT / 'scripts'))
+        from evidence_store import Store
+        with tempfile.TemporaryDirectory() as directory:
+            store = Store(directory)
+            store.request({'id': str(uuid.uuid4()), 'scenario': 'preflight', 'attempts': 1})
+            batch = store.claim()
+            store.finish(batch, 'blocked-recovery', 'recovery-unverified')
+            lease = store.begin_reconciliation(batch['id'])
+            self.assertIsNone(store.claim())
+            with self.assertRaises(ValueError):
+                store.begin_reconciliation(batch['id'])
+            store.reconcile_recovery(lease, 'fresh-normal-gameplay')
+            original = store.snapshot()['batches'][0]
+            self.assertEqual(original['reason'], 'recovery-unverified')
+            self.assertEqual(original['status'], 'reconciled-recovery')
+            self.assertEqual(original['reconciliation']['observation'], 'fresh-normal-gameplay')
+            store.request({'id': str(uuid.uuid4()), 'scenario': 'preflight', 'attempts': 1})
+            self.assertIsNotNone(store.claim())
+
+    def test_ride_proof_is_predefined_and_refuses_missing_setup(self):
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            config = folder / 'gta.json'
+            config.write_text(json.dumps({'state': str(folder / 'state')}))
+            result = subprocess.run([sys.executable, str(ROOT / 'scripts/workbench.py'),
+                'gta', 'test', '--config', str(config), '--scenario', 'ride-proof'],
+                text=True, capture_output=True)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn('runtime-configuration-unavailable', result.stdout)
+
+    def test_local_reconcile_requires_specific_batch_and_refuses_pending_helpers(self):
+        sys.path.insert(0, str(ROOT / 'scripts'))
+        from evidence_store import Store
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            store = Store(folder / 'state')
+            batch_id = str(uuid.uuid4())
+            store.request({'id': batch_id, 'scenario': 'preflight', 'attempts': 1})
+            store.finish(store.claim(), 'blocked-recovery', 'recovery-unverified')
+            pending = store.root / 'runs' / 'retained'
+            pending.mkdir(parents=True)
+            (pending / 'pending-child-private.json').write_text('{}')
+            config = folder / 'gta.json'
+            config.write_text(json.dumps({'state': str(store.root), 'runtime_config': str(folder / 'runtime.json')}))
+            result = subprocess.run([sys.executable, str(ROOT / 'scripts/workbench.py'),
+                'gta', 'reconcile', '--config', str(config), '--request-id', batch_id],
+                text=True, capture_output=True)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn('owned-helper-pending', result.stdout)
+            self.assertEqual(store.snapshot()['batches'][0]['status'], 'blocked-recovery')
+            self.assertEqual(store.snapshot()['batches'][0]['reason'], 'recovery-unverified')
+
     def test_hung_termination_is_only_an_explicit_recovery_option(self):
         with tempfile.TemporaryDirectory() as directory:
             config = Path(directory) / 'gta.json'

@@ -16,7 +16,7 @@ public static class CombineTrialWindow {
  public static uint GuardedDown(IntPtr window,int pid,long ticks,ushort scan) {
   try {var p=System.Diagnostics.Process.GetProcessById(pid);if(p.StartTime.ToUniversalTime().Ticks!=ticks || p.MainWindowHandle!=window)return 0;}catch{return 0;}
   if(window==IntPtr.Zero || GetForegroundWindow()!=window || IsIconic(window)
-     || (GetWindowLong(window,-16)&0x00C00000)!=0x00C00000 || (GetAsyncKeyState(scan==64?0x75:scan==65?0x76:0x0D)&0x8000)!=0)return 0;
+     || (GetWindowLong(window,-16)&0x00C00000)!=0x00C00000 || (GetAsyncKeyState(scan==17?0x57:scan>=64&&scan<=67?scan+0x35:0x0D)&0x8000)!=0)return 0;
   return Send(scan,false);
  }
 }
@@ -51,22 +51,42 @@ function Test-CombineTrialInventory {
  if($exeArtifact.path -ine $m.executable){throw 'runtime-identity'}
 }
 function Invoke-CombineTrialPulse([int]$Scan=64,[bool]$Menu=$false) {
- if($Scan -notin @(28,64,65)){throw 'unsupported-key'}
+ if($Scan -notin @(28,64,65,66,67)){throw 'unsupported-key'}
  $s=Get-CombineTrialSnapshot $false $Menu
  $owned=$false
  try {
   $down=[CombineTrialWindow]::GuardedDown($s.Game.MainWindowHandle,$s.Game.Id,$s.Game.StartTime.ToUniversalTime().Ticks,$Scan)
   if($down -ne 1){throw 'input-refused'}
-  $owned=$true;$script:acted=$true;$script:released=$false;Start-Sleep -Milliseconds 200
- }finally{if($owned){$script:released=[CombineTrialWindow]::KeyUp($Scan) -eq 1;if(!$script:released){throw 'input-release'}}}
+  $owned=$true;$script:acted=$true;$script:released=$false;$script:held[$Scan]=$true;Start-Sleep -Milliseconds 200
+ }finally{if($owned){if([CombineTrialWindow]::KeyUp($Scan) -ne 1){throw 'input-release'};$script:held.Remove($Scan);$script:released=$script:held.Count -eq 0}}
+}
+function Invoke-CombineTrialWalking {
+ # Fixed normal walking probe only; caller supplies no key or duration.
+ Invoke-CombineTrialPulse 67
+ $s=Get-CombineTrialSnapshot $true
+ $owned=$false
+ try {
+  $down=[CombineTrialWindow]::GuardedDown($s.Game.MainWindowHandle,$s.Game.Id,$s.Game.StartTime.ToUniversalTime().Ticks,17)
+  if($down -ne 1){throw 'input-refused'}
+  $owned=$true;$script:acted=$true;$script:released=$false;$script:held[17]=$true
+  # The active F9 observer sees normal W movement; no other key is held.
+  for($i=0;$i -lt 5;$i++){Start-Sleep -Milliseconds 100;$null=Get-CombineTrialSnapshot $true}
+ }finally{if($owned){if([CombineTrialWindow]::KeyUp(17) -ne 1){throw 'input-release'};$script:held.Remove(17);$script:released=$script:held.Count -eq 0}}
 }
 function Initialize-CombineTrial([string]$Session,[string]$StatusModule) {
  $script:m=Get-Content -LiteralPath $Session -Raw | ConvertFrom-Json
  $script:acted=$false
  $script:released=$true
+ $script:held=@{}
  Import-Module $StatusModule -Force
  Test-CombineTrialInventory
 }
+function Test-CombineTrialNoHeldKeys {
+ foreach($key in @(0x57,0x75,0x76,0x77,0x78)){
+  if(([CombineTrialWindow]::GetAsyncKeyState($key) -band 0x8000) -ne 0){throw 'input-held'}
+ }
+ if($script:acted -or !$script:released){throw 'input-held'}
+}
 function Get-CombineTrialInputOwned {return $script:acted}
 function Test-CombineTrialInputReleased {return $script:released}
-Export-ModuleMember -Function Initialize-CombineTrial,Get-CombineTrialSnapshot,Test-CombineTrialInventory,Invoke-CombineTrialPulse,Get-CombineTrialInputOwned,Test-CombineTrialInputReleased
+Export-ModuleMember -Function Initialize-CombineTrial,Get-CombineTrialSnapshot,Test-CombineTrialInventory,Invoke-CombineTrialPulse,Get-CombineTrialInputOwned,Test-CombineTrialInputReleased,Invoke-CombineTrialWalking,Test-CombineTrialNoHeldKeys

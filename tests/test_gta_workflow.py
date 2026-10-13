@@ -133,7 +133,8 @@ class GtaWorkflowTests(unittest.TestCase):
             self.assertEqual(result['verdict'], 'passed')
             self.assertEqual(result['cleanup'], 'verified')
             self.assertEqual(result['media'], [])
-            self.assertIn('owner-observed', result['limitations'])
+            self.assertIn('automated video disabled; owner observation unverified', result['limitations'])
+            self.assertNotIn('owner-observed', result['limitations'])
 
     def test_hung_termination_is_only_an_explicit_recovery_option(self):
         with tempfile.TemporaryDirectory() as directory:

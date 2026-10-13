@@ -29,7 +29,7 @@ def attempt(store, scenario, config_path):
         if type(record_video) is not bool:
             raise ValueError('invalid-recording-option')
         if not record_video:
-            result['limitations'] += '; owner-observed trial; automated video disabled'
+            result['limitations'] += '; automated video disabled; owner observation unverified'
         checkout = Path(config['source_checkout'])
         source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=checkout, text=True).strip()
         if source != config['source_revision'] or subprocess.check_output(['git', 'status', '--porcelain'], cwd=checkout, text=True).strip():

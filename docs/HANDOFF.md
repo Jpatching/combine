@@ -2,13 +2,13 @@
 
 ## Current task
 
-Reviewed: 2026-10-13
+Reviewed: 2026-10-14
 
-Task: consistent riding on the correct floor under [#64](https://github.com/Jpatching/combine/issues/64), with usable-ride prerequisite [#20](https://github.com/Jpatching/combine/issues/20) and evidence workflow [#61](https://github.com/Jpatching/combine/issues/61). Current experiment: shorten startup and qualify dismounted JavaScript-only reload without restarting GTA.
+Task: implement the owner's ground-responsive riding, solved Skate animation and faster mounting request under [#64](https://github.com/Jpatching/combine/issues/64), with usable riding [#20](https://github.com/Jpatching/combine/issues/20) and evidence workflow [#61](https://github.com/Jpatching/combine/issues/61). The integrated source adds in-process warm remount, measured mount observation, chat-focus return and strict WBD dictionary inspection. Full ground coverage and visible animation remain incomplete.
 
 Source branch: `integration/gtaiv-skate-spec64`
 
-Source revision: `5b5f6dd57a8b7e1608baecafcc1702ce75afda02`
+Source revision: `307ff7d7d1e21b714b8fefe5fdf6d9939831d3f6`
 
 Worktree: `.private/worktrees/gtaiv-skate-spec64` under the primary checkout.
 The candidate PR owns its final publication revision. Preserve the unrelated
@@ -18,30 +18,32 @@ Disposition: [draft PR #69](https://github.com/Jpatching/combine/pull/69), await
 
 ## Evidence
 
-Latest runtime evidence: reload qualification stopped at startup. Fresh checks found GTA closed, tested keys released and installed files matching the retained manifest. One guarded windowed launch returned `window-not-ready`; the monitor timed out waiting for a process. No gameplay keys, termination or script replacement occurred; reload remains unqualified.
+Latest runtime evidence: the retained installed worker candidate passed two F6-to-mounted observations at 439.9 ms and 475.1 ms after reuse of the retained checkpoint, with verified dismount recovery each time. These are upper bounds including key delivery and status polling, not cold Session initialization times or whole-ride acceptance. A longer ride observer refused `evaluation-observation-unavailable`; independent fresh normal control and released keys reconciled its named recovery record. A measurement persistence error was corrected and its original completed result retained and independently reconciled. Chat typing focus was restored after the bounded trials. Final read-only status found one responding windowed GTA process outside foreground, with fresh gameplay/control state unknown. No new candidate artifacts, reload, restart or animation were installed; the retained no-video option means no new representative clip or owner acceptance is claimed.
 
-The latest candidate PR records a prior no-video mount followed by conflicting
-evaluation and restored normal controls. Its auxiliary pose was invalid; it does
-not prove a floor defect or a successful ride. This supersedes the stale F8-held
-blocker previously in this handoff. Owner-observed mounting remains bounded to
-the teleport spot; prepared surfaces have 3 m radii and do not establish coverage
-elsewhere. Earlier H2 stacked-floor qualification remains reusable. Installed
-riding source remains the earlier staged candidate; terminal-stop labels in this
-branch are source-only. Prior recovery and independent-script backup are retained.
+Exact-source standalone in-process trials measured 27,119.066 ms cold and 17.875 ms normal remount. Fresh slope collision, idle pose/tick refusal and reset from another thread passed; deliberately retaining old collision failed the regression. The complete authored native ramp/fault/recovery suite passed. First cold initialization remains unchanged, and this alternative backend has not been staged into the running worker candidate.
+
+An owned WBD now passes structural dictionary inspection, including explicit box metadata. Complete polygon supply still refuses `unsupported-box-geometry`; box contact semantics, instance placement and automatic floor selection remain unresolved. Structural parsing does not supply a qualified live floor or moving coverage.
+
+Candidate overlap replacement is source-tested, not staged: prepared patches
+have no qualified neighbors. The focused local collision query traced the ground
+native and two helpers in an analysis matching the isolated executable, but did
+not qualify a nearby-geometry interface or callable native contract. Private
+verdict: `.private/tooling/ground-query-analysis/verdict-private.json`.
+
+Parallel worktrees: `.private/worktrees/gtaiv-board-presentation` owns named solved
+pose transport; `.private/worktrees/gtaiv-character-presentation` owns character
+feasibility and has no source changes. Board/rig assets exist; GTA model conversion,
+bind qualification and the exact-version per-ped bone-write phase remain unresolved.
+Transport checks do not establish visible rendering or usable riding.
 
 ## Next step
 
-Resolve the launch boundary first: the ordinary launch did not establish a
-stable game window; its cause is unknown. Preserve the private launch record
-and change one diagnostic variable before another attempt. Then recheck
-released keys, windowed operation, installed identities, dismounted
-controls/camera and watchdog readiness. Reuse the qualified floor. Back up the
-installed riding script, atomically replace only a temporary startup log marker,
-and establish CLEO executed it in the same GTA process. Prove remount, movement,
-dismount and control restoration, then restore the original script through the
-same path and verify its hash/readiness. Stop at the first failure and diagnose
-that boundary. Native plugin, worker and definition changes require closed-game
-staging. Record a proven reload procedure in the [adapter guide](../tools/gtaiv-skate/README.md).
+Resolve complete geometry and its instance placement, then the actual supporting floor, before claiming #65/#66. Prove the exact-version GTA character bone-update interface before #56/#67; solved pose transport alone is insufficient. First cold preparation needs a separate measured improvement; normal remount caching is now source-tested. Preserve the current worker architecture until a matching, reviewed runtime comparison establishes a reason to change it. The complete ride/camera/ordinary walking baseline and owner acceptance remain open.
+
+Reuse the retained focused analysis rather than repeating full executable import. Keep
+native staging and game input with one operator. Preserve the existing unfinished
+launch/reload tooling; it is not a qualified deployment path. Board transport
+requires matching parent and worker wire versions when staged.
 
 ## Session close
 

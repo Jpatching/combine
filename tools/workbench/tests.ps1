@@ -62,3 +62,5 @@ try {
  # Only this newly authored temporary fixture is removed.
  Remove-Item -LiteralPath $fixture -Recurse -Force
 }
+# Successful assertions must not propagate the deliberately refused child's code.
+exit 0

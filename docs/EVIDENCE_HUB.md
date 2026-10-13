@@ -95,7 +95,7 @@ and media outside Git and AI uploads.
 - `mount-diagnostic`: selected-window recording and guarded F6, first mount/query
   boundary, ordinary GTA recovery. Non-finite querying and the flat route's 5 cm
   refusal remain distinct. A pending preparation timeout blocks further input.
-  Successful observations include `mount_observation_ms`: elapsed time from the
+  Successful observations include `measurements.mount_observation_ms`: elapsed time from the
   F6 request to fresh mounted status, including key delivery and status polling.
   It excludes launcher/recording setup and dismount cleanup, and is an upper
   bound on actual preparation latency. Failed preparation supplies no mount time.

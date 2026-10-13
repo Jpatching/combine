@@ -86,6 +86,21 @@ class GtaWorkflowTests(unittest.TestCase):
             self.assertEqual(store.snapshot()['batches'][0]['status'], 'blocked-recovery')
             self.assertEqual(store.snapshot()['batches'][0]['reason'], 'recovery-unverified')
 
+    def test_reconciliation_binds_the_immutable_original_attempt_session(self):
+        sys.path.insert(0, str(ROOT / 'scripts'))
+        from evidence_store import Store
+        with tempfile.TemporaryDirectory() as directory:
+            store = Store(directory)
+            store.request({'id': str(uuid.uuid4()), 'scenario': 'preflight', 'attempts': 1})
+            batch = store.claim()
+            store.add_attempt({'scenario': 'preflight', 'verdict': 'unavailable', 'media': [],
+                'runtime_identity': 'build=' + 'a' * 40 + '; session-sha256=' + 'b' * 64}, batch)
+            store.finish(batch, 'blocked-recovery', 'recovery-unverified')
+            lease = store.begin_reconciliation(batch['id'])
+            store.validate_recovery_session(lease, 'b' * 64)
+            with self.assertRaises(ValueError):
+                store.validate_recovery_session(lease, 'c' * 64)
+
     def test_hung_termination_is_only_an_explicit_recovery_option(self):
         with tempfile.TemporaryDirectory() as directory:
             config = Path(directory) / 'gta.json'

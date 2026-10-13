@@ -151,10 +151,14 @@ all-floor coverage or owner acceptance. Capture remains private.
 
 After independently restored ordinary GTA control, use the local-only command
 `gta reconcile --request-id <blocked-batch-uuid>` with the reviewed local config.
-The named batch remains locked while exact process/start, runtime inventory,
-fresh foreground normal control, and released probe keys are checked. Any
+The named batch remains locked while its original immutable session digest is
+matched to the recorded attempts and every owned key is independently released.
+If that exact original PID/start is absent or its PID was reused, recovery is
+recorded as `original-session-exited`; this makes no claim about any current GTA process
+and does not require the obsolete inventory to remain installed. A live original
+process still requires exact runtime inventory and fresh foreground normal control. Any
 retained pending helper marker refuses reconciliation. A successful observation
 records reconciliation separately; original attempts and failure reasons remain.
-There is no HTTP recovery override or game input during reconciliation. A closed
-game alone is currently insufficient; open and independently verify normal
-control before retrying. Missing or interrupted verification preserves the block.
+There is no HTTP recovery override or game input during reconciliation. Missing original-session binding or interrupted verification preserves the block.
+Reconciliation never makes an independently changed installed script valid for a
+new trial; installed-source matching and new session preparation remain required.

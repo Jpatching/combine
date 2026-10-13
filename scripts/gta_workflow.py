@@ -82,6 +82,7 @@ def execute(action, config_path, scenario='mount-diagnostic', request_id=None, a
             session = Path(runtime['session'])
             if digest(session) != runtime['session_sha256']:
                 raise ValueError('session-mismatch')
+            store.validate_recovery_session(lease, runtime['session_sha256'])
             folder = store.root / 'launches' / uuid.uuid4().hex
             folder.mkdir(parents=True, mode=0o700)
             output = folder / 'reconciliation-private.json'
@@ -94,8 +95,11 @@ def execute(action, config_path, scenario='mount-diagnostic', request_id=None, a
                 print('UNAVAILABLE: recovery-observation-unavailable; retained failure unchanged')
                 return 2
             no_pending()
+            if digest(session) != runtime['session_sha256']:
+                raise ValueError('original-session-binding-unverified')
+            store.validate_recovery_session(lease, runtime['session_sha256'])
             observation = json.loads(output.read_text(encoding='utf-8-sig'))
-            if observation != {'observation': 'fresh-normal-gameplay'}:
+            if set(observation) != {'observation'} or observation['observation'] not in {'fresh-normal-gameplay', 'original-session-exited'}:
                 raise ValueError('recovery-observation-unavailable')
             store.reconcile_recovery(lease, observation['observation'])
             lease = None
@@ -161,7 +165,7 @@ def execute(action, config_path, scenario='mount-diagnostic', request_id=None, a
         print('PASS: game open; current session prepared; gameplay still requires preflight')
         return 0
     except (OSError, ValueError, KeyError, TypeError, RuntimeError, subprocess.SubprocessError) as error:
-        reason = str(error) if str(error) in {'windows-runtime-unavailable', 'recovery-reconciliation-required', 'hung-termination-needs-recovery', 'native-helper-unverified', 'monitor-timeout-out-of-range', 'owned-helper-pending', 'specific-recovery-batch-required', 'recovery-observation-unavailable'} else 'configuration-unavailable'
+        reason = str(error) if str(error) in {'windows-runtime-unavailable', 'recovery-reconciliation-required', 'hung-termination-needs-recovery', 'native-helper-unverified', 'monitor-timeout-out-of-range', 'owned-helper-pending', 'specific-recovery-batch-required', 'recovery-observation-unavailable', 'original-session-binding-unverified'} else 'configuration-unavailable'
         print('UNAVAILABLE: ' + reason + '; no further game input')
         return 2
     finally:

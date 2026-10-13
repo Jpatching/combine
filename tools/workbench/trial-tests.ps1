@@ -19,6 +19,38 @@ $script:acted=$false;$script:released=$true
   & (Join-Path $PSHOME 'powershell.exe') -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $sampler -HeldKey $held
   if(($held -eq 0 -and $LASTEXITCODE -ne 0) -or ($held -ne 0 -and $LASTEXITCODE -ne 2)){throw 'Every owned key including Enter must refuse reconciliation while held'}
  }
+ # Public reconciliation command with actual process-identity logic and authored OS samples.
+ $gone=[regex]::Match($source,'(?s)function Test-CombineOriginalProcessGone \{.*?(?=function Initialize-CombineTrial)').Value
+ if(!$gone){throw 'Exited original process observation unavailable'}
+ $recovery=Join-Path $fixture 'recovery';$null=New-Item -ItemType Directory $recovery
+ Copy-Item (Join-Path $PSScriptRoot 'reconcile.ps1') (Join-Path $recovery 'reconcile.ps1')
+ $environment=@'
+Add-Type 'public static class CombineTrialWindow {public static int Held; public static short GetAsyncKeyState(int vk){return vk == Held ? (short)-32768 : (short)0;}}'
+function Initialize-CombineRecoveryObservation($Session,$StatusModule){
+ $script:m=Get-Content $Session -Raw|ConvertFrom-Json
+ $script:acted=$false;$script:released=$true;$script:probes=0
+ [CombineTrialWindow]::Held=$m.held_key
+}
+function Get-Process([int]$Id){
+ $script:probes++
+ if($m.test_case -eq 'held-race' -and $script:probes -gt 1){[CombineTrialWindow]::Held=0x0D}
+ if($m.test_case -in @('exited','held-race') -or ($m.test_case -eq 'reappeared' -and $script:probes -eq 1)){Write-Error -Message 'Authored absent process' -ErrorId 'NoProcessFoundForGivenId' -Category ObjectNotFound -ErrorAction Stop}
+ $milliseconds=if($m.test_case -eq 'reused'){$m.process.start_ms+1000}else{$m.process.start_ms}
+ return @{Id=$Id;StartTime=[DateTimeOffset]::FromUnixTimeMilliseconds($milliseconds).UtcDateTime}
+}
+function Initialize-CombineTrial {throw 'runtime-inventory'}
+function Get-CombineTrialSnapshot {throw 'runtime-inventory'}
+function Test-CombineTrialInventory {throw 'runtime-inventory'}
+'@
+ ($environment+[Environment]::NewLine+$gone+[Environment]::NewLine+$check+[Environment]::NewLine+'Export-ModuleMember -Function *')|Set-Content (Join-Path $recovery 'runtime.psm1') -Encoding UTF8
+ foreach($case in @('exited','reused','live','held','reappeared','held-race')){
+  $session=Join-Path $recovery ($case+'-session.json');$output=Join-Path $recovery ($case+'-result.json')
+  @{test_case=$(if($case -eq 'held'){'exited'}else{$case});held_key=$(if($case -eq 'held'){0x0D}else{0});process=@{pid=321;start_ms=1700000000000}}|ConvertTo-Json|Set-Content $session -Encoding UTF8
+  $messages=@(& (Join-Path $PSHOME 'powershell.exe') -NoProfile -NonInteractive -ExecutionPolicy Bypass -File (Join-Path $recovery 'reconcile.ps1') -Session $session -StatusModule authored -Output $output)
+  if($case -in @('exited','reused')){
+   if($LASTEXITCODE -ne 0 -or (Get-Content $output -Raw|ConvertFrom-Json).observation -ne 'original-session-exited'){throw 'Absent original process must reconcile without claiming current GTA or unchanged inventory'}
+  }elseif($LASTEXITCODE -ne 2 -or (Test-Path $output)){throw 'Live original mismatch or held keys must refuse reconciliation'}
+ }
  Copy-Item (Join-Path $PSScriptRoot 'trial.ps1') (Join-Path $fixture 'trial.ps1')
  @'
 function Initialize-CombineTrial($Session,$StatusModule) {

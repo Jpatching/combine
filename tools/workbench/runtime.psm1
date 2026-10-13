@@ -73,12 +73,26 @@ function Invoke-CombineTrialWalking {
   for($i=0;$i -lt 5;$i++){Start-Sleep -Milliseconds 100;$null=Get-CombineTrialSnapshot $true}
  }finally{if($owned){if([CombineTrialWindow]::KeyUp(17) -ne 1){throw 'input-release'};$script:held.Remove(17);$script:released=$script:held.Count -eq 0}}
 }
-function Initialize-CombineTrial([string]$Session,[string]$StatusModule) {
+function Initialize-CombineRecoveryObservation([string]$Session,[string]$StatusModule) {
  $script:m=Get-Content -LiteralPath $Session -Raw | ConvertFrom-Json
- $script:acted=$false
- $script:released=$true
- $script:held=@{}
+ $script:acted=$false;$script:released=$true;$script:held=@{}
  Import-Module $StatusModule -Force
+}
+function Test-CombineOriginalProcessGone {
+ if($m.process.pid -isnot [int] -or $m.process.pid -le 0 -or
+    ($m.process.start_ms -isnot [long] -and $m.process.start_ms -isnot [int]) -or $m.process.start_ms -le 0){throw 'process-identity'}
+ try {$original=Get-Process -Id $m.process.pid -ErrorAction Stop}
+ catch {
+  if($_.FullyQualifiedErrorId.Split(',')[0] -eq 'NoProcessFoundForGivenId'){return $true}
+  throw 'process-identity'
+ }
+ if(!$original){throw 'process-identity'}
+ try {$start=[DateTimeOffset]$original.StartTime.ToUniversalTime()}
+ catch {throw 'process-identity'}
+ return $start.ToUnixTimeMilliseconds() -ne $m.process.start_ms
+}
+function Initialize-CombineTrial([string]$Session,[string]$StatusModule) {
+ Initialize-CombineRecoveryObservation $Session $StatusModule
  Test-CombineTrialInventory
 }
 function Test-CombineTrialNoHeldKeys {
@@ -89,4 +103,4 @@ function Test-CombineTrialNoHeldKeys {
 }
 function Get-CombineTrialInputOwned {return $script:acted}
 function Test-CombineTrialInputReleased {return $script:released}
-Export-ModuleMember -Function Initialize-CombineTrial,Get-CombineTrialSnapshot,Test-CombineTrialInventory,Invoke-CombineTrialPulse,Get-CombineTrialInputOwned,Test-CombineTrialInputReleased,Invoke-CombineTrialWalking,Test-CombineTrialNoHeldKeys
+Export-ModuleMember -Function Initialize-CombineRecoveryObservation,Test-CombineOriginalProcessGone,Initialize-CombineTrial,Get-CombineTrialSnapshot,Test-CombineTrialInventory,Invoke-CombineTrialPulse,Get-CombineTrialInputOwned,Test-CombineTrialInputReleased,Invoke-CombineTrialWalking,Test-CombineTrialNoHeldKeys

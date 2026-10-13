@@ -7,7 +7,17 @@ param(
 $ErrorActionPreference='Stop'
 try {
  Import-Module (Join-Path $PSScriptRoot 'runtime.psm1') -Force
- Initialize-CombineTrial $Session $StatusModule
+ Initialize-CombineRecoveryObservation $Session $StatusModule
+ Test-CombineTrialNoHeldKeys
+ if(Test-CombineOriginalProcessGone){
+  Test-CombineTrialNoHeldKeys
+  if(!(Test-CombineOriginalProcessGone)){throw 'process-identity'}
+  Test-CombineTrialNoHeldKeys
+  @{observation='original-session-exited'} | ConvertTo-Json -Compress | Set-Content -LiteralPath $Output -Encoding UTF8
+  exit 0
+ }
+ # A live original process still requires unchanged inventory and normal control.
+ Test-CombineTrialInventory
  $null=Get-CombineTrialSnapshot $true
  Test-CombineTrialNoHeldKeys
  Test-CombineTrialInventory

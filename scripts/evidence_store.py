@@ -3,6 +3,7 @@ import datetime as dt
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import sqlite3
 import uuid
@@ -162,8 +163,22 @@ class Store:
             db.execute("INSERT OR REPLACE INTO meta VALUES ('runtime_operation', ?)", (json.dumps(lease),))
             return lease
 
+    def validate_recovery_session(self, lease, session_sha256):
+        with self.connect() as db:
+            current = json.loads(db.execute("SELECT value FROM meta WHERE key='runtime_operation'").fetchone()[0])
+            if current != lease or current['action'] != 'reconcile' or current['status'] != 'running':
+                raise ValueError('Runtime operation ownership changed')
+            identities = [json.loads(r[0]).get('runtime_identity', '') for r in
+                          db.execute('SELECT data FROM attempts') if json.loads(r[0]).get('batch_id') == lease['batch_id']]
+            if not identities or not re.fullmatch(r'[0-9a-f]{64}', session_sha256):
+                raise ValueError('original-session-binding-unverified')
+            for identity in identities:
+                matches = re.findall(r'(?:^|; )session-sha256=([0-9a-f]{64})(?=;|$)', identity)
+                if matches != [session_sha256]:
+                    raise ValueError('original-session-binding-unverified')
+
     def reconcile_recovery(self, lease, observation):
-        if observation not in {'fresh-normal-gameplay', 'exact-game-closed'}:
+        if observation not in {'fresh-normal-gameplay', 'original-session-exited'}:
             raise ValueError('Recovery observation unavailable')
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')

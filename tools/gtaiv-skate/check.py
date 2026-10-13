@@ -37,7 +37,7 @@ def main():
 
     started = time.monotonic()
     passed = True
-    for name in ("script", "status-script", "live-evaluation"):
+    for name in ("script", "status-script", "live-evaluation", "readonly-observer"):
         if not run(f"JavaScript {name}", [tools["node"], str(HERE / "tests" / f"{name}.cjs")]):
             passed = False
 

@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 import uuid
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -100,6 +101,39 @@ class GtaWorkflowTests(unittest.TestCase):
             store.validate_recovery_session(lease, 'b' * 64)
             with self.assertRaises(ValueError):
                 store.validate_recovery_session(lease, 'c' * 64)
+
+    def test_owner_can_run_native_trial_without_recording_setup(self):
+        sys.path.insert(0, str(ROOT / 'scripts'))
+        import gta_trial
+        from evidence_store import Store, digest
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            session = folder / 'session.json'
+            session.write_text(json.dumps({'recorded_build_revision': 'a' * 40}))
+            config = folder / 'runtime.json'
+            config.write_text(json.dumps({'source_checkout': str(folder), 'source_revision': 'a' * 40,
+                'session': str(session), 'session_sha256': digest(session), 'record_video': False}))
+            def output(command, **kwargs):
+                if command[0] == 'wslpath':
+                    return command[-1]
+                if command[1:3] == ['rev-parse', 'HEAD']:
+                    return 'a' * 40
+                return ''
+            class NativeFixture:
+                def __init__(self, command, **kwargs):
+                    target = Path(command[command.index('-Output') + 1])
+                    target.write_text(json.dumps({'verdict': 'passed', 'boundary': 'ride',
+                        'reason': 'ride-proof-observed', 'cleanup': 'verified', 'runtime_identity': 'authored-native-fixture'}))
+                def wait(self, timeout):
+                    return 0
+            with patch.dict('os.environ', {'WSL_DISTRO_NAME': 'authored'}), \
+                    patch.object(gta_trial.subprocess, 'check_output', side_effect=output), \
+                    patch.object(gta_trial.subprocess, 'Popen', NativeFixture):
+                result = gta_trial.attempt(Store(folder / 'store'), 'ride-proof', config)
+            self.assertEqual(result['verdict'], 'passed')
+            self.assertEqual(result['cleanup'], 'verified')
+            self.assertEqual(result['media'], [])
+            self.assertIn('owner-observed', result['limitations'])
 
     def test_hung_termination_is_only_an_explicit_recovery_option(self):
         with tempfile.TemporaryDirectory() as directory:

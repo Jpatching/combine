@@ -162,3 +162,9 @@ records reconciliation separately; original attempts and failure reasons remain.
 There is no HTTP recovery override or game input during reconciliation. Missing original-session binding or interrupted verification preserves the block.
 Reconciliation never makes an independently changed installed script valid for a
 new trial; installed-source matching and new session preparation remain required.
+
+When the owner is present and explicitly opts out of recording, the private runtime
+configuration may set `record_video` to `false`. Native trial identity, foreground,
+input and recovery checks still apply. The result identifies owner observation
+and omitted video; acceptance remains an explicit owner decision. Recording stays
+enabled by default. Offline-menu classification still requires a private screenshot.

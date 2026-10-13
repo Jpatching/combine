@@ -25,6 +25,11 @@ def attempt(store, scenario, config_path):
     capture = None
     try:
         config = json.loads(Path(config_path).read_text()) if config_path else {}
+        record_video = config.get('record_video', True)
+        if type(record_video) is not bool:
+            raise ValueError('invalid-recording-option')
+        if not record_video:
+            result['limitations'] += '; owner-observed trial; automated video disabled'
         checkout = Path(config['source_checkout'])
         source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=checkout, text=True).strip()
         if source != config['source_revision'] or subprocess.check_output(['git', 'status', '--porcelain'], cwd=checkout, text=True).strip():
@@ -56,12 +61,15 @@ def attempt(store, scenario, config_path):
                        '--checkpoints', config['checkpoints'], '--session', str(session),
                        '--output', str(folder / 'collection')]
         result.update(boundary='preflight', reason='native-runner-unavailable', cleanup='unknown')
-        if scenario in {'mount-diagnostic', 'ride-proof', 'offline-menus', 'checkpoint'}:
+        if record_video and scenario in {'mount-diagnostic', 'ride-proof', 'offline-menus', 'checkpoint'}:
             # Capture must start before the native driver can send input.
             from gta_capture import Capture
             capture = Capture(folder)
             capture.start()
         if scenario == 'offline-menus':
+            if not capture:
+                from gta_capture import Capture
+                Capture(folder)  # Initialize the reviewed local screenshot provider only.
             from gta_capture import screenshot
             screenshot(folder / 'menu-private.png')
             command.extend(['-MenuImage', win(folder / 'menu-private.png')])

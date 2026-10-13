@@ -5,17 +5,17 @@ function run(mode, surfaces = []) {
  const native=(name,...args)=>{
   calls.push([name,...args]);
   switch(name){
-   case 'COMBINE_SKATE_READY':return mode==='prepReadyLoss'&&frame>=2?0:1;
+   case 'COMBINE_SKATE_READY':return ['prepReadyLoss','rideReadyLoss'].includes(mode)&&frame>=2||mode==='escapeRecoveryLoss'&&frame>=3?0:1;
    case 'COMBINE_SKATE_INPUT_MODE':return mode==='modeRefused'?0:1;
    case 'COMBINE_SKATE_INPUT_TOGGLE':return mode==='controller'&&frame===1?0:-1;
    case 'GET_MOUSE_INPUT':return mode==='invalidMouse'?{x:NaN,y:0}:mode==='mouse'?{x:40,y:20}:{x:0,y:0};
    case 'COMBINE_SKATE_TOGGLE':if(mode==='geometryRemount')return [1,3,5].includes(frame);return frame===1||frame===4&&!['prepFail','prepPause','prepMove','gridNonfinite','gridZero','gridOver','vertexFail'].includes(mode);
    case 'GET_PLAYER_ID':case 'CONVERT_INT_TO_PLAYERINDEX':return 0;
-   case 'GET_PLAYER_CHAR':return 7;
+   case 'GET_PLAYER_CHAR':return mode==='ownerChanged'&&frame>=2?8:7;
    case 'DOES_CHAR_EXIST':case 'IS_PLAYER_PLAYING':return true;
-   case 'HAS_CUTSCENE_LOADED':return mode==='cutscene';
-   case 'HAS_CUTSCENE_FINISHED':return mode!=='cutscene';
-   case 'IS_PAUSE_MENU_ACTIVE':return mode==='paused'||mode==='prepPause'&&frame>=2;
+   case 'HAS_CUTSCENE_LOADED':return mode==='cutscene'||mode==='rideCutscene'&&frame>=2;
+   case 'HAS_CUTSCENE_FINISHED':return mode!=='cutscene'&&!(mode==='rideCutscene'&&frame>=2);
+   case 'IS_PAUSE_MENU_ACTIVE':return mode==='paused'||mode==='ridePaused'&&frame>=2||mode==='prepPause'&&frame>=2;
    case 'IS_PLAYER_CONTROL_ON':return mode!=='blocked' && !mounted;
    case 'IS_CHAR_ON_FOOT':return mode!=='vehicle'||frame<3;
    case 'GET_CHAR_COORDINATES':return {x:mode==='prepMove'&&frame>=2?101:100,y:200,z:mode==='noGround'?1:11};
@@ -32,12 +32,12 @@ function run(mode, surfaces = []) {
    case 'COMBINE_SKATE_TICK':return mode==='inputFail'?0:1;
    case 'COMBINE_SKATE_STOP':if(mode==='stopThrow'&&frame>=4)throw Error('stop failure');return;
    case 'COMBINE_SKATE_RELEASE':if(mode==='releaseThrow')throw Error('release failure');return;
-   case 'COMBINE_SKATE_VALUE':return mode==='invalidInitial'?NaN:mode==='geometryEscape'&&geometryTicks>=1||mode==='geometryInitialEscape'?[104,200,10.4,0][args[0]]:[100.1,200.2,11,0][args[0]];
+   case 'COMBINE_SKATE_VALUE':return mode==='invalidInitial'||mode==='invalidReturnedPose'&&frame>=2&&args[0]===3?NaN:['geometryEscape','escapeRecoveryLoss'].includes(mode)&&geometryTicks>=1||mode==='geometryInitialEscape'?[104,200,10.4,0][args[0]]:[100.1,200.2,11,0][args[0]];
    case 'GET_GAME_TIMER':return frame*(mode==='prepTimeout'?60001:16);
    case 'CREATE_CAM':camera=mode!=='prepCameraFail';return 99;
    case 'DOES_CAM_EXIST':return camera;
    case 'DESTROY_CAM':camera=false;return;
-   case 'SET_PLAYER_CONTROL':if(args[1]&&mode==='restoreOnce'&&recoveryFailures++===0)throw Error('transient restoration failure');if(!args[1])transfers.push(frame);mounted=!args[1];if(args[1])restored=true;return;
+   case 'SET_PLAYER_CONTROL':if(args[1]&&['restoreOnce','escapeRecoveryLoss'].includes(mode)&&recoveryFailures++===0)throw Error('transient restoration failure');if(!args[1])transfers.push(frame);mounted=!args[1];if(args[1])restored=true;return;
    case 'SET_CHAR_COORDINATES':if(mode==='nativeThrow')throw Error('native failure');poseWrites++;return;
    default:return undefined;
   }
@@ -71,6 +71,14 @@ for(const mode of ['geometryUploadFail','geometryMountFail','geometryInitialEsca
 const escaped=run('geometryEscape',slope);assert.ok(escaped.restored);assert.ok(escaped.transfers.length>0);
 assert.ok(escaped.calls.some(c=>c[0]==='COMBINE_SKATE_TICK_SURFACE'));
 assert.ok(!escaped.calls.some(c=>c[0]==='SET_CHAR_COORDINATES'&&c[2]===104));
+assert.ok(escaped.logs.includes('COMBINE_SKATE ride-stopped:outside-qualified-surface'));
+const invalidReturned=run('invalidReturnedPose');
+assert.ok(invalidReturned.logs.includes('COMBINE_SKATE ride-stopped:nonfinite-pose'));
+assert.ok(invalidReturned.restored);assert.equal(invalidReturned.poseWrites,0);
+const escapeRecovery=run('escapeRecoveryLoss',slope);
+assert.deepEqual(escapeRecovery.logs.filter(s=>s.startsWith('COMBINE_SKATE ride-stopped:')), ['COMBINE_SKATE ride-stopped:outside-qualified-surface']);
+assert.ok(escapeRecovery.logs.indexOf('COMBINE_SKATE ride-stopped:outside-qualified-surface')<escapeRecovery.logs.indexOf('COMBINE_SKATE recovery-pending'));
+assert.ok(escapeRecovery.restored);assert.equal(escapeRecovery.mounted,false);
 const overlapping=slope.map(s=>({...s,triangles:[...s.triangles,s.triangles[0].map(v=>[v[0],v[1],v[2]+0.005])]}));
 assert.equal(run('geometry',overlapping).transfers.length,0);
 const remounted=run('geometryRemount',slope);assert.deepEqual(remounted.transfers,[1,3]);assert.ok(remounted.poseWrites>0);assert.ok(remounted.restored);
@@ -125,6 +133,11 @@ console.log('PASS: watchdog releases ownership and keeps running when Session st
 assert.ok(runWatchdog('releaseThrow').some(c=>c[0]==='SET_PLAYER_CONTROL'&&c[2]===true));
 console.log('PASS: watchdog keeps running when ownership release throws');
 
+for(const [mode,reason] of [['ridePaused','paused'],['rideCutscene','cutscene'],['rideReadyLoss','adapter-not-ready'],['ownerChanged','owner-changed'],['vehicle','character-unavailable']]) {
+ const ended=run(mode);
+ assert.ok(ended.transfers.length>0);assert.ok(ended.restored);assert.equal(ended.mounted,false);
+ assert.ok(ended.logs.includes('COMBINE_SKATE ride-stopped:'+reason), reason+' must explain why an already mounted Session stopped');
+}
 const noGround=run("noGround");assert.equal(noGround.poseWrites,0);assert.equal(noGround.calls.some(c=>c[0]==="SET_PLAYER_CONTROL"&&c[2]===false),false);
 console.log("PASS: ambiguous no-ground zero probe retains GTA ownership");
 
@@ -165,6 +178,9 @@ for(const [mode,reason] of [['gridNonfinite','non-finite'],['gridZero','near-zer
 console.log('PASS: surface refusal reports exact reason and preserves short-circuit vertex calls');
 const invalidInitial=run('invalidInitial');assert.equal(invalidInitial.transfers.length,0);assert.equal(invalidInitial.camera,false);
 console.log('PASS: nonfinite initial output cannot transfer GTA ownership');
+for(const [mode,reason] of [['inputFail','surface-input-time-unavailable'],['invalidMouse','mouse-input-unavailable'],['nativeThrow','native-exception'],['ok','dismount-toggle']]) {
+ assert.ok(run(mode).logs.includes('COMBINE_SKATE ride-stopped:'+reason));
+}
 const mouse=run('mouse');
 const mouseCamera=mouse.calls.filter(c=>c[0]==='SET_CAM_POS');
 const ordinaryCamera=successful.calls.filter(c=>c[0]==='SET_CAM_POS');

@@ -95,6 +95,10 @@ and media outside Git and AI uploads.
 - `mount-diagnostic`: selected-window recording and guarded F6, first mount/query
   boundary, ordinary GTA recovery. Non-finite querying and the flat route's 5 cm
   refusal remain distinct. A pending preparation timeout blocks further input.
+  Successful observations include `measurements.mount_observation_ms`: elapsed time from the
+  F6 request to fresh mounted status, including key delivery and status polling.
+  It excludes launcher/recording setup and dismount cleanup, and is an upper
+  bound on actual preparation latency. Failed preparation supplies no mount time.
 - `ground-query`: existing collector with its complete independent qualification
   and recovery requirements; unavailable loading/layer witnesses stay unknown.
 
@@ -104,6 +108,12 @@ children are retained rather than killed between key-down and key-up. The hub
 cannot steal focus or launch/restart a game. Capture requires the pinned local
 Universal Modder checkout and existing Windows ffmpeg. MP4 remux verifies unchanged
 frame counts before registering evidence.
+
+After a bounded local trial and verified owned-input cleanup, run
+`tools/workbench/chat-focus.ps1` in Windows PowerShell to return typing focus to
+the single existing ChatGPT window. It verifies the window identity, sends no
+keys, and reports whether focus was restored. It is separate from game recovery:
+a successful focus return does not clear an unresolved runtime transaction.
 
 Preparation failure, timeout, cancellation and changed-floor notifications are
 terminal diagnostic results. If cleanup cannot be verified, the attempt remains

@@ -76,13 +76,19 @@ try {
   $offsets=@{};$tails=@{}
   if(@($m.log_paths).Count -lt 1 -or @($m.log_paths).Count -gt 4){throw 'log-boundary'}
   foreach($path in $m.log_paths){$offsets[$path]=(Get-Item -LiteralPath $path).Length;$tails[$path]=''}
+  $mountTimer=[Diagnostics.Stopwatch]::StartNew()
   if($Scenario -eq 'checkpoint'){Invoke-CombineTrialPulse 65}else{Invoke-CombineTrialPulse}
   $result.cleanup='unknown';$result.boundary=if($Scenario -eq 'checkpoint'){'checkpoint'}else{'mount'};$result.verdict='unavailable'
   $result.reason=if($Scenario -eq 'checkpoint'){'checkpoint-observer-timeout'}else{'mount-observer-timeout'}
   $timer=[Diagnostics.Stopwatch]::StartNew();$observed=$false
   while($timer.Elapsed.TotalSeconds -lt 65 -and !$observed){
    $s=Get-CombineTrialSnapshot $false ($Scenario -eq 'offline-menus')
-   if($Scenario -ne 'checkpoint' -and $s.Report.Adapter -eq 'ready, mounted'){$mounted=$true;$result.verdict='passed';$result.reason='mount-observed';$observed=$true;break}
+   if($Scenario -ne 'checkpoint' -and $s.Report.Adapter -eq 'ready, mounted'){
+    # Request-to-observation upper bound: includes F6 delivery and status polling,
+    # excludes launch, recording setup and subsequent riding/dismount cleanup.
+    $result.mount_observation_ms=[Math]::Round($mountTimer.Elapsed.TotalMilliseconds,1)
+    $mounted=$true;$result.verdict='passed';$result.reason='mount-observed';$observed=$true;break
+   }
    foreach($path in $m.log_paths){
     $file=Get-Item -LiteralPath $path
     if($file.Length -lt $offsets[$path] -or $file.Length-$offsets[$path] -gt 1048576){throw 'log-boundary'}

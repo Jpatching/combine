@@ -123,7 +123,8 @@ class GtaWorkflowTests(unittest.TestCase):
                 def __init__(self, command, **kwargs):
                     target = Path(command[command.index('-Output') + 1])
                     target.write_text(json.dumps({'verdict': 'passed', 'boundary': 'ride',
-                        'reason': 'ride-proof-observed', 'cleanup': 'verified', 'runtime_identity': 'authored-native-fixture'}))
+                        'reason': 'ride-proof-observed', 'cleanup': 'verified', 'runtime_identity': 'authored-native-fixture',
+                        'mount_observation_ms': 237.5}))
                 def wait(self, timeout):
                     return 0
             with patch.dict('os.environ', {'WSL_DISTRO_NAME': 'authored'}), \
@@ -132,6 +133,9 @@ class GtaWorkflowTests(unittest.TestCase):
                 result = gta_trial.attempt(Store(folder / 'store'), 'ride-proof', config)
             self.assertEqual(result['verdict'], 'passed')
             self.assertEqual(result['cleanup'], 'verified')
+            self.assertEqual(result['measurements']['mount_observation_ms'], 237.5)
+            saved = Store(folder / 'store').add_attempt(result)
+            self.assertEqual(saved['measurements']['mount_observation_ms'], 237.5)
             self.assertEqual(result['media'], [])
             self.assertIn('automated video disabled; owner observation unverified', result['limitations'])
             self.assertNotIn('owner-observed', result['limitations'])

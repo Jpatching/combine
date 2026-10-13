@@ -67,7 +67,7 @@ function Invoke-CombineTrialPulse([int]$Scan=64) {
  if($Scan -eq 66){if($script:session.test_case -ne 'ride-uncorrelated'){Add-Content $script:session.log_paths[0] 'COMBINE_EVALUATION attempt:1 started'};if($script:session.test_case -eq 'ride-conflicting'){Add-Content $script:session.log_paths[0] 'COMBINE_EVALUATION PASS: real-input movement=true, left-heading=positive, right-heading=negative, finite-active-camera-moved=true; scale/orientation acceptance unverified'};Add-Content $script:session.log_paths[0] $(if($script:session.test_case -eq 'ride-pass'){'COMBINE_EVALUATION PASS: real-input movement=true, left-heading=positive, right-heading=negative, finite-active-camera-moved=true; scale/orientation acceptance unverified'}else{'COMBINE_EVALUATION FAIL: real-input movement=false, left-heading=unchanged, right-heading=unchanged, finite-active-camera-moved=false; scale/orientation acceptance unverified'});return}
  if($Scan -eq 67){Add-Content $script:session.log_paths[0] 'COMBINE_EVALUATION walking-attempt:2 started';Add-Content $script:session.log_paths[0] 'COMBINE_EVALUATION PASS: ordinary walking displacement after restoration';return}
  $script:acted=$true
- if($script:session.test_case -in @('mounted','ride-pass','ride-fail','ride-stale-pass','ride-conflicting','ride-uncorrelated')){$script:mounted=!$script:mounted;if($script:mounted -and $script:session.test_case -eq 'ride-stale-pass'){Add-Content $script:session.log_paths[0] 'COMBINE_EVALUATION PASS: real-input movement=true, left-heading=positive, right-heading=negative, finite-active-camera-moved=true; scale/orientation acceptance unverified'};if(!$script:mounted){Add-Content $script:session.log_paths[0] 'COMBINE_EVALUATION PASS: native GTA control and owned camera destruction after ride'};return}
+ if($script:session.test_case -in @('mounted','ride-pass','ride-fail','ride-stale-pass','ride-conflicting','ride-uncorrelated')){if($script:session.test_case -eq 'mounted' -and !$script:mounted){Start-Sleep -Milliseconds 200};$script:mounted=!$script:mounted;if($script:mounted -and $script:session.test_case -eq 'ride-stale-pass'){Add-Content $script:session.log_paths[0] 'COMBINE_EVALUATION PASS: real-input movement=true, left-heading=positive, right-heading=negative, finite-active-camera-moved=true; scale/orientation acceptance unverified'};if(!$script:mounted){Add-Content $script:session.log_paths[0] 'COMBINE_EVALUATION PASS: native GTA control and owned camera destruction after ride'};return}
  $message=if($script:session.test_case -eq 'timeout'){'COMBINE_SKATE Skate: preparation timed out - GTA retained'}else{'COMBINE_SKATE native-exception'}
  Add-Content -LiteralPath $script:session.log_paths[0] -Value $message
 }
@@ -92,6 +92,7 @@ Export-ModuleMember -Function *
    'timeout' {
     if($code -ne 2 -or $actual.verdict -ne 'failed' -or $actual.boundary -ne 'preparation' -or
        $actual.reason -ne 'preparation-timeout' -or $actual.cleanup -ne 'verified'){throw 'Preparation timeout must be observed with verified cleanup'}
+    if($actual.PSObject.Properties.Name -contains 'mount_observation_ms'){throw 'Failed preparation must not claim a successful mount timing'}
    }
    'ride-pass' {
     if($code -ne 0 -or $actual.reason -ne 'ride-proof-observed' -or $actual.cleanup -ne 'verified'){throw 'Ride proof must verify movement, both steering directions, camera and walking recovery'}
@@ -110,6 +111,7 @@ Export-ModuleMember -Function *
    }
    'mounted' {
     if($code -ne 0 -or $actual.reason -ne 'mount-observed' -or $actual.cleanup -ne 'verified'){throw 'Observed mount must dismount and verify recovery'}
+    if($null -eq $actual.mount_observation_ms -or $actual.mount_observation_ms -lt 150 -or $actual.mount_observation_ms -gt 5000){throw 'Mount timing must include F6 delivery and exclude subsequent dismount cleanup'}
    }
   }
  }

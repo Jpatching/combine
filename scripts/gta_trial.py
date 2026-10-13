@@ -89,6 +89,9 @@ def attempt(store, scenario, config_path):
         else:
             native = json.loads((folder / 'native-result.json').read_text(encoding='utf-8-sig'))
             result.update({k: native[k] for k in ('verdict', 'boundary', 'reason', 'cleanup', 'runtime_identity')})
+            timing = native.get('mount_observation_ms')
+            if type(timing) in (int, float) and 0 <= timing <= 65000:
+                result['mount_observation_ms'] = timing
             if 'diagnostic' in native:
                 result['diagnostic'] = native['diagnostic']
             result['runtime_identity'] = identity + '; ' + native['runtime_identity']

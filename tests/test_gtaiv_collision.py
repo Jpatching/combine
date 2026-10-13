@@ -86,7 +86,134 @@ def two_children(vertex_count=3, face_count=1):
     return data
 
 
+def dictionary():
+    """Authored NY WBD: two distinct hashes and independently placed meshes."""
+    data = bytearray(1024)
+    struct.pack_into('<IHH', data, 16, 0x50000020, 2, 2)
+    struct.pack_into('<IHH', data, 24, 0x50000028, 2, 2)
+    struct.pack_into('<2I', data, 32, 0x01020304, 0x11121314)
+    struct.pack_into('<2I', data, 40, 0x50000040, 0x50000200)
+    for root, vertices, polygons, center in [(64, 320, 352, (1,2,3)), (512, 768, 800, (10,20,30))]:
+        original = geometry()
+        data[root:root+0xd0] = original[0x20:0xf0]
+        struct.pack_into('<I', data, root+0xb0, 0x50000000+vertices)
+        struct.pack_into('<I', data, root+0x8c, 0x50000000+polygons)
+        struct.pack_into('<3f', data, root+0xa0, *center)
+        data[vertices:vertices+18] = original[0x100:0x112]
+        data[polygons:polygons+32] = original[0x120:0x140]
+    return data
+
+
+def dictionary_with_box():
+    data = dictionary()
+    data.extend(bytes(1024))
+    struct.pack_into('<I', data, 40, 0x50000400)
+    data[0x404] = 3
+    struct.pack_into('<2f', data, 0x408, 5, 5)
+    struct.pack_into('<3f', data, 0x410, 4,6,8)
+    struct.pack_into('<3f', data, 0x420, 1,2,3)
+    struct.pack_into('<3f', data, 0x430, 2.5,4,5.5)
+    struct.pack_into('<3f', data, 0x450, 2.5,4,5.5)
+    struct.pack_into('<3f', data, 0x470, 0.1,0.1,0.1)
+    return data
+
+
 class CollisionTests(unittest.TestCase):
+    def test_dictionary_reports_box_primitive_separately_from_polygon_meshes(self):
+        result = inspector.decode_resource(resource(dictionary_with_box()), dictionary=True)
+        box = result.entries[0][1]
+        self.assertIsInstance(box, inspector.BoxInspection)
+        self.assertEqual((box.minimum, box.maximum, box.centroid), ((1,2,3), (4,6,8), (2.5,4,5.5)))
+        self.assertFalse(hasattr(box, 'vertices'))
+        self.assertEqual(result.entries[1][1].vertices, ((10,20,30),(12,20,30),(10,22,30)))
+
+    def test_dictionary_with_primitive_refuses_complete_polygon_output_and_labels_cli(self):
+        result = inspector.decode_resource(resource(dictionary_with_box()), dictionary=True)
+        with self.assertRaises(inspector.Refusal) as raised:
+            result.polygon_entries()
+        self.assertEqual((raised.exception.verdict, raised.exception.reason),
+                         ('unsupported', 'unsupported-box-geometry'))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'private-primitive.wbd'
+            path.write_bytes(resource(dictionary_with_box()))
+            command = [sys.executable, str(ROOT / 'tools/gtaiv-collision/inspect_resource.py'), '--dictionary', str(path)]
+            completed = subprocess.run(command, capture_output=True, text=True, timeout=3)
+            self.assertEqual((completed.returncode, json.loads(completed.stdout), completed.stderr),
+                             (0, {'verdict':'structurally-decoded', 'reason':'validated-dictionary-with-primitives'}, ''))
+
+    def test_dictionary_box_requires_complete_finite_positive_extent_fields(self):
+        for offset, value in [(0x410, float('nan')), (0x430, float('inf')),
+                              (0x450, float('nan')), (0x470, -0.1),
+                              (0x408, -1), (0x420, 4)]:
+            data = dictionary_with_box()
+            struct.pack_into('<f', data, offset, value)
+            with self.subTest(offset=offset):
+                with self.assertRaises(inspector.Refusal) as raised:
+                    inspector.decode_resource(resource(data), dictionary=True)
+                self.assertEqual(raised.exception.reason, 'invalid-box-fields')
+        with self.assertRaises(inspector.Refusal) as raised:
+            inspector.decode_resource(resource(dictionary_with_box()[:1536]), dictionary=True)
+        self.assertEqual(raised.exception.reason, 'invalid-span')
+
+
+    def test_dictionary_preserves_hashes_and_independent_bound_geometry(self):
+        result = inspector.decode_resource(resource(dictionary()), dictionary=True)
+        self.assertEqual(tuple(key for key, _ in result.entries), (0x01020304, 0x11121314))
+        self.assertEqual(tuple(mesh.vertices for _, mesh in result.entries),
+                         (((1,2,3),(3,2,3),(1,4,3)), ((10,20,30),(12,20,30),(10,22,30))))
+        self.assertEqual(tuple(mesh.faces for _, mesh in result.entries), (((0,1,2),), ((0,1,2),)))
+
+    def test_dictionary_command_reports_whole_resource_verdict_without_keys_or_geometry(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'private-dictionary.wbd'
+            path.write_bytes(resource(dictionary()))
+            command = [sys.executable, str(ROOT / 'tools/gtaiv-collision/inspect_resource.py'), '--dictionary', str(path)]
+            result = subprocess.run(command, capture_output=True, text=True, timeout=3)
+            self.assertEqual((result.returncode, json.loads(result.stdout), result.stderr),
+                             (0, {'verdict':'structurally-decoded', 'reason':'validated-dictionary'}, ''))
+            data = dictionary()
+            data[0x204] = 1
+            path.write_bytes(resource(data))
+            result = subprocess.run(command, capture_output=True, text=True, timeout=3)
+            self.assertEqual((result.returncode, json.loads(result.stdout), result.stderr),
+                             (2, {'verdict':'unsupported', 'reason':'unsupported-root'}, ''))
+
+    def test_dictionary_refuses_incomplete_spans_counts_duplicates_and_shared_payloads(self):
+        cases = [
+            (8, '<I', 0x50000040, 'unsupported-dictionary-parent'),
+            (20, '<H', 1, 'unsupported-dictionary-counts'),
+            (20, '<HH', (257,257), 'unsupported-dictionary-counts'),
+            (24, '<I', 0x60000028, 'invalid-pointer'),
+            (16, '<I', 0x500003fc, 'invalid-span'),
+            (24, '<I', 0x50000020, 'overlapping-spans'),
+            (36, '<I', 0x01020304, 'duplicate-dictionary-key'),
+            (44, '<I', 0x50000040, 'overlapping-spans'),
+            (44, '<I', 0x50000020, 'unsupported-root'),
+            (44, '<I', 0x500003fe, 'invalid-span'),
+            (512+0xb0, '<I', 0x50000140, 'overlapping-spans'),
+        ]
+        for offset, fmt, value, reason in cases:
+            data = dictionary()
+            struct.pack_into(fmt, data, offset, *(value if isinstance(value, tuple) else (value,)))
+            with self.subTest(reason=reason):
+                with self.assertRaises(inspector.Refusal) as raised:
+                    inspector.decode_resource(resource(data), dictionary=True)
+                self.assertEqual(raised.exception.reason, reason)
+        for count in (0, 257):
+            data = dictionary()
+            struct.pack_into('<2H', data, 20, count, count)
+            struct.pack_into('<2H', data, 28, count, count)
+            with self.assertRaises(inspector.Refusal) as raised:
+                inspector.decode_resource(resource(data), dictionary=True)
+            self.assertEqual(raised.exception.reason, 'dictionary-count-cap')
+
+    def test_dictionary_caps_aggregate_geometry_before_reading_next_bound(self):
+        data = dictionary()
+        struct.pack_into('<i', data, 512+0xc8, inspector.VERTEX_CAP)
+        with self.assertRaises(inspector.Refusal) as raised:
+            inspector.decode_resource(resource(data), dictionary=True)
+        self.assertEqual(raised.exception.reason, 'count-cap')
+
     def test_composite_triangulates_unflagged_quad_without_changing_winding(self):
         data = composite()
         struct.pack_into('<i', data, 0x140+0xc8, 4)

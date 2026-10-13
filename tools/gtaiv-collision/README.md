@@ -18,9 +18,14 @@ For an already extracted WBD bound dictionary, use
 `python3 tools/gtaiv-collision/inspect_resource.py --dictionary <local-file>`.
 The explicit mode avoids guessing resource identity from a filename. The Python
 interface `decode_resource(bytes, dictionary=True)` returns a
-`DictionaryInspection` containing `(hash, Inspection)` entries. Keep hashes and
-geometry private. The command returns `validated-dictionary` only when every
-entry decodes; one unsupported or invalid bound refuses the entire dictionary.
+`DictionaryInspection` containing `(hash, Inspection)` polygon entries or
+`(hash, BoxInspection)` primitive entries. Keep hashes and geometry private.
+`polygon_entries()` returns the complete polygon entries only when no primitive
+is required; otherwise it raises `unsupported / unsupported-box-geometry`.
+The command distinguishes `validated-dictionary` from
+`validated-dictionary-with-primitives`. Both describe structural inspection;
+the latter explicitly retains an unsolved primitive requirement. One unsupported
+or invalid bound still refuses the entire dictionary.
 
 The independently authored dictionary header handling refers to the pinned
 [NY converter dispatch](https://github.com/citizenfx/fivem/blob/0105063b0394b1b9d085c917a8dc9c9abf0a620f/code/components/tool-formats/src/ConvertFormats.cpp),
@@ -32,11 +37,25 @@ unequal count/capacity fields and unsupported bound layouts refuse. At most 256
 entries are accepted, with the existing vertex/face limits applied across every
 entry and child. Duplicate keys and shared consumed spans are invalid.
 
-Authored two-entry fixtures establish structural parsing and refusal behavior.
-The retained owned WBN still structurally decodes; no extracted owned WBD was
-available for a compatibility check. Dictionary hashes do not establish instance
-placement, active host collision or automatic floor coverage. There is no WPL
-instance placement, catalogue, asset acquisition or live collision supplier here.
+NY root Box (`3`) entries expose a tagged `BoxInspection` with finite base bounds,
+centroid, center of gravity, radii and nonnegative margins. The complete `0x240`
+serialized span must exist and not overlap other consumed structures. Bounds
+need positive extents. This handling refers to the pinned
+[NY bound definition](https://github.com/citizenfx/fivem/blob/0105063b0394b1b9d085c917a8dc9c9abf0a620f/code/components/rage-formats-x/include/phBound.h)
+and [box conversion](https://github.com/citizenfx/fivem/blob/0105063b0394b1b9d085c917a8dc9c9abf0a620f/code/components/rage-formats-x/include/convert/phBound_ny_five.h).
+The opaque box payload and material/contact semantics are not interpreted.
+Bounds are not triangulated. Box children, other primitives and unsupported
+graph layouts remain unsupported; ordinary WBN polygon mode retains its refusal
+for primitive roots.
+
+Authored fixtures establish structural parsing and refusal behavior. On
+2026-10-14, one privately acquired owned WBD returned
+`structurally-decoded / validated-dictionary-with-primitives`; complete polygon
+supply correctly refused `unsupported / unsupported-box-geometry`. The retained
+owned WBN still structurally decodes. The necessary box geometry/contact proof
+remains unresolved. Dictionary hashes do not establish instance placement,
+active host collision or automatic floor coverage. There is no WPL instance
+placement, catalogue, asset acquisition or live collision supplier in this tool.
 
 ## Supported evidence and conservative limits
 

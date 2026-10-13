@@ -104,7 +104,58 @@ def dictionary():
     return data
 
 
+def dictionary_with_box():
+    data = dictionary()
+    data.extend(bytes(1024))
+    struct.pack_into('<I', data, 40, 0x50000400)
+    data[0x404] = 3
+    struct.pack_into('<2f', data, 0x408, 5, 5)
+    struct.pack_into('<3f', data, 0x410, 4,6,8)
+    struct.pack_into('<3f', data, 0x420, 1,2,3)
+    struct.pack_into('<3f', data, 0x430, 2.5,4,5.5)
+    struct.pack_into('<3f', data, 0x450, 2.5,4,5.5)
+    struct.pack_into('<3f', data, 0x470, 0.1,0.1,0.1)
+    return data
+
+
 class CollisionTests(unittest.TestCase):
+    def test_dictionary_reports_box_primitive_separately_from_polygon_meshes(self):
+        result = inspector.decode_resource(resource(dictionary_with_box()), dictionary=True)
+        box = result.entries[0][1]
+        self.assertIsInstance(box, inspector.BoxInspection)
+        self.assertEqual((box.minimum, box.maximum, box.centroid), ((1,2,3), (4,6,8), (2.5,4,5.5)))
+        self.assertFalse(hasattr(box, 'vertices'))
+        self.assertEqual(result.entries[1][1].vertices, ((10,20,30),(12,20,30),(10,22,30)))
+
+    def test_dictionary_with_primitive_refuses_complete_polygon_output_and_labels_cli(self):
+        result = inspector.decode_resource(resource(dictionary_with_box()), dictionary=True)
+        with self.assertRaises(inspector.Refusal) as raised:
+            result.polygon_entries()
+        self.assertEqual((raised.exception.verdict, raised.exception.reason),
+                         ('unsupported', 'unsupported-box-geometry'))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'private-primitive.wbd'
+            path.write_bytes(resource(dictionary_with_box()))
+            command = [sys.executable, str(ROOT / 'tools/gtaiv-collision/inspect_resource.py'), '--dictionary', str(path)]
+            completed = subprocess.run(command, capture_output=True, text=True, timeout=3)
+            self.assertEqual((completed.returncode, json.loads(completed.stdout), completed.stderr),
+                             (0, {'verdict':'structurally-decoded', 'reason':'validated-dictionary-with-primitives'}, ''))
+
+    def test_dictionary_box_requires_complete_finite_positive_extent_fields(self):
+        for offset, value in [(0x410, float('nan')), (0x430, float('inf')),
+                              (0x450, float('nan')), (0x470, -0.1),
+                              (0x408, -1), (0x420, 4)]:
+            data = dictionary_with_box()
+            struct.pack_into('<f', data, offset, value)
+            with self.subTest(offset=offset):
+                with self.assertRaises(inspector.Refusal) as raised:
+                    inspector.decode_resource(resource(data), dictionary=True)
+                self.assertEqual(raised.exception.reason, 'invalid-box-fields')
+        with self.assertRaises(inspector.Refusal) as raised:
+            inspector.decode_resource(resource(dictionary_with_box()[:1536]), dictionary=True)
+        self.assertEqual(raised.exception.reason, 'invalid-span')
+
+
     def test_dictionary_preserves_hashes_and_independent_bound_geometry(self):
         result = inspector.decode_resource(resource(dictionary()), dictionary=True)
         self.assertEqual(tuple(key for key, _ in result.entries), (0x01020304, 0x11121314))

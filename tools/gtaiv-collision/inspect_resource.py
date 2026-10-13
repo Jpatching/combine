@@ -30,6 +30,25 @@ class Inspection:
 class DictionaryInspection:
     entries: tuple
 
+    def polygon_entries(self):
+        """Require complete polygon supply; never discard a required primitive."""
+        if any(isinstance(bound, BoxInspection) for _, bound in self.entries):
+            raise Refusal('unsupported-box-geometry', 'unsupported')
+        return self.entries
+
+
+@dataclass(frozen=True)
+class BoxInspection:
+    """Serialized primitive fields, not reconstructed triangles or placed collision."""
+    minimum: tuple
+    maximum: tuple
+    centroid: tuple
+    center_of_gravity: tuple
+    margin: tuple
+    radius: float
+    world_radius: float
+    kind: str = 'box'
+
 
 class Refusal(ValueError):
     def __init__(self, reason, verdict='invalid'):
@@ -141,6 +160,21 @@ def decode_resource(raw, *, dictionary=False):
 
     def bound(root, used_vertices=0, used_faces=0):
         kind = read('<B', root + 4)[0]
+        if kind == 3 and dictionary:
+            # NY phBoundBox has a 0x80 base, 0x1a0 opaque bytes, a material
+            # word and 28 trailing bytes. Never triangulate its AABB: actual
+            # contact/margin semantics remain outside structural inspection.
+            reserve(root, 0x240)
+            radius, world_radius = read('<2f', root + 8)
+            maximum, minimum = read('<3f', root + 0x10), read('<3f', root + 0x20)
+            centroid, cg = read('<3f', root + 0x30), read('<3f', root + 0x50)
+            margin = read('<3f', root + 0x70)
+            if (not all(math.isfinite(value) for value in
+                        (radius, world_radius) + maximum + minimum + centroid + cg + margin)
+                    or any(a >= b for a, b in zip(minimum, maximum))
+                    or radius < 0 or world_radius < 0 or any(value < 0 for value in margin)):
+                raise Refusal('invalid-box-fields')
+            return BoxInspection(minimum, maximum, centroid, cg, margin, radius, world_radius)
         if kind in (4, 10):
             return geometry(root, used_vertices, used_faces)
         if kind != 12:
@@ -219,8 +253,9 @@ def decode_resource(raw, *, dictionary=False):
             raise Refusal('duplicate-dictionary-key')
         keys.add(key)
         mesh = bound(pointer(values + index * 4), used_vertices, used_faces)
-        used_vertices += len(mesh.vertices)
-        used_faces += len(mesh.faces)
+        if isinstance(mesh, Inspection):
+            used_vertices += len(mesh.vertices)
+            used_faces += len(mesh.faces)
         entries.append((key, mesh))
     return DictionaryInspection(tuple(entries))
 
@@ -240,8 +275,13 @@ def inspect_file(path, *, dictionary=False):
             if info.st_size > INPUT_CAP:
                 raise Refusal('input-cap')
             raw = stream.read(INPUT_CAP + 1)
-        decode_resource(raw, dictionary=dictionary)
-        return {'verdict':'structurally-decoded', 'reason':'validated-dictionary' if dictionary else 'validated-geometry'}
+        decoded = decode_resource(raw, dictionary=dictionary)
+        reason = 'validated-geometry'
+        if dictionary:
+            reason = 'validated-dictionary-with-primitives' if any(
+                isinstance(bound, BoxInspection) for _, bound in decoded.entries
+            ) else 'validated-dictionary'
+        return {'verdict':'structurally-decoded', 'reason':reason}
     except Refusal as refusal:
         return {'verdict':refusal.verdict, 'reason':refusal.reason}
     except (OSError, ValueError):

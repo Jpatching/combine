@@ -38,18 +38,27 @@ try {
         }
         const pose=[0,1,2,3].map(i=>native("COMBINE_SKATE_VALUE",i));
         const finite=pose.every(Number.isFinite);
+        // VALUE is thread-bound and returns zero outside its captured context.
+        // Owner coherence alone does not validate a pose getter. Compare against
+        // host character XY (Z includes the GTA presentation lift). A mismatch
+        // makes support observations unknown, never evidence of missing ground.
+        const char=native("GET_CHAR_COORDINATES",owner.ped);
+        const matchesChar=finite&&char&&Number.isFinite(char.x)&&Number.isFinite(char.y)
+            &&Math.hypot(pose[0]-char.x,pose[1]-char.y)<=0.05;
+        const poseVerified=Boolean(matchesChar);
         const paused=Boolean(native("IS_PAUSE_MENU_ACTIVE"));
         const cutscene=Boolean(native("HAS_CUTSCENE_LOADED")&&!native("HAS_CUTSCENE_FINISHED"));
         // Ground queries and cached pose reads are observers, not simulation ticks.
-        const ground=finite?native("GET_GROUND_Z_FOR_3D_COORD",pose[0],pose[1],pose[2]+2):null;
-        const matches=finite?SURFACES.filter(s=>{const h=height(s,pose[0],pose[1]);return h!==null&&Number.isFinite(ground)&&Math.abs(h-ground)<=0.05;}):[];
+        const ground=poseVerified?native("GET_GROUND_Z_FOR_3D_COORD",pose[0],pose[1],pose[2]+2):null;
+        const matches=poseVerified?SURFACES.filter(s=>{const h=height(s,pose[0],pose[1]);return h!==null&&Number.isFinite(ground)&&Math.abs(h-ground)<=0.05;}):[];
         if(!selected&&matches.length===1)selected=matches[0];
-        const support=finite&&selected?height(selected,pose[0],pose[1]):null;
-        const flags={backend_ready:Boolean(native("COMBINE_SKATE_READY")),finite_pose:finite,
+        const support=poseVerified&&selected?height(selected,pose[0],pose[1]):null;
+        const flags={backend_ready:Boolean(native("COMBINE_SKATE_READY")),finite_pose:finite,pose_all_zero:pose.every(v=>v===0),
+            pose_matches_char_xy:Boolean(matchesChar),pose_observation_verified:poseVerified,
             paused,cutscene,camera_exists:Boolean(native("DOES_CAM_EXIST",owner.camera)),
             same_owner:!previous||(owner.player===previous.player&&owner.ped===previous.ped&&owner.camera===previous.camera),
-            unique_ground_match:matches.length===1,qualified_support_present:support!==null,
-            height_within_support:support!==null&&Math.abs(pose[2]-support)<3};
+            unique_ground_match:poseVerified?matches.length===1:null,qualified_support_present:poseVerified?support!==null:null,
+            height_within_support:poseVerified?support!==null&&Math.abs(pose[2]-support)<3:null};
         const after=native("COMBINE_SKATE_EVAL_OWNER");
         if(after.player!==owner.player||after.ped!==owner.ped||after.camera!==owner.camera) {
             emit("owner-raced-observation",{last:lastFlags});

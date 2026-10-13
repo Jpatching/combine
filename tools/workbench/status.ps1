@@ -16,7 +16,7 @@ public static class CombineStatusWindow {
   $g=$games[0];$h=$g.MainWindowHandle
   $responding=$g.Responding
   $windowed=$h -ne [IntPtr]::Zero -and ([CombineStatusWindow]::GetWindowLong($h,-16) -band 0x00C00000) -eq 0x00C00000
-  $foreground=$windowed -and ![CombineStatusWindow]::IsIconic($h) -and [CombineStatusWindow]::GetForegroundWindow() -eq $h
+  $foreground=$h -ne [IntPtr]::Zero -and ![CombineStatusWindow]::IsIconic($h) -and [CombineStatusWindow]::GetForegroundWindow() -eq $h
  }
  $report=Get-CombineGameReport
  @{process_count=$games.Count;responding=$responding;windowed=$windowed;foreground=$foreground;game=$report} | ConvertTo-Json -Depth 4 -Compress

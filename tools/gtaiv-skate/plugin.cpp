@@ -47,8 +47,8 @@ bool identity();
 bool foreground_allowed() {
     const auto window=GetForegroundWindow();DWORD process=0;
     GetWindowThreadProcessId(window,&process);
-    return window && process==GetCurrentProcessId() && !IsIconic(window)
-        && (GetWindowLong(window,GWL_STYLE)&WS_CAPTION)==WS_CAPTION;
+    // Window decorations do not determine foreground input ownership.
+    return window && process==GetCurrentProcessId() && !IsIconic(window);
 }
 bool key_down(int key) {return (GetAsyncKeyState(key)&0x8000)!=0;}
 bool input_available() {

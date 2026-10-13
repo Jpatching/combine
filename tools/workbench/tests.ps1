@@ -25,6 +25,9 @@ foreach($case in $cases){
  if($actual -cne ('MENU_CLASSIFICATION='+$case[1])){throw 'Menu regression'}
 }
 Write-Output 'PASS: Windows helper syntax, compiled invalid-owner refusal and nine menu fixtures; no game input'
+# Status tests run in a child process because they substitute the Win32 observer.
+& (Join-Path $PSHOME 'powershell.exe') -NoProfile -NonInteractive -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'status-tests.ps1')
+if($LASTEXITCODE -ne 0){throw 'Status regression fixtures failed'}
 & (Join-Path $PSScriptRoot 'trial-tests.ps1')
 $fixture=Join-Path ([IO.Path]::GetTempPath()) ('combine-inventory-'+[guid]::NewGuid().ToString('N'))
 $null=New-Item -ItemType Directory -Path $fixture

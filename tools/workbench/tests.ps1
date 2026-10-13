@@ -25,6 +25,7 @@ foreach($case in $cases){
  if($actual -cne ('MENU_CLASSIFICATION='+$case[1])){throw 'Menu regression'}
 }
 Write-Output 'PASS: Windows helper syntax, compiled invalid-owner refusal and nine menu fixtures; no game input'
+& (Join-Path $PSScriptRoot 'trial-tests.ps1')
 $fixture=Join-Path ([IO.Path]::GetTempPath()) ('combine-inventory-'+[guid]::NewGuid().ToString('N'))
 $null=New-Item -ItemType Directory -Path $fixture
 try {

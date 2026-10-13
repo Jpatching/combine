@@ -163,15 +163,22 @@ try {
                 const p=preparing, current=native("GET_CHAR_COORDINATES",ped);
                 const moved=![current.x,current.y,current.z].every(Number.isFinite)
                     || Math.hypot(current.x-p.pos.x,current.y-p.pos.y,current.z-p.pos.z)>0.2;
+                const timedOut=((native("GET_GAME_TIMER")-p.started)>>>0)>60000;
                 if(toggle || !valid || interrupted || moved || ped!==p.ped || player!==p.player
-                    || !native("IS_PLAYER_CONTROL_ON",player)
-                    || ((native("GET_GAME_TIMER")-p.started)>>>0)>60000) {restore();continue;}
+                    || !native("IS_PLAYER_CONTROL_ON",player) || timedOut) {
+                    restore();
+                    notify(timedOut?"Skate: preparation timed out - GTA retained"
+                        :"Skate: preparation cancelled - GTA retained");
+                    continue;
+                }
                 const state=native("COMBINE_SKATE_POLL");
                 if(!state) {restore();notify("Skate: preparation failed - GTA retained");continue;}
                 if(state===1) {
                     const ground=native("GET_GROUND_Z_FOR_3D_COORD",current.x,current.y,current.z+2);
                     if(!Number.isFinite(ground) || Math.abs(ground-p.ground)*SCALE>0.05
-                        || (selectedSurface && !surfaceObservation(selectedSurface,current.x,current.y,ground))) {restore();continue;}
+                        || (selectedSurface && !surfaceObservation(selectedSurface,current.x,current.y,ground))) {
+                        restore();notify("Skate: preparation floor changed - GTA retained");continue;
+                    }
                     preparing=null;finishMount(player,ped,current);
                 }
                 continue;

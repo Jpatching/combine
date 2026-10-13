@@ -174,7 +174,7 @@ class Store:
             raise ValueError('Invalid attempt scenario/verdict')
         allowed = {'scenario', 'verdict', 'boundary', 'reason', 'changed_variable', 'cleanup',
                    'source_revision', 'controller_revision', 'runtime_identity', 'started_at',
-                   'finished_at', 'next_experiment', 'measurements', 'limitations', 'mode', 'media'}
+                   'finished_at', 'next_experiment', 'measurements', 'limitations', 'mode', 'media', 'diagnostic'}
         allowed.add('experiment')
         if set(value) - allowed:
             raise ValueError('Unsupported evidence fields')

@@ -61,10 +61,18 @@ try {
       $result.verdict='failed';$result.boundary='ground-query';$result.reason=$Matches[1];$observed=$true
      }elseif($line -match 'COMBINE_SKATE Skate: ground unavailable/ambiguous'){
       $result.verdict='inconclusive';$result.boundary='ground-query';$result.reason='centre-ground-unavailable';$observed=$true
+     }elseif($line -match 'COMBINE_SKATE Skate: preparation (timed out|failed|cancelled|floor changed)'){
+      $reason=@{'timed out'='preparation-timeout';'failed'='preparation-failed';'cancelled'='preparation-cancelled';'floor changed'='preparation-floor-changed'}[$Matches[1]]
+      $result.verdict=if($Matches[1] -in @('cancelled','floor changed')){'inconclusive'}else{'failed'}
+      $result.boundary='preparation';$result.reason=$reason;$observed=$true
+     }elseif($line -match 'COMBINE_SKATE Skate: (initialization/controller unavailable|invalid initial pose|qualified floor unavailable)'){
+      $result.verdict='failed';$result.reason=@{'initialization/controller unavailable'='initialization-unavailable';'invalid initial pose'='invalid-initial-pose';'qualified floor unavailable'='qualified-floor-unavailable'}[$Matches[1]];$observed=$true
      }elseif($line -match 'COMBINE_SKATE native-exception'){
       $result.verdict='failed';$result.reason='native-exception';$observed=$true
      }
+     if($observed){break}
     }
+    if($observed){break}
    }
    Start-Sleep -Milliseconds 100
   }
@@ -86,7 +94,10 @@ try {
    if($result.reason -in @('mount-observer-timeout','checkpoint-observer-timeout','checkpoint-recovery-unverified')){throw 'pending-preparation-unverified'}
    if($s.Report.Adapter -eq 'ready, mounted'){Invoke-CombineTrialPulse;Start-Sleep -Milliseconds 800}
    $null=Get-CombineTrialSnapshot $true ($Scenario -eq 'offline-menus');Test-CombineTrialInventory;$result.cleanup='verified'
-  }catch{$result.verdict='unavailable';$result.boundary='recovery';$result.reason='recovery-unverified'}
+  }catch{
+   $result.diagnostic=@{verdict=$result.verdict;boundary=$result.boundary;reason=$result.reason}
+   $result.verdict='unavailable';$result.boundary='recovery';$result.reason='recovery-unverified'
+  }
  }
  $result | ConvertTo-Json -Compress | Set-Content -LiteralPath $Output -Encoding UTF8
 }

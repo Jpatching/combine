@@ -81,6 +81,8 @@ def attempt(store, scenario, config_path):
         else:
             native = json.loads((folder / 'native-result.json').read_text(encoding='utf-8-sig'))
             result.update({k: native[k] for k in ('verdict', 'boundary', 'reason', 'cleanup', 'runtime_identity')})
+            if 'diagnostic' in native:
+                result['diagnostic'] = native['diagnostic']
             result['runtime_identity'] = identity + '; ' + native['runtime_identity']
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
         # Full diagnostics remain private; the browser receives fixed labels only.

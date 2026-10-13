@@ -104,6 +104,12 @@ cannot steal focus or launch/restart a game. Capture requires the pinned local
 Universal Modder checkout and existing Windows ffmpeg. MP4 remux verifies unchanged
 frame counts before registering evidence.
 
+Preparation failure, timeout, cancellation and changed-floor notifications are
+terminal diagnostic results. If cleanup cannot be verified, the attempt remains
+blocked on recovery and retains the preceding verdict/boundary/reason in
+`diagnostic`; the page shows that original diagnostic separately. Neither a
+timeout nor a prior owner-observed mount clears a recovery block.
+
 ## Tailscale
 
 ```sh

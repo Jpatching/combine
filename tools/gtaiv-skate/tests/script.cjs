@@ -27,13 +27,13 @@ function run(mode, surfaces = []) {
    case 'COMBINE_SKATE_SURFACE_VERTEX':return mode==='geometryUploadFail'?0:1;
    case 'COMBINE_SKATE_MOUNT_SURFACE':return mode==='geometryMountFail'?0:mode==='geometryPreparing'?2:1;
    case 'COMBINE_SKATE_TICK_SURFACE':geometryTicks++;return mode==='geometryTickFail'||mode==='geometryRemount'&&geometryTicks===1?0:1;
-   case 'COMBINE_SKATE_MOUNT':return mode==='initFail'?0:['preparing','prepCancel','prepFail','prepPause','prepMove'].includes(mode)?2:1;
-   case 'COMBINE_SKATE_POLL':return mode==='prepFail'?0:mode==='prepCancel'?2:frame<2?2:1;
+   case 'COMBINE_SKATE_MOUNT':return mode==='initFail'?0:['preparing','prepCancel','prepFail','prepPause','prepMove','prepTimeout'].includes(mode)?2:1;
+   case 'COMBINE_SKATE_POLL':return mode==='prepFail'?0:['prepCancel','prepTimeout'].includes(mode)?2:frame<2?2:1;
    case 'COMBINE_SKATE_TICK':return mode==='inputFail'?0:1;
    case 'COMBINE_SKATE_STOP':if(mode==='stopThrow'&&frame>=4)throw Error('stop failure');return;
    case 'COMBINE_SKATE_RELEASE':if(mode==='releaseThrow')throw Error('release failure');return;
    case 'COMBINE_SKATE_VALUE':return mode==='invalidInitial'?NaN:mode==='geometryEscape'&&geometryTicks>=1||mode==='geometryInitialEscape'?[104,200,10.4,0][args[0]]:[100.1,200.2,11,0][args[0]];
-   case 'GET_GAME_TIMER':return frame*16;
+   case 'GET_GAME_TIMER':return frame*(mode==='prepTimeout'?60001:16);
    case 'CREATE_CAM':camera=true;return 99;
    case 'DOES_CAM_EXIST':return camera;
    case 'DESTROY_CAM':camera=false;return;
@@ -141,6 +141,11 @@ assert.ok(preparing.poseWrites>0);
 assert.ok(preparing.restored);
 console.log('PASS: asynchronous preparation leaves GTA responsive before mounting');
 assert.equal(preparing.transfers[0],2);
+const preparationTimeout=run('prepTimeout');
+assert.equal(preparationTimeout.transfers.length,0);
+assert.ok(preparationTimeout.logs.includes('COMBINE_SKATE Skate: preparation timed out - GTA retained'));
+assert.ok(preparationTimeout.calls.some(c=>c[0]==='COMBINE_SKATE_STOP'));
+console.log('PASS: pending preparation has a visible timeout without taking GTA control');
 for(const mode of ['prepCancel','prepFail','prepPause','prepMove']) {
  const result=run(mode);assert.equal(result.poseWrites,0);assert.equal(result.transfers.length,0);
  assert.equal(result.camera,false);assert.equal(result.mounted,false);

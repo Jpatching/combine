@@ -133,11 +133,14 @@ class EvidenceHubTests(unittest.TestCase):
                                       'attempts': 10}, token)
         fixtures = Path(self.temp.name) / 'fixtures.json'
         fixtures.write_text(json.dumps([{'verdict': 'unavailable', 'boundary': 'recovery',
-            'reason': 'owned-child-pending', 'changed_variable': 'fixture', 'cleanup': 'unknown'}]))
+            'reason': 'owned-child-pending', 'changed_variable': 'fixture', 'cleanup': 'unknown',
+            'diagnostic': {'verdict': 'failed', 'boundary': 'preparation', 'reason': 'preparation-timeout'}}]))
         for _ in range(2): self.cli('work', '--once', '--authored-results', str(fixtures))
         state = self.get('/api/state')
         self.assertEqual(len(state['attempts']), 1)
         self.assertIn('blocked-recovery', [b['status'] for b in state['batches']])
+        self.assertEqual(state['attempts'][0]['diagnostic'],
+                         {'verdict': 'failed', 'boundary': 'preparation', 'reason': 'preparation-timeout'})
 
     def test_unchanged_experiment_cannot_restart_in_another_batch(self):
         token = self.start()['token']

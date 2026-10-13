@@ -44,6 +44,9 @@ async function refresh() {
         const details = node('dl');
         for (const [label, value] of [['Boundary',a.boundary],['Observation',a.reason],['Changed variable',a.changed_variable],['Cleanup',a.cleanup],['Tested source',a.source_revision],['Controller source',a.controller_revision],['Runtime identity',a.runtime_identity],['Recorded',a.recorded_at],['Limitations',a.limitations]]) {details.append(node('dt',label), node('dd',value || 'Unknown'));}
         card.append(details);
+        if (a.diagnostic) {
+          card.append(node('p', 'Original diagnostic: ' + [a.diagnostic.verdict, a.diagnostic.boundary, a.diagnostic.reason].join(' · ')));
+        }
         for (const m of a.media) {const item = node(/\.(mp4|webm)$/i.test(m.name) ? 'video' : 'img'); item.src = '/media/' + m.id; item.controls = true; item.preload = 'metadata'; item.alt = 'Evidence for ' + a.scenario; card.append(item);}
         cards.set(a.id, card); return card;
       }));

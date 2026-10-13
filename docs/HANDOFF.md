@@ -2,18 +2,17 @@
 
 ## Current task
 
-Reviewed: 2026-10-12
+Reviewed: 2026-10-13
 
-Task: implement the owner-approved [persistent candidate and diagnostic workflow #61](https://github.com/Jpatching/combine/issues/61), local GTA IV recovery/testing and keyboard/mouse riding; diagnose the mount blocker before full ride acceptance under #20.
+Task: finish the working ride and reporting under [workflow #61](https://github.com/Jpatching/combine/issues/61), and organize the owner's [automatic-floor, board, GTA animation and tricks specification #64](https://github.com/Jpatching/combine/issues/64).
 
 Source branch: `integration/gtaiv-evidence-loop`
 
-Source revision: `a7449a90576fe889f76d4e07ea2576cb2a455233`
+Source revision: `50bdc0207a3c35ea931c5d1e061e741dff9398f9`
 
-The candidate PR owns its final publication revision. The current source includes
-the preserved short-footprint experiment and its revert, plus an authored
-mid-ride collision replacement path. No unrelated local edits were present at
-this review.
+The candidate PR owns its final publication revision. Preparation timeout and
+diagnostic/recovery reporting fixes are under review against this source baseline.
+The pre-existing uncommitted evidence measurement display is preserved separately.
 
 Disposition: [draft integration PR #62](https://github.com/Jpatching/combine/pull/62)
 awaits gameplay qualification and owner acceptance.
@@ -26,34 +25,34 @@ combined here for review, without merging main or activating triangle riding.
 
 ## Evidence
 
-Latest runtime evidence: a fresh windowed foreground H2 trial distinguished two
-stacked supporting floors through physical settling and independent decoded
-geometry. Three fixed-coordinate host queries per floor passed the existing
-2 cm spread and 5 cm mesh-agreement gates. Maximum fixed-query error was about
-1.3 mm; physical floor-separation error was 2.8 mm. Captured-observation replay
-rejects swapped floor references, wrong query floors and missing observations.
-The short private clip was opened locally; owner viewing is unconfirmed.
+Latest runtime evidence: the owner reports mounting works at the teleport spot,
+but stops again elsewhere. Retained local log classification also contains mounted
+notifications. The configured installed candidate names the source baseline above;
+its two prepared surfaces each have a 3 m radius. This establishes neither a
+measured complete ride nor automatic floor coverage.
 
-Player position and normal GTA control restoration passed. The exact process
-closed normally. The original checkpoint script and full private inventory were
-restored and verified. GTA is closed. This establishes a bounded H2 witness and
-readings, not other checkpoint qualification, loaded-resource identity or riding.
+The earlier H2 witness distinguished stacked supporting floors and passed three
+queries per floor through the existing 2 cm spread and 5 cm mesh-agreement gates.
+Those observations remain local evidence for the bounded area, not whole-map proof.
 
-The owner asked to stop redundant restrictions and pursue an actual ride. The
-source F6 script now selects a triangle route from qualified private surface data,
-retaining asynchronous preparation, selected-layer checks and control recovery.
-Authored script checks pass; matching Windows worker/plugin builds completed.
-The new route has not yet been staged or tested in GTA. Other retained source
-and runtime evidence remains historical; keep private trial data outside Git.
+The latest automated mount record remains unavailable with recovery unverified.
+A read-only check found one responding windowed GTA process, but foreground and
+fresh adapter readiness were unverified. No new gameplay input or runtime staging
+was performed during this reporting/specification work. Reconcile the retained
+recovery transaction before reusing its queue. Private records remain outside Git.
 
 ## Next step
 
-Run one bounded triangle ride at the proven H2 location, using the matching
-candidate and backed-up private geometry data. This owner-selected proof does not
-wait for all four checkpoints. Keep normal control restoration and windowed,
-foreground input ownership; stop at the first unresolved runtime boundary.
-Qualify other locations and moving collision only after an actual local ride.
-The wider #20 goal and draft PR #62 remain unaccepted and unmerged.
+Finish one push, both steering directions and dismount trial after fresh windowed
+foreground readiness and recovery verification. Reuse the bounded floor evidence;
+do not repeat four-checkpoint qualification as a prerequisite to this local ride.
+The reporting fix needs matching installed-source verification before its runtime
+behavior is claimed. The wider #20 goal and PR #62 remain unaccepted and unmerged.
+
+Use #64 and its approved slices for automatic nearby floor selection and moving
+coverage without a spot whitelist or arbitrary world-height ceiling, solved board,
+GTA-model animation and Skate tricks. Board/presentation need not wait for city-wide
+coverage. Exact-version collision supply and bone updates remain explicit gaps.
 
 ## Session close
 
@@ -72,4 +71,5 @@ transactions and all prior branches.
 [live riding #54](https://github.com/Jpatching/combine/issues/54),
 [complete riding #20](https://github.com/Jpatching/combine/issues/20),
 [native authored proof](../research/results/2026-10-11-gtaiv-native-refusal-proof.md).
+[Coverage and presentation source research](../research/results/2026-10-13-gtaiv-coverage-and-presentation.md).
 Historical methods do not authorize new work.

@@ -6,6 +6,7 @@ use std::{
     os::windows::ffi::OsStringExt,
     panic::{AssertUnwindSafe, catch_unwind},
     path::PathBuf,
+    sync::atomic::{AtomicU64, Ordering},
 };
 
 struct Ride {
@@ -16,27 +17,63 @@ struct Ride {
 }
 #[derive(Default)]
 struct Adapter {
+    generation: u64,
     points: Vec<[f32; 3]>,
     geometry: GeometryBuilder,
     ride: Option<Ride>,
+    idle: Option<Session>,
     assets: Option<PathBuf>,
+    config: Option<PathBuf>,
 }
 thread_local! { static ADAPTER: RefCell<Adapter> = RefCell::new(Adapter::default()); }
+static RESET_GENERATION: AtomicU64 = AtomicU64::new(1);
 use crate::Packet;
+fn synchronize_reset(adapter: &mut Adapter) {
+    let generation = RESET_GENERATION.load(Ordering::Acquire);
+    if adapter.generation != generation {
+        // A reset callback can run on another thread. Retire the old Session
+        // here, on its owning thread, before any read or operation can use it.
+        *adapter = Adapter { generation, ..Adapter::default() };
+    }
+}
 fn guarded(operation: impl FnOnce(&mut Adapter) -> Result<(), ()>) -> i32 {
     let result = catch_unwind(AssertUnwindSafe(|| {
-        ADAPTER.with(|a| operation(&mut a.borrow_mut()))
+        ADAPTER.with(|a| {
+            let mut adapter = a.borrow_mut();
+            synchronize_reset(&mut adapter);
+            operation(&mut adapter)?;
+            if adapter.generation != RESET_GENERATION.load(Ordering::Acquire) {
+                synchronize_reset(&mut adapter);
+                return Err(());
+            }
+            Ok(())
+        })
     }));
     if matches!(result, Ok(Ok(()))) {
         1
     } else {
-        ADAPTER.with(|a| a.borrow_mut().ride = None);
+        ADAPTER.with(|a| {
+            let mut adapter = a.borrow_mut();
+            adapter.ride = None;
+            adapter.idle = None;
+            adapter.points.clear();
+            adapter.geometry = GeometryBuilder::default();
+        });
         0
     }
 }
 #[unsafe(no_mangle)]
 pub extern "C" fn combine_stop() {
-    ADAPTER.with(|a| *a.borrow_mut() = Adapter::default());
+    ADAPTER.with(|a| {
+        let mut adapter = a.borrow_mut();
+        synchronize_reset(&mut adapter);
+        if let Some(mut ride) = adapter.ride.take() {
+            ride.session.suspend_input();
+            adapter.idle = Some(ride.session);
+        }
+        adapter.points.clear();
+        adapter.geometry = GeometryBuilder::default();
+    });
 }
 #[unsafe(no_mangle)]
 pub extern "C" fn combine_vertex(x: f32, y: f32, z: f32) -> i32 {
@@ -51,14 +88,14 @@ pub extern "C" fn combine_vertex(x: f32, y: f32, z: f32) -> i32 {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn combine_config(plugin_path: *const u16, length: u32) -> i32 {
     guarded(|a| {
-        a.assets = None;
+        let previous = a.assets.take();
         if plugin_path.is_null() || length == 0 || length >= 32768 {
             return Err(());
         }
         let wide = unsafe { std::slice::from_raw_parts(plugin_path, length as usize) };
         let plugin = PathBuf::from(OsString::from_wide(wide));
         let config = plugin.parent().ok_or(())?.join("combine_skate.assets.txt");
-        let content = std::fs::read_to_string(config).map_err(|_| ())?;
+        let content = std::fs::read_to_string(&config).map_err(|_| ())?;
         let value = content.trim_start_matches('\u{feff}').trim();
         if value.is_empty() || value.lines().count() != 1 {
             return Err(());
@@ -67,6 +104,13 @@ pub unsafe extern "C" fn combine_config(plugin_path: *const u16, length: u32) ->
         if !root.is_absolute() || !root.is_dir() {
             return Err(());
         }
+        // Session data belongs to both the selected root and configuration
+        // location. A changed pointer starts a fresh Session, even while idle.
+        if previous.as_ref() != Some(&root) || a.config.as_ref() != Some(&config) {
+            a.ride = None;
+            a.idle = None;
+        }
+        a.config = Some(config);
         a.assets = Some(root);
         Ok(())
     })
@@ -88,14 +132,17 @@ fn start_ride(a: &mut Adapter, surface: Surface, ground: f32, heading: f32) -> R
     if !root.is_dir() {
         return Err(());
     }
-    let mut session = Session::new(
-        root,
-        surface.triangles(),
-        vec![],
-        [0., 1., 0.],
-        skate_heading(heading),
-    )
-    .map_err(|_| ())?;
+    let mut session = if let Some(mut session) = a.idle.take() {
+        // Every mount supplies new collision before activation. Keeping assets
+        // warm never permits the previous ride's surface or input to survive.
+        let collision = session.collision_builder().build(surface.triangles(), vec![])
+            .map_err(|_| ())?;
+        session.install_collision(collision).map_err(|_| ())?;
+        session
+    } else {
+        Session::new(root, surface.triangles(), vec![], [0., 1., 0.], skate_heading(heading))
+            .map_err(|_| ())?
+    };
     let pose = session
         .activate([0., 1., 0.], skate_heading(heading))
         .map_err(|_| ())?;
@@ -190,7 +237,9 @@ fn tick_at(
 #[unsafe(no_mangle)]
 pub extern "C" fn combine_value(index: i32) -> f32 {
     ADAPTER.with(|a| {
-        a.borrow()
+        let mut adapter = a.borrow_mut();
+        synchronize_reset(&mut adapter);
+        adapter
             .ride
             .as_ref()
             .and_then(|r| r.pose.get(index as usize).copied())
@@ -200,11 +249,17 @@ pub extern "C" fn combine_value(index: i32) -> f32 {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn combine_poll() -> i32 {
-    1
+    ADAPTER.with(|a| {
+        let mut adapter = a.borrow_mut();
+        synchronize_reset(&mut adapter);
+        i32::from(adapter.ride.is_some())
+    })
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn combine_reset() {}
+pub extern "C" fn combine_reset() {
+    RESET_GENERATION.fetch_add(1, Ordering::AcqRel);
+}
 
 #[unsafe(no_mangle)]
 pub extern "C" fn combine_surface_begin(layer: u32, triangles: u32) -> i32 {

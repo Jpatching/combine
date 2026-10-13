@@ -37,6 +37,45 @@ function surfaceContainsPose(surface,x,y,z) {
     const height=surfaceHeight(surface,x,y);
     return height!==null && Number.isFinite(z) && Math.abs(z-height)*SCALE<3;
 }
+// A replacement must overlap the accepted pose on the same qualified floor.
+// Keep presenting that pose while the asynchronous worker acknowledges it.
+function refreshSurface(pos,ground) {
+    const now=native("GET_GAME_TIMER");
+    if(ride.coverage) {
+        const pending=ride.coverage;
+        if(((now-pending.started)>>>0)>500)return 0;
+        if(pending.submitted) {
+            const state=native("COMBINE_SKATE_POLL");
+            if(state===2)return 2;
+            if(state!==1)return 0;
+            selectedSurface=pending.surface;ride.coverage=null;return 1;
+        }
+        // Bound native upload work per frame; never upload a whole large mesh at once.
+        const end=Math.min(pending.vertex+96,pending.surface.triangles.length*3);
+        while(pending.vertex<end) {
+            const vertex=pending.surface.triangles[Math.floor(pending.vertex/3)][pending.vertex%3];
+            if(!native("COMBINE_SKATE_SURFACE_VERTEX",...vertex))return 0;
+            pending.vertex++;
+        }
+        if(pending.vertex<pending.surface.triangles.length*3)return 2;
+        const result=native("COMBINE_SKATE_SURFACE_REPLACE",pos[0],pos[1],ground,pending.surface.layer,1);
+        if(result===3)return 3; // Native snapshot advanced; consume its pose before retrying.
+        if(result===2){pending.submitted=true;return 2;}
+        if(result!==1)return 0;
+        selectedSurface=pending.surface;ride.coverage=null;return 1;
+    }
+    const margin=surface=>surface.radius-Math.hypot(pos[0]-surface.center[0],pos[1]-surface.center[1]);
+    let next=selectedSurface;
+    for(const surface of SURFACES) {
+        if(surface!==selectedSurface && surface.layer===selectedSurface.layer
+            && surfaceObservation(surface,pos[0],pos[1],ground)
+            && surfaceContainsPose(surface,...pos) && margin(surface)>margin(next)+0.25)next=surface;
+    }
+    if(next===selectedSurface)return 1;
+    if(!native("COMBINE_SKATE_SURFACE_BEGIN",next.layer,next.triangles.length))return 0;
+    ride.coverage={surface:next,vertex:0,started:now,submitted:false};
+    return refreshSurface(pos,ground);
+}
 function record(event) {try {log("COMBINE_SKATE "+event);}catch (_) {}}
 function notify(text) { record(text);native("PRINT_STRING_WITH_LITERAL_STRING_NOW", "STRING", text, 2500, 1); }
 function restore() {
@@ -202,6 +241,14 @@ try {
             if(interrupted) {stopRide(paused?"paused":"cutscene");continue;}
             const prior=[0,1,2].map(i=>native("COMBINE_SKATE_VALUE",i));
             const ground=native("GET_GROUND_Z_FOR_3D_COORD",prior[0],prior[1],prior[2]+2);
+            if(selectedSurface) {
+                if(!surfaceObservation(selectedSurface,prior[0],prior[1],ground)) {
+                    stopRide("surface-input-time-unavailable");continue;
+                }
+                const coverage=refreshSurface(prior,ground);
+                if(!coverage){stopRide("coverage-replacement-unavailable");continue;}
+                if(coverage===2)continue;
+            }
             const tick=selectedSurface
                 ?surfaceObservation(selectedSurface,prior[0],prior[1],ground)
                     && native("COMBINE_SKATE_TICK_SURFACE",native("GET_GAME_TIMER"),prior[0],prior[1],ground,selectedSurface.layer,valid?1:0)

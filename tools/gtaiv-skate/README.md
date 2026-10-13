@@ -72,6 +72,26 @@ Relink the harness after rebuilding the worker-feature library; matching source
 files alone do not establish that an existing executable contains the change.
 Source/object compilation alone does not establish a passing native trial.
 
+The in-process backend retains an idle Session after normal stop. A remount
+reconfigures, installs the newly uploaded collision and activates at the new
+origin with cleared input and clock. Dismounted poses remain unavailable.
+Configuration/root changes, invalid configuration, any rejected operation and
+`combine_reset` discard the retained Session. This avoids rebuilding the skater
+on normal remount; the first mount still loads assets. Asset roots are immutable
+for a process lifetime: restart after editing files within the same root, because
+upstream also caches immutable animation data. This source change does not alter
+the separate worker backend or establish live F6 timing in GTA.
+
+Run `native-surface.exe --in-process --mount-reuse-only` against the exact rebuilt
+default-feature library to measure cold initialization, normal remount and reset.
+It requires a warm remount below 500 ms and below one third of the cold time,
+checks the new origin and actual motion over a different authored slope, refuses
+idle ticks and verifies that reset reloads the Session. Reset advances a shared
+generation, so another callback thread invalidates pose/readiness immediately
+and the owning thread retires its old Session at the next native boundary.
+Use `--cross-thread-reset-only` for the focused public ABI reset check. These
+standalone checks do not qualify GTA callback threading or gameplay behavior.
+
 `tests/native-surface.cpp` isolates the authored ramp proof for either native
 backend, without worker suspension/cancellation. Link it against the exact built
 static library, keep the private asset pointer beside the executable, and run

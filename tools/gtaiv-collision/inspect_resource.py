@@ -26,13 +26,18 @@ class Inspection:
     faces: tuple
 
 
+@dataclass(frozen=True)
+class DictionaryInspection:
+    entries: tuple
+
+
 class Refusal(ValueError):
     def __init__(self, reason, verdict='invalid'):
         self.reason, self.verdict = reason, verdict
         super().__init__(reason)
 
 
-def decode_resource(raw):
+def decode_resource(raw, *, dictionary=False):
     if len(raw) > INPUT_CAP:
         raise Refusal('input-cap')
     if len(raw) < 14:
@@ -78,7 +83,7 @@ def decode_resource(raw):
             raise Refusal('invalid-pointer')
         return value & 0x0fffffff
 
-    ranges = [(0, 12)]
+    ranges = [(0, 32 if dictionary else 12)]
 
     def reserve(offset, size):
         span(offset, size)
@@ -134,66 +139,93 @@ def decode_resource(raw):
                 faces.append(face)
         return Inspection(vertices, tuple(faces))
 
-    root = pointer(8)
-    kind = read('<B', root + 4)[0]
-    if kind in (4, 10):
-        return geometry(root)
-    if kind != 12:
-        raise Refusal('unsupported-root', 'unsupported')
-    reserve(root, 0xa0)
-    count, capacity = read('<2H', root + 0x90)
-    if count != capacity:
-        raise Refusal('unsupported-child-counts', 'unsupported')
+    def bound(root, used_vertices=0, used_faces=0):
+        kind = read('<B', root + 4)[0]
+        if kind in (4, 10):
+            return geometry(root, used_vertices, used_faces)
+        if kind != 12:
+            raise Refusal('unsupported-root', 'unsupported')
+        reserve(root, 0xa0)
+        count, capacity = read('<2H', root + 0x90)
+        if count != capacity:
+            raise Refusal('unsupported-child-counts', 'unsupported')
+        if not 1 <= count <= CHILD_CAP:
+            raise Refusal('child-count-cap')
+        children = pointer(root + 0x80)
+        matrices = pointer(root + 0x84)
+        reserve(children, count * 4)
+        reserve(matrices, count * 64)
+        boxes = pointer(root + 0x8c)
+        reserve(boxes, count * 32)
+        internal = read('<I', root + 0x88)[0]
+        if internal:
+            internal = pointer(root + 0x88)
+            if internal != matrices:
+                reserve(internal, count * 64)
+        vertices, faces = [], []
+        for index in range(count):
+            lower, upper = read('<3f', boxes + index * 32), read('<3f', boxes + index * 32 + 16)
+            if (not all(math.isfinite(value) for value in lower + upper)
+                    or any(a > b for a, b in zip(lower, upper))):
+                raise Refusal('invalid-child-box')
+            child = pointer(children + index * 4)
+            if read('<B', child + 4)[0] not in (4, 10):
+                raise Refusal('unsupported-child', 'unsupported')
+            mesh = geometry(child, used_vertices + len(vertices), used_faces + len(faces))
+            matrix = tuple(read('<3f', matrices + index * 64 + row * 16) for row in range(4))
+            if not all(math.isfinite(value) for row in matrix for value in row):
+                raise Refusal('nonfinite-transform')
+            if internal and any(read('<3f', internal + index * 64 + row * 16) != matrix[row]
+                                for row in range(4)):
+                raise Refusal('unsupported-internal-motion', 'unsupported')
+            a, b, c = matrix[:3]
+            determinant = (a[0]*(b[1]*c[2]-b[2]*c[1])
+                           - a[1]*(b[0]*c[2]-b[2]*c[0])
+                           + a[2]*(b[0]*c[1]-b[1]*c[0]))
+            if (abs(determinant - 1) > RIGID_TOLERANCE
+                    or any(abs(sum(matrix[i][axis] * matrix[j][axis] for axis in range(3))
+                               - (1 if i == j else 0)) > RIGID_TOLERANCE
+                           for i in range(3) for j in range(i, 3))):
+                raise Refusal('unsupported-transform', 'unsupported')
+            base = len(vertices)
+            vertices.extend(tuple(sum(vertex[row] * matrix[row][axis] for row in range(3))
+                                  + matrix[3][axis] for axis in range(3)) for vertex in mesh.vertices)
+            faces.extend(tuple(base + value for value in face) for face in mesh.faces)
+        if not all(math.isfinite(value) for vertex in vertices for value in vertex):
+            raise Refusal('nonfinite-coordinate')
+        for face in faces:
+            validate_triangle(vertices, face, 'invalid-transformed-face')
+        return Inspection(tuple(vertices), tuple(faces))
+
+    if not dictionary:
+        return bound(pointer(8))
+    span(0, 32)
+    if read('<I', 8)[0]:
+        raise Refusal('unsupported-dictionary-parent', 'unsupported')
+    hashes, values = pointer(16), pointer(24)
+    count, capacity = read('<2H', 20)
+    value_count, value_capacity = read('<2H', 28)
+    if count != capacity or value_count != value_capacity or count != value_count:
+        raise Refusal('unsupported-dictionary-counts', 'unsupported')
     if not 1 <= count <= CHILD_CAP:
-        raise Refusal('child-count-cap')
-    children = pointer(root + 0x80)
-    matrices = pointer(root + 0x84)
-    reserve(children, count * 4)
-    reserve(matrices, count * 64)
-    boxes = pointer(root + 0x8c)
-    reserve(boxes, count * 32)
-    internal = read('<I', root + 0x88)[0]
-    if internal:
-        internal = pointer(root + 0x88)
-        if internal != matrices:
-            reserve(internal, count * 64)
-    vertices, faces = [], []
+        raise Refusal('dictionary-count-cap')
+    reserve(hashes, count * 4)
+    reserve(values, count * 4)
+    entries, keys = [], set()
+    used_vertices = used_faces = 0
     for index in range(count):
-        lower, upper = read('<3f', boxes + index * 32), read('<3f', boxes + index * 32 + 16)
-        if (not all(math.isfinite(value) for value in lower + upper)
-                or any(a > b for a, b in zip(lower, upper))):
-            raise Refusal('invalid-child-box')
-        child = pointer(children + index * 4)
-        if read('<B', child + 4)[0] not in (4, 10):
-            raise Refusal('unsupported-child', 'unsupported')
-        mesh = geometry(child, len(vertices), len(faces))
-        matrix = tuple(read('<3f', matrices + index * 64 + row * 16) for row in range(4))
-        if not all(math.isfinite(value) for row in matrix for value in row):
-            raise Refusal('nonfinite-transform')
-        if internal and any(read('<3f', internal + index * 64 + row * 16) != matrix[row]
-                            for row in range(4)):
-            raise Refusal('unsupported-internal-motion', 'unsupported')
-        a, b, c = matrix[:3]
-        determinant = (a[0]*(b[1]*c[2]-b[2]*c[1])
-                       - a[1]*(b[0]*c[2]-b[2]*c[0])
-                       + a[2]*(b[0]*c[1]-b[1]*c[0]))
-        if (abs(determinant - 1) > RIGID_TOLERANCE
-                or any(abs(sum(matrix[i][axis] * matrix[j][axis] for axis in range(3))
-                           - (1 if i == j else 0)) > RIGID_TOLERANCE
-                       for i in range(3) for j in range(i, 3))):
-            raise Refusal('unsupported-transform', 'unsupported')
-        base = len(vertices)
-        vertices.extend(tuple(sum(vertex[row] * matrix[row][axis] for row in range(3))
-                              + matrix[3][axis] for axis in range(3)) for vertex in mesh.vertices)
-        faces.extend(tuple(base + value for value in face) for face in mesh.faces)
-    if not all(math.isfinite(value) for vertex in vertices for value in vertex):
-        raise Refusal('nonfinite-coordinate')
-    for face in faces:
-        validate_triangle(vertices, face, 'invalid-transformed-face')
-    return Inspection(tuple(vertices), tuple(faces))
+        key = read('<I', hashes + index * 4)[0]
+        if key in keys:
+            raise Refusal('duplicate-dictionary-key')
+        keys.add(key)
+        mesh = bound(pointer(values + index * 4), used_vertices, used_faces)
+        used_vertices += len(mesh.vertices)
+        used_faces += len(mesh.faces)
+        entries.append((key, mesh))
+    return DictionaryInspection(tuple(entries))
 
 
-def inspect_file(path):
+def inspect_file(path, *, dictionary=False):
     """Read one regular local file. Never expose input-derived text."""
     try:
         # Check before opening, then recheck the opened descriptor. NONBLOCK
@@ -208,8 +240,8 @@ def inspect_file(path):
             if info.st_size > INPUT_CAP:
                 raise Refusal('input-cap')
             raw = stream.read(INPUT_CAP + 1)
-        decode_resource(raw)
-        return {'verdict':'structurally-decoded', 'reason':'validated-geometry'}
+        decode_resource(raw, dictionary=dictionary)
+        return {'verdict':'structurally-decoded', 'reason':'validated-dictionary' if dictionary else 'validated-geometry'}
     except Refusal as refusal:
         return {'verdict':refusal.verdict, 'reason':refusal.reason}
     except (OSError, ValueError):
@@ -218,10 +250,13 @@ def inspect_file(path):
 
 def main(args=None):
     args = sys.argv[1:] if args is None else args
+    dictionary = len(args) == 2 and args[0] == '--dictionary'
+    if dictionary:
+        args = args[1:]
     if len(args) != 1 or args[0].startswith('-'):
         result = {'verdict':'invalid', 'reason':'invalid-arguments'}
     else:
-        result = inspect_file(args[0])
+        result = inspect_file(args[0], dictionary=dictionary)
     print(json.dumps(result, sort_keys=True))
     return {'structurally-decoded':0, 'unsupported':2, 'invalid':1}[result['verdict']]
 

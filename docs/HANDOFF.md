@@ -49,10 +49,15 @@ stable responding windowed process with the expected executable identity and
 matching staged hashes; staged files predate its start. No fresh session or runtime
 configuration pointer was created, and no focus change or gameplay input occurred.
 
-Automatic approval review twice rejected attaching to, focusing and rebinding this
-replacement window because it differs from the saved session and lacks foreground
-ownership. Explicit owner permission for that window is pending. Private records
-remain outside Git.
+The owner subsequently authorized restart and testing, superseding the earlier
+replacement-window permission boundary. Fresh staged inventory verification passed.
+The restart stopped before close, launch or focus because an independent OS key
+check found F8 held even though the fresh helper owned no input and recorded all
+its keys released. Independent read-only checks after 5 and 60 seconds reproduced
+F8 held; other checked keys were released. No unowned key release, new restart,
+fresh session, configuration pointer change, focus change or gameplay input was
+performed. No pending helper or active lease remains. Private records stay outside
+Git.
 
 Docker daemon, pinned image and Sandcastle doctor checks passed. The subscription
 marker matches the model and image; the separate research qualification
@@ -63,12 +68,13 @@ open blockers and lack reviewed task profiles; neither was dispatched.
 
 ## Next step
 
-The old recovery transaction is reconciled and reviewed source is staged. Obtain
-explicit permission to attach to the current replacement window, then establish a
-fresh session and verify windowed foreground readiness before one bounded ride
-proof. Reuse established floor evidence; report movement and control restoration
-separately from acceptance. The wider #20 goal and PR #62 remain unaccepted and
-unmerged.
+The old recovery transaction is reconciled and reviewed source remains staged
+with the independent script backed up. The owner must release F8, then recheck
+released keys and use the already authorized restart and ride test. No renewed
+consent is needed for that sequence. Establish a fresh session and windowed
+foreground readiness before one bounded ride proof. Reuse established floor
+evidence; report movement and control restoration separately from acceptance.
+The wider #20 goal and PR #62 remain unaccepted and unmerged.
 
 Use #64 and its approved slices for automatic nearby floor selection and moving
 coverage without a spot whitelist or arbitrary world-height ceiling, solved board,

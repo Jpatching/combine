@@ -37,12 +37,13 @@ The earlier H2 witness distinguished stacked supporting floors and passed three
 queries per floor through the existing 2 cm spread and 5 cm mesh-agreement gates.
 Those observations remain local evidence for the bounded area, not whole-map proof.
 
-The latest automated mount record remains unavailable with recovery unverified.
+The original failed mount record is retained. Its specific recovery batch was
+reconciled by observing that the original session exited, without gameplay input.
 Read-only inspection found that the current GTA process differs from the immutable
 saved session and the installed script has independently changed. No gameplay
 keys, focus changes or runtime staging were performed in this implementation run.
-Preserve the independent script and reconcile the specific exited original session
-before reusing its queue. Private records remain outside Git.
+Preserve the independent script; the current process remains unqualified. Private
+records remain outside Git.
 
 Docker daemon, pinned image and Sandcastle doctor checks passed. The subscription
 marker matches the model and image; the separate research qualification
@@ -53,7 +54,7 @@ open blockers and lack reviewed task profiles; neither was dispatched.
 
 ## Next step
 
-After review, reconcile the retained transaction for the exited original process.
+The old recovery transaction is reconciled; current-game readiness remains open.
 Coordinate replacement of the independently changed installed script before
 staging a reviewed matching candidate while the game is closed. Then verify fresh
 windowed foreground readiness and run one bounded ride proof. Reuse established

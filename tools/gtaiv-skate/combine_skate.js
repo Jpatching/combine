@@ -33,6 +33,10 @@ function surfaceObservation(surface,x,y,ground) {
     const height=surfaceHeight(surface,x,y);
     return height!==null && Number.isFinite(ground) && Math.abs(height-ground)*SCALE<=0.05;
 }
+function sameFloor(a,b,x,y) {
+    const first=surfaceHeight(a,x,y),second=surfaceHeight(b,x,y);
+    return a.layer===b.layer && first!==null && second!==null && Math.abs(first-second)*SCALE<=0.001;
+}
 function surfaceContainsPose(surface,x,y,z) {
     const height=surfaceHeight(surface,x,y);
     return height!==null && Number.isFinite(z) && Math.abs(z-height)*SCALE<3;
@@ -43,11 +47,19 @@ function refreshSurface(pos,ground) {
     const now=native("GET_GAME_TIMER");
     if(ride.coverage) {
         const pending=ride.coverage;
-        if(((now-pending.started)>>>0)>500)return 0;
+        const supported=(pose,height)=>sameFloor(pending.surface,selectedSurface,pose[0],pose[1])
+            && surfaceObservation(pending.surface,pose[0],pose[1],height)
+            && surfaceContainsPose(pending.surface,...pose);
+        if(!supported(pos,ground))return 0;
+        // Stay below the native 250 ms tick/freshness deadline, including upload time.
+        if(((now-ride.lastTick)>>>0)>200)return 0;
         if(pending.submitted) {
             const state=native("COMBINE_SKATE_POLL");
             if(state===2)return 2;
             if(state!==1)return 0;
+            const accepted=[0,1,2].map(i=>native("COMBINE_SKATE_VALUE",i));
+            const support=native("GET_GROUND_Z_FOR_3D_COORD",accepted[0],accepted[1],accepted[2]+2);
+            if(!supported(accepted,support))return 0;
             selectedSurface=pending.surface;ride.coverage=null;return 1;
         }
         // Bound native upload work per frame; never upload a whole large mesh at once.
@@ -59,7 +71,10 @@ function refreshSurface(pos,ground) {
         }
         if(pending.vertex<pending.surface.triangles.length*3)return 2;
         const result=native("COMBINE_SKATE_SURFACE_REPLACE",pos[0],pos[1],ground,pending.surface.layer,1);
-        if(result===3)return 3; // Native snapshot advanced; consume its pose before retrying.
+        if(result===3) {
+            // Poll without queuing another tick, then re-read pose/ground next frame.
+            return native("COMBINE_SKATE_POLL")===0?0:2;
+        }
         if(result===2){pending.submitted=true;return 2;}
         if(result!==1)return 0;
         selectedSurface=pending.surface;ride.coverage=null;return 1;
@@ -67,13 +82,13 @@ function refreshSurface(pos,ground) {
     const margin=surface=>surface.radius-Math.hypot(pos[0]-surface.center[0],pos[1]-surface.center[1]);
     let next=selectedSurface;
     for(const surface of SURFACES) {
-        if(surface!==selectedSurface && surface.layer===selectedSurface.layer
+        if(surface!==selectedSurface && sameFloor(surface,selectedSurface,pos[0],pos[1])
             && surfaceObservation(surface,pos[0],pos[1],ground)
             && surfaceContainsPose(surface,...pos) && margin(surface)>margin(next)+0.25)next=surface;
     }
     if(next===selectedSurface)return 1;
     if(!native("COMBINE_SKATE_SURFACE_BEGIN",next.layer,next.triangles.length))return 0;
-    ride.coverage={surface:next,vertex:0,started:now,submitted:false};
+    ride.coverage={surface:next,vertex:0,submitted:false};
     return refreshSurface(pos,ground);
 }
 function record(event) {try {log("COMBINE_SKATE "+event);}catch (_) {}}
@@ -127,8 +142,15 @@ function mount(player, ped) {
     native("COMBINE_SKATE_STOP");
     if(SURFACES.length) {
         const matches=SURFACES.filter(surface=>surfaceObservation(surface,pos.x,pos.y,ground));
-        if(matches.length!==1){notify("Skate: qualified floor unavailable - GTA retained");return;}
-        selectedSurface=matches[0];
+        const heights=matches.map(surface=>surfaceHeight(surface,pos.x,pos.y));
+        if(!matches.length || matches.some(surface=>surface.layer!==matches[0].layer)
+            || (Math.max(...heights)-Math.min(...heights))*SCALE>0.001) {
+            notify("Skate: qualified floor unavailable - GTA retained");return;
+        }
+        // Overlapping patches on one agreeing floor are coverage, not separate floors.
+        selectedSurface=matches.reduce((best,surface)=>
+            surface.radius-Math.hypot(pos.x-surface.center[0],pos.y-surface.center[1])
+                >best.radius-Math.hypot(pos.x-best.center[0],pos.y-best.center[1])?surface:best);
         if(!native("COMBINE_SKATE_SURFACE_BEGIN",selectedSurface.layer,selectedSurface.triangles.length)) {restore();return;}
         for(const triangle of selectedSurface.triangles)for(const vertex of triangle) {
             if(!native("COMBINE_SKATE_SURFACE_VERTEX",...vertex)){restore();return;}
@@ -163,7 +185,7 @@ function finishMount(player,ped,pos) {
     const initial=[0,1,2,3].map(i=>native("COMBINE_SKATE_VALUE",i));
     if(!initial.every(Number.isFinite) || (selectedSurface && !surfaceContainsPose(selectedSurface,initial[0],initial[1],initial[2]))) {restore();notify("Skate: invalid initial pose - GTA retained");return;}
     const camera=native("CREATE_CAM",14);
-    ride={player,ped,camera,lift:pos.z-initial[2],yaw:0,pitch:Math.atan2(2.5,4)*180/Math.PI};
+    ride={player,ped,camera,lastTick:native("GET_GAME_TIMER"),lift:pos.z-initial[2],yaw:0,pitch:Math.atan2(2.5,4)*180/Math.PI};
     if (!native("DOES_CAM_EXIST",camera)) {restore();notify("Skate: camera unavailable - GTA retained");return;}
     native("COMBINE_SKATE_CLAIM",player,ped,camera);
     native("SET_PLAYER_CONTROL",player,false);
@@ -249,13 +271,15 @@ try {
                 if(!coverage){stopRide("coverage-replacement-unavailable");continue;}
                 if(coverage===2)continue;
             }
+            const timer=native("GET_GAME_TIMER");
             const tick=selectedSurface
                 ?surfaceObservation(selectedSurface,prior[0],prior[1],ground)
-                    && native("COMBINE_SKATE_TICK_SURFACE",native("GET_GAME_TIMER"),prior[0],prior[1],ground,selectedSurface.layer,valid?1:0)
-                :native("COMBINE_SKATE_TICK",native("GET_GAME_TIMER"),ground,valid?1:0);
+                    && native("COMBINE_SKATE_TICK_SURFACE",timer,prior[0],prior[1],ground,selectedSurface.layer,valid?1:0)
+                :native("COMBINE_SKATE_TICK",timer,ground,valid?1:0);
             if (!tick) {
                 stopRide("surface-input-time-unavailable");notify("Skate: surface/input/time unavailable - GTA restored");continue;
             }
+            ride.lastTick=timer;
             const [x,y,z,heading]=[0,1,2,3].map(i=>native("COMBINE_SKATE_VALUE",i));
             if (![x,y,z,heading].every(Number.isFinite)) {stopRide("nonfinite-pose");continue;}
             if(selectedSurface && !surfaceContainsPose(selectedSurface,x,y,z)) {stopRide("outside-qualified-surface");continue;}

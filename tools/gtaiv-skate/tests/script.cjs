@@ -55,7 +55,7 @@ assert.ok(geometry.calls.some(c=>c[0]==='COMBINE_SKATE_TICK_SURFACE'&&c[2]===100
 assert.equal(geometry.vertices,0);assert.ok(geometry.poseWrites>0);assert.ok(geometry.restored);
 console.log('PASS: qualified slope mounts and rides through the triangle route, then restores GTA');
 for (const surfaces of [slope.map(s=>({...s,qualified:false})), slope.map(s=>({...s,center:[110,210]})),
- slope.map(s=>({...s,triangles:s.triangles.map(t=>t.map(v=>[v[0],v[1],v[2]+1]))})), [...slope,...slope]]) {
+ slope.map(s=>({...s,triangles:s.triangles.map(t=>t.map(v=>[v[0],v[1],v[2]+1]))})), [...slope,...slope.map(s=>({...s,layer:2}))]]) {
  const refused=run('geometry',surfaces);
  assert.equal(refused.transfers.length,0);assert.equal(refused.vertices,0);assert.equal(refused.poseWrites,0);
 }

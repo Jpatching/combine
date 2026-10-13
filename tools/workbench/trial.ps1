@@ -9,8 +9,13 @@ $ErrorActionPreference='Stop'
 $result=@{verdict='refused';boundary='preflight';reason='prerequisites-unavailable';cleanup='not-needed';runtime_identity='unverified'}
 $acted=$false;$mounted=$false
 
+function Reset-CombineEvaluation {
+ # Bind each observer to bytes written after its own trigger, not the mount offset.
+ foreach($path in $m.log_paths){$offsets[$path]=(Get-Item -LiteralPath $path).Length;$tails[$path]=''}
+ $script:evaluationLines=[Collections.Generic.List[string]]::new()
+}
 function Wait-CombineEvaluation([string]$Kind) {
- $timer=[Diagnostics.Stopwatch]::StartNew()
+ $timer=[Diagnostics.Stopwatch]::StartNew();$started=$Kind -eq 'restored';$terminal=$null;$settle=$null
  while($timer.Elapsed.TotalSeconds -lt 12){
   $null=Get-CombineTrialSnapshot ($Kind -ne 'ride')
   foreach($path in $m.log_paths){
@@ -20,15 +25,32 @@ function Wait-CombineEvaluation([string]$Kind) {
    try{$null=$stream.Seek($offsets[$path],[IO.SeekOrigin]::Begin);$reader=[IO.StreamReader]::new($stream);$text=$reader.ReadToEnd();$offsets[$path]=$stream.Position}finally{$stream.Dispose()}
    $lines=($tails[$path]+$text).Split([char]10);$tails[$path]=$lines[-1]
    if($tails[$path].Length -gt 65536){throw 'log-boundary'}
-   foreach($line in @($lines | Select-Object -SkipLast 1)){
-    if($Kind -eq 'ride' -and $line -match 'COMBINE_EVALUATION (PASS|FAIL): real-input movement=(true|false), left-heading=(positive|negative|unchanged), right-heading=(positive|negative|unchanged), finite-active-camera-moved=(true|false); scale/orientation acceptance unverified'){
-     return ($Matches[1] -eq 'PASS' -and $Matches[2] -eq 'true' -and $Matches[5] -eq 'true' -and (($Matches[3] -eq 'positive' -and $Matches[4] -eq 'negative') -or ($Matches[3] -eq 'negative' -and $Matches[4] -eq 'positive')))
-    }
-    if($Kind -eq 'restored' -and $line -match 'COMBINE_EVALUATION (PASS|FAIL): native GTA control and owned camera destruction after ride'){return $Matches[1] -eq 'PASS'}
-    if($Kind -eq 'walking' -and $line -match 'COMBINE_EVALUATION (PASS|FAIL): ordinary walking displacement after restoration'){return $Matches[1] -eq 'PASS'}
-    if($line -match 'COMBINE_EVALUATION (UNAVAILABLE|REFUSED):'){throw 'evaluation-observation-unavailable'}
+   foreach($line in @($lines | Select-Object -SkipLast 1)){$script:evaluationLines.Add($line)}
+  }
+  # Consume every complete line; returning never discards the remainder of a read.
+  while($script:evaluationLines.Count){
+   $line=$script:evaluationLines[0];$script:evaluationLines.RemoveAt(0)
+   if($line -notmatch 'COMBINE_EVALUATION '){continue}
+   if($line -match 'COMBINE_EVALUATION (attempt|walking-attempt):([0-9]+) started'){
+    $expected=if($Kind -eq 'ride'){'attempt'}else{'walking-attempt'}
+    if($Kind -eq 'restored' -or $started -or $Matches[1] -ne $expected){throw 'evaluation-conflicting-events'}
+    $started=$true;continue
+   }
+   if($line -match 'COMBINE_EVALUATION (UNAVAILABLE|REFUSED):'){throw 'evaluation-observation-unavailable'}
+   $value=$null
+   if($Kind -eq 'ride' -and $line -match 'COMBINE_EVALUATION (PASS|FAIL): real-input movement=(true|false), left-heading=(positive|negative|unchanged), right-heading=(positive|negative|unchanged), finite-active-camera-moved=(true|false); scale/orientation acceptance unverified'){
+    $value=$Matches[1] -eq 'PASS' -and $Matches[2] -eq 'true' -and $Matches[5] -eq 'true' -and (($Matches[3] -eq 'positive' -and $Matches[4] -eq 'negative') -or ($Matches[3] -eq 'negative' -and $Matches[4] -eq 'positive'))
+   }elseif($Kind -eq 'restored' -and $line -match 'COMBINE_EVALUATION (PASS|FAIL): native GTA control and owned camera destruction after ride'){$value=$Matches[1] -eq 'PASS'}
+   elseif($Kind -eq 'walking' -and $line -match 'COMBINE_EVALUATION (PASS|FAIL): ordinary walking displacement after restoration'){$value=$Matches[1] -eq 'PASS'}
+   elseif($line -match 'COMBINE_EVALUATION (PASS|FAIL):'){throw 'evaluation-conflicting-events'}
+   if($null -ne $value){
+    if(!$started){throw 'evaluation-uncorrelated-event'}
+    if($null -ne $terminal){throw 'evaluation-conflicting-events'}
+    $terminal=$value;$settle=[Diagnostics.Stopwatch]::StartNew()
    }
   }
+  # Observe a short quiet interval so duplicate/conflicting terminal lines refuse.
+  if($null -ne $terminal -and $settle.Elapsed.TotalMilliseconds -ge 250){return $terminal}
   Start-Sleep -Milliseconds 100
  }
  throw 'evaluation-observer-timeout'
@@ -104,13 +126,16 @@ try {
   }
   if($Scenario -eq 'ride-proof' -and $mounted){
    $result.boundary='ride';$result.verdict='unavailable';$result.reason='ride-observer-unavailable'
+   Reset-CombineEvaluation
    Invoke-CombineTrialPulse 66
    $ride=Wait-CombineEvaluation 'ride'
    $result.verdict=if($ride){'passed'}else{'failed'};$result.reason=if($ride){'ride-input-observed'}else{'ride-evaluation-failed'}
+   Reset-CombineEvaluation
    Invoke-CombineTrialPulse
    $restored=Wait-CombineEvaluation 'restored'
    if(!$restored){throw 'restoration-observation-failed'}
    $null=Get-CombineTrialSnapshot $true
+   Reset-CombineEvaluation
    Invoke-CombineTrialWalking
    $walk=Wait-CombineEvaluation 'walking'
    if(!$walk){throw 'walking-observation-failed'}
@@ -121,7 +146,7 @@ try {
  if($result.reason -eq 'ride-evaluation-failed'){$result.diagnostic=@{verdict=$result.verdict;boundary=$result.boundary;reason=$result.reason}}
  $result.verdict='refused';$result.reason='native-prerequisite-or-observer-refused'
  if($_.Exception.Message -in @('process-identity','foreground','windowed','fresh-gameplay','runtime-inventory',
-  'evaluation-unprepared','evaluation-observation-unavailable','evaluation-observer-timeout','restoration-observation-failed','walking-observation-failed','runtime-identity','input-refused','input-release','stale-menu-image','unknown-offline-menu','log-boundary')){
+  'evaluation-unprepared','evaluation-conflicting-events','evaluation-uncorrelated-event','evaluation-observation-unavailable','evaluation-observer-timeout','restoration-observation-failed','walking-observation-failed','runtime-identity','input-refused','input-release','stale-menu-image','unknown-offline-menu','log-boundary')){
   $result.reason=$_.Exception.Message
  }
  $_ | Out-String | Set-Content -LiteralPath ($Output+'.error-private.txt')
@@ -132,7 +157,7 @@ try {
    if(!(Test-CombineTrialInputReleased)){throw 'owned-key-release-unverified'}
    $s=Get-CombineTrialSnapshot $false ($Scenario -eq 'offline-menus')
    # Mounted or still preparing must be cancelled through the guarded F6 boundary.
-   if($result.reason -in @('mount-observer-timeout','checkpoint-observer-timeout','checkpoint-recovery-unverified','evaluation-observer-timeout','evaluation-observation-unavailable','ride-observer-unavailable')){throw 'pending-preparation-unverified'}
+   if($result.reason -in @('mount-observer-timeout','checkpoint-observer-timeout','checkpoint-recovery-unverified','evaluation-observer-timeout','evaluation-observation-unavailable','evaluation-conflicting-events','evaluation-uncorrelated-event','ride-observer-unavailable')){throw 'pending-preparation-unverified'}
    if($s.Report.Adapter -eq 'ready, mounted'){Invoke-CombineTrialPulse;Start-Sleep -Milliseconds 800}
    $null=Get-CombineTrialSnapshot $true ($Scenario -eq 'offline-menus');Test-CombineTrialInventory;$result.cleanup='verified'
   }catch{

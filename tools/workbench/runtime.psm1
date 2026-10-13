@@ -82,7 +82,7 @@ function Initialize-CombineTrial([string]$Session,[string]$StatusModule) {
  Test-CombineTrialInventory
 }
 function Test-CombineTrialNoHeldKeys {
- foreach($key in @(0x57,0x75,0x76,0x77,0x78)){
+ foreach($key in @(0x0D,0x57,0x75,0x76,0x77,0x78)){
   if(([CombineTrialWindow]::GetAsyncKeyState($key) -band 0x8000) -ne 0){throw 'input-held'}
  }
  if($script:acted -or !$script:released){throw 'input-held'}

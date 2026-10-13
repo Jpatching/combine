@@ -118,7 +118,7 @@ function finishMount(player,ped,pos) {
     if(!initial.every(Number.isFinite) || (selectedSurface && !surfaceContainsPose(selectedSurface,initial[0],initial[1],initial[2]))) {restore();notify("Skate: invalid initial pose - GTA retained");return;}
     const camera=native("CREATE_CAM",14);
     ride={player,ped,camera,lift:pos.z-initial[2],yaw:0,pitch:Math.atan2(2.5,4)*180/Math.PI};
-    if (!native("DOES_CAM_EXIST",camera)) {restore();return;}
+    if (!native("DOES_CAM_EXIST",camera)) {restore();notify("Skate: camera unavailable - GTA retained");return;}
     native("COMBINE_SKATE_CLAIM",player,ped,camera);
     native("SET_PLAYER_CONTROL",player,false);
     native("FREEZE_CHAR_POSITION",ped,true);
@@ -132,7 +132,12 @@ try {
     while (true) {
         wait(0);
         try {
-            if (!native("COMBINE_SKATE_READY")) {restore();continue;}
+            if (!native("COMBINE_SKATE_READY")) {
+                const pending=preparing!==null;
+                restore();
+                if(pending)notify("Skate: preparation failed - GTA retained");
+                continue;
+            }
             if(ride && ride.recovering){restore();continue;}
             if(!inputConfigured) {
                 if(!native("COMBINE_SKATE_INPUT_MODE",INPUT_MODE)) {
@@ -213,6 +218,9 @@ try {
             native("SET_CAM_POS",ride.camera,x+Math.sin(angle)*Math.cos(elevation)*distance,
                 y-Math.cos(angle)*Math.cos(elevation)*distance,z+Math.sin(elevation)*distance);
             native("POINT_CAM_AT_COORD",ride.camera,x,y,z+1);
-        } catch (_) {record("native-exception");restore();}
+        } catch (_) {
+            record("native-exception");restore();
+            try {notify(ride?"Skate: recovery pending - riding blocked":"Skate: native operation failed - GTA retained");}catch (_) {}
+        }
     }
 } finally {restore();}

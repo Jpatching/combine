@@ -65,8 +65,8 @@ try {
       $reason=@{'timed out'='preparation-timeout';'failed'='preparation-failed';'cancelled'='preparation-cancelled';'floor changed'='preparation-floor-changed'}[$Matches[1]]
       $result.verdict=if($Matches[1] -in @('cancelled','floor changed')){'inconclusive'}else{'failed'}
       $result.boundary='preparation';$result.reason=$reason;$observed=$true
-     }elseif($line -match 'COMBINE_SKATE Skate: (initialization/controller unavailable|invalid initial pose|qualified floor unavailable)'){
-      $result.verdict='failed';$result.reason=@{'initialization/controller unavailable'='initialization-unavailable';'invalid initial pose'='invalid-initial-pose';'qualified floor unavailable'='qualified-floor-unavailable'}[$Matches[1]];$observed=$true
+     }elseif($line -match 'COMBINE_SKATE Skate: (initialization/controller unavailable|invalid initial pose|qualified floor unavailable|camera unavailable)'){
+      $result.verdict='failed';$result.reason=@{'initialization/controller unavailable'='initialization-unavailable';'invalid initial pose'='invalid-initial-pose';'qualified floor unavailable'='qualified-floor-unavailable';'camera unavailable'='camera-unavailable'}[$Matches[1]];$observed=$true
      }elseif($line -match 'COMBINE_SKATE native-exception'){
       $result.verdict='failed';$result.reason='native-exception';$observed=$true
      }

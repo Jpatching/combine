@@ -50,7 +50,8 @@ Wait for explicit approval of the presented candidate before marking the PR read
 and merging. Material behavior changes after approval require renewed evidence
 and approval. Do not enable automatic merge while acceptance is pending.
 
-Bundle source, tests and handoff updates into one focused commit when practical.
+Bundle source and tests into one focused commit when practical. For documentation
+or handoff changes, follow [context maintenance](current-context.md).
 Use additional commits for meaningful fixes or review responses, then squash the
 finished PR into one commit on `main`. Record the final merged revision on the
 issue; avoid extra commits solely to make HANDOFF name its own commit or merge.
@@ -79,8 +80,9 @@ unrelated changes. Create new slice branches from synchronized `main`.
 Before pushing, inspect the remote and destination branch; publish the task branch,
 not a refspec targeting `main`.
 
-Work only on slices whose blockers are complete. When blocked, record the exact
-blocker on the existing issue/PR and preserve the branch. The owner may select
+Work only on slices whose blockers are complete. Preserve a blocked branch;
+update its existing issue/PR when the blocker changes the public verdict. Keep
+routine diagnostic attempts in the existing private records. The owner may select
 independent work while it is blocked. Review, required checks and owner approval must pass before
 merging. Start the next new slice from updated `main` after completion.
 Verify completion with a clean working tree, a merged PR, and identical local

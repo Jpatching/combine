@@ -2,51 +2,38 @@
 
 ## Start or resume
 
-1. Read `docs/HANDOFF.md`, then fetch its linked live issue requirements and relevant
-   latest evidence. Retrieve older comments only to resolve a specific uncertainty.
-   The owner's current request selects work. If it differs from the snapshot,
-   use the current request and report the discrepancy.
-2. Verify the directory, branch, revision and local changes using the
-   [workspace checks](../../AGENTS.md). Check the source and installed
-   runtime revisions separately when a runtime trial is authorized.
-3. Read the issue's current verdict first. A named correction or owner decision
-   supersedes the historical claim it identifies; unresolved criteria remain active.
-   Consult linked evidence for the
-   behavior being changed. Reuse qualified setup until a changed prerequisite
-   or observation gives a reason to repeat it.
+1. Use HANDOFF to locate the current task/worktree; the owner's request selects
+   work. Verify the workspace using [AGENTS.md](../../AGENTS.md).
+2. Load the relevant issue, implementation and one or two evidence references.
+   Compare dates and source/runtime revisions before relying on a status claim.
+   A live issue can contain an old verdict; verify runtime state before acting.
+3. Retrieve older comments or research only to answer a named uncertainty.
+   Reuse qualified evidence until a changed prerequisite gives reason to repeat it.
 
-## Finish or transfer a task
+## Keep one source of truth
 
-1. Preserve source-safe decisions in the glossary/ADRs and observations in dated
-   research. Link existing artifacts rather than copying transcripts. Review
-   public content before staging; private runtime data stays outside Git.
-2. Update the existing issue's current status when new evidence changes it.
-   Identify the revision, passed behavior, blocker and next step. Keep acceptance
-   criteria separate from isolated trial passes. Retain comments as history.
-   Name and link a superseded claim when correcting it. For #61, private run
-   records own diagnostic progress; publish one source-safe summary at a changed
-   verdict or task boundary instead of a documentation PR for every attempt.
-3. Update HANDOFF when the selected task or verdict changes. Keep these sections:
-   `Current task`, `Evidence`, `Next step`, `Session close`, `Historical reference`.
-   Include `Reviewed`, `Task`, `Source branch`, `Source revision`, `Disposition`
-   and `Latest runtime evidence`. Link the issue and PR, or explicitly state
-   that no PR exists. The snapshot points to evidence; the issue owns acceptance.
-4. Stage only reviewed source-safe files and run `python3 scripts/verify.py`.
-   Its context check flags untracked Markdown in `docs/`, `research/results/`
-   and the root glossary without reading ignored/private files. It checks
-   HANDOFF structure and links, not the truth or freshness of runtime claims.
-5. Report one disposition: draft PR awaiting owner approval; merged and synchronized; pushed but blocked with the
-   exact blocker; or a preserved experiment with its question and verdict.
-   State any remaining uncommitted work. Follow the existing review/merge gate.
+- Code and focused tests explain implementation behavior. Comments capture
+  non-obvious reasons and constraints, not a second implementation description.
+- Issues own requirements and acceptance. Update the existing issue when a
+  meaningful result changes its verdict, blocker or next action; link evidence.
+  Routine diagnostic attempts stay in existing private records.
+- Durable documentation changes only when a durable fact or decision changes.
+  Keep resolved terminology in the glossary and consequential architectural
+  decisions in ADRs. Correct an affected operational instruction when necessary.
+  Completing a task creates no obligation to write research, a report or an ADR.
+- Existing research, licences and recovery records remain retrievable history.
+  Consult them selectively; old plans do not select or authorize work. New
+  research must answer a specific unresolved question needed for the next step.
 
-## Fresh context
+## Transfer only when needed
 
-Use Matt's original `ask-matt` phase-boundary guidance. Continue when the next
-phase needs the current reasoning. Start each independent implementation ticket
-with fresh context after preserving its durable result. Compact at a boundary
-when relevant context must survive and continuing is no longer practical.
-Use a temporary handoff for transfer to another directory, tool or person, or
-a side task; link the issue, decisions and evidence instead of duplicating them.
+Update HANDOFF when another session needs a changed task pointer or a necessary
+recovery fact. Point to the latest issue/result and exact worktree; keep only
+unrecorded information necessary to resume. Preserve the existing fields required
+by the repository check, without duplicating the issue, logs or research.
+Handoff maintenance is not progress or evidence of gameplay success.
 
-README and AGENTS point to HANDOFF for current status. Historical snapshots and
-dated research remain references; they do not select the next task.
+Report the observed result, remaining blocker, next action and uncommitted work
+in the conversation. Keep source checks, runtime evidence and owner acceptance
+separate. Follow the existing [publication checks](issue-tracker.md) when publishing;
+no additional documentation phase is required at every task boundary.

@@ -12,14 +12,21 @@ command working directories and file paths; a different chat attachment or UI
 branch label does not block work. Stop writes if the actual target is wrong,
 `main` or detached. Preserve unrelated changes; never force-switch or reset them.
 
-- Start/resume: read [handoff](docs/HANDOFF.md), current issue requirements and
-  relevant latest evidence. Fetch older comments only to resolve a specific uncertainty.
+- Start/resume: use [handoff](docs/HANDOFF.md) to locate the task, then load the
+  relevant issue, code and one or two evidence references. Read older research
+  only to answer a named uncertainty; dated status is a snapshot, not live state.
 - Tracker/publication operations: read [slice conventions](docs/agents/issue-tracker.md).
 - Triage: read [label mapping](docs/agents/triage-labels.md).
 - Exploration: read [domain rules](docs/agents/domain.md).
-- Runtime trials: read the [adapter guide](tools/gtaiv-skate/README.md) and
-  [workbench guide](docs/WORKBENCH.md); recovery uses the [Windows runbook](docs/WINDOWS_BASELINE.md).
-- Task boundary: follow [context maintenance](docs/agents/current-context.md).
+- Runtime trials/recovery: read the relevant procedure in the
+  [runtime evidence guide](docs/EVIDENCE_HUB.md); consult the
+  [adapter guide](tools/gtaiv-skate/README.md) for the behavior under test.
+- Durable knowledge or session transfer: follow [context maintenance](docs/agents/current-context.md).
+
+Before implementation, name the observable outcome and the uncertainty the next
+check will resolve. Add tooling only when an observed limitation blocks that check.
+Keep behavior understandable in code and focused tests; document reasons the code
+cannot express. Report what ran, what happened, the blocker and the next action.
 
 Run `python3 scripts/verify.py` (`py -3 scripts/verify.py` on Windows).
 Runtime changes also need relevant runtime checks. Preparation, launch, gameplay,

@@ -31,8 +31,8 @@ combined here for review, without merging main or activating triangle riding.
 Latest runtime evidence: the owner reports mounting works at the teleport spot,
 but stops again elsewhere. Retained local log classification also contains mounted
 notifications. The retained prepared setup has two surfaces, each with a 3 m
-radius. It does not match the current source candidate and establishes neither a
-measured complete ride nor automatic floor coverage.
+radius. The same qualified surfaces are retained in the staged candidate; they
+establish neither a measured complete ride nor automatic floor coverage.
 
 The earlier H2 witness distinguished stacked supporting floors and passed three
 queries per floor through the existing 2 cm spread and 5 cm mesh-agreement gates.
@@ -40,11 +40,19 @@ Those observations remain local evidence for the bounded area, not whole-map pro
 
 The original failed mount record is retained. Its specific recovery batch was
 reconciled by observing that the original session exited, without gameplay input.
-Read-only inspection found that the current GTA process differs from the immutable
-saved session and the installed script has independently changed. No gameplay
-keys, focus changes or runtime staging were performed in this implementation run.
-Preserve the independent script; the current process remains unqualified. Private
-records remain outside Git.
+The old responsive process was closed normally without gameplay keys. Official
+staging verified all eight artifact roles against reviewed source: the independently
+changed script is backed up, and the reused native plugin and worker were proven
+identical across their recorded source revisions, preserving binary provenance.
+Startup returned `process-changed`. Read-only inspection then found exactly one
+stable responding windowed process with the expected executable identity and
+matching staged hashes; staged files predate its start. No fresh session or runtime
+configuration pointer was created, and no focus change or gameplay input occurred.
+
+Automatic approval review twice rejected attaching to, focusing and rebinding this
+replacement window because it differs from the saved session and lacks foreground
+ownership. Explicit owner permission for that window is pending. Private records
+remain outside Git.
 
 Docker daemon, pinned image and Sandcastle doctor checks passed. The subscription
 marker matches the model and image; the separate research qualification
@@ -55,12 +63,12 @@ open blockers and lack reviewed task profiles; neither was dispatched.
 
 ## Next step
 
-The old recovery transaction is reconciled; current-game readiness remains open.
-Coordinate replacement of the independently changed installed script before
-staging a reviewed matching candidate while the game is closed. Then verify fresh
-windowed foreground readiness and run one bounded ride proof. Reuse established
-floor evidence; report movement and control restoration separately from acceptance.
-The wider #20 goal and PR #62 remain unaccepted and unmerged.
+The old recovery transaction is reconciled and reviewed source is staged. Obtain
+explicit permission to attach to the current replacement window, then establish a
+fresh session and verify windowed foreground readiness before one bounded ride
+proof. Reuse established floor evidence; report movement and control restoration
+separately from acceptance. The wider #20 goal and PR #62 remain unaccepted and
+unmerged.
 
 Use #64 and its approved slices for automatic nearby floor selection and moving
 coverage without a spot whitelist or arbitrary world-height ceiling, solved board,

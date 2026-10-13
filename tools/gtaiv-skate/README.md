@@ -175,8 +175,10 @@ host-test suite remains unverified**: pinned host references missing
 ## Private preparation (requires runtime task authority)
 
 Use the accepted stock baseline and its ordinary startup route. Preserve original
-installs, profiles and baseline copies. Close normally before staging; never
-hot-load or replace files in a running game. Keep the loader/diagnostic pins and
+installs, profiles and baseline copies. Close normally before staging. The separately
+authorized JavaScript-only qualification below is the sole trial exception; native
+plugins, worker binaries and definitions still require closed-game staging.
+Keep the loader/diagnostic pins and
 checksums from qualification #10. Stage into the owner-selected runtime with private backups:
 
 - `combine_skate.cleo` → `CLEO/CLEO_PLUGINS/`.
@@ -221,6 +223,32 @@ controller qualification, metre calibration or owner acceptance.
 The observer uses wrapping game time plus an independent `GetTickCount` deadline;
 a paused/interrupted scene refuses observation. An external harness must also
 bound its wait because a paused script scheduler cannot run observer code.
+
+## JavaScript-only reload qualification (pending)
+
+CLEO documents that editing an active JavaScript file restarts that script through
+its file watcher ([lifecycle](https://re.cleo.li/docs/en/script-lifecycle.html)).
+This does not establish adapter cleanup or native hot swapping. The authorized
+qualification changes only a temporary startup log marker in the installed
+riding script while dismounted; preserve its prepared floor data and retain the
+watchdog, plugin, worker, definitions and other scripts.
+
+Before the trial, verify released input, the same responding windowed foreground
+GTA process, installed identities, fresh dismounted readiness and restored GTA
+controls/camera. Back up the installed script outside the watched directory.
+Atomically replace it, then require a new marker from CLEO and unchanged process
+identity. Exercise mount, existing movement and dismount; verify normal controls
+and camera. Restore the original bytes atomically through the same reload path,
+verify the original hash and fresh readiness, and retain the local evidence
+separately from earlier candidate trials. A file/hash change alone is not proof
+that the script ran. Stop at the first failed boundary and diagnose it.
+
+On 2026-10-13, released-key and installed-inventory checks passed, but the guarded
+launch returned `window-not-ready` and the monitor timed out waiting for a process.
+No script was replaced or gameplay input sent. Reload, remount and restoration
+are therefore untested; no repeatable reload procedure or convenience command is
+qualified. Resolve startup before this experiment. Floor coverage remains a
+separate acceptance requirement.
 
 ## Behavior and runtime acceptance
 

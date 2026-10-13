@@ -2,11 +2,12 @@
 
 ## Start or resume
 
-1. Read `docs/HANDOFF.md`, then fetch its linked live issue body and comments.
+1. Read `docs/HANDOFF.md`, then fetch its linked live issue requirements and relevant
+   latest evidence. Retrieve older comments only to resolve a specific uncertainty.
    The owner's current request selects work. If it differs from the snapshot,
    use the current request and report the discrepancy.
 2. Verify the directory, branch, revision and local changes using the
-   [workspace conventions](issue-tracker.md). Check the source and installed
+   [workspace checks](../../AGENTS.md). Check the source and installed
    runtime revisions separately when a runtime trial is authorized.
 3. Read the issue's current verdict first. A named correction or owner decision
    supersedes the historical claim it identifies; unresolved criteria remain active.

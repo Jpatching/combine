@@ -4,99 +4,53 @@
 
 Reviewed: 2026-10-13
 
-Task: implement the owner's [automatic-floor, board, GTA animation and tricks specification #64](https://github.com/Jpatching/combine/issues/64), starting with the usable ride prerequisite [#20](https://github.com/Jpatching/combine/issues/20) under [workflow #61](https://github.com/Jpatching/combine/issues/61).
+Task: consistent riding on the correct floor under [#64](https://github.com/Jpatching/combine/issues/64), with usable-ride prerequisite [#20](https://github.com/Jpatching/combine/issues/20) and evidence workflow [#61](https://github.com/Jpatching/combine/issues/61). Current experiment: shorten startup and qualify dismounted JavaScript-only reload without restarting GTA.
 
 Source branch: `integration/gtaiv-skate-spec64`
 
-Source revision: `093497607ee891ee286a55e7e5bf762173786bb8`
+Source revision: `5b5f6dd57a8b7e1608baecafcc1702ce75afda02`
 
-The candidate PR owns its final publication revision. Reviewed source adds a
-bounded mount, push, both steering directions and dismount proof, plus read-only
-recovery reconciliation. Full riding acceptance remains open. The pre-existing
-uncommitted evidence measurement display is preserved separately.
+Worktree: `.private/worktrees/gtaiv-skate-spec64` under the primary checkout.
+The candidate PR owns its final publication revision. Preserve the unrelated
+`tools/workbench/hub.js` edit in the primary checkout.
 
-Disposition: [draft integration PR #69](https://github.com/Jpatching/combine/pull/69)
-awaits gameplay qualification and owner acceptance.
-Retained [draft PR #62](https://github.com/Jpatching/combine/pull/62) is unchanged
-and awaits gameplay qualification and owner acceptance.
-Retain [riding #23](https://github.com/Jpatching/combine/pull/23),
-[non-flat ground #57](https://github.com/Jpatching/combine/pull/57),
-[collector #58](https://github.com/Jpatching/combine/pull/58) and
-[context #60](https://github.com/Jpatching/combine/pull/60).
-The collector ancestry includes the retained riding/non-flat source. It is
-combined here for review, without merging main or activating triangle riding.
+Disposition: [draft PR #69](https://github.com/Jpatching/combine/pull/69), awaiting runtime qualification and owner acceptance; retain earlier candidates including [#62](https://github.com/Jpatching/combine/pull/62).
 
 ## Evidence
 
-Latest runtime evidence: the owner reports mounting works at the teleport spot,
-but stops again elsewhere. Retained local log classification also contains mounted
-notifications. The retained prepared setup has two surfaces, each with a 3 m
-radius. The same qualified surfaces are retained in the staged candidate; they
-establish neither a measured complete ride nor automatic floor coverage.
+Latest runtime evidence: reload qualification stopped at startup. Fresh checks found GTA closed, tested keys released and installed files matching the retained manifest. One guarded windowed launch returned `window-not-ready`; the monitor timed out waiting for a process. No gameplay keys, termination or script replacement occurred; reload remains unqualified.
 
-The earlier H2 witness distinguished stacked supporting floors and passed three
-queries per floor through the existing 2 cm spread and 5 cm mesh-agreement gates.
-Those observations remain local evidence for the bounded area, not whole-map proof.
-
-The original failed mount record is retained. Its specific recovery batch was
-reconciled by observing that the original session exited, without gameplay input.
-The old responsive process was closed normally without gameplay keys. Official
-staging verified all eight artifact roles against reviewed source: the independently
-changed script is backed up, and the reused native plugin and worker were proven
-identical across their recorded source revisions, preserving binary provenance.
-Startup returned `process-changed`. Read-only inspection then found exactly one
-stable responding windowed process with the expected executable identity and
-matching staged hashes; staged files predate its start. No fresh session or runtime
-configuration pointer was created, and no focus change or gameplay input occurred.
-
-The owner subsequently authorized restart and testing, superseding the earlier
-replacement-window permission boundary. Fresh staged inventory verification passed.
-The restart stopped before close, launch or focus because an independent OS key
-check found F8 held even though the fresh helper owned no input and recorded all
-its keys released. Independent read-only checks after 5 and 60 seconds reproduced
-F8 held; other checked keys were released. No unowned key release, new restart,
-fresh session, configuration pointer change, focus change or gameplay input was
-performed. No pending helper or active lease remains. Private records stay outside
-Git.
-
-Docker daemon, pinned image and Sandcastle doctor checks passed. The subscription
-marker matches the model and image; the separate research qualification
-fingerprint is stale.
-Automatic nearby floors [#65](https://github.com/Jpatching/combine/issues/65) and
-continuous coverage [#66](https://github.com/Jpatching/combine/issues/66) still have
-open blockers and lack reviewed task profiles; neither was dispatched.
+The latest candidate PR records a prior no-video mount followed by conflicting
+evaluation and restored normal controls. Its auxiliary pose was invalid; it does
+not prove a floor defect or a successful ride. This supersedes the stale F8-held
+blocker previously in this handoff. Owner-observed mounting remains bounded to
+the teleport spot; prepared surfaces have 3 m radii and do not establish coverage
+elsewhere. Earlier H2 stacked-floor qualification remains reusable. Installed
+riding source remains the earlier staged candidate; terminal-stop labels in this
+branch are source-only. Prior recovery and independent-script backup are retained.
 
 ## Next step
 
-The old recovery transaction is reconciled and reviewed source remains staged
-with the independent script backed up. The owner must release F8, then recheck
-released keys and use the already authorized restart and ride test. No renewed
-consent is needed for that sequence. Establish a fresh session and windowed
-foreground readiness before one bounded ride proof. Reuse established floor
-evidence; report movement and control restoration separately from acceptance.
-The wider #20 goal and PR #62 remain unaccepted and unmerged.
-
-Use #64 and its approved slices for automatic nearby floor selection and moving
-coverage without a spot whitelist or arbitrary world-height ceiling, solved board,
-GTA-model animation and Skate tricks. Board/presentation need not wait for city-wide
-coverage. Exact-version collision supply and bone updates remain explicit gaps.
+Resolve the launch boundary first: the ordinary launch did not establish a
+stable game window; its cause is unknown. Preserve the private launch record
+and change one diagnostic variable before another attempt. Then recheck
+released keys, windowed operation, installed identities, dismounted
+controls/camera and watchdog readiness. Reuse the qualified floor. Back up the
+installed riding script, atomically replace only a temporary startup log marker,
+and establish CLEO executed it in the same GTA process. Prove remount, movement,
+dismount and control restoration, then restore the original script through the
+same path and verify its hash/readiness. Stop at the first failure and diagnose
+that boundary. Native plugin, worker and definition changes require closed-game
+staging. Record a proven reload procedure in the [adapter guide](../tools/gtaiv-skate/README.md).
 
 ## Session close
 
-Follow [context maintenance](agents/current-context.md) and
-[workspace conventions](agents/issue-tracker.md). Keep GTA windowed during all
-runtime checks. Source preparation, runtime observation, owner viewing, gameplay
-acceptance and merge are separate claims. Report actual checks and recovery;
-never turn unknown loading/layer evidence into a pass. Retain private recovery
-transactions and all prior branches.
+Follow [context maintenance](agents/current-context.md). Publish source-safe
+checks and trial verdicts on the existing candidate; retain private evidence
+locally. Owner acceptance remains required before merge.
 
 ## Historical reference
 
 [Host decision](adr/0001-preserve-offline-gta-gameplay.md),
-[glossary](../GLOSSARY.md),
-[ground qualification #39](https://github.com/Jpatching/combine/issues/39),
-[live riding #54](https://github.com/Jpatching/combine/issues/54),
-[complete riding #20](https://github.com/Jpatching/combine/issues/20),
-[native authored proof](../research/results/2026-10-11-gtaiv-native-refusal-proof.md).
-[Coverage and presentation source research](../research/results/2026-10-13-gtaiv-coverage-and-presentation.md).
-Historical methods do not authorize new work.
+[glossary](../GLOSSARY.md), [coverage/presentation research](../research/results/2026-10-13-gtaiv-coverage-and-presentation.md).
+Earlier evidence remains in the linked issues and retained records.

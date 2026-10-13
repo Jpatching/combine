@@ -10,9 +10,10 @@ outside Issues and Git.
 
 - Create: `gh issue create --repo Jpatching/combine --title "..." --body-file <file>`.
   Prepare multiline bodies in a temporary file and review them before publishing.
-- Read: `gh issue view <number> --repo Jpatching/combine --comments`;
-  also fetch `--json number,title,body,labels,comments,state` when structured data is needed.
-- List: `gh issue list --repo Jpatching/combine --state open --json number,title,body,labels,comments`,
+- Read requirements: `gh issue view <number> --repo Jpatching/combine --json number,title,body,labels,state`.
+  Read the current candidate PR summary for latest evidence; request a bounded
+  tail of comments when needed. Fetch historical comments for a specific uncertainty.
+- List: `gh issue list --repo Jpatching/combine --state open --json number,title,body,labels`,
   with appropriate label and state filters.
 - Comment: `gh issue comment <number> --repo Jpatching/combine --body-file <file>`.
 - Apply/remove labels: `gh issue edit <number> --repo Jpatching/combine --add-label "..."`
@@ -20,7 +21,8 @@ outside Issues and Git.
 - Close: `gh issue close <number> --repo Jpatching/combine --comment "..."`.
 
 When a skill says “publish to the issue tracker”, create a GitHub issue.
-When it says “fetch the relevant ticket”, read its full body, labels and comments.
+When it says “fetch the relevant ticket”, read its full body, labels and relevant
+latest evidence. Retrieve older comments only to resolve a specific uncertainty.
 GitHub shares issue and PR numbers; resolve ambiguous references before acting.
 
 **PRs as a request surface: no.** External PRs are not part of the triage queue.
@@ -65,32 +67,15 @@ criteria and private clips together. Owner approval remains explicit in chat;
 material changes require renewed evidence. This candidate exception replaces
 per-fragment source approvals, not ground qualification or gameplay acceptance.
 
-For other work, use one focused branch and PR per implementation slice. For a single active chat,
-switch its clean checkout to the task branch before editing. Use a separate
-worktree when parallel work or retained experiment state needs isolation, and
-attach the working chat to that checkout. A worktree is a separate folder checked
-out on a branch; creating one or using `git -C` does not move a chat into it.
+For other work, use one focused branch and PR per implementation slice.
+Follow the workspace verification in [AGENTS.md](../../AGENTS.md). Resume existing
+unfinished issues/branches/PRs, and reuse their existing worktree automatically.
+Set every command's working directory and every edited path to that verified
+worktree. A chat attachment or displayed branch mismatch alone does not stop
+work; report it without claiming the UI moved. Pass the same directory and
+branch explicitly to delegated agents. Do not force-switch, reset or stash
+unrelated changes. Create new slice branches from synchronized `main`.
 
-Before edits, after a handoff and before committing or pushing, verify the chat's
-workspace with `git rev-parse --show-toplevel`, `git branch --show-current`,
-`git rev-parse HEAD` and `git status --short --branch`. Match the exact task branch
-and directory; any non-main branch is not enough. Stop writes on a mismatch,
-`main` or detached HEAD and align the checkout first. Preserve local changes;
-never force-switch, reset or stash unrelated work to satisfy this check. Pass the
-same task branch and working directory explicitly to delegated agents.
-
-Create new slice branches from synchronized `main`. Resume existing unfinished
-issues/branches/PRs instead of creating duplicates. If a branch is already checked
-out elsewhere, use that existing worktree rather than forcing a second checkout.
-For app-managed worktrees, use the app's workspace/handoff controls; for an existing
-manual worktree, open that folder as the chat workspace. Treat the displayed branch
-as a useful cross-check; Git in the actual working directory supplies the evidence.
-In Codex CLI, start or resume with `codex -C <worktree>` or
-`codex resume -C <worktree>` and select the intended saved session. A shell command's
-`cd` does not retarget the running CLI. Its branch footer can be cached: if the
-display disagrees with Git, report the discrepancy, verify the actual directory
-and branch, and use `/statusline` or restart/resume to check the display. Do not
-claim the label refreshed without observing it or receiving user confirmation.
 Before pushing, inspect the remote and destination branch; publish the task branch,
 not a refspec targeting `main`.
 

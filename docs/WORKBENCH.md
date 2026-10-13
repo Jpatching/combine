@@ -17,7 +17,8 @@ Review                     -> source checks / runtime verdict / owner acceptance
 Next session               -> issue evidence + HANDOFF pointer
 ```
 
-Start from [current context](HANDOFF.md), then read the live issue and comments.
+Start from [current context](HANDOFF.md), then read current issue requirements
+and relevant latest evidence. Retrieve older comments for a specific uncertainty.
 For a GTA runtime trial, start `python3 scripts/workbench.py gta monitor --monitor-timeout 120`
 in a separate terminal before `gta open` or `gta test`.
 It prints changes in process, window and fresh gameplay status as fixed labels.

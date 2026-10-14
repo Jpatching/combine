@@ -188,7 +188,7 @@ revision and file scope matter: these reads are not an audit of all forks/releas
 | Rift README.md | `09da31edfb65ceab900fc3bde04a62916a2229b9aa55dfa9d944fcbb1ddbc96a` |
 | Era Home.xaml.cs | `43db0594268858df93883217950e5e0a7283afea5e46abb49b6605e592ca9eed` |
 
-Repository checks and review outcome are recorded in [the handoff](../../docs/HANDOFF.md).
+Repository checks and review outcome are recorded in [the handoff](https://github.com/Jpatching/combine/issues/61).
 They do not establish gameplay. This research changes documentation only; inherited
 exporter/native test debts remain separate. The prior rail correction is already
 in the starting Git revision and is not a new result of this investigation.

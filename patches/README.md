@@ -11,7 +11,7 @@ The patch embeds Synergy's pinned source and declares the containing session
 crate GPL-3.0-only, preserving attribution and the existing full licence.
 Game-script dependencies still come from the owner's local game data. It does
 not contain retail scripts, game assets or IW4x binaries. See the
-[current integration record](../research/results/2026-10-04-synergy-gsc.md).
+[current integration record](../docs/REPRODUCING.md).
 
 `synergy-input-v0.4.0.patch` applies last, after the GSC patch. The embedded
 Synergy source bytes stay unchanged; a bounded compatibility transform redirects
@@ -69,7 +69,7 @@ a lockfile for that independently built crate. Existing match callers are unchan
 
 This is not a Fortnite decoder, renderer or playable session. Geometry uses the
 host's native coordinates; a real export contract, render lifecycle and full-island
-loading remain subsequent tickets. See [evidence and reproduction](../research/results/2026-10-06-standalone-world.md).
+loading remain subsequent tickets. See [evidence and reproduction](../docs/REPRODUCING.md).
 
 The standalone validator now checks rail chord arithmetic exactly as the pinned
-host computes it; see the [rail regression fix](../research/results/2026-10-06-rail-validation-fix.md).
+host computes it; see the [rail regression fix](../docs/REPRODUCING.md).

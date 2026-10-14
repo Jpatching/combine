@@ -47,7 +47,8 @@ or production launcher is authorized. Acquisition, launch, spending, outreach,
 redistribution, deployment and release require task authority; this contract alone
 does not grant it. Source licences do not establish asset or publisher rights.
 
-The [handoff](HANDOFF.md) records retained evidence and recovery debt. The
+The [Fortnite proof issue #4](https://github.com/Jpatching/combine/issues/4) owns
+acceptance and retained evidence. The
 [dated qualification](../research/results/2026-10-06-fortnite-adapter-qualification.md)
 preserves investigation history and the original owner clarifications; its old
 candidate ordering and tracker instructions do not select new work.

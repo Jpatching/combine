@@ -1,7 +1,7 @@
 # What Skate + MW2 needed, and what GTA IV needs now
 
 Historical evidence from 2026-10-08. For current task authority and verdict, read
-[the current context](../../docs/HANDOFF.md) and its linked live issue. Recommendations
+[the current context](https://github.com/Jpatching/combine/issues/61) and its linked live issue. Recommendations
 below record this investigation; they do not select new work.
 
 Researched 2026-10-08. Scope: pinned source comparison, not a new runtime trial. Upstream is `chasmlol/2010-rust-rewrite-mashup` at `f608f85e407ff1b7689d54a9aafdd16e95711ac4`; Combine source is `5689c012a78dd65f89e5d91ced430933cdc2f706`. Neither pin was moved. Local exported upstream source was inspected and its public collision/Session files were opened online. No assets, private coordinates, screenshots or logs are reproduced.

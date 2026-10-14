@@ -49,10 +49,10 @@ Wait for explicit approval of the presented candidate before marking the PR read
 and merging. Material behavior changes after approval require renewed evidence
 and approval. Do not enable automatic merge while acceptance is pending.
 
-Bundle source, tests and handoff updates into one focused commit when practical.
+Bundle source, tests and durable documentation into one focused commit when practical.
 Use additional commits for meaningful fixes or review responses, then squash the
 finished PR into one commit on `main`. Record the final merged revision on the
-issue; avoid extra commits solely to make HANDOFF name its own commit or merge.
+issue; the issue summary owns the final revision.
 Preserve published history and retained recovery branches.
 
 Use one focused branch and PR per implementation slice. For a single active chat,

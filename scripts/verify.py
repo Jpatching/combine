@@ -59,13 +59,6 @@ def check_links(root=ROOT):
     return len(docs)
 
 
-def check_handoff(root=ROOT):
-    text = (root / "docs/HANDOFF.md").read_text(encoding="utf-8")
-    require(bool(text.strip()), "HANDOFF must not be empty")
-    require(re.search(r"https://github.com/Jpatching/combine/issues/\d+", text),
-            "HANDOFF must link the current issue")
-
-
 def main():
     try:
         lock = read_json(LOCK_PATH)
@@ -79,13 +72,12 @@ def main():
             require(recipe["id"] not in seen_ids, "recipe ids must be unique")
             seen_ids.add(recipe["id"])
         doc_count = check_links()
-        check_handoff()
     except (ValidationError, KeyError, TypeError, OSError) as error:
         message = str(error) if isinstance(error, ValidationError) else "Invalid repository metadata"
         print(f"FAIL: {message}", file=sys.stderr)
         return 1
-    print(f"PASS: lock structure, {len(recipes)} recipes, local links in {doc_count} documents, "
-          "and current issue pointer", flush=True)
+    print(f"PASS: lock structure, {len(recipes)} recipes, local links in {doc_count} documents",
+          flush=True)
     result = subprocess.run(
         [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"], cwd=ROOT,
         check=False,

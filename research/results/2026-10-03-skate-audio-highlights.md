@@ -100,7 +100,7 @@ Upstream HEAD and v0.4.0 were refreshed on October 4 and still resolve to the
 selected `f608f85e407ff1b7689d54a9aafdd16e95711ac4`; no baseline was changed.
 
 Build with Rust 1.95.0, cargo-xwin 0.23.1 and native Clang/LLVM 19.1.1 using the
-same paths/cache as the [menu build record](2026-10-03-synergy-menu.md):
+same paths/cache as the [menu build record](../../docs/REPRODUCING.md):
 
 ```sh
 cargo +1.95.0 xwin test --offline --locked --profile play --target x86_64-pc-windows-msvc -p audio -p console --lib --no-run

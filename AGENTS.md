@@ -25,12 +25,12 @@ read the [domain documentation rules](docs/agents/domain.md).
 
 ## Project reference
 
-- Start/resume: [handoff](docs/HANDOFF.md), then its linked live issue. At a task boundary, use [context maintenance](docs/agents/current-context.md).
+- Start/resume: the selected issue; for GTA, [#61 current summary](https://github.com/Jpatching/combine/issues/61) and [#20 acceptance](https://github.com/Jpatching/combine/issues/20). At a task boundary, use [context maintenance](docs/agents/current-context.md).
 - Fortnite + Skate requirements: [interactive-world contract](docs/FORTNITE_SKATE.md).
-- Player overview/controls: [README](README.md).
+- Purpose and entry points: [README](README.md).
 - Parked Synergy: [menu guide](docs/TRICKSHOT_MENU.md); actual pinned GSC.
 - Baseline recovery: [Windows runbook](docs/WINDOWS_BASELINE.md).
-- Historical technical decisions: [decision log](docs/DECISIONS.md).
+- Decisions: [host rationale](docs/adr/0001-preserve-offline-gta-gameplay.md); consult `docs/adr/` for the affected experience.
 - Source/release identities: [pins](research/upstream.lock.json); refresh does not move pins.
 
 Repository gate: `python3 scripts/verify.py` (`py -3 scripts/verify.py` on Windows).

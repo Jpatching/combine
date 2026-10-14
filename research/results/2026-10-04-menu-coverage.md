@@ -69,7 +69,7 @@ Hide HUD SHA-256 remains
 The approved plan now settles near-pass geometry/defaults/damage/cover, includes
 Frag No Clip, and scopes host administration with personal menu access for granted
 guests. See [the requirements and acceptance examples](../../docs/TRICKSHOT_MENU.md#agreed-behavior--c-017-2026-10-04)
-and [D-013](../../docs/DECISIONS.md#d-013-near-pass-assistance-and-full-menu-scope--2026-10-04).
+and [D-013](../../docs/adr/0002-execute-pinned-synergy.md).
 These are required behavior, not native or gameplay results.
 
 ### Synergy references and gaps

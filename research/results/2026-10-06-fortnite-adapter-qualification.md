@@ -581,7 +581,7 @@ with an evidenced route or a precise blocker. Existing eight tickets are retaine
 route-dependent implementation is parked until a real terrain/building witness.
 PR #1 rail repair remains required before merge. Local metadata now identifies the
 selected 3.1 input, but recorded parser attempts mount no containers and find no
-worlds. The bounded discovery below is historical. See [current handoff](../../docs/HANDOFF.md)
+worlds. The bounded discovery below is historical. See [Fortnite proof issue](https://github.com/Jpatching/combine/issues/4)
 for fresh publication/input evidence and D-023 for authorized version choice.
 
 ## Agreed observable outcomes
@@ -997,7 +997,7 @@ Default .NET bin/obj output is ignored; no private reports/assets were staged. S
 - packages.lock.json: `3b16ccc3e8d3eec25573cb5d7718384ae893b755ca55c1e41960d61edd9c39cc`
 
 No exporter rebuild is claimed; inherited missing NuGet/analyzer cache remains.
-PR #1's [reproduced rail defect](2026-10-06-pr1-review.md) remains unfixed and
+PR #1's [reproduced rail defect](../../docs/REPRODUCING.md) remains unfixed and
 blocks merge. Parked does not waive its regression/fix obligation. Synergy and
 other trials/commits remain preserved; global router retirement is separate.
 
@@ -1237,5 +1237,5 @@ dependencies are recorded in each body; no repository issue labels were invented
 - [C-029 · Travel safely across the complete island](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=263192926)
 - [C-030 · Prepare the exact full-island owner trial](https://github.com/users/Jpatching/projects/5?pane=issue&itemId=263192995)
 
-The first preparation sub-slice has subsequent [implementation evidence](2026-10-06-standalone-world.md).
+The first preparation sub-slice has subsequent [implementation evidence](../../docs/REPRODUCING.md).
 The qualification observations above describe the pre-implementation boundary.

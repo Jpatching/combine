@@ -120,7 +120,7 @@ untracked and unchanged. No Rust/runtime/gameplay changes.
 Focused header tests: 7 passed, including the exact v4 boundary, invalid ranges,
 flags/versions/truncation, preserved inputs/results and symlink refusal. Inherited
 runner CLI checks: 10 passed, synthetic only. Full repository gate and final
-board/source checkpoint are recorded in docs/HANDOFF.md. Required runner rebuild
+historical source checkpoints remain in Git history. Required runner rebuild
 remains blocked by missing cache; it is not hidden by the Python gate.
 
 Next actor: **Codex**, C-025. Initialize the pinned existing Skate host against

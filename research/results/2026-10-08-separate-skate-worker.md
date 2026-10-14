@@ -1,7 +1,7 @@
 # Separate Skate worker evaluation
 
 Historical evidence from 2026-10-08. For current task authority and verdict, read
-[the current context](../../docs/HANDOFF.md) and its linked live issue. Recommendations
+[the current context](https://github.com/Jpatching/combine/issues/61) and its linked live issue. Recommendations
 below record this investigation; they do not select new work.
 
 Evaluated 2026-10-08 for [issue #20](https://github.com/Jpatching/combine/issues/20). The owner selected offline GTA IV with ordinary gameplay preserved and approved evaluating a separate Skate process. Mount while on foot; Skate controls riding; dismount restores GTA movement, camera and vehicle use. [Recorded host decision](../../docs/adr/0001-preserve-offline-gta-gameplay.md).

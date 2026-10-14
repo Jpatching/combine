@@ -26,7 +26,7 @@ to Intervention and equipping it; its automated evidence is preserved. The full 
 requirements remain; individual options need execution evidence before claiming
 support. The owner reports Intervention worked in the most recent trial, with other
 options missing; exact-build acceptance is not recorded. See the
-[October 5 input evidence](../research/results/2026-10-05-synergy-input.md).
+[October 5 input evidence](REPRODUCING.md).
 
 ## Actual Synergy input build — October 5
 
@@ -87,15 +87,14 @@ Previous builds remain preserved; owner verdict, merge and release are separate.
 Run the reachable pinned Synergy GSC menu through the existing runtime, preserving
 its own presentation/options, and add the agreed near-pass control. Each option
 requires effect, reversal, failure and lifecycle evidence; visibility is insufficient.
-D-019 records the earlier hit-radius priority. Current evidence and the pending
-physical verdict are in [HANDOFF.md](HANDOFF.md); new work follows the owner's
-request and the [Issues configuration](agents/issue-tracker.md).
+This parked contract does not select new work. Resume only at the owner's
+request, using the [workspace conventions](agents/issue-tracker.md).
 
 ### Agreed behavior — C-017, 2026-10-04
 
 The owner-approved requirements settle the hit-radius, noclip and private-player
-scope. [D-013](DECISIONS.md#d-013-near-pass-assistance-and-full-menu-scope--2026-10-04)
-records the consequential changes. These are requirements for actual Synergy and the runtime extension;
+scope. The [Synergy decision](adr/0002-execute-pinned-synergy.md)
+records why the original menu executes. These are requirements for actual Synergy and the runtime extension;
 source inspection and this document do not establish implemented behavior.
 
 | Area | Required behavior |
@@ -485,7 +484,7 @@ logs, machine paths or game content go to the Project. Reviewed source-branch pu
 acceptance, merge and release remain separate.
 
 The sections below retain reproduction/history for the earlier menu and the
-agreed full-menu contract. [Current evidence](../research/results/2026-10-04-intervention-review.md)
+agreed full-menu contract. [Current evidence](REPRODUCING.md)
 separates automated checks, preparation, launch and owner acceptance.
 
 ## Existing development build
@@ -526,7 +525,7 @@ Established cross-build tools: Rust 1.95.0, cargo-xwin 0.23.1, Clang/LLVM 19.1.1
 for native dependencies, and Rust's bundled rust-lld linker. The Windows SDK and
 CRT are the existing cargo-xwin cache; retain Cargo.lock. Upstream's moving
 `stable` is not the reproduction pin. No upstream updater is built or published.
-See the [result record](../research/results/2026-10-03-synergy-menu.md) for exact
+See the [result record](REPRODUCING.md) for exact
 local build commands, hashes, verification results and inherited warnings.
 
 ## Focused verification

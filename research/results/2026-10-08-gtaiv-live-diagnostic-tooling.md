@@ -1,7 +1,7 @@
 # Faster GTA IV native diagnostics and the MW2 comparison
 
 Historical evidence from 2026-10-08. For current task authority and verdict, read
-[the current context](../../docs/HANDOFF.md) and its linked live issue. Recommendations
+[the current context](https://github.com/Jpatching/combine/issues/61) and its linked live issue. Recommendations
 below record this investigation; they do not select new work.
 
 Researched 2026-10-08 against primary documentation and pinned upstream source. This note changes no runtime files, installs no tools and uploads no game evidence. Documented capability, engineering recommendation and runtime qualification are separate claims. Existing desktop automation research is in [the helper comparison](2026-10-08-gtaiv-runtime-helper-alternatives.md).

@@ -1,7 +1,7 @@
 # Open-source alternatives to the GTA IV runtime helper
 
 Historical evidence from 2026-10-08. For current task authority and verdict, read
-[the current context](../../docs/HANDOFF.md) and its linked live issue. Recommendations
+[the current context](https://github.com/Jpatching/combine/issues/61) and its linked live issue. Recommendations
 below record this investigation; they do not select new work.
 
 Research date: 2026-10-08. Primary-source desk research only; no candidate was installed or tested against GTA IV. Scope: our combined status/input/OCR setup, stronger agent desktop control, native debugging and orchestration from WSL. The owner's follow-up broadened the question beyond keyboard automation; the cross-game integration architecture is investigated separately.

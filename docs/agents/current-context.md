@@ -2,31 +2,35 @@
 
 ## Start or resume
 
-1. Read `docs/HANDOFF.md` for the selected issue and source branch. The owner's
-   current request takes precedence over the snapshot.
-2. Read the live issue body, especially its current summary and acceptance
-   criteria. Read comments or linked evidence only for a named question; a later
-   explicit correction supersedes the historical claim it identifies.
-3. Verify the workspace using [workspace conventions](issue-tracker.md).
-   For runtime trials, check source and installed runtime identities separately.
-   Reuse qualified setup until a changed prerequisite requires another check.
+1. Read the owner's selected issue and its acceptance criteria. For the GTA ride,
+   read [#61's current summary](https://github.com/Jpatching/combine/issues/61)
+   and [#20](https://github.com/Jpatching/combine/issues/20).
+2. Verify the directory, branch, revision and local changes using
+   [workspace conventions](issue-tracker.md). Check installed runtime identity
+   separately before a runtime trial; a source revision is not loading evidence.
+3. Consult historical comments or Git history for a specific question. Reuse
+   qualified setup unless a changed prerequisite calls for a fresh check.
 
-## Finish or transfer
+## Task boundary
 
-Update the live issue's current summary when the verdict changes: passed behavior,
-remaining blocker, candidate revision and one next action. Retain comments as
-history. Keep HANDOFF a short pointer and resume note; link evidence rather than
-copying trial chronology. Use glossary entries for resolved domain terms and ADRs
-only for consequential decisions, following [domain rules](domain.md).
+Update the existing issue's current summary when evidence changes the verdict:
+candidate revision, passed behavior, blocker and next action. For GTA, #61 owns
+that summary and #20 owns acceptance criteria. Keep routine diagnostic progress
+in private run records; preserve historical comments without duplicating them.
+Source checks, observed gameplay and owner acceptance remain separate claims.
 
-Follow [workspace conventions](issue-tracker.md) for verification, publication
-and approval. The repository gate checks tracked document links and the issue
-pointer; it cannot establish factual freshness or gameplay acceptance. Review
-staged public content; keep private measurements, identities and media local.
+Keep unique build procedures in [reproduction instructions](../REPRODUCING.md),
+resolved terms in the glossary and consequential decision rationale in ADRs.
+Code and behavior tests explain implementation. Do not create permanent progress
+snapshots or test-audit narratives.
 
-## Context boundaries
+Follow [workspace conventions](issue-tracker.md) for review, publication and owner
+approval. `python3 scripts/verify.py` checks tracked links and behavior tests;
+it cannot establish factual freshness or gameplay acceptance. Review public
+content before staging; keep private measurements, identities and media local.
 
-Use Matt's `ask-matt` phase-boundary guidance. Continue when the next phase needs
-the reasoning already here; use fresh context for independent implementation
-work after preserving its result. Read historical snapshots and research by
-specific question or anchor. Their old next steps do not select current work.
+## Context transfer
+
+Use Matt's `ask-matt` phase-boundary guidance. A temporary handoff may transfer
+work to another session, directory or person; link the owning issue and durable
+evidence rather than copying status. Recheck Git and runtime state on arrival.

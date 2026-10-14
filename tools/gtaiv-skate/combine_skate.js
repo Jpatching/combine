@@ -5,20 +5,38 @@ let inputMode = INPUT_MODE;
 const SCALE = 1; // GTA metres assumption: MUST verify against a surveyed real surface.
 // Isolated runtime preparation supplies strict private data after floor qualification.
 const SURFACES = [];
+// Explicit coverage:"mesh" records qualify their complete triangle footprint;
+// legacy records retain their evidence-bounded radius, even if their mesh extends farther.
+// Mesh mode rejects legacy center/radius metadata; it requires whole-mesh qualification.
+// Derived windows retain that original qualification and never qualify new ground.
+const windowRegions = new WeakMap();
+const LOCAL_RADIUS = 4 / SCALE;
 let ride = null, preparing = null, announced=false, inputConfigured=false, inputRefused=false;
 let selectedSurface = null, readinessAnnounced=false;
 function surfaceHeight(surface, x, y) {
+    const region=surface && windowRegions.get(surface);
+    if(region && surfaceHeight(region,x,y)===null)return null;
     if (!surface || surface.qualified!==true || typeof surface.evidence!=="string" || !surface.evidence
         || !Number.isInteger(surface.layer) || surface.layer<=0 || surface.layer>0xffffffff
-        || !Array.isArray(surface.center) || surface.center.length!==2 || !surface.center.every(Number.isFinite)
-        || !Number.isFinite(surface.radius) || surface.radius<=0
-        || Math.hypot(x-surface.center[0],y-surface.center[1])>surface.radius
+        || (surface.coverage!==undefined && surface.coverage!=="mesh")
+        || (surface.coverage==="mesh" && (surface.center!==undefined || surface.radius!==undefined))
+        || (surface.coverage!=="mesh" && (!Array.isArray(surface.center) || surface.center.length!==2
+            || !surface.center.every(Number.isFinite) || !Number.isFinite(surface.radius) || surface.radius<=0
+            || Math.hypot(x-surface.center[0],y-surface.center[1])>surface.radius))
         || !Array.isArray(surface.triangles) || !surface.triangles.length || surface.triangles.length>4096) return null;
     const heights=[];
     for (const triangle of surface.triangles) {
         if (!Array.isArray(triangle) || triangle.length!==3
             || triangle.some(v=>!Array.isArray(v)||v.length!==3||!v.every(Number.isFinite))) return null;
         const [a,b,c]=triangle;
+        if(surface.coverage==="mesh") {
+            // Explicit complete meshes receive the native coordinate and area bounds
+            // before any local subset is selected, including distant obstacles.
+            if(triangle.some(v=>v.some(component=>Math.abs(component)>1_000_000)))return null;
+            const u=b.map((component,i)=>component-a[i]),v=c.map((component,i)=>component-a[i]);
+            if(Math.hypot(u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0])
+                *SCALE*SCALE<0.000001)return null;
+        }
         const denominator=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);
         if(Math.abs(denominator)<1e-9)continue;
         const u=((b[1]-c[1])*(x-c[0])+(c[0]-b[0])*(y-c[1]))/denominator;
@@ -42,7 +60,34 @@ function surfaceContainsPose(surface,x,y,z) {
     return height!==null && Number.isFinite(z) && Math.abs(z-height)*SCALE<3;
 }
 function surfaceMargin(surface,x,y) {
-    return surface.radius-Math.hypot(x-surface.center[0],y-surface.center[1]);
+    let margin;
+    if(surface.coverage==="mesh") {
+        // Bounds rank already validated mesh candidates; actual support is always
+        // checked against triangles, so holes never become qualified ground.
+        let minX=surface.triangles[0][0][0],maxX=minX,minY=surface.triangles[0][0][1],maxY=minY;
+        for(const triangle of surface.triangles)for(const vertex of triangle) {
+            minX=Math.min(minX,vertex[0]);maxX=Math.max(maxX,vertex[0]);
+            minY=Math.min(minY,vertex[1]);maxY=Math.max(maxY,vertex[1]);
+        }
+        margin=Math.min(x-minX,maxX-x,y-minY,maxY-y);
+    }else margin=surface.radius-Math.hypot(x-surface.center[0],y-surface.center[1]);
+    // Original qualification is enforced by surfaceHeight, including radial
+    // bounds, holes and edges. Rank local windows by their streaming margin;
+    // proximity to an original boundary must not suppress valid refresh.
+    return margin;
+}
+function localSurface(region,x,y) {
+    if(region.coverage!=="mesh" && region.radius<=LOCAL_RADIUS)return region;
+    // Full triangles whose XY bounds intersect the window square are retained.
+    // This conservative selection keeps walls/curbs; it never clips or flattens them.
+    const triangles=region.triangles.filter(triangle=>
+        Math.min(...triangle.map(v=>v[0]))<=x+LOCAL_RADIUS
+        && Math.max(...triangle.map(v=>v[0]))>=x-LOCAL_RADIUS
+        && Math.min(...triangle.map(v=>v[1]))<=y+LOCAL_RADIUS
+        && Math.max(...triangle.map(v=>v[1]))>=y-LOCAL_RADIUS);
+    const window={...region,coverage:undefined,center:[x,y],radius:LOCAL_RADIUS,triangles};
+    windowRegions.set(window,region);
+    return window;
 }
 // A replacement must overlap the accepted pose on the same qualified floor.
 // Keep presenting that pose while the asynchronous worker acknowledges it.
@@ -83,7 +128,14 @@ function refreshSurface(pos,ground) {
         selectedSurface=pending.surface;ride.coverage=null;return 1;
     }
     let next=selectedSurface;
-    for(const surface of SURFACES) {
+    for(const region of SURFACES) {
+        // Validate the complete region before selecting a subset; malformed distant
+        // triangles must never disappear through local filtering.
+        if(!surfaceObservation(region,pos[0],pos[1],ground))continue;
+        const currentRegion=windowRegions.get(selectedSurface)||selectedSurface;
+        if(region===currentRegion && (!windowRegions.has(selectedSurface)
+            || surfaceMargin(selectedSurface,pos[0],pos[1])>LOCAL_RADIUS/2))continue;
+        const surface=localSurface(region,pos[0],pos[1]);
         if(surface!==selectedSurface && sameFloor(surface,selectedSurface,pos[0],pos[1])
             && surfaceObservation(surface,pos[0],pos[1],ground)
             && surfaceContainsPose(surface,...pos)
@@ -174,8 +226,9 @@ function mount(player, ped) {
             notify("Skate: qualified floor unavailable - GTA retained");return;
         }
         // Overlapping patches on one agreeing floor are coverage, not separate floors.
-        selectedSurface=matches.reduce((best,surface)=>
+        const region=matches.reduce((best,surface)=>
             surfaceMargin(surface,pos.x,pos.y)>surfaceMargin(best,pos.x,pos.y)?surface:best);
+        selectedSurface=localSurface(region,pos.x,pos.y);
         if(!native("COMBINE_SKATE_SURFACE_BEGIN",selectedSurface.layer,selectedSurface.triangles.length)) {restore();notify("Skate: floor setup failed - GTA retained");return;}
         for(const triangle of selectedSurface.triangles)for(const vertex of triangle) {
             if(!native("COMBINE_SKATE_SURFACE_VERTEX",...vertex)){restore();notify("Skate: floor upload failed - GTA retained");return;}

@@ -997,7 +997,7 @@ Default .NET bin/obj output is ignored; no private reports/assets were staged. S
 - packages.lock.json: `3b16ccc3e8d3eec25573cb5d7718384ae893b755ca55c1e41960d61edd9c39cc`
 
 No exporter rebuild is claimed; inherited missing NuGet/analyzer cache remains.
-PR #1's [historically reproduced rail defect](https://github.com/Jpatching/combine/blob/844fcdad69be245c4a8df9c36a6c1f1019599d5f/research/results/2026-10-06-rail-validation-fix.md) remains unfixed and
+PR #1's [historically reproduced rail defect](https://github.com/Jpatching/combine/blob/844fcdad69be245c4a8df9c36a6c1f1019599d5f/research/results/2026-10-06-pr1-review.md) remains unfixed and
 blocks merge. Parked does not waive its regression/fix obligation. Synergy and
 other trials/commits remain preserved; global router retirement is separate.
 

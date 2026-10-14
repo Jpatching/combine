@@ -62,7 +62,7 @@ skating acceptance. Do not mark either skating recipe complete yet.
 - For both skating recipes, extracted Skate 3 Xbox 360 content: `default.xex` and
   its accompanying `data` folder. An ISO alone is not the mashup's documented input.
 - A controller; the current trial uses a detected DualSense. Record actual input results.
-- Internet for upstream first-run content downloads. Review the [recorded rights/provenance questions](adr/0004-data-only-recipes.md)
+- Internet for upstream first-run content downloads. Review the [recorded rights/provenance questions](REPRODUCING.md#private-input-and-release-questions)
   before deciding whether to run the content downloader. This runbook is not
   permission to acquire files or bypass protection.
 - A dedicated writable folder outside either game's installation. Leave ordinary

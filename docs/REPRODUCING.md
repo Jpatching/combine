@@ -148,3 +148,31 @@ GTA reproduction and runtime checks belong to the [candidate #69](https://github
 and its `tools/gtaiv-skate/README.md`; the cleanup branch does not contain that
 unmerged adapter. Use the candidate's exact revision and instructions for native
 builds and the qualified local ride. File hashes alone do not prove loaded source.
+
+## Earlier native-menu verification
+
+After applying the earlier menu patch to the pinned runtime, pure navigation and
+practice-policy tests need no game assets:
+
+```sh
+rustc +1.95.0 --edition 2024 --test crates/console/src/practice_menu.rs -o /tmp/menu-tests
+/tmp/menu-tests
+rustc +1.95.0 --edition 2024 --test crates/console/src/practice_core.rs -o /tmp/practice-tests
+/tmp/practice-tests
+```
+
+The Windows `practice_menu_preview` example takes `width height fresh-output-directory`.
+Run at `1280 720` and `1920 1080`; keep images local. It loads no game assets or
+profile and proves renderer behavior only. Inherited build warnings concern
+`render_frame`'s static `must_use` and Skate-host visibility; retain actual build
+output and report any changed warnings. Preview success is not gameplay acceptance.
+
+## Private input and release questions
+
+Before a proposed public release, establish permissions for the particular
+source, converter, asset and publisher use. Preserve source licences and NOTICE,
+including middleware and embedded font notices. Retail MW2/Skate data remains
+local; a source licence does not permit hosting game data. Minecraft download
+availability does not settle use or commercial-service terms. Branding, clips
+and user uploads need their own permission evidence. Refresh applicable terms
+before that decision; this guide records prerequisites and supplies no clearance.

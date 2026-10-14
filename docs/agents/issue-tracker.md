@@ -58,32 +58,24 @@ be closed after verifying its commits are contained in the selected candidate,
 or preserving its useful findings in the owning issue or durable reference.
 Link the replacement when closing; closure does not mean gameplay acceptance.
 
-Use one focused branch and PR per implementation slice. For a single active chat,
-switch its clean checkout to the task branch before editing. Use a separate
-worktree when parallel work or retained experiment state needs isolation, and
-attach the working chat to that checkout. A worktree is a separate folder checked
-out on a branch; creating one or using `git -C` does not move a chat into it.
+For the owner-approved GTA evidence workflow (#61), keep retained riding,
+collector and workflow changes in one integration candidate and draft PR.
+Present source checks, runtime verdicts, unresolved criteria and private clips
+for one explicit owner decision. Bounded diagnosis requires current runtime
+authority; stop unchanged scenarios after two identical failures. This exception
+replaces fragment-by-fragment approvals, not ground or gameplay acceptance.
 
-Before edits, after a handoff and before committing or pushing, verify the chat's
-workspace with `git rev-parse --show-toplevel`, `git branch --show-current`,
-`git rev-parse HEAD` and `git status --short --branch`. Match the exact task branch
-and directory; any non-main branch is not enough. Stop writes on a mismatch,
-`main` or detached HEAD and align the checkout first. Preserve local changes;
-never force-switch, reset or stash unrelated work to satisfy this check. Pass the
-same task branch and working directory explicitly to delegated agents.
+Use one focused branch and PR per other implementation slice. Resume existing
+unfinished issues/branches/PRs and reuse their worktree with explicit command
+working directories and edited paths. Before edits, after handoff and before
+commit/push, verify `git rev-parse --show-toplevel`, `git branch --show-current`,
+`git rev-parse HEAD` and `git status --short --branch`. Match the exact selected
+directory and task branch; stop writes on a wrong target, `main` or detached HEAD.
+Preserve unrelated changes; never force-switch, reset or stash them. Pass the
+same directory and branch to delegated agents. A different chat attachment or
+UI branch label does not block verified worktree operations; report the mismatch
+without claiming the UI moved. Create new slice branches from synchronized `main`.
 
-Create new slice branches from synchronized `main`. Resume existing unfinished
-issues/branches/PRs instead of creating duplicates. If a branch is already checked
-out elsewhere, use that existing worktree rather than forcing a second checkout.
-For app-managed worktrees, use the app's workspace/handoff controls; for an existing
-manual worktree, open that folder as the chat workspace. Treat the displayed branch
-as a useful cross-check; Git in the actual working directory supplies the evidence.
-In Codex CLI, start or resume with `codex -C <worktree>` or
-`codex resume -C <worktree>` and select the intended saved session. A shell command's
-`cd` does not retarget the running CLI. Its branch footer can be cached: if the
-display disagrees with Git, report the discrepancy, verify the actual directory
-and branch, and use `/statusline` or restart/resume to check the display. Do not
-claim the label refreshed without observing it or receiving user confirmation.
 Before pushing, inspect the remote and destination branch; publish the task branch,
 not a refspec targeting `main`.
 

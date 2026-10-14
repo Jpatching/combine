@@ -165,10 +165,9 @@ matrix are acceptance targets to measure, not behaviours Combine has implemented
 ## 6. Record and hand off
 
 Copy [the result template](../templates/baseline-result.md) into ignored `.private/`
-for raw notes. Put only a manually redacted report under `research/results/` when
-ready; include no usernames, absolute private paths, game files, tokens or participant
-identities. Record pass/partial/fail/blocked and evidence location on the authorized trial
-issue, if one exists; the retired C-003 card is historical.
+for private run notes. Record a source-safe verdict, blocker and next action on
+the authorized trial issue, if one exists; otherwise report them to the owner.
+Keep logs, media and private evidence paths local. The retired C-003 card is historical.
 
 Acceptance: verified archive identity, actual hardware/build details, both candidate
 results, thirty minutes of gameplay observations, failure cases, original-file

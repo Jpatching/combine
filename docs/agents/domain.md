@@ -12,6 +12,3 @@ Use the glossary's terms in issue titles, proposals, hypotheses and tests.
 If a needed concept is missing, reconsider the wording or note the gap for
 `domain-modeling`. Surface conflicts with an existing ADR explicitly instead
 of silently overriding it.
-
-The historical [decision log](../DECISIONS.md) remains available for technical
-evidence and product constraints; its retired workflow does not select new work.

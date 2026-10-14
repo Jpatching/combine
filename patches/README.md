@@ -11,7 +11,7 @@ The patch embeds Synergy's pinned source and declares the containing session
 crate GPL-3.0-only, preserving attribution and the existing full licence.
 Game-script dependencies still come from the owner's local game data. It does
 not contain retail scripts, game assets or IW4x binaries. See the
-[current integration record](../research/results/2026-10-04-synergy-gsc.md).
+[Synergy reproduction instructions](../docs/REPRODUCING.md#compile-actual-synergy-in-the-pinned-rust-runtime).
 
 `synergy-input-v0.4.0.patch` applies last, after the GSC patch. The embedded
 Synergy source bytes stay unchanged; a bounded compatibility transform redirects
@@ -47,8 +47,8 @@ patch. It adds native skating-event cues and optional local WAV playback. It
 contains no samples, music, recordings, extractor code, new recipes or network
 interface. Existing runtime licences/notices remain in force. The music cue
 starts on entering skating or Christ Air and never overlaps itself. See the
-[audio result record](../research/results/2026-10-03-skate-audio-highlights.md) for
-setup, tests and the still-unverified listening assignment.
+[audio preparation instructions](../docs/REPRODUCING.md#private-skate-conversion-and-audio-preparation)
+for setup, tests and the still-unverified listening assignment.
 
 `intervention-v0.4.0.patch` applies **after menu, then audio**, without Hide HUD.
 It replaces the earlier practice pages with the six Synergy root sections and
@@ -69,7 +69,7 @@ a lockfile for that independently built crate. Existing match callers are unchan
 
 This is not a Fortnite decoder, renderer or playable session. Geometry uses the
 host's native coordinates; a real export contract, render lifecycle and full-island
-loading remain subsequent tickets. See [evidence and reproduction](../research/results/2026-10-06-standalone-world.md).
+loading remain subsequent tickets. See [standalone preparation and limitations](../docs/REPRODUCING.md#standalone-skate-world-preparation).
 
 The standalone validator now checks rail chord arithmetic exactly as the pinned
-host computes it; see the [rail regression fix](../research/results/2026-10-06-rail-validation-fix.md).
+host computes it; see the [retained standalone patch](skate-standalone-v0.4.0.patch).

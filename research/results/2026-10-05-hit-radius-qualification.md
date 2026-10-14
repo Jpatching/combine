@@ -1,9 +1,10 @@
 # Hit-radius qualification — initial source trace, 2026-10-05
 
-Purpose: identify the authoritative seams for the D-013/D-019 near-pass slice
+Purpose: identify the authoritative seams for the parked near-pass work
 inside actual Synergy. This is source-inspected evidence, not a feasibility,
 implementation, launch or gameplay result. Requirements and expected cases remain
-in docs/TRICKSHOT_MENU.md; active progress belongs on the private board.
+in [the menu contract](../../docs/TRICKSHOT_MENU.md). The owner selects whether
+to resume this work.
 
 Runtime: `https://github.com/chasmlol/2010-rust-rewrite-mashup` at
 `f608f85e407ff1b7689d54a9aafdd16e95711ac4`. Local source checkout HEAD matches

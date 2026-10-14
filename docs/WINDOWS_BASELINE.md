@@ -2,14 +2,14 @@
 
 This procedure tests the upstream runtime on the owner's Windows PC when that
 trial is requested. The observations below describe the October 3 baseline, not
-the current task queue; see [current context](HANDOFF.md).
+the current task queue; the owner's current request selects work.
 Windows PowerShell is accessible through WSL with sandbox approval. Human observation
 is needed for gameplay; successful commands do not establish playable behaviour.
 
 **Retained trial: skating on Rust.** MW2 Multiplayer is installed, the v0.4.0
 archive was verified and a separate trial launched. The owner reports Minecraft
-worked and a possible freeze. See [the result](../research/results/2026-10-03-first-launch.md)
-and [retained evidence](HANDOFF.md) before repeating any preparation.
+worked and a possible freeze. The freeze remains undiagnosed; preserve the existing trial before any
+owner-selected reproduction.
 
 **IW4x is not required.** The pinned release includes the skating integration and
 converter. It still needs the player's Skate 3 Xbox 360 `default.xex` and accompanying
@@ -19,8 +19,8 @@ converter. It still needs the player's Skate 3 Xbox 360 `default.xex` and accomp
 
 Preparation is complete in `%LOCALAPPDATA%\CombinePilot\v0.4.0\mw2-skate`,
 inside `2010-Rust-Rewrite-Mashup`. The converter passed and its process was launched;
-DualSense is detected over Bluetooth. See the
-[preparation evidence](../research/results/2026-10-03-skating-preparation.md).
+DualSense was detected over Bluetooth during preparation. Recheck these
+historical observations before a new trial; detection does not prove input.
 Game-data distribution provenance remains unresolved.
 
 1. In the launched trial, choose Create Game → Rust, then press **J**.
@@ -62,7 +62,7 @@ skating acceptance. Do not mark either skating recipe complete yet.
 - For both skating recipes, extracted Skate 3 Xbox 360 content: `default.xex` and
   its accompanying `data` folder. An ISO alone is not the mashup's documented input.
 - A controller; the current trial uses a detected DualSense. Record actual input results.
-- Internet for upstream first-run content downloads. Review the [recorded rights/provenance questions](RESEARCH.md#rightsprovenance-questions-c-006)
+- Internet for upstream first-run content downloads. Review the [recorded rights/provenance questions](REPRODUCING.md#private-input-and-release-questions)
   before deciding whether to run the content downloader. This runbook is not
   permission to acquire files or bypass protection.
 - A dedicated writable folder outside either game's installation. Leave ordinary
@@ -165,10 +165,9 @@ matrix are acceptance targets to measure, not behaviours Combine has implemented
 ## 6. Record and hand off
 
 Copy [the result template](../templates/baseline-result.md) into ignored `.private/`
-for raw notes. Put only a manually redacted report under `research/results/` when
-ready; include no usernames, absolute private paths, game files, tokens or participant
-identities. Record pass/partial/fail/blocked and evidence location on the authorized trial
-issue, if one exists; the retired C-003 card is historical.
+for private run notes. Record a source-safe verdict, blocker and next action on
+the authorized trial issue, if one exists; otherwise report them to the owner.
+Keep logs, media and private evidence paths local. The retired C-003 card is historical.
 
 Acceptance: verified archive identity, actual hardware/build details, both candidate
 results, thirty minutes of gameplay observations, failure cases, original-file

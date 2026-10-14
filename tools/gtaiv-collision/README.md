@@ -102,3 +102,6 @@ against the original revision, which incorrectly accepts a missing checksum.
 All eight focused tests pass after the correction. The repository gate is
 `python3 scripts/verify.py`. These synthetic checks do not supply owned-resource
 or runtime proof; the separate owned-file result above remains unsupported.
+
+For external matrix conventions and placement limits, consult the
+[pinned format references](../../research/results/gtaiv-collision-format-references.md).

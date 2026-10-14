@@ -14,19 +14,13 @@ Investigation              -> exact target/version + one question + evidence
 Implementation             -> adapter + regression check
 Visible result             -> private clip/screenshots + measured observations
 Review                     -> source checks / runtime verdict / owner acceptance
-Next session               -> issue evidence + HANDOFF pointer
+Next session               -> current issue summary + fresh Git/runtime checks
 ```
 
-Start from [current context](HANDOFF.md), then read the live issue and comments.
-For [Mount -> move -> dismount](https://github.com/Jpatching/combine/issues/20),
-the intended sequence is normal GTA walking, mount, push, left/right steering,
-dismount, then normal walking/vehicle use. The recorded blocker is a mount refusal
-above 0.05 metres; its surface root cause remains unknown. Keep the guard and
-preserved candidate. Fixing a blocker and accepting a complete ride are separate.
-
-The existing GTA and Fortnite issues remain integration experiments. This guide
-connects them to the broader reusable workflow; it does not claim that open issues
-already specify the hosted catalogue or select another gameplay task.
+Read the selected issue's current summary and acceptance criteria. For GTA,
+[#61](https://github.com/Jpatching/combine/issues/61) owns the candidate, blocker
+and next action; [#20](https://github.com/Jpatching/combine/issues/20) owns the ride.
+Consult historical comments only for a specific evidence question.
 
 ## Use the two guides
 
@@ -90,16 +84,6 @@ installation before refreshing the fingerprint. Universal
 Modder's knowledge search uses Python 3.10+ and PyYAML. Other commands have their
 own dependencies; inspect them before installing anything. No fal credentials,
 external generation service or automatic publishing is part of this setup.
-
-Local setup verification on 2026-10-09: Universal Modder knowledge search returned
-GTA/bridge field notes, and creating/indexing private notes preserved the pinned
-guide checkout. REA's wrapper rejected a deliberately changed installed entry
-point before execution and ran again after exact restoration. REA 6.1.0 returned
-validated static analysis evidence for
-a tiny Combine-owned JavaScript fixture. The comparison page's Chromium smoke
-check passed image previews, SHA-256, JSON download, default verdict/acceptance,
-literal notes, reset, zero external requests and zero page errors. These checks
-do not establish Windows capture, native analysis or gameplay acceptance.
 
 ## See intended behaviour and proof
 

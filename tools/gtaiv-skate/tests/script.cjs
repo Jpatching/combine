@@ -5,7 +5,7 @@ function run(mode, surfaces = []) {
  const native=(name,...args)=>{
   calls.push([name,...args]);
   switch(name){
-   case 'COMBINE_SKATE_READY':return ['prepReadyLoss','rideReadyLoss'].includes(mode)&&frame>=2||mode==='escapeRecoveryLoss'&&frame>=3?0:1;
+   case 'COMBINE_SKATE_READY':return mode==='adapterUnavailable'||['prepReadyLoss','rideReadyLoss'].includes(mode)&&frame>=2||mode==='escapeRecoveryLoss'&&frame>=3?0:1;
    case 'COMBINE_SKATE_INPUT_MODE':return mode==='modeRefused'?0:1;
    case 'COMBINE_SKATE_INPUT_TOGGLE':return mode==='controller'&&frame===1?0:-1;
    case 'GET_MOUSE_INPUT':return mode==='invalidMouse'?{x:NaN,y:0}:mode==='mouse'?{x:40,y:20}:{x:0,y:0};
@@ -32,7 +32,7 @@ function run(mode, surfaces = []) {
    case 'COMBINE_SKATE_TICK':return mode==='inputFail'?0:1;
    case 'COMBINE_SKATE_STOP':if(mode==='stopThrow'&&frame>=4)throw Error('stop failure');return;
    case 'COMBINE_SKATE_RELEASE':if(mode==='releaseThrow')throw Error('release failure');return;
-   case 'COMBINE_SKATE_VALUE':return mode==='invalidInitial'||mode==='invalidReturnedPose'&&frame>=2&&args[0]===3?NaN:['geometryEscape','escapeRecoveryLoss'].includes(mode)&&geometryTicks>=1||mode==='geometryInitialEscape'?[104,200,10.4,0][args[0]]:[100.1,200.2,11,0][args[0]];
+   case 'COMBINE_SKATE_VALUE':return mode==='geometryHeightEscape'&&geometryTicks>=1?[100,200,14,0][args[0]]:mode==='invalidInitial'||mode==='invalidReturnedPose'&&frame>=2&&args[0]===3?NaN:['geometryEscape','escapeRecoveryLoss'].includes(mode)&&geometryTicks>=1||mode==='geometryInitialEscape'?[104,200,10.4,0][args[0]]:[100.1,200.2,11,0][args[0]];
    case 'GET_GAME_TIMER':return frame*(mode==='prepTimeout'?60001:16);
    case 'CREATE_CAM':camera=mode!=='prepCameraFail';return 99;
    case 'DOES_CAM_EXIST':return camera;
@@ -49,6 +49,17 @@ function run(mode, surfaces = []) {
 }
 const slope=[{layer:1,qualified:true,evidence:'authored-two-floor-witness',center:[100,200],radius:3,
  triangles:[[[95,195,9.5],[105,195,10.5],[105,205,10.5]],[[95,195,9.5],[105,205,10.5],[95,205,9.5]]]}];
+for(const [mode,message] of [['blocked','GTA player control unavailable'],['paused','game paused'],
+ ['cutscene','cutscene active'],['geometryUploadFail','floor upload failed'],
+ ['modeRefused','input mode unavailable'],['adapterUnavailable','adapter not ready']]) {
+ const refused=run(mode,mode==='geometryUploadFail'?slope:[]);
+ assert.ok(refused.calls.some(c=>c[0]==='PRINT_STRING_WITH_LITERAL_STRING_NOW' && c[2].includes(message)),
+  mode+' must explain why F6 cannot mount');
+ assert.equal(refused.transfers.length,0);
+ if(['modeRefused','adapterUnavailable'].includes(mode))assert.equal(refused.calls.filter(c=>
+  c[0]==='PRINT_STRING_WITH_LITERAL_STRING_NOW' && c[2].includes(message)).length,1,'readiness refusal must not spam every frame');
+}
+console.log('PASS: blocked mounting and unavailable adapter/input explain refusal without taking control');
 const geometry=run('geometry',slope);
 assert.ok(geometry.calls.some(c=>c[0]==='COMBINE_SKATE_MOUNT_SURFACE'&&c[6]===1&&c[7]===1));
 assert.ok(geometry.calls.some(c=>c[0]==='COMBINE_SKATE_TICK_SURFACE'&&c[2]===100.1&&c[3]===200.2&&c[5]===1&&c[6]===1));
@@ -72,6 +83,13 @@ const escaped=run('geometryEscape',slope);assert.ok(escaped.restored);assert.ok(
 assert.ok(escaped.calls.some(c=>c[0]==='COMBINE_SKATE_TICK_SURFACE'));
 assert.ok(!escaped.calls.some(c=>c[0]==='SET_CHAR_COORDINATES'&&c[2]===104));
 assert.ok(escaped.logs.includes('COMBINE_SKATE ride-stopped:outside-qualified-surface'));
+assert.ok(escaped.calls.some(c=>c[0]==='PRINT_STRING_WITH_LITERAL_STRING_NOW'
+ && c[2].includes('outside supplied floor coverage') && c[2].includes('GTA controls restored')),
+ 'leaving supplied coverage must explain the exit to the player');
+const heightEscape=run('geometryHeightEscape',slope);
+assert.ok(heightEscape.calls.some(c=>c[0]==='PRINT_STRING_WITH_LITERAL_STRING_NOW'
+ && c[2].includes('rider exceeded floor-relative height limit')),
+ 'a vertical pose refusal must not be presented as missing horizontal coverage');
 const invalidReturned=run('invalidReturnedPose');
 assert.ok(invalidReturned.logs.includes('COMBINE_SKATE ride-stopped:nonfinite-pose'));
 assert.ok(invalidReturned.restored);assert.equal(invalidReturned.poseWrites,0);
@@ -79,6 +97,10 @@ const escapeRecovery=run('escapeRecoveryLoss',slope);
 assert.deepEqual(escapeRecovery.logs.filter(s=>s.startsWith('COMBINE_SKATE ride-stopped:')), ['COMBINE_SKATE ride-stopped:outside-qualified-surface']);
 assert.ok(escapeRecovery.logs.indexOf('COMBINE_SKATE ride-stopped:outside-qualified-surface')<escapeRecovery.logs.indexOf('COMBINE_SKATE recovery-pending'));
 assert.ok(escapeRecovery.restored);assert.equal(escapeRecovery.mounted,false);
+assert.ok(escapeRecovery.calls.some(c=>c[0]==='PRINT_STRING_WITH_LITERAL_STRING_NOW'
+ && c[2].includes('outside supplied floor coverage') && c[2].includes('recovery pending')));
+assert.ok(!escapeRecovery.calls.some(c=>c[0]==='PRINT_STRING_WITH_LITERAL_STRING_NOW'
+ && c[2].includes('GTA controls restored')),'failed initial recovery must not claim restored controls');
 const overlapping=slope.map(s=>({...s,triangles:[...s.triangles,s.triangles[0].map(v=>[v[0],v[1],v[2]+0.005])]}));
 assert.equal(run('geometry',overlapping).transfers.length,0);
 const remounted=run('geometryRemount',slope);assert.deepEqual(remounted.transfers,[1,3]);assert.ok(remounted.poseWrites>0);assert.ok(remounted.restored);

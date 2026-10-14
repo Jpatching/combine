@@ -6,7 +6,7 @@ const SCALE = 1; // GTA metres assumption: MUST verify against a surveyed real s
 // Isolated runtime preparation supplies strict private data after floor qualification.
 const SURFACES = [];
 let ride = null, preparing = null, announced=false, inputConfigured=false, inputRefused=false;
-let selectedSurface = null;
+let selectedSurface = null, readinessAnnounced=false;
 function surfaceHeight(surface, x, y) {
     if (!surface || surface.qualified!==true || typeof surface.evidence!=="string" || !surface.evidence
         || !Number.isInteger(surface.layer) || surface.layer<=0 || surface.layer>0xffffffff
@@ -125,16 +125,39 @@ function restore() {
     if(ride && !saved.recoveryAnnounced){record("recovery-pending");saved.recoveryAnnounced=true;}
 }
 function stopRide(reason) {
+    const firstStop=ride && !ride.stopReason;
     if(ride && !ride.stopReason) {
         ride.stopReason=reason;
         record("ride-stopped:"+reason);
     }
     restore();
+    if(firstStop) {
+        const explanations={
+            "dismount-toggle":"dismounted",
+            "outside-qualified-surface":"outside supplied floor coverage",
+            "outside-floor-height":"rider exceeded floor-relative height limit",
+            "surface-input-time-unavailable":"floor, input or timing check failed",
+            "coverage-replacement-unavailable":"next floor coverage could not be loaded",
+            "adapter-not-ready":"Skate adapter unavailable",
+            "character-unavailable":"character no longer available on foot",
+            "owner-changed":"player character changed",
+            "camera-missing":"riding camera unavailable",
+            "paused":"game paused",
+            "cutscene":"cutscene started",
+            "nonfinite-pose":"Skate returned an invalid position",
+            "mouse-input-unavailable":"mouse input unavailable",
+            "native-exception":"game operation failed"
+        };
+        notify("Skate: "+(explanations[reason] || reason)+" - "
+            +(ride?"recovery pending":"GTA controls restored"));
+    }
 }
 function mount(player, ped) {
-    if (!native("IS_CHAR_ON_FOOT", ped) || !native("IS_PLAYER_CONTROL_ON", player)
-        || native("IS_PAUSE_MENU_ACTIVE")
-        || (native("HAS_CUTSCENE_LOADED") && !native("HAS_CUTSCENE_FINISHED"))) return;
+    const blocked=!native("IS_CHAR_ON_FOOT",ped)?"character not on foot"
+        :!native("IS_PLAYER_CONTROL_ON",player)?"GTA player control unavailable"
+        :native("IS_PAUSE_MENU_ACTIVE")?"game paused"
+        :native("HAS_CUTSCENE_LOADED") && !native("HAS_CUTSCENE_FINISHED")?"cutscene active":null;
+    if(blocked) {notify("Skate: "+blocked+" - cannot mount");return;}
     const pos = native("GET_CHAR_COORDINATES", ped);
     const ground = native("GET_GROUND_Z_FOR_3D_COORD", pos.x, pos.y, pos.z + 2);
     const height=native("GET_CHAR_HEIGHT_ABOVE_GROUND",ped);
@@ -153,9 +176,9 @@ function mount(player, ped) {
         // Overlapping patches on one agreeing floor are coverage, not separate floors.
         selectedSurface=matches.reduce((best,surface)=>
             surfaceMargin(surface,pos.x,pos.y)>surfaceMargin(best,pos.x,pos.y)?surface:best);
-        if(!native("COMBINE_SKATE_SURFACE_BEGIN",selectedSurface.layer,selectedSurface.triangles.length)) {restore();return;}
+        if(!native("COMBINE_SKATE_SURFACE_BEGIN",selectedSurface.layer,selectedSurface.triangles.length)) {restore();notify("Skate: floor setup failed - GTA retained");return;}
         for(const triangle of selectedSurface.triangles)for(const vertex of triangle) {
-            if(!native("COMBINE_SKATE_SURFACE_VERTEX",...vertex)){restore();return;}
+            if(!native("COMBINE_SKATE_SURFACE_VERTEX",...vertex)){restore();notify("Skate: floor upload failed - GTA retained");return;}
         }
     } else for (let y=0;y<5;y++) for (let x=0;x<5;x++) {
         const px=pos.x+(x-2)*2/SCALE, py=pos.y+(y-2)*2/SCALE;
@@ -204,14 +227,18 @@ try {
         try {
             if (!native("COMBINE_SKATE_READY")) {
                 const pending=preparing!==null;
+                const wasRiding=ride!==null;
                 if(ride)stopRide("adapter-not-ready");else restore();
                 if(pending)notify("Skate: preparation failed - GTA retained");
+                else if(!wasRiding && !readinessAnnounced)notify("Skate: adapter not ready - F6 unavailable");
+                readinessAnnounced=true;
                 continue;
             }
+            if(readinessAnnounced){readinessAnnounced=false;announced=false;}
             if(ride && ride.recovering){restore();continue;}
             if(!inputConfigured) {
                 if(!native("COMBINE_SKATE_INPUT_MODE",INPUT_MODE)) {
-                    if(!inputRefused)record("input-mode-refused");
+                    if(!inputRefused){record("input-mode-refused");notify("Skate: input mode unavailable - F6 cannot mount");}
                     inputRefused=true;continue;
                 }
                 inputConfigured=true;
@@ -228,11 +255,12 @@ try {
             const valid=native("DOES_CHAR_EXIST",ped) && native("IS_PLAYER_PLAYING",player)
                 && native("IS_CHAR_ON_FOOT",ped);
             const toggle=native("COMBINE_SKATE_TOGGLE");
+            if(toggle)record("toggle-received:"+(ride?"riding":preparing?"preparing":"dismounted"));
             if (ride && (toggle || !valid || ped!==ride.ped || player!==ride.player
                 || !native("DOES_CAM_EXIST",ride.camera))) {
                 const reason=toggle?"dismount-toggle":!valid?"character-unavailable"
                     :ped!==ride.ped || player!==ride.player?"owner-changed":"camera-missing";
-                stopRide(reason);notify(ride?"Skate: recovery pending - riding blocked":"Skate: GTA controls restored");continue;
+                stopRide(reason);continue;
             }
             const paused=native("IS_PAUSE_MENU_ACTIVE");
             const interrupted=paused
@@ -261,7 +289,13 @@ try {
                 }
                 continue;
             }
-            if (!ride) {if(toggle && valid)mount(player,ped);continue;}
+            if (!ride) {
+                if(toggle) {
+                    if(valid)mount(player,ped);
+                    else notify("Skate: character unavailable on foot - cannot mount");
+                }
+                continue;
+            }
             if(interrupted) {stopRide(paused?"paused":"cutscene");continue;}
             const prior=[0,1,2].map(i=>native("COMBINE_SKATE_VALUE",i));
             const ground=native("GET_GROUND_Z_FOR_3D_COORD",prior[0],prior[1],prior[2]+2);
@@ -279,12 +313,14 @@ try {
                     && native("COMBINE_SKATE_TICK_SURFACE",timer,prior[0],prior[1],ground,selectedSurface.layer,valid?1:0)
                 :native("COMBINE_SKATE_TICK",timer,ground,valid?1:0);
             if (!tick) {
-                stopRide("surface-input-time-unavailable");notify("Skate: surface/input/time unavailable - GTA restored");continue;
+                stopRide("surface-input-time-unavailable");continue;
             }
             ride.lastTick=timer;
             const [x,y,z,heading]=[0,1,2,3].map(i=>native("COMBINE_SKATE_VALUE",i));
             if (![x,y,z,heading].every(Number.isFinite)) {stopRide("nonfinite-pose");continue;}
-            if(selectedSurface && !surfaceContainsPose(selectedSurface,x,y,z)) {stopRide("outside-qualified-surface");continue;}
+            if(selectedSurface && !surfaceContainsPose(selectedSurface,x,y,z)) {
+                stopRide(surfaceHeight(selectedSurface,x,y)===null?"outside-qualified-surface":"outside-floor-height");continue;
+            }
             native("SET_CHAR_COORDINATES",ped,x,y,z+ride.lift);
             native("SET_CHAR_HEADING",ped,heading);
             if(inputMode===1) {
@@ -302,8 +338,9 @@ try {
                 y-Math.cos(angle)*Math.cos(elevation)*distance,z+Math.sin(elevation)*distance);
             native("POINT_CAM_AT_COORD",ride.camera,x,y,z+1);
         } catch (_) {
-            record("native-exception");if(ride)stopRide("native-exception");else restore();
-            try {notify(ride?"Skate: recovery pending - riding blocked":"Skate: native operation failed - GTA retained");}catch (_) {}
+            record("native-exception");
+            if(ride) {try {stopRide("native-exception");}catch (_) {}}
+            else {restore();try {notify("Skate: native operation failed - GTA retained");}catch (_) {}}
         }
     }
 } finally {restore();}

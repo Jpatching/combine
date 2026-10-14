@@ -53,7 +53,10 @@ Bundle source, tests and durable documentation into one focused commit when prac
 Use additional commits for meaningful fixes or review responses, then squash the
 finished PR into one commit on `main`. Record the final merged revision on the
 issue; the issue summary owns the final revision.
-Preserve published history and retained recovery branches.
+Preserve published history and retained recovery branches. A superseded PR may
+be closed after verifying its commits are contained in the selected candidate,
+or preserving its useful findings in the owning issue or durable reference.
+Link the replacement when closing; closure does not mean gameplay acceptance.
 
 Use one focused branch and PR per implementation slice. For a single active chat,
 switch its clean checkout to the task branch before editing. Use a separate

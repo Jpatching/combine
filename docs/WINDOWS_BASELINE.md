@@ -8,8 +8,8 @@ is needed for gameplay; successful commands do not establish playable behaviour.
 
 **Retained trial: skating on Rust.** MW2 Multiplayer is installed, the v0.4.0
 archive was verified and a separate trial launched. The owner reports Minecraft
-worked and a possible freeze. See [the result](../research/results/2026-10-03-first-launch.md)
-before repeating preparation.
+worked and a possible freeze. The freeze remains undiagnosed; preserve the existing trial before any
+owner-selected reproduction.
 
 **IW4x is not required.** The pinned release includes the skating integration and
 converter. It still needs the player's Skate 3 Xbox 360 `default.xex` and accompanying
@@ -19,8 +19,8 @@ converter. It still needs the player's Skate 3 Xbox 360 `default.xex` and accomp
 
 Preparation is complete in `%LOCALAPPDATA%\CombinePilot\v0.4.0\mw2-skate`,
 inside `2010-Rust-Rewrite-Mashup`. The converter passed and its process was launched;
-DualSense is detected over Bluetooth. See the
-[preparation evidence](../research/results/2026-10-03-skating-preparation.md).
+DualSense was detected over Bluetooth during preparation. Recheck these
+historical observations before a new trial; detection does not prove input.
 Game-data distribution provenance remains unresolved.
 
 1. In the launched trial, choose Create Game → Rust, then press **J**.

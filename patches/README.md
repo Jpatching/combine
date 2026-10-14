@@ -47,8 +47,8 @@ patch. It adds native skating-event cues and optional local WAV playback. It
 contains no samples, music, recordings, extractor code, new recipes or network
 interface. Existing runtime licences/notices remain in force. The music cue
 starts on entering skating or Christ Air and never overlaps itself. See the
-[audio result record](../research/results/2026-10-03-skate-audio-highlights.md) for
-setup, tests and the still-unverified listening assignment.
+[audio preparation instructions](../docs/REPRODUCING.md#private-skate-conversion-and-audio-preparation)
+for setup, tests and the still-unverified listening assignment.
 
 `intervention-v0.4.0.patch` applies **after menu, then audio**, without Hide HUD.
 It replaces the earlier practice pages with the six Synergy root sections and

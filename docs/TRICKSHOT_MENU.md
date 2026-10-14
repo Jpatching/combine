@@ -5,8 +5,7 @@ without Combine-specific save/return, target practice, aim-lock/preset or stunt
 launcher additions. Existing patches and trials are preserved as earlier work.
 They do not establish feature parity or acceptance of this destination.
 
-The [source coverage record](../research/results/2026-10-04-menu-coverage.md)
-rechecks the inventory and preserves earlier source coverage. Hide HUD
+The pinned Synergy source supplies the option inventory below. Hide HUD
 is deferred and is not an active slice or prerequisite.
 
 ## Owner correction — use Synergy itself, October 4

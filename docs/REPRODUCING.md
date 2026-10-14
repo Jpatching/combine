@@ -148,6 +148,8 @@ GTA reproduction and runtime checks belong to the [candidate #69](https://github
 and its `tools/gtaiv-skate/README.md`; the cleanup branch does not contain that
 unmerged adapter. Use the candidate's exact revision and instructions for native
 builds and the qualified local ride. File hashes alone do not prove loaded source.
+For external model and skeleton constraints, use the [presentation interface
+reference](../research/results/gtaiv-presentation-interfaces.md).
 
 ## Earlier native-menu verification
 
@@ -176,3 +178,31 @@ local; a source licence does not permit hosting game data. Minecraft download
 availability does not settle use or commercial-service terms. Branding, clips
 and user uploads need their own permission evidence. Refresh applicable terms
 before that decision; this guide records prerequisites and supplies no clearance.
+
+## Private Skate conversion and audio preparation
+
+The pinned converter needs Xbox 360 `default.xex` and its `data` directory;
+the inspected PS3 layout was incompatible. For a lawful local Xbox image, the
+previous extraction used [extract-xiso at 3f5b62c](https://github.com/XboxDev/extract-xiso/tree/3f5b62cfe68f000b0e3c8a30104973f3a297948e),
+built with CMake 3.28.3 and GCC 13.3.0. Build in an isolated directory with
+`cmake -S <source> -B <build>` and `cmake --build <build> -j2`. Inspect with
+`-l`, then extract with `-x -s` into a new private directory (skip the console
+system update). Validate converter skater/configuration, physics skeleton and skater collection
+outputs. Compare listed sizes, XEX2 header and before/after inventories;
+never run console executables. These are retained procedures, not evidence of
+current local availability or permission to acquire game data.
+
+For the optional audio patch, compile the combined audio/console test targets
+to retain the established Bevy feature set:
+
+```sh
+cargo +1.95.0 xwin test --offline --locked --profile play --target x86_64-pc-windows-msvc -p audio -p console --lib --no-run
+```
+
+Run the audio executable with `skate::tests` and console executable with
+`practice`. Supply private `pop.wav`, `land.wav` and optional `christ-air.wav`
+through `IW4L_SKATE_AUDIO`; fallback is `IW4L_SKATE_ASSETS/private/audio`.
+Restart after changing samples because decoding occurs at startup. Startup
+decoding and event tests do not establish audible quality. The earlier collision-bank
+sample assignments were provisional: owner listening and gameplay acceptance
+remain outstanding. Keep local editing recipes and recordings private.

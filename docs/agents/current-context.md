@@ -32,5 +32,7 @@ content before staging; keep private measurements, identities and media local.
 ## Context transfer
 
 Use Matt's `ask-matt` phase-boundary guidance. A temporary handoff may transfer
-work to another session, directory or person; link the owning issue and durable
-evidence rather than copying status. Recheck Git and runtime state on arrival.
+work to another session, directory or person. Date the snapshot, identify its
+source revision and link the owning issue and durable evidence. On arrival,
+read the current issue and recheck Git; verify runtime identity before input.
+A handoff supplies navigation, not current task authority or acceptance.

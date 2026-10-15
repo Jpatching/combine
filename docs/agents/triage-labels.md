@@ -1,14 +1,15 @@
-# Triage labels
+# Triage Labels
 
-Use Matt's five default roles as labels in Jpatching/combine Issues.
+The skills speak in terms of five canonical triage roles. This file maps those roles to the actual label strings used in this repo's issue tracker.
 
-| Role in Matt's skills | Repository label | Meaning |
-| --- | --- | --- |
-| `needs-triage` | `needs-triage` | Maintainer needs to evaluate this issue |
-| `needs-info` | `needs-info` | Waiting on the reporter for more information |
-| `ready-for-agent` | `ready-for-agent` | Fully specified, ready for agent implementation |
-| `ready-for-human` | `ready-for-human` | Requires human implementation |
-| `wontfix` | `wontfix` | Will not be actioned |
+| Label in mattpocock/skills | Label in our tracker | Meaning                                  |
+| -------------------------- | -------------------- | ---------------------------------------- |
+| `needs-triage`             | `needs-triage`       | Maintainer needs to evaluate this issue  |
+| `needs-info`               | `needs-info`         | Waiting on reporter for more information |
+| `ready-for-agent`          | `ready-for-agent`    | Fully specified, ready for an AFK agent  |
+| `ready-for-human`          | `ready-for-human`    | Requires human implementation            |
+| `wontfix`                  | `wontfix`            | Will not be actioned                     |
 
-Triage incoming requests only; `to-tickets` output is already ready for implementation.
-Create missing labels without replacing existing labels or their metadata.
+When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the corresponding label string from this table.
+
+Edit the right-hand column to match whatever vocabulary you actually use.

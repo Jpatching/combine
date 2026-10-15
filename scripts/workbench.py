@@ -63,7 +63,7 @@ def open_views(session):
         shell_command = shlex.join(command) + "; exec bash"
         run("tmux", "new-window", "-d", "-t", target + ":", "-n", window, "-c", str(ROOT), shell_command)
         print(f"Created {window}")
-    print("Existing Codex/editor panes and selected window were preserved.")
+    print("Existing agent/editor panes and selected window were preserved.")
 
 
 def guide(tool, args):

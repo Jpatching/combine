@@ -6,26 +6,21 @@ Preserve the existing implementation and local changes.
 
 ## Agent skills
 
-Use Matt Pocock's original skills; `ask-matt` selects the appropriate flow.
-
 ### Issue tracker
 
-New specs and tickets use Jpatching/combine GitHub Issues. Before repository edits
-(including documentation), resuming work or tracker operations, read
-[workspace and slice conventions](docs/agents/issue-tracker.md).
+Issues and specs live in GitHub Issues (Jpatching/combine). See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
-Use Matt's five default labels. Before triage, read the [label mapping](docs/agents/triage-labels.md).
+The five default triage labels, unchanged. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
-Use a root glossary and `docs/adr/`, created when needed. Before exploration,
-read the [domain documentation rules](docs/agents/domain.md).
+Single-context: root `GLOSSARY.md` and `docs/adr/`. See `docs/agents/domain.md`.
 
 ## Project reference
 
-- Start/resume: the selected issue; for GTA, [#61 current summary](https://github.com/Jpatching/combine/issues/61) and [#20 acceptance](https://github.com/Jpatching/combine/issues/20). At a task boundary, use [context maintenance](docs/agents/current-context.md).
+- Start/resume: the selected issue; for GTA, [#61 current summary](https://github.com/Jpatching/combine/issues/61) and [#20 acceptance](https://github.com/Jpatching/combine/issues/20).
 - Fortnite + Skate requirements: [interactive-world contract](docs/FORTNITE_SKATE.md).
 - Purpose and entry points: [README](README.md).
 - Parked Synergy: [menu guide](docs/TRICKSHOT_MENU.md); actual pinned GSC.

@@ -94,8 +94,7 @@ To present captured evidence directly, run
 This requests the local default viewers (Windows viewers when running in WSL);
 `--print-only` prints locations without opening anything. Confirm that the owner
 can see the evidence before requesting acceptance. A successful open request
-does not prove that playback was visible or accepted. Follow the
-[approval and squash-merge workflow](agents/issue-tracker.md#implementation-slices).
+does not prove that playback was visible or accepted. Owner approval precedes merge.
 Select a reference
 and candidate clip or screenshot, record the expected/observed behaviour, and save
 the private JSON record beside the original media. The page previews local files,
@@ -159,6 +158,6 @@ required. The checks pane reports the checkout identity before offering a run.
 
 Run `python3 scripts/verify.py` for the repository gate. Run relevant adapter and
 runtime checks for changed behaviour. Keep test, build, launch, gameplay,
-owner acceptance and release claims separate. At the task boundary, follow
-[context maintenance](agents/current-context.md) so the next session can recover
-the goal, evidence, exact blocker and next action without relying on memory.
+owner acceptance and release claims separate. At the task boundary, record the
+goal, evidence, exact blocker and next action on the issue so the next session can
+recover them without relying on memory.

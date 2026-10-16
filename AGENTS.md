@@ -20,7 +20,8 @@ Single-context: root `GLOSSARY.md` and `docs/adr/`. See `docs/agents/domain.md`.
 
 ## Project reference
 
-- Start/resume: the selected issue; for GTA, [#61 current summary](https://github.com/Jpatching/combine/issues/61) and [#20 acceptance](https://github.com/Jpatching/combine/issues/20).
+- Start/resume: the selected open issue. Issues opened before 2026-10-16 were closed for a fresh start; read them only as history.
+- GTA riding source and its fast checks: [`tools/gtaiv-skate/`](tools/gtaiv-skate/README.md) (`python3 tools/gtaiv-skate/check.py`, also run by the gate).
 - Fortnite + Skate requirements: [interactive-world contract](docs/FORTNITE_SKATE.md).
 - Purpose and entry points: [README](README.md).
 - Parked Synergy: [menu guide](docs/TRICKSHOT_MENU.md); actual pinned GSC.

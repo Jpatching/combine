@@ -15,3 +15,17 @@ The mode in which normal host-game movement, camera and vehicle use are availabl
 
 **Skate Session**:
 An active instance of the existing Skate simulation, with its collision, controls and skater pose.
+
+## Riding surfaces
+
+**Sampled surface**:
+Host-game floor found by querying the running game around the rider, as opposed to floor decoded from collision files.
+_Avoid_: live ground, probe surface
+
+**Coverage window**:
+The area of sampled surface currently given to the Skate Session around the rider.
+_Avoid_: flat patch, patch, grid
+
+**Coverage gap**:
+A place the coverage window cannot honestly cover, such as a wall-sized height jump, unloaded ground, a vehicle or the window's edge. Mounting there is refused, or riding into it dismounts, with a stated reason.
+_Avoid_: hole, unsupported area

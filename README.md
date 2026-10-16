@@ -18,12 +18,9 @@ python3 scripts/verify.py
 Use `py -3` on Windows. This checks source metadata, recipes, tracked links and
 tests; gameplay needs separate runtime evidence and explicit owner acceptance.
 
-Current GTA candidate, evidence, blocker and next action live in
-[workflow #61](https://github.com/Jpatching/combine/issues/61).
-[Ride #20](https://github.com/Jpatching/combine/issues/20) owns ride acceptance;
-[spec #64](https://github.com/Jpatching/combine/issues/64) owns wider GTA riding.
-[Fortnite proof #4](https://github.com/Jpatching/combine/issues/4) and the
-[interactive-world contract](docs/FORTNITE_SKATE.md) own the separate Fortnite goal.
+GTA riding source lives in [`tools/gtaiv-skate/`](tools/gtaiv-skate/README.md);
+open GitHub issues own current work. The
+[interactive-world contract](docs/FORTNITE_SKATE.md) describes the separate Fortnite goal.
 
 [Source pins](research/upstream.lock.json), [patches](patches/README.md) and
 [Synergy GPLv3 attribution](licenses/Synergy-GPL-3.0.md) identify the retained

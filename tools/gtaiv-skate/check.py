@@ -38,7 +38,7 @@ def main():
     started = time.monotonic()
     passed = run("native foreground readiness", [sys.executable,
         str(HERE / "tests" / "test_foreground.py")])
-    for name in ("script", "coverage", "status-script", "live-evaluation", "readonly-observer"):
+    for name in ("script", "coverage", "coverage-window", "status-script", "live-evaluation", "readonly-observer"):
         if not run(f"JavaScript {name}", [tools["node"], str(HERE / "tests" / f"{name}.cjs")]):
             passed = False
 

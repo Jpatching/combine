@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');
 function run(mode, surfaces = []) {
- let frame=0,mounted=false,restored=false,camera=false,vertices=0,poseWrites=0,queries=0,recoveryFailures=0,geometryTicks=0;
+ let frame=0,mounted=false,restored=false,camera=false,vertices=0,triangles=0,poseWrites=0,queries=0,recoveryFailures=0,geometryTicks=0;
  const calls=[],transfers=[],logs=[];
  const native=(name,...args)=>{
   calls.push([name,...args]);
@@ -9,7 +9,7 @@ function run(mode, surfaces = []) {
    case 'COMBINE_SKATE_INPUT_MODE':return mode==='modeRefused'?0:1;
    case 'COMBINE_SKATE_INPUT_TOGGLE':return mode==='controller'&&frame===1?0:-1;
    case 'GET_MOUSE_INPUT':return mode==='invalidMouse'?{x:NaN,y:0}:mode==='mouse'?{x:40,y:20}:{x:0,y:0};
-   case 'COMBINE_SKATE_TOGGLE':if(mode==='geometryRemount')return [1,3,5].includes(frame);return frame===1||frame===4&&!['prepFail','prepPause','prepMove','gridNonfinite','gridZero','gridOver','vertexFail'].includes(mode);
+   case 'COMBINE_SKATE_TOGGLE':if(mode==='geometryRemount')return [1,3,5].includes(frame);return frame===1||frame===4&&!['prepFail','prepPause','prepMove','gridNonfinite','gridZero','gridWall','sampledUploadFail'].includes(mode);
    case 'GET_PLAYER_ID':case 'CONVERT_INT_TO_PLAYERINDEX':return 0;
    case 'GET_PLAYER_CHAR':return mode==='ownerChanged'&&frame>=2?8:7;
    case 'DOES_CHAR_EXIST':case 'IS_PLAYER_PLAYING':return true;
@@ -20,19 +20,16 @@ function run(mode, surfaces = []) {
    case 'IS_CHAR_ON_FOOT':return mode!=='vehicle'||frame<3;
    case 'GET_CHAR_COORDINATES':return {x:mode==='prepMove'&&frame>=2?101:100,y:200,z:mode==='noGround'?1:11};
    case 'GET_CHAR_HEADING':return 0;
-   case 'GET_GROUND_Z_FOR_3D_COORD':queries++;return mode==='geometry'?10+(args[0]-100)*0.1:mode==='noGround'?0:queries>1&&mode==='gridNonfinite'?NaN:queries>1&&mode==='gridZero'?0:queries>1&&mode==='gridOver'?10.1:10;
+   case 'GET_GROUND_Z_FOR_3D_COORD':queries++;return mode==='geometry'?10+(args[0]-100)*0.1:mode==='noGround'?0:queries>1&&mode==='gridNonfinite'?NaN:queries>1&&mode==='gridZero'?0:queries>1&&mode==='gridWall'&&args[0]>=101?10.5:10;
    case 'GET_CHAR_HEIGHT_ABOVE_GROUND':return 1;
-   case 'COMBINE_SKATE_VERTEX':vertices++;return mode==='vertexFail'?0:1;
-   case 'COMBINE_SKATE_SURFACE_BEGIN':return 1;
-   case 'COMBINE_SKATE_SURFACE_VERTEX':return mode==='geometryUploadFail'?0:1;
-   case 'COMBINE_SKATE_MOUNT_SURFACE':return mode==='geometryMountFail'?0:mode==='geometryPreparing'?2:1;
-   case 'COMBINE_SKATE_TICK_SURFACE':geometryTicks++;return mode==='geometryTickFail'||mode==='geometryRemount'&&geometryTicks===1?0:1;
-   case 'COMBINE_SKATE_MOUNT':return mode==='initFail'?0:['preparing','prepCancel','prepFail','prepPause','prepMove','prepTimeout','prepReadyLoss','prepCameraFail'].includes(mode)?2:1;
+   case 'COMBINE_SKATE_SURFACE_BEGIN':triangles=args[1];return 1;
+   case 'COMBINE_SKATE_SURFACE_VERTEX':vertices++;return ['geometryUploadFail','sampledUploadFail'].includes(mode)?0:1;
+   case 'COMBINE_SKATE_MOUNT_SURFACE':return ['geometryMountFail','initFail'].includes(mode)?0:['geometryPreparing','preparing','prepCancel','prepFail','prepPause','prepMove','prepTimeout','prepReadyLoss','prepCameraFail'].includes(mode)?2:1;
+   case 'COMBINE_SKATE_TICK_SURFACE':geometryTicks++;return mode==='geometryTickFail'||mode==='inputFail'||mode==='geometryRemount'&&geometryTicks===1?0:1;
    case 'COMBINE_SKATE_POLL':return mode==='prepFail'?0:['prepCancel','prepTimeout'].includes(mode)?2:frame<2?2:1;
-   case 'COMBINE_SKATE_TICK':return mode==='inputFail'?0:1;
    case 'COMBINE_SKATE_STOP':if(mode==='stopThrow'&&frame>=4)throw Error('stop failure');return;
    case 'COMBINE_SKATE_RELEASE':if(mode==='releaseThrow')throw Error('release failure');return;
-   case 'COMBINE_SKATE_VALUE':return mode==='geometryHeightEscape'&&geometryTicks>=1?[100,200,14,0][args[0]]:mode==='invalidInitial'||mode==='invalidReturnedPose'&&frame>=2&&args[0]===3?NaN:['geometryEscape','escapeRecoveryLoss'].includes(mode)&&geometryTicks>=1||mode==='geometryInitialEscape'?[104,200,10.4,0][args[0]]:[100.1,200.2,11,0][args[0]];
+   case 'COMBINE_SKATE_VALUE':return mode==='geometryHeightEscape'&&geometryTicks>=1?[100,200,14,0][args[0]]:mode==='invalidInitial'||mode==='invalidReturnedPose'&&frame>=2&&args[0]===3?NaN:mode==='windowEdge'&&geometryTicks>=1?[104.5,200,10.45,0][args[0]]:['geometryEscape','escapeRecoveryLoss'].includes(mode)&&geometryTicks>=1||mode==='geometryInitialEscape'?[104,200,10.4,0][args[0]]:[100.1,200.2,11,0][args[0]];
    case 'GET_GAME_TIMER':return frame*(mode==='prepTimeout'?60001:16);
    case 'CREATE_CAM':camera=mode!=='prepCameraFail';return 99;
    case 'DOES_CAM_EXIST':return camera;
@@ -45,7 +42,8 @@ function run(mode, surfaces = []) {
  const context={native,log:event=>logs.push(event),wait:()=>{if(++frame>5)throw Error('END');},console,Math,Number};
  const source=fs.readFileSync('tools/gtaiv-skate/combine_skate.js','utf8').replace('const SURFACES = [];','const SURFACES = '+JSON.stringify(surfaces)+';');
  try {vm.runInNewContext(source,context);}catch(e){if(e.message!=='END')throw e;}
- return {calls,logs,transfers,mounted,restored,camera,vertices,poseWrites};
+ assert.ok(!calls.some(c=>['COMBINE_SKATE_MOUNT','COMBINE_SKATE_VERTEX','COMBINE_SKATE_TICK'].includes(c[0])),'the flat route is gone');
+ return {calls,logs,transfers,mounted,restored,camera,vertices,triangles,poseWrites};
 }
 const slope=[{layer:1,qualified:true,evidence:'authored-two-floor-witness',center:[100,200],radius:3,
  triangles:[[[95,195,9.5],[105,195,10.5],[105,205,10.5]],[[95,195,9.5],[105,205,10.5],[95,205,9.5]]]}];
@@ -63,7 +61,7 @@ console.log('PASS: blocked mounting and unavailable adapter/input explain refusa
 const geometry=run('geometry',slope);
 assert.ok(geometry.calls.some(c=>c[0]==='COMBINE_SKATE_MOUNT_SURFACE'&&c[6]===1&&c[7]===1));
 assert.ok(geometry.calls.some(c=>c[0]==='COMBINE_SKATE_TICK_SURFACE'&&c[2]===100.1&&c[3]===200.2&&c[5]===1&&c[6]===1));
-assert.equal(geometry.vertices,0);assert.ok(geometry.poseWrites>0);assert.ok(geometry.restored);
+assert.equal(geometry.triangles,2,'authored SURFACES upload their own triangles, not a sampled window');assert.ok(geometry.poseWrites>0);assert.ok(geometry.restored);
 console.log('PASS: qualified slope mounts and rides through the triangle route, then restores GTA');
 for (const surfaces of [slope.map(s=>({...s,qualified:false})), slope.map(s=>({...s,center:[110,210]})),
  slope.map(s=>({...s,triangles:s.triangles.map(t=>t.map(v=>[v[0],v[1],v[2]+1]))})), [...slope,...slope.map(s=>({...s,layer:2}))]]) {
@@ -106,7 +104,7 @@ assert.equal(run('geometry',overlapping).transfers.length,0);
 const remounted=run('geometryRemount',slope);assert.deepEqual(remounted.transfers,[1,3]);assert.ok(remounted.poseWrites>0);assert.ok(remounted.restored);
 console.log('PASS: triangle failures recover and remount; initial and returned poses stay inside qualified coverage');
 
-const successful=run('ok');assert.equal(successful.vertices,25);assert.ok(successful.poseWrites>0);
+const successful=run('ok');assert.equal(successful.triangles,32);assert.equal(successful.vertices,96);assert.ok(successful.poseWrites>0);
 assert.ok(successful.calls.some(c=>c[0]==='COMBINE_SKATE_INPUT_MODE'&&c[1]===1));
 assert.equal(successful.mounted,false);assert.equal(successful.camera,false);assert.ok(successful.restored);
 console.log('PASS: mount presents Session pose and dismount restores GTA');
@@ -192,12 +190,42 @@ for(const mode of ['prepCancel','prepFail','prepPause','prepMove']) {
 }
 console.log('PASS: cancellation, preparation fault, pause and movement retain GTA controls');
 
-for(const [mode,reason] of [['gridNonfinite','non-finite'],['gridZero','near-zero'],['gridOver','over-0.05-metres'],['vertexFail','vertex-rejection']]) {
- const result=run(mode);assert.ok(result.logs.includes('COMBINE_SKATE surface-refused:'+reason));
- assert.equal(result.transfers.length,0);assert.equal(result.poseWrites,0);
- if(mode!=='vertexFail')assert.equal(result.vertices,0);
+const sampledSlope=run('geometry');
+const sampledMount=sampledSlope.calls.find(c=>c[0]==='COMBINE_SKATE_MOUNT_SURFACE');
+assert.ok(sampledMount,'F6 on a sampled slope reaches the triangle mount');
+assert.equal(sampledMount[6],1);assert.equal(sampledMount[7],1);
+assert.equal(sampledSlope.triangles,32);assert.equal(sampledSlope.vertices,96);
+const sampledVertices=sampledSlope.calls.filter(c=>c[0]==='COMBINE_SKATE_SURFACE_VERTEX');
+assert.ok(sampledVertices.every(c=>c[3]===10+(c[1]-100)*0.1),'uploaded vertices keep the sampled slope');
+assert.ok(sampledVertices.some(c=>c[1]===96)&&sampledVertices.some(c=>c[1]===104),'window spans +/-4 m');
+assert.ok(sampledSlope.calls.some(c=>c[0]==='COMBINE_SKATE_TICK_SURFACE'&&c[5]===1));
+const logged=JSON.parse(sampledSlope.logs.find(s=>s.startsWith('COMBINE_SKATE coverage-samples:')).slice(31));
+assert.equal(logged.length,25,'raw samples are logged for replay as fixtures');
+assert.ok(sampledSlope.poseWrites>0);assert.ok(sampledSlope.restored);assert.equal(sampledSlope.mounted,false);
+console.log('PASS: F6 on a sampled slope mounts through 32 window triangles and rides');
+for(const [mode,reason,message] of [['gridNonfinite','non-finite','ground not found'],['gridZero','near-zero','ground not loaded'],
+ ['gridWall','wall','wall-height step']]) {
+ const result=run(mode);assert.ok(result.logs.includes('COMBINE_SKATE coverage-gap:'+reason));
+ assert.ok(result.calls.some(c=>c[0]==='PRINT_STRING_WITH_LITERAL_STRING_NOW'&&c[2].includes(message)),mode+' notifies its reason');
+ assert.equal(result.transfers.length,0);assert.equal(result.poseWrites,0);assert.equal(result.vertices,0);
+ assert.ok(!result.calls.some(c=>c[0]==='COMBINE_SKATE_MOUNT_SURFACE'));
+ assert.ok(!result.calls.some(c=>c[0]==='SET_PLAYER_CONTROL'),'GTA control stays with the player');
 }
-console.log('PASS: surface refusal reports exact reason and preserves short-circuit vertex calls');
+const sampledUpload=run('sampledUploadFail');
+assert.ok(sampledUpload.calls.some(c=>c[0]==='PRINT_STRING_WITH_LITERAL_STRING_NOW'&&c[2].includes('floor upload failed')));
+assert.equal(sampledUpload.transfers.length,0);
+console.log('PASS: coverage gaps at mount refuse with their reason and leave GTA control with the player');
+for(const surfaces of [[],slope]) {
+ const edge=run('windowEdge',surfaces);
+ assert.equal(edge.logs.includes('COMBINE_SKATE ride-stopped:window-edge'),!surfaces.length,'only a sampled window has a window edge');
+ if(!surfaces.length) {
+  assert.ok(edge.calls.some(c=>c[0]==='PRINT_STRING_WITH_LITERAL_STRING_NOW'&&c[2].includes('window edge')&&c[2].includes('GTA controls restored')));
+  assert.ok(!edge.calls.some(c=>c[0]==='SET_CHAR_COORDINATES'&&c[2]===104.5));
+  assert.ok(!edge.calls.some(c=>c[0]==='COMBINE_SKATE_SURFACE_REPLACE'),'a sampled window is never refreshed from SURFACES');
+ }
+ assert.ok(edge.restored);assert.equal(edge.mounted,false);assert.equal(edge.camera,false);
+}
+console.log('PASS: riding out of the sampled window dismounts with "window edge" and restores GTA');
 const invalidInitial=run('invalidInitial');assert.equal(invalidInitial.transfers.length,0);assert.equal(invalidInitial.camera,false);
 console.log('PASS: nonfinite initial output cannot transfer GTA ownership');
 for(const [mode,reason] of [['inputFail','surface-input-time-unavailable'],['invalidMouse','mouse-input-unavailable'],['nativeThrow','native-exception'],['ok','dismount-toggle']]) {

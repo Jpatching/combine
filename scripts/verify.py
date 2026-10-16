@@ -84,6 +84,12 @@ def main():
     )
     if result.returncode:
         return result.returncode
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "tools" / "gtaiv-skate" / "check.py")], cwd=ROOT,
+        check=False,
+    )
+    if result.returncode:
+        return result.returncode
     print("PASS: repository gate. Windows gameplay and business validation are NOT covered.")
     return 0
 

@@ -47,6 +47,32 @@ function surfaceHeight(surface, x, y) {
     if(!heights.length || (Math.max(...heights)-Math.min(...heights))*SCALE>0.001)return null;
     return heights[0];
 }
+// Coverage window: sampled surface around the rider, or the coverage gap that refuses it.
+// It makes no native calls; probe(x,y,z) returns ground z (mount() wraps the ground native).
+const WINDOW_SAMPLES = 5, WINDOW_SPACING = 2 / SCALE, WALL_THRESHOLD = 0.3;
+function coverageWindow(probe, x, y, z) {
+    const half=(WINDOW_SAMPLES-1)/2, grid=[];
+    // Query from just above the rider so the floor underfoot is sampled, not a roof above it.
+    for (let j=0;j<WINDOW_SAMPLES;j++) for (let i=0;i<WINDOW_SAMPLES;i++) {
+        const px=x+(i-half)*WINDOW_SPACING, py=y+(j-half)*WINDOW_SPACING;
+        const pz=probe(px,py,z+2);
+        if(!Number.isFinite(pz))return {gap:"non-finite"};
+        if(Math.abs(pz)<0.001)return {gap:"near-zero"};
+        grid.push([px,py,pz]);
+    }
+    const at=(i,j)=>grid[j*WINDOW_SAMPLES+i];
+    for (let j=0;j<WINDOW_SAMPLES;j++) for (let i=0;i<WINDOW_SAMPLES;i++) {
+        for(const n of [i+1<WINDOW_SAMPLES&&at(i+1,j),j+1<WINDOW_SAMPLES&&at(i,j+1)]) {
+            if(n && Math.abs(n[2]-at(i,j)[2])*SCALE>WALL_THRESHOLD)return {gap:"wall"};
+        }
+    }
+    const triangles=[];
+    for (let j=0;j+1<WINDOW_SAMPLES;j++) for (let i=0;i+1<WINDOW_SAMPLES;i++) {
+        triangles.push([at(i,j),at(i+1,j),at(i+1,j+1)],[at(i,j),at(i+1,j+1),at(i,j+1)]);
+    }
+    // A complete mesh record: surfaceHeight() bounds it by its own footprint (the window edge).
+    return {coverage:"mesh",sampled:true,layer:1,qualified:true,evidence:"sampled-surface",triangles};
+}
 function surfaceObservation(surface,x,y,ground) {
     const height=surfaceHeight(surface,x,y);
     return height!==null && Number.isFinite(ground) && Math.abs(height-ground)*SCALE<=0.05;
@@ -188,6 +214,7 @@ function stopRide(reason) {
             "dismount-toggle":"dismounted",
             "outside-qualified-surface":"outside supplied floor coverage",
             "outside-floor-height":"rider exceeded floor-relative height limit",
+            "window-edge":"window edge",
             "surface-input-time-unavailable":"floor, input or timing check failed",
             "coverage-replacement-unavailable":"next floor coverage could not be loaded",
             "adapter-not-ready":"Skate adapter unavailable",
@@ -229,27 +256,26 @@ function mount(player, ped) {
         const region=matches.reduce((best,surface)=>
             surfaceMargin(surface,pos.x,pos.y)>surfaceMargin(best,pos.x,pos.y)?surface:best);
         selectedSurface=localSurface(region,pos.x,pos.y);
-        if(!native("COMBINE_SKATE_SURFACE_BEGIN",selectedSurface.layer,selectedSurface.triangles.length)) {restore();notify("Skate: floor setup failed - GTA retained");return;}
-        for(const triangle of selectedSurface.triangles)for(const vertex of triangle) {
-            if(!native("COMBINE_SKATE_SURFACE_VERTEX",...vertex)){restore();notify("Skate: floor upload failed - GTA retained");return;}
+    } else {
+        const samples=[];
+        const coverage=coverageWindow((x,y,z)=>{
+            const sample=native("GET_GROUND_Z_FOR_3D_COORD",x,y,z);samples.push([x,y,z,sample]);return sample;
+        },pos.x,pos.y,pos.z);
+        // Raw samples go to the private local log so runtime ground can be replayed as fixtures.
+        record("coverage-samples:"+JSON.stringify(samples));
+        if(coverage.gap) {
+            const reasons={"non-finite":"ground not found","near-zero":"ground not loaded","wall":"wall-height step"};
+            record("coverage-gap:"+coverage.gap);
+            notify("Skate: coverage gap ("+reasons[coverage.gap]+") - GTA retained");return;
         }
-    } else for (let y=0;y<5;y++) for (let x=0;x<5;x++) {
-        const px=pos.x+(x-2)*2/SCALE, py=pos.y+(y-2)*2/SCALE;
-        const z=native("GET_GROUND_Z_FOR_3D_COORD", px, py, pos.z+2);
-        let reason=null;
-        if(!Number.isFinite(z)) reason="non-finite";
-        else if(Math.abs(z)<0.001) reason="near-zero";
-        else if(Math.abs(z-ground)*SCALE>0.05) reason="over-0.05-metres";
-        else if(!native("COMBINE_SKATE_VERTEX",px,py,z)) reason="vertex-rejection";
-        if(reason) {
-            record("surface-refused:"+reason);
-            native("COMBINE_SKATE_STOP");notify("Skate: choose a clear, flat surface");return;
-        }
+        selectedSurface=coverage;
+    }
+    if(!native("COMBINE_SKATE_SURFACE_BEGIN",selectedSurface.layer,selectedSurface.triangles.length)) {restore();notify("Skate: floor setup failed - GTA retained");return;}
+    for(const triangle of selectedSurface.triangles)for(const vertex of triangle) {
+        if(!native("COMBINE_SKATE_SURFACE_VERTEX",...vertex)){restore();notify("Skate: floor upload failed - GTA retained");return;}
     }
     const heading=native("GET_CHAR_HEADING",ped);
-    const result=selectedSurface
-        ?native("COMBINE_SKATE_MOUNT_SURFACE",pos.x,pos.y,ground,heading,SCALE,selectedSurface.layer,1)
-        :native("COMBINE_SKATE_MOUNT",pos.x,pos.y,ground,heading,SCALE);
+    const result=native("COMBINE_SKATE_MOUNT_SURFACE",pos.x,pos.y,ground,heading,SCALE,selectedSurface.layer,1);
     if (!result) {
         restore();notify("Skate: initialization/controller unavailable");return;
     }
@@ -302,7 +328,7 @@ try {
                 notify(inputMode===1?"Skate: keyboard/mouse selected - F5 switches while dismounted"
                     :"Skate: controller selected - F5 switches while dismounted");
             }
-            if (!announced) {notify(SURFACES.length?"Skate adapter ready - F6 on a qualified floor":"Skate adapter ready - F6 on a clear flat surface");announced=true;}
+            if (!announced) {notify(SURFACES.length?"Skate adapter ready - F6 on a qualified floor":"Skate adapter ready - F6 on gentle ground");announced=true;}
             const player=native("CONVERT_INT_TO_PLAYERINDEX",native("GET_PLAYER_ID"));
             const ped=native("GET_PLAYER_CHAR",player);
             const valid=native("DOES_CHAR_EXIST",ped) && native("IS_PLAYER_PLAYING",player)
@@ -352,27 +378,30 @@ try {
             if(interrupted) {stopRide(paused?"paused":"cutscene");continue;}
             const prior=[0,1,2].map(i=>native("COMBINE_SKATE_VALUE",i));
             const ground=native("GET_GROUND_Z_FOR_3D_COORD",prior[0],prior[1],prior[2]+2);
-            if(selectedSurface) {
-                if(!surfaceObservation(selectedSurface,prior[0],prior[1],ground)) {
-                    stopRide("surface-input-time-unavailable");continue;
-                }
+            // The sampled window doesn't move yet: leaving it is a coverage gap.
+            const sampled=selectedSurface.sampled===true;
+            if(sampled && surfaceHeight(selectedSurface,prior[0],prior[1])===null) {stopRide("window-edge");continue;}
+            if(!surfaceObservation(selectedSurface,prior[0],prior[1],ground)) {
+                stopRide("surface-input-time-unavailable");continue;
+            }
+            // refreshSurface() only draws from authored SURFACES.
+            if(!sampled) {
                 const coverage=refreshSurface(prior,ground);
                 if(!coverage){stopRide("coverage-replacement-unavailable");continue;}
                 if(coverage===2)continue;
             }
             const timer=native("GET_GAME_TIMER");
-            const tick=selectedSurface
-                ?surfaceObservation(selectedSurface,prior[0],prior[1],ground)
-                    && native("COMBINE_SKATE_TICK_SURFACE",timer,prior[0],prior[1],ground,selectedSurface.layer,valid?1:0)
-                :native("COMBINE_SKATE_TICK",timer,ground,valid?1:0);
+            const tick=surfaceObservation(selectedSurface,prior[0],prior[1],ground)
+                && native("COMBINE_SKATE_TICK_SURFACE",timer,prior[0],prior[1],ground,selectedSurface.layer,valid?1:0);
             if (!tick) {
                 stopRide("surface-input-time-unavailable");continue;
             }
             ride.lastTick=timer;
             const [x,y,z,heading]=[0,1,2,3].map(i=>native("COMBINE_SKATE_VALUE",i));
             if (![x,y,z,heading].every(Number.isFinite)) {stopRide("nonfinite-pose");continue;}
-            if(selectedSurface && !surfaceContainsPose(selectedSurface,x,y,z)) {
-                stopRide(surfaceHeight(selectedSurface,x,y)===null?"outside-qualified-surface":"outside-floor-height");continue;
+            if(!surfaceContainsPose(selectedSurface,x,y,z)) {
+                stopRide(surfaceHeight(selectedSurface,x,y)!==null?"outside-floor-height"
+                    :sampled?"window-edge":"outside-qualified-surface");continue;
             }
             native("SET_CHAR_COORDINATES",ped,x,y,z+ride.lift);
             native("SET_CHAR_HEADING",ped,heading);

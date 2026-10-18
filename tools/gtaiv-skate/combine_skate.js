@@ -54,7 +54,8 @@ function surfaceHeight(surface, x, y) {
 }
 // Coverage window: sampled surface around the rider, or the coverage gap that refuses it.
 // It makes no native calls; probe(x,y,z) returns ground z (mount() wraps the ground native).
-const WINDOW_SAMPLES = 5, WINDOW_SPACING = 2 / SCALE;
+// The window's wall threshold is the floor agreement tolerance: one jump, two uses (ADR 0004).
+const WINDOW_SAMPLES = 5, WINDOW_SPACING = 2 / SCALE, WALL_THRESHOLD = FLOOR.agreement;
 function coverageWindow(probe, x, y, z) {
     const half=(WINDOW_SAMPLES-1)/2, grid=[];
     // Query from just above the rider so the floor underfoot is sampled, not a roof above it.
@@ -68,7 +69,7 @@ function coverageWindow(probe, x, y, z) {
     const at=(i,j)=>grid[j*WINDOW_SAMPLES+i];
     for (let j=0;j<WINDOW_SAMPLES;j++) for (let i=0;i<WINDOW_SAMPLES;i++) {
         for(const n of [i+1<WINDOW_SAMPLES&&at(i+1,j),j+1<WINDOW_SAMPLES&&at(i,j+1)]) {
-            if(n && Math.abs(n[2]-at(i,j)[2])*SCALE>FLOOR.agreement)return {gap:"wall"};
+            if(n && Math.abs(n[2]-at(i,j)[2])*SCALE>WALL_THRESHOLD)return {gap:"wall"};
         }
     }
     const triangles=[];

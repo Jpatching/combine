@@ -133,7 +133,7 @@ static void surface_proof() {
     std::puts("PASS: real Session mounted authored ramp, rode 90 push ticks across changing heights, followed ramp height and discarded dismounted output");
     for(int fault=0;fault<5;fault++) {
         phase="fault mount";surface_mount();phase="fault neutral tick";surface_tick(neutral);
-        const char* reasons[]={"unavailable observation accepted","wrong layer accepted","over-5cm ground disagreement accepted","observation at undisplayed position accepted","stale tick accepted"};
+        const char* reasons[]={"unavailable observation accepted","wrong layer accepted","ground beyond floor agreement (0.3 m) accepted","observation at undisplayed position accepted","stale tick accepted"};
         phase=reasons[fault];
         // A worker may accept submission before its Session rejects stale time.
         // Fixed authored time is independent of scheduler delays and cannot renew it.
@@ -142,7 +142,7 @@ static void surface_proof() {
         bool refused=false;
         do {
             const float x=combine_value(0)+(fault==3?1.f:0.f),y=combine_value(1);
-            const float ground=authored_ground(x,y)+(fault==2?0.06f:0.f);
+            const float ground=authored_ground(x,y)+(fault==2?0.31f:0.f);
             const uint32_t layer=fault==1?surfaceLayer+1:surfaceLayer,valid=fault==0?0:1;
             const DWORD now=fault==4?staleTime:GetTickCount();
             if(!bounded([&]{return combine_tick_surface(now,x,y,ground,layer,valid,&neutral);})) {refused=true;break;}

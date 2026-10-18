@@ -176,19 +176,20 @@ impl Response {
         r.read_exact(&mut b)?;
         let u = |i| u64::from_le_bytes(b[i..i + 8].try_into().unwrap());
         let f = |i| f32::from_le_bytes(b[i..i + 4].try_into().unwrap());
+        let contact = u32::from_le_bytes(b[44..48].try_into().unwrap());
         let response = Self {
             ride: u(0),
             sequence: u(8),
             revision: u(16),
             pose: std::array::from_fn(|i| f(24 + i * 4)),
             period: f(40),
-            grounded: u32::from_le_bytes(b[44..48].try_into().unwrap()) == 1,
+            grounded: contact == 1,
         };
         if response.ride == 0
             || response.revision == 0
             || !response.pose.iter().all(|v| v.is_finite())
             || !(0.001..=0.1).contains(&response.period)
-            || u32::from_le_bytes(b[44..48].try_into().unwrap()) > 1
+            || contact > 1
         {
             return Err(invalid());
         }

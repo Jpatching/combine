@@ -114,7 +114,7 @@ initial preparation return 1 or 2 respectively, so selecting the wrong backend
 fails. Every remount reconfigures after stop. It checks missing/incomplete geometry
 refusal without pose exposure or partial-preparation reuse, actual Session push
 over changing ramp heights, height following, unavailable/wrong-layer refusal,
-ground disagreement above 5 cm, query-position mismatch, stale-time refusal,
+ground disagreement beyond floor agreement (0.3 m), query-position mismatch, stale-time refusal,
 pose clearing and remount recovery. The moving-coverage case changes the ramp
 slope mid-ride and requires Session to follow the new heights. These are authored
 checks, not GTA
@@ -309,7 +309,8 @@ queries the ground native on a 5×5 grid at 2 m spacing (±4 m), from rider z + 
 uploads 32 triangles (two per cell) as layer 1 through `COMBINE_SKATE_MOUNT_SURFACE`.
 Mount is refused with a stated **coverage gap** for a non-finite sample, a near-zero
 sample (ambiguous or unloaded; the native has no success flag, so genuine zero-height
-ground is unsupported) or a neighbouring step above `FLOOR.agreement` (0.3 m).
+ground is unsupported) or a neighbouring step above `WALL_THRESHOLD` (0.3 m, equal to
+`FLOOR.agreement`).
 The window follows the rider in fixed 2 m world cells centred on the sample lattice:
 crossing out of the centre cell resamples it and installs it through
 `SURFACE_REPLACE` as a new revision, with no remount. Neighbouring windows share

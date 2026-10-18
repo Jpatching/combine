@@ -4,7 +4,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const context={native:()=>undefined,log:()=>{},wait:()=>{throw Error('END');},Math,Number};
 try {vm.runInNewContext(fs.readFileSync('tools/gtaiv-skate/combine_skate.js','utf8'),context);}
 catch(e){if(e.message!=='END')throw e;}
-const {coverageWindow,surfaceHeight,surfaceObservation}=context;
+const {coverageWindow,surfaceHeight,surfaceObservation,windowCell}=context;
 assert.equal(typeof coverageWindow,'function','combine_skate.js declares the Coverage window module');
 
 const rider=[100,200,11];
@@ -84,3 +84,18 @@ assert.equal(surfaceObservation(flatWindow,101,201,planter(101,201)),false,'ridi
 assert.equal(surfaceObservation(flatWindow,101,201,10.29),true,'a rise just under the wall threshold keeps floor agreement');
 console.log('REPORT: interpolation error (informational): '+report.join('; '));
 console.log('PASS: curved ground and curbs keep floor agreement; a planter between samples loses it');
+
+// Moving window: fixed 2 m cells. Crossing x = 101 moves the rider from cell 50 to 51; both
+// windows sample the same lattice, so the floor under the rider is the same before and after.
+const rolling=(x,y)=>10+0.2*Math.sin((x-100)*0.8)*Math.cos((y-200)*0.6);
+assert.deepEqual([...windowCell(100.9,200.2)],[50,100]);
+assert.deepEqual([...windowCell(101.1,200.2)],[51,100]);
+assert.deepEqual([...windowCell(99.1,199.1)],[50,100],'a cell is one sample spacing wide');
+const at=cell=>coverageWindow((x,y)=>rolling(x,y),cell[0]*2,cell[1]*2,11);
+const before=at(windowCell(100.9,200.2)),after=at(windowCell(101.1,200.2));
+for(let i=0;i<=48;i++)for(let j=0;j<=64;j++) {
+ const x=98+i*0.125,y=196+j*0.125;
+ assert.equal(surfaceHeight(after,x,y),surfaceHeight(before,x,y),`same floor at ${x},${y} across the swap`);
+}
+assert.notEqual(surfaceHeight(after,105.9,200),null,'the new window reaches 4 m past its cell centre');
+console.log('PASS: neighbouring cells share lattice samples, so a window swap keeps the floor under the rider');

@@ -37,8 +37,9 @@ ride check (about 0.08 m at an 8 m radius), so that check would end rides on
 ordinary streets. **Floor agreement** asks which floor the rider is on, not how
 planted the skater looks. Host ground at the rider must be within the wall
 threshold (0.3 m) of the window, the same jump the window itself calls a wall.
-One tolerance applies to every surface, authored or sampled. Losing it dismounts
-with "floor agreement lost".
+One tolerance applies to every surface, authored or sampled. It applies only while
+Skate reports ground contact, since an airborne rider over a planter or curb has not
+changed floor. Losing it dismounts with "floor agreement lost".
 
 Denser sampling was rejected: it shrinks curvature error but not the error near
 a step, and it costs four times the probes per halving. The mount-preparation

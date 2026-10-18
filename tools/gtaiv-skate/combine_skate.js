@@ -3,6 +3,11 @@
 const INPUT_MODE = 1;
 let inputMode = INPUT_MODE;
 const SCALE = 1; // GTA metres assumption: MUST verify against a surveyed real surface.
+// Floor rules checked before upload, in metres. The Rust floor contract (connection.rs)
+// defines each again and decides; these only keep a floor it would refuse from being sent.
+// Floor agreement is the jump the coverage window itself calls a wall (ADR 0004).
+const FLOOR = Object.freeze({agreement:0.3, sameFloor:0.001, poseHeight:3,
+    triangles:4096, coordinate:1_000_000, area:0.000001});
 // Isolated runtime preparation supplies strict private data after floor qualification.
 const SURFACES = [];
 // Explicit coverage:"mesh" records qualify their complete triangle footprint;
@@ -23,7 +28,7 @@ function surfaceHeight(surface, x, y) {
         || (surface.coverage!=="mesh" && (!Array.isArray(surface.center) || surface.center.length!==2
             || !surface.center.every(Number.isFinite) || !Number.isFinite(surface.radius) || surface.radius<=0
             || Math.hypot(x-surface.center[0],y-surface.center[1])>surface.radius))
-        || !Array.isArray(surface.triangles) || !surface.triangles.length || surface.triangles.length>4096) return null;
+        || !Array.isArray(surface.triangles) || !surface.triangles.length || surface.triangles.length>FLOOR.triangles) return null;
     const heights=[];
     for (const triangle of surface.triangles) {
         if (!Array.isArray(triangle) || triangle.length!==3
@@ -32,10 +37,10 @@ function surfaceHeight(surface, x, y) {
         if(surface.coverage==="mesh") {
             // Explicit complete meshes receive the native coordinate and area bounds
             // before any local subset is selected, including distant obstacles.
-            if(triangle.some(v=>v.some(component=>Math.abs(component)>1_000_000)))return null;
+            if(triangle.some(v=>v.some(component=>Math.abs(component)>FLOOR.coordinate)))return null;
             const u=b.map((component,i)=>component-a[i]),v=c.map((component,i)=>component-a[i]);
             if(Math.hypot(u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0])
-                *SCALE*SCALE<0.000001)return null;
+                *SCALE*SCALE<FLOOR.area)return null;
         }
         const denominator=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);
         if(Math.abs(denominator)<1e-9)continue;
@@ -44,12 +49,12 @@ function surfaceHeight(surface, x, y) {
         const w=1-u-v;
         if(Math.min(u,v,w)>=-1e-6)heights.push(u*a[2]+v*b[2]+w*c[2]);
     }
-    if(!heights.length || (Math.max(...heights)-Math.min(...heights))*SCALE>0.001)return null;
+    if(!heights.length || (Math.max(...heights)-Math.min(...heights))*SCALE>FLOOR.sameFloor)return null;
     return heights[0];
 }
 // Coverage window: sampled surface around the rider, or the coverage gap that refuses it.
 // It makes no native calls; probe(x,y,z) returns ground z (mount() wraps the ground native).
-const WINDOW_SAMPLES = 5, WINDOW_SPACING = 2 / SCALE, WALL_THRESHOLD = 0.3;
+const WINDOW_SAMPLES = 5, WINDOW_SPACING = 2 / SCALE;
 function coverageWindow(probe, x, y, z) {
     const half=(WINDOW_SAMPLES-1)/2, grid=[];
     // Query from just above the rider so the floor underfoot is sampled, not a roof above it.
@@ -63,7 +68,7 @@ function coverageWindow(probe, x, y, z) {
     const at=(i,j)=>grid[j*WINDOW_SAMPLES+i];
     for (let j=0;j<WINDOW_SAMPLES;j++) for (let i=0;i<WINDOW_SAMPLES;i++) {
         for(const n of [i+1<WINDOW_SAMPLES&&at(i+1,j),j+1<WINDOW_SAMPLES&&at(i,j+1)]) {
-            if(n && Math.abs(n[2]-at(i,j)[2])*SCALE>WALL_THRESHOLD)return {gap:"wall"};
+            if(n && Math.abs(n[2]-at(i,j)[2])*SCALE>FLOOR.agreement)return {gap:"wall"};
         }
     }
     const triangles=[];
@@ -73,19 +78,41 @@ function coverageWindow(probe, x, y, z) {
     // A complete mesh record: surfaceHeight() bounds it by its own footprint (the window edge).
     return {coverage:"mesh",sampled:true,layer:1,qualified:true,evidence:"sampled-surface",triangles};
 }
+// Fixed world cells, one sample spacing wide. Windows centre on the cell lattice, so
+// neighbouring windows share samples and a swap leaves the floor under the rider unchanged.
+// Crossing out of the window's centre cell resamples it.
+function windowCell(x,y) {return [Math.round(x/WINDOW_SPACING),Math.round(y/WINDOW_SPACING)];}
+const GAP_REASONS={"non-finite":"ground not found","near-zero":"ground not loaded","wall":"wall-height step"};
+function sampleWindow(cell,z) {
+    const samples=[];
+    const coverage=coverageWindow((x,y,qz)=>{
+        const sample=native("GET_GROUND_Z_FOR_3D_COORD",x,y,qz);samples.push([x,y,qz,sample]);return sample;
+    },cell[0]*WINDOW_SPACING,cell[1]*WINDOW_SPACING,z);
+    // Raw samples go to the private local log so runtime ground can be replayed as fixtures.
+    record("coverage-samples:"+JSON.stringify(samples));
+    if(coverage.gap)record("coverage-gap:"+coverage.gap);
+    else coverage.cell=cell;
+    return coverage;
+}
 // Floor agreement: host ground is on the floor the surface describes, within the jump
 // the window itself calls a wall (ADR 0004).
 function surfaceObservation(surface,x,y,ground) {
     const height=surfaceHeight(surface,x,y);
-    return height!==null && Number.isFinite(ground) && Math.abs(height-ground)*SCALE<=WALL_THRESHOLD;
+    return height!==null && Number.isFinite(ground) && Math.abs(height-ground)*SCALE<=FLOOR.agreement;
+}
+// Skate reports ground contact unless it says airborne (0). Floor agreement holds only
+// while grounded; leaving the ground is not refused by it.
+function riderGrounded() {return native("COMBINE_SKATE_VALUE",4)!==0;}
+function agreesWhileGrounded(surface,x,y,ground,grounded) {
+    return !grounded || surfaceObservation(surface,x,y,ground);
 }
 function sameFloor(a,b,x,y) {
     const first=surfaceHeight(a,x,y),second=surfaceHeight(b,x,y);
-    return a.layer===b.layer && first!==null && second!==null && Math.abs(first-second)*SCALE<=0.001;
+    return a.layer===b.layer && first!==null && second!==null && Math.abs(first-second)*SCALE<=FLOOR.sameFloor;
 }
 function surfaceContainsPose(surface,x,y,z) {
     const height=surfaceHeight(surface,x,y);
-    return height!==null && Number.isFinite(z) && Math.abs(z-height)*SCALE<3;
+    return height!==null && Number.isFinite(z) && Math.abs(z-height)*SCALE<FLOOR.poseHeight;
 }
 function surfaceMargin(surface,x,y) {
     let margin;
@@ -119,44 +146,51 @@ function localSurface(region,x,y) {
 }
 // A replacement must overlap the accepted pose on the same qualified floor.
 // Keep presenting that pose while the asynchronous worker acknowledges it.
-function refreshSurface(pos,ground) {
+// Returns 1 (current), 2 (pending) or the reason the ride must stop.
+function refreshSurface(pos,ground,grounded) {
+    const unavailable="coverage-replacement-unavailable";
     const now=native("GET_GAME_TIMER");
     if(ride.coverage) {
         const pending=ride.coverage;
-        const supported=(pose,height)=>sameFloor(pending.surface,selectedSurface,pose[0],pose[1])
-            && surfaceObservation(pending.surface,pose[0],pose[1],height)
+        const supported=(pose,height,contact)=>sameFloor(pending.surface,selectedSurface,pose[0],pose[1])
+            && agreesWhileGrounded(pending.surface,pose[0],pose[1],height,contact)
             && surfaceContainsPose(pending.surface,...pose);
-        if(!supported(pos,ground))return 0;
+        if(!supported(pos,ground,grounded))return unavailable;
         // Stay below the native 250 ms tick/freshness deadline, including upload time.
-        if(((now-ride.lastTick)>>>0)>200)return 0;
+        if(((now-ride.lastTick)>>>0)>200)return unavailable;
         if(pending.submitted) {
             const state=native("COMBINE_SKATE_POLL");
             if(state===2)return 2;
-            if(state!==1)return 0;
+            if(state!==1)return unavailable;
             const accepted=[0,1,2].map(i=>native("COMBINE_SKATE_VALUE",i));
             const support=native("GET_GROUND_Z_FOR_3D_COORD",accepted[0],accepted[1],accepted[2]+2);
-            if(!supported(accepted,support))return 0;
-            selectedSurface=pending.surface;ride.coverage=null;return 1;
+            if(!supported(accepted,support,riderGrounded()))return unavailable;
+            return installed(pending.surface);
         }
         // Bound native upload work per frame; never upload a whole large mesh at once.
         const end=Math.min(pending.vertex+96,pending.surface.triangles.length*3);
         while(pending.vertex<end) {
             const vertex=pending.surface.triangles[Math.floor(pending.vertex/3)][pending.vertex%3];
-            if(!native("COMBINE_SKATE_SURFACE_VERTEX",...vertex))return 0;
+            if(!native("COMBINE_SKATE_SURFACE_VERTEX",...vertex))return unavailable;
             pending.vertex++;
         }
         if(pending.vertex<pending.surface.triangles.length*3)return 2;
         const result=native("COMBINE_SKATE_SURFACE_REPLACE",pos[0],pos[1],ground,pending.surface.layer,1);
         if(result===3) {
             // Poll without queuing another tick, then re-read pose/ground next frame.
-            return native("COMBINE_SKATE_POLL")===0?0:2;
+            return native("COMBINE_SKATE_POLL")===0?unavailable:2;
         }
         if(result===2){pending.submitted=true;return 2;}
-        if(result!==1)return 0;
-        selectedSurface=pending.surface;ride.coverage=null;return 1;
+        if(result!==1)return unavailable;
+        return installed(pending.surface);
     }
     let next=selectedSurface;
-    for(const region of SURFACES) {
+    if(selectedSurface.sampled) {
+        const cell=windowCell(pos[0],pos[1]);
+        if(cell[0]===selectedSurface.cell[0] && cell[1]===selectedSurface.cell[1])return 1;
+        next=sampleWindow(cell,pos[2]);
+        if(next.gap)return "coverage-gap:"+next.gap;
+    } else for(const region of SURFACES) {
         // Validate the complete region before selecting a subset; malformed distant
         // triangles must never disappear through local filtering.
         if(!surfaceObservation(region,pos[0],pos[1],ground))continue;
@@ -170,9 +204,14 @@ function refreshSurface(pos,ground) {
             && surfaceMargin(surface,pos[0],pos[1])>surfaceMargin(next,pos[0],pos[1])+0.25)next=surface;
     }
     if(next===selectedSurface)return 1;
-    if(!native("COMBINE_SKATE_SURFACE_BEGIN",next.layer,next.triangles.length))return 0;
+    if(!native("COMBINE_SKATE_SURFACE_BEGIN",next.layer,next.triangles.length))return unavailable;
     ride.coverage={surface:next,vertex:0,submitted:false};
-    return refreshSurface(pos,ground);
+    return refreshSurface(pos,ground,grounded);
+}
+function installed(surface) {
+    selectedSurface=surface;ride.coverage=null;
+    record("coverage-installed:"+(++ride.revision));
+    return 1;
 }
 function record(event) {try {log("COMBINE_SKATE "+event);}catch (_) {}}
 function notify(text) { record(text);native("PRINT_STRING_WITH_LITERAL_STRING_NOW", "STRING", text, 2500, 1); }
@@ -216,7 +255,6 @@ function stopRide(reason) {
             "dismount-toggle":"dismounted",
             "outside-qualified-surface":"outside supplied floor coverage",
             "outside-floor-height":"rider exceeded floor-relative height limit",
-            "window-edge":"window edge",
             "floor-agreement-lost":"floor agreement lost",
             "surface-input-time-unavailable":"floor, input or timing check failed",
             "coverage-replacement-unavailable":"next floor coverage could not be loaded",
@@ -228,7 +266,9 @@ function stopRide(reason) {
             "cutscene":"cutscene started",
             "nonfinite-pose":"Skate returned an invalid position",
             "mouse-input-unavailable":"mouse input unavailable",
-            "native-exception":"game operation failed"
+            "native-exception":"game operation failed",
+            ...Object.fromEntries(Object.entries(GAP_REASONS).map(([gap,text])=>
+                ["coverage-gap:"+gap,"coverage gap ("+text+")"]))
         };
         notify("Skate: "+(explanations[reason] || reason)+" - "
             +(ride?"recovery pending":"GTA controls restored"));
@@ -252,7 +292,7 @@ function mount(player, ped) {
         const matches=SURFACES.filter(surface=>surfaceObservation(surface,pos.x,pos.y,ground));
         const heights=matches.map(surface=>surfaceHeight(surface,pos.x,pos.y));
         if(!matches.length || matches.some(surface=>surface.layer!==matches[0].layer)
-            || (Math.max(...heights)-Math.min(...heights))*SCALE>0.001) {
+            || (Math.max(...heights)-Math.min(...heights))*SCALE>FLOOR.sameFloor) {
             notify("Skate: qualified floor unavailable - GTA retained");return;
         }
         // Overlapping patches on one agreeing floor are coverage, not separate floors.
@@ -260,16 +300,9 @@ function mount(player, ped) {
             surfaceMargin(surface,pos.x,pos.y)>surfaceMargin(best,pos.x,pos.y)?surface:best);
         selectedSurface=localSurface(region,pos.x,pos.y);
     } else {
-        const samples=[];
-        const coverage=coverageWindow((x,y,z)=>{
-            const sample=native("GET_GROUND_Z_FOR_3D_COORD",x,y,z);samples.push([x,y,z,sample]);return sample;
-        },pos.x,pos.y,pos.z);
-        // Raw samples go to the private local log so runtime ground can be replayed as fixtures.
-        record("coverage-samples:"+JSON.stringify(samples));
+        const coverage=sampleWindow(windowCell(pos.x,pos.y),pos.z);
         if(coverage.gap) {
-            const reasons={"non-finite":"ground not found","near-zero":"ground not loaded","wall":"wall-height step"};
-            record("coverage-gap:"+coverage.gap);
-            notify("Skate: coverage gap ("+reasons[coverage.gap]+") - GTA retained");return;
+            notify("Skate: coverage gap ("+GAP_REASONS[coverage.gap]+") - GTA retained");return;
         }
         selectedSurface=coverage;
     }
@@ -292,7 +325,7 @@ function finishMount(player,ped,pos) {
     const initial=[0,1,2,3].map(i=>native("COMBINE_SKATE_VALUE",i));
     if(!initial.every(Number.isFinite) || (selectedSurface && !surfaceContainsPose(selectedSurface,initial[0],initial[1],initial[2]))) {restore();notify("Skate: invalid initial pose - GTA retained");return;}
     const camera=native("CREATE_CAM",14);
-    ride={player,ped,camera,lastTick:native("GET_GAME_TIMER"),lift:pos.z-initial[2],yaw:0,pitch:Math.atan2(2.5,4)*180/Math.PI};
+    ride={player,ped,camera,revision:1,lastTick:native("GET_GAME_TIMER"),lift:pos.z-initial[2],yaw:0,pitch:Math.atan2(2.5,4)*180/Math.PI};
     if (!native("DOES_CAM_EXIST",camera)) {restore();notify("Skate: camera unavailable - GTA retained");return;}
     native("COMBINE_SKATE_CLAIM",player,ped,camera);
     native("SET_PLAYER_CONTROL",player,false);
@@ -381,20 +414,17 @@ try {
             if(interrupted) {stopRide(paused?"paused":"cutscene");continue;}
             const prior=[0,1,2].map(i=>native("COMBINE_SKATE_VALUE",i));
             const ground=native("GET_GROUND_Z_FOR_3D_COORD",prior[0],prior[1],prior[2]+2);
-            // The sampled window doesn't move yet: leaving it is a coverage gap.
-            const sampled=selectedSurface.sampled===true;
-            if(sampled && surfaceHeight(selectedSurface,prior[0],prior[1])===null) {stopRide("window-edge");continue;}
-            if(!surfaceObservation(selectedSurface,prior[0],prior[1],ground)) {
+            const grounded=riderGrounded();
+            if(surfaceHeight(selectedSurface,prior[0],prior[1])===null) {stopRide("outside-qualified-surface");continue;}
+            if(!agreesWhileGrounded(selectedSurface,prior[0],prior[1],ground,grounded)) {
                 stopRide("floor-agreement-lost");continue;
             }
-            // refreshSurface() only draws from authored SURFACES.
-            if(!sampled) {
-                const coverage=refreshSurface(prior,ground);
-                if(!coverage){stopRide("coverage-replacement-unavailable");continue;}
-                if(coverage===2)continue;
-            }
+            // The coverage window follows the rider; a gap on the way dismounts with its reason.
+            const coverage=refreshSurface(prior,ground,grounded);
+            if(coverage===2)continue;
+            if(coverage!==1){stopRide(coverage);continue;}
             const timer=native("GET_GAME_TIMER");
-            const tick=surfaceObservation(selectedSurface,prior[0],prior[1],ground)
+            const tick=agreesWhileGrounded(selectedSurface,prior[0],prior[1],ground,grounded)
                 && native("COMBINE_SKATE_TICK_SURFACE",timer,prior[0],prior[1],ground,selectedSurface.layer,valid?1:0);
             if (!tick) {
                 stopRide("surface-input-time-unavailable");continue;
@@ -404,7 +434,7 @@ try {
             if (![x,y,z,heading].every(Number.isFinite)) {stopRide("nonfinite-pose");continue;}
             if(!surfaceContainsPose(selectedSurface,x,y,z)) {
                 stopRide(surfaceHeight(selectedSurface,x,y)!==null?"outside-floor-height"
-                    :sampled?"window-edge":"outside-qualified-surface");continue;
+                    :"outside-qualified-surface");continue;
             }
             native("SET_CHAR_COORDINATES",ped,x,y,z+ride.lift);
             native("SET_CHAR_HEADING",ped,heading);

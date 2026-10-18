@@ -1,4 +1,6 @@
 pub const MAX_TRIANGLES: usize = 4096;
+/// Floor agreement tolerance: the coverage window's wall threshold (ADR 0004).
+const FLOOR_AGREEMENT: f32 = 0.3;
 /// One bounded, approximately flat GTA ground patch, sampled on a 5x5 grid.
 /// GTA coordinates are Z-up; Skate is Y-up, in metres.
 pub struct Surface {
@@ -146,7 +148,7 @@ impl Surface {
                 *selected == layer
                     && self
                         .support(xy)
-                        .is_some_and(|z| (z - ground).abs() * self.scale <= 0.05)
+                        .is_some_and(|z| (z - ground).abs() * self.scale <= FLOOR_AGREEMENT)
             }
             None => layer == 0 && self.contains([xy[0], xy[1], ground], ground),
         }

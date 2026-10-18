@@ -4,7 +4,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const context={native:()=>undefined,log:()=>{},wait:()=>{throw Error('END');},Math,Number};
 try {vm.runInNewContext(fs.readFileSync('tools/gtaiv-skate/combine_skate.js','utf8'),context);}
 catch(e){if(e.message!=='END')throw e;}
-const {coverageWindow,surfaceHeight}=context;
+const {coverageWindow,surfaceHeight,surfaceObservation}=context;
 assert.equal(typeof coverageWindow,'function','combine_skate.js declares the Coverage window module');
 
 const rider=[100,200,11];
@@ -53,22 +53,34 @@ for(const [name,world,reason] of [
 assert.equal(sample(x=>x>=101?10.29:10).result.gap,undefined,'a step just under the wall threshold is rideable');
 console.log('PASS: wall, non-finite and near-zero worlds give a coverage gap with its reason');
 
-// Known risk: the riding tick requires GTA ground within 0.05 m of Skate's floor.
-// Rolling ground bends between samples while every sample step stays below the wall
-// threshold, so only curvature (tightest radius R = 1/(amplitude*k^2)) drives the error.
-const LIMIT=0.05;
+// Floor agreement (ADR 0004): host ground at the rider must lie on the floor the window
+// describes, within the wall threshold. Rolling ground bends between samples while every
+// sample step stays below the wall threshold, so only curvature (tightest radius
+// R = 1/(amplitude*k^2)) drives the interpolation error.
+function agreesEverywhere(world,window) {
+ for(let i=0;i<=64;i++)for(let j=0;j<=64;j++) {
+  const x=rider[0]-4+i*0.125,y=rider[1]-4+j*0.125;
+  if(!surfaceObservation(window,x,y,world(x,y)))return false;
+ }
+ return true;
+}
 const report=[];
 for(const [wavelength,amplitude] of [[16,0.25],[8,0.1],[8,0.2],[6,0.15]]) {
  const k=2*Math.PI/wavelength,radius=1/(amplitude*k*k);
  const rolling=(x,y)=>10+amplitude*Math.sin(k*(x-100)+0.5)*Math.cos(k*(y-200)+0.3);
  const {result}=sample(rolling);
  assert.equal(result.gap,undefined,`rolling R=${radius.toFixed(0)} m samples without a wall`);
- const error=maxError(rolling,result);
- report.push(`R=${radius.toFixed(1)}m ${error.toFixed(3)}m ${error<=LIMIT?'within':'EXCEEDS'}`);
- if(radius>=15)assert.ok(error<=LIMIT,`gentle rolling ground R=${radius.toFixed(0)} m stays within ${LIMIT} m`);
+ assert.ok(agreesEverywhere(rolling,result),`rolling R=${radius.toFixed(1)} m keeps floor agreement`);
+ report.push(`R=${radius.toFixed(1)}m ${maxError(rolling,result).toFixed(3)}m`);
 }
-const curbError=maxError(curb,sample(curb).result);
-assert.ok(curbError>LIMIT,'a step between samples is interpolated across a whole cell');
-report.push(`curb 0.25m step ${curbError.toFixed(3)}m EXCEEDS`);
-console.log('REPORT: curved-ground interpolation error vs '+LIMIT+' m: '+report.join('; '));
-console.log('PASS: curved ground reports its interpolation error against the 0.05 m riding check');
+const curbWindow=sample(curb).result;
+assert.ok(agreesEverywhere(curb,curbWindow),'a 0.25 m curb between samples keeps floor agreement');
+report.push(`curb 0.25m step ${maxError(curb,curbWindow).toFixed(3)}m`);
+// A planter between two samples: every sample is flat, but host ground under it is another floor.
+const planter=(x,y)=>Math.abs(x-101)<0.4&&Math.abs(y-201)<0.4?10.5:10;
+const flatWindow=sample(planter).result;
+assert.equal(flatWindow.gap,undefined,'the planter falls between samples');
+assert.equal(surfaceObservation(flatWindow,101,201,planter(101,201)),false,'riding onto the planter loses floor agreement');
+assert.equal(surfaceObservation(flatWindow,101,201,10.29),true,'a rise just under the wall threshold keeps floor agreement');
+console.log('REPORT: interpolation error (informational): '+report.join('; '));
+console.log('PASS: curved ground and curbs keep floor agreement; a planter between samples loses it');

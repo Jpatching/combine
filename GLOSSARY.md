@@ -29,3 +29,7 @@ _Avoid_: flat patch, patch, grid
 **Coverage gap**:
 A place the coverage window cannot honestly cover, such as a wall-sized height jump, unloaded ground, a vehicle or the window's edge. Mounting there is refused, or riding into it dismounts, with a stated reason.
 _Avoid_: hole, unsupported area
+
+**Floor agreement**:
+The host-game ground under the rider belongs to the floor the coverage window describes, allowing for the error that sampling introduces. It is about which floor the rider is on, not how closely the skater appears planted on it. Losing it ends the ride with a stated reason.
+_Avoid_: ground check, height match

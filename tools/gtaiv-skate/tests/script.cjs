@@ -20,7 +20,7 @@ function run(mode, surfaces = []) {
    case 'IS_CHAR_ON_FOOT':return mode!=='vehicle'||frame<3;
    case 'GET_CHAR_COORDINATES':return {x:mode==='prepMove'&&frame>=2?101:100,y:200,z:mode==='noGround'?1:11};
    case 'GET_CHAR_HEADING':return 0;
-   case 'GET_GROUND_Z_FOR_3D_COORD':queries++;return mode==='geometry'?10+(args[0]-100)*0.1:mode==='noGround'?0:queries>1&&mode==='gridNonfinite'?NaN:queries>1&&mode==='gridZero'?0:queries>1&&mode==='gridWall'&&args[0]>=101?10.5:10;
+   case 'GET_GROUND_Z_FOR_3D_COORD':queries++;return mode==='planter'&&args[0]>100.05&&args[0]<100.6&&args[1]>200.1&&args[1]<200.6?10.5:mode==='geometry'?10+(args[0]-100)*0.1:mode==='noGround'?0:queries>1&&mode==='gridNonfinite'?NaN:queries>1&&mode==='gridZero'?0:queries>1&&mode==='gridWall'&&args[0]>=101?10.5:10;
    case 'GET_CHAR_HEIGHT_ABOVE_GROUND':return 1;
    case 'COMBINE_SKATE_SURFACE_BEGIN':triangles=args[1];return 1;
    case 'COMBINE_SKATE_SURFACE_VERTEX':vertices++;return ['geometryUploadFail','sampledUploadFail'].includes(mode)?0:1;
@@ -226,6 +226,14 @@ for(const surfaces of [[],slope]) {
  assert.ok(edge.restored);assert.equal(edge.mounted,false);assert.equal(edge.camera,false);
 }
 console.log('PASS: riding out of the sampled window dismounts with "window edge" and restores GTA');
+// A planter between samples: no sample point falls inside it, but the rider rolls onto it.
+for(const surfaces of [[],slope]) {
+ const planter=run('planter',surfaces);
+ assert.ok(planter.logs.includes('COMBINE_SKATE ride-stopped:floor-agreement-lost'),(surfaces.length?'authored':'sampled')+' floor');
+ assert.ok(planter.calls.some(c=>c[0]==='PRINT_STRING_WITH_LITERAL_STRING_NOW'&&c[2].includes('floor agreement lost')&&c[2].includes('GTA controls restored')));
+ assert.ok(planter.restored);assert.equal(planter.mounted,false);assert.equal(planter.camera,false);
+}
+console.log('PASS: riding onto a planter between samples loses floor agreement on sampled and authored floors and restores GTA');
 const invalidInitial=run('invalidInitial');assert.equal(invalidInitial.transfers.length,0);assert.equal(invalidInitial.camera,false);
 console.log('PASS: nonfinite initial output cannot transfer GTA ownership');
 for(const [mode,reason] of [['inputFail','surface-input-time-unavailable'],['invalidMouse','mouse-input-unavailable'],['nativeThrow','native-exception'],['ok','dismount-toggle']]) {

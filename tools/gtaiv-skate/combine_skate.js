@@ -73,9 +73,11 @@ function coverageWindow(probe, x, y, z) {
     // A complete mesh record: surfaceHeight() bounds it by its own footprint (the window edge).
     return {coverage:"mesh",sampled:true,layer:1,qualified:true,evidence:"sampled-surface",triangles};
 }
+// Floor agreement: host ground is on the floor the surface describes, within the jump
+// the window itself calls a wall (ADR 0004).
 function surfaceObservation(surface,x,y,ground) {
     const height=surfaceHeight(surface,x,y);
-    return height!==null && Number.isFinite(ground) && Math.abs(height-ground)*SCALE<=0.05;
+    return height!==null && Number.isFinite(ground) && Math.abs(height-ground)*SCALE<=WALL_THRESHOLD;
 }
 function sameFloor(a,b,x,y) {
     const first=surfaceHeight(a,x,y),second=surfaceHeight(b,x,y);
@@ -215,6 +217,7 @@ function stopRide(reason) {
             "outside-qualified-surface":"outside supplied floor coverage",
             "outside-floor-height":"rider exceeded floor-relative height limit",
             "window-edge":"window edge",
+            "floor-agreement-lost":"floor agreement lost",
             "surface-input-time-unavailable":"floor, input or timing check failed",
             "coverage-replacement-unavailable":"next floor coverage could not be loaded",
             "adapter-not-ready":"Skate adapter unavailable",
@@ -382,7 +385,7 @@ try {
             const sampled=selectedSurface.sampled===true;
             if(sampled && surfaceHeight(selectedSurface,prior[0],prior[1])===null) {stopRide("window-edge");continue;}
             if(!surfaceObservation(selectedSurface,prior[0],prior[1],ground)) {
-                stopRide("surface-input-time-unavailable");continue;
+                stopRide("floor-agreement-lost");continue;
             }
             // refreshSurface() only draws from authored SURFACES.
             if(!sampled) {

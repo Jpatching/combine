@@ -1,5 +1,5 @@
 //! Last accepted bridge output keeps its original deadline across reads.
-use crate::connection::Surface;
+use crate::connection::{Rider, Surface};
 use std::time::{Duration, Instant};
 #[derive(Clone, Copy)]
 pub struct AcceptedPose {
@@ -7,6 +7,7 @@ pub struct AcceptedPose {
     revision: u64,
     epoch: u64,
     pose: [f32; 4],
+    grounded: bool,
     updated: Instant,
 }
 impl AcceptedPose {
@@ -15,6 +16,7 @@ impl AcceptedPose {
         revision: u64,
         epoch: u64,
         pose: [f32; 4],
+        grounded: bool,
         updated: Instant,
     ) -> Option<Self> {
         if ride == 0 || revision == 0 || epoch == 0 || !pose.iter().all(|v| v.is_finite()) {
@@ -25,45 +27,35 @@ impl AcceptedPose {
             revision,
             epoch,
             pose,
+            grounded,
             updated,
         })
     }
+    pub fn grounded(&self) -> bool {
+        self.grounded
+    }
+    /// The pose, while fresh, if the host observation at `query` is on its floor.
+    #[allow(clippy::too_many_arguments)]
     pub fn fresh(
         &self,
         ride: u64,
         revision: u64,
         epoch: u64,
         now: Instant,
-        ground: f32,
         surface: &Surface,
-    ) -> Option<[f32; 4]> {
-        self.fresh_observation(ride, revision, epoch, now, ground, surface, None)
-    }
-    pub fn fresh_observation(
-        &self,
-        ride: u64,
-        revision: u64,
-        epoch: u64,
-        now: Instant,
+        query: [f32; 2],
         ground: f32,
-        surface: &Surface,
-        observation: Option<([f32; 2], u32, u32)>,
+        layer: u32,
+        valid: u32,
     ) -> Option<[f32; 4]> {
+        let pose = [self.pose[0], self.pose[1], self.pose[2]];
+        let seen = Rider { pose, grounded: self.grounded, query, ground, layer, valid };
         if self.ride != ride
             || self.revision != revision
             || self.epoch != epoch
             || now.checked_duration_since(self.updated)? > Duration::from_millis(250)
-            || !match observation {
-                Some((xy, layer, valid)) => {
-                    surface.is_geometry()
-                        && surface.observation(xy, ground, layer, valid)
-                        && surface.contains_pose([self.pose[0], self.pose[1], self.pose[2]])
-                }
-                None => {
-                    !surface.is_geometry()
-                        && surface.contains([self.pose[0], self.pose[1], self.pose[2]], ground)
-                }
-            }
+            || !surface.observation(&seen)
+            || !surface.contains_pose(pose)
         {
             return None;
         }

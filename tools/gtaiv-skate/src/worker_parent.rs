@@ -2,7 +2,7 @@
 use crate::{
     Packet,
     accepted_pose::AcceptedPose,
-    connection::{GeometryBuilder, Surface},
+    connection::{Basis, GeometryBuilder, Rider, Surface},
     wire::{Request, Response},
 };
 use std::os::windows::{io::AsRawHandle, process::CommandExt};
@@ -58,6 +58,7 @@ struct Snapshot {
     sequence: u64,
     state: i32,
     pose: [f32; 4],
+    grounded: bool,
     updated: Instant,
 }
 struct Bridge {
@@ -80,6 +81,7 @@ impl Bridge {
             sequence: 0,
             state: 0,
             pose: [f32::NAN; 4],
+            grounded: false,
             updated: Instant::now(),
         }));
         let shared = snapshot.clone();
@@ -200,6 +202,7 @@ impl Bridge {
                         state.sequence = response.sequence;
                         state.state = 1;
                         state.pose = response.pose;
+                        state.grounded = response.grounded;
                         state.updated = Instant::now();
                     }
                 } else {
@@ -245,12 +248,13 @@ impl Bridge {
 }
 #[derive(Default)]
 pub struct Adapter {
-    points: Vec<[f32; 3]>,
     geometry: GeometryBuilder,
     exe: Option<PathBuf>,
     bridge: Option<Bridge>,
     surface: Option<Surface>,
     pose: [f32; 4],
+    /// Skate ground contact at the displayed pose.
+    grounded: bool,
     deferred: Option<Request>,
     pending_surface: Option<(Surface, u64, Instant)>,
     accepted: Option<AcceptedPose>,
@@ -274,7 +278,6 @@ impl Adapter {
         self.deferred = None;
         self.pending_surface = None;
         let active = self.surface.take().is_some();
-        self.points.clear();
         self.geometry = GeometryBuilder::default();
         self.pose = [f32::NAN; 4];
         self.accepted = None;
@@ -300,35 +303,14 @@ impl Adapter {
             }
         }
     }
-    pub fn vertex(&mut self, p: [f32; 3]) -> i32 {
-        if self.points.len() >= 25 || !p.iter().all(|v| v.is_finite()) {
-            0
-        } else {
-            self.points.push(p);
-            1
-        }
-    }
-    pub fn mount(&mut self, origin: [f32; 3], heading: f32, scale: f32) -> i32 {
-        let points: [[f32; 3]; 25] = match self.points.clone().try_into() {
-            Ok(v) => v,
-            Err(_) => return 0,
-        };
-        let Ok(surface) = Surface::new(std::mem::take(&mut self.points), origin, scale) else {
-            return 0;
-        };
-        if !heading.is_finite() {
-            return 0;
-        }
-        self.prepare(surface, origin, heading, scale, points, 0, vec![])
-    }
     pub fn surface_begin(&mut self, layer: u32, triangles: u32) -> i32 {
-        if self.pending_surface.is_some() || self.surface.as_ref().is_some_and(|s| !s.is_geometry()) {
+        if self.pending_surface.is_some() {
             return 0;
         }
         self.geometry.begin(layer, triangles)
     }
     pub fn surface_vertex(&mut self, p: [f32; 3]) -> i32 {
-        if self.pending_surface.is_some() || self.surface.as_ref().is_some_and(|s| !s.is_geometry()) {
+        if self.pending_surface.is_some() {
             return 0;
         }
         self.geometry.vertex(p)
@@ -341,48 +323,33 @@ impl Adapter {
         layer: u32,
         valid: u32,
     ) -> i32 {
-        let Ok((surface, triangles)) = self.geometry.finish(origin, scale, layer, valid) else {
+        let Ok(triangles) = self.geometry.finish(layer, valid) else {
             return 0;
         };
         if !heading.is_finite() {
             return 0;
         }
-        self.prepare(
-            surface,
-            origin,
-            heading,
-            scale,
-            [[0.; 3]; 25],
-            layer,
-            triangles,
-        )
+        let basis = Basis { origin, scale, layer };
+        let query = [origin[0], origin[1]];
+        let rider = Rider { pose: origin, grounded: true, query, ground: origin[2], layer, valid };
+        // The worker installs; this side qualifies the floor and submits it.
+        match Surface::install(None, triangles, basis, &rider, |floor| self.prepare(floor, heading)) {
+            Ok(surface) => {
+                self.surface = Some(surface);
+                2
+            }
+            Err(_) => 0,
+        }
     }
-    fn prepare(
-        &mut self,
-        surface: Surface,
-        origin: [f32; 3],
-        heading: f32,
-        scale: f32,
-        points: [[f32; 3]; 25],
-        layer: u32,
-        triangles: Vec<[[f32; 3]; 3]>,
-    ) -> i32 {
+    fn prepare(&mut self, floor: &Surface, heading: f32) -> Result<(), ()> {
         if self.bridge.is_none() {
-            let Some(exe) = self.exe.clone() else {
-                return 0;
-            };
-            self.bridge = Some(Bridge::start(exe));
+            self.bridge = Some(Bridge::start(self.exe.clone().ok_or(())?));
         }
         let b = self.bridge.as_mut().unwrap();
-        b.ride = match b.ride.checked_add(1) {
-            Some(v) => v,
-            None => return 0,
-        };
-        b.revision = match b.revision.checked_add(1) {
-            Some(v) => v,
-            None => return 0,
-        };
+        b.ride = b.ride.checked_add(1).ok_or(())?;
+        b.revision = b.revision.checked_add(1).ok_or(())?;
         b.sequence = 0;
+        let Basis { origin, scale, layer } = floor.basis();
         let request = Request {
             kind: 1,
             ride: b.ride,
@@ -391,11 +358,10 @@ impl Adapter {
             ground: origin[2],
             heading,
             scale,
-            points,
             layer,
-            valid: if layer != 0 { 1 } else { 0 },
+            valid: 1,
             query: [origin[0], origin[1]],
-            triangles,
+            triangles: floor.host_triangles().to_vec(),
             ..Request::default()
         };
         b.generation.store(b.ride, Ordering::Release);
@@ -409,12 +375,13 @@ impl Adapter {
         self.accepted = None;
         self.pending_surface = None;
         match b.sender.try_send(request) {
-            Ok(()) => {}
-            Err(mpsc::TrySendError::Full(request)) => self.deferred = Some(request),
-            Err(mpsc::TrySendError::Disconnected(_)) => return 0,
+            Ok(()) => Ok(()),
+            Err(mpsc::TrySendError::Full(request)) => {
+                self.deferred = Some(request);
+                Ok(())
+            }
+            Err(mpsc::TrySendError::Disconnected(_)) => Err(()),
         }
-        self.surface = Some(surface);
-        2
     }
     pub fn poll(&mut self) -> i32 {
         if self.surface.is_none() {
@@ -453,9 +420,11 @@ impl Adapter {
                         self.surface = Some(next);
                     }
                     self.pose = s.pose;
+                    self.grounded = s.grounded;
                     if s.state == 1 {
-                        self.accepted =
-                            AcceptedPose::new(s.ride, s.revision, b.epoch, s.pose, s.updated);
+                        self.accepted = AcceptedPose::new(
+                            s.ride, s.revision, b.epoch, s.pose, s.grounded, s.updated,
+                        );
                     }
                     return s.state;
                 }
@@ -466,10 +435,12 @@ impl Adapter {
         2
     }
     pub fn value(&self, index: i32) -> f32 {
-        self.pose.get(index as usize).copied().unwrap_or(f32::NAN)
-    }
-    pub fn tick(&mut self, now: u32, ground: f32, p: &Packet) -> i32 {
-        self.tick_at(now, ground, p, None)
+        match index {
+            0..=3 => self.pose[index as usize],
+            // Skate ground contact at the displayed pose: 1 grounded, 0 airborne.
+            4 if self.pose[0].is_finite() => f32::from(u8::from(self.grounded)),
+            _ => f32::NAN,
+        }
     }
     pub fn tick_surface(
         &mut self,
@@ -480,15 +451,10 @@ impl Adapter {
         valid: u32,
         p: &Packet,
     ) -> i32 {
-        self.tick_at(now, ground, p, Some((xy, layer, valid)))
+        self.tick_at(now, xy, ground, layer, valid, p)
     }
     pub fn surface_replace(&mut self, xy: [f32; 2], ground: f32, layer: u32, valid: u32) -> i32 {
         if self.pending_surface.is_some() || self.deferred.is_some() { return 0; }
-        let Some(old) = self.surface.as_ref() else { return 0; };
-        let Some((origin, scale, selected)) = old.refresh_basis() else { return 0; };
-        if layer != selected || valid != 1
-            || !old.query_matches_pose(xy, [self.pose[0], self.pose[1], self.pose[2]])
-            || !old.observation(xy, ground, layer, valid) { return 0; }
         let Some(bridge) = self.bridge.as_ref() else { return 0; };
         if bridge.epoch != EPOCH.load(Ordering::Acquire) { return 0; }
         match bridge.snapshot.try_lock() {
@@ -499,24 +465,43 @@ impl Adapter {
             Err(std::sync::TryLockError::WouldBlock) => return 3,
             _ => return 0,
         }
-        let Ok((next, triangles)) = self.geometry.finish_at(origin, scale, layer, valid, xy, ground) else { return 0; };
-        if !next.contains_pose([self.pose[0], self.pose[1], self.pose[2]]) { return 0; }
-        let Some(b) = self.bridge.as_mut() else { return 0; };
-        if b.epoch != EPOCH.load(Ordering::Acquire) { return 0; }
-        let Some(sequence) = b.sequence.checked_add(1) else { return 0; };
-        let request = Request { kind: 4, ride: b.ride, sequence, revision: b.revision,
-            origin, scale, query: xy, ground, layer, valid, triangles, ..Request::default() };
-        match b.sender.try_send(request) {
-            Ok(()) => { b.sequence = sequence; self.pending_surface = Some((next, sequence, Instant::now())); 2 }
-            Err(_) => 0,
+        // Consume the staged upload only once the worker has caught up with the
+        // displayed pose; a retry (3) keeps it for the next frame.
+        let Ok(triangles) = self.geometry.finish(layer, valid) else { return 0; };
+        let rider = Rider {
+            pose: [self.pose[0], self.pose[1], self.pose[2]],
+            grounded: self.grounded,
+            query: xy,
+            ground,
+            layer,
+            valid,
+        };
+        let Self { surface: Some(old), bridge: Some(b), .. } = &mut *self else { return 0; };
+        let mut submitted = None;
+        let next = Surface::install(Some(old), triangles, old.basis(), &rider, |floor| {
+            let sequence = b.sequence.checked_add(1).ok_or(())?;
+            let Basis { origin, scale, layer } = floor.basis();
+            let request = Request { kind: 4, ride: b.ride, sequence, revision: b.revision,
+                origin, scale, query: xy, ground, layer, valid,
+                triangles: floor.host_triangles().to_vec(), ..Request::default() };
+            b.sender.try_send(request).map_err(|_| ())?;
+            b.sequence = sequence;
+            submitted = Some(sequence);
+            Ok::<_, ()>(())
+        });
+        match (next, submitted) {
+            (Ok(next), Some(sequence)) => { self.pending_surface = Some((next, sequence, Instant::now())); 2 }
+            _ => 0,
         }
     }
     fn tick_at(
         &mut self,
         now: u32,
+        xy: [f32; 2],
         ground: f32,
+        layer: u32,
+        valid: u32,
         p: &Packet,
-        observation: Option<([f32; 2], u32, u32)>,
     ) -> i32 {
         if self.pending_surface.is_some() {
             if self.poll() != 1 { return 0; }
@@ -530,9 +515,7 @@ impl Adapter {
         let Some(surface) = self.surface.as_ref() else {
             return 0;
         };
-        if observation.is_some_and(|o| {
-            !surface.query_matches_pose(o.0, [self.pose[0], self.pose[1], self.pose[2]])
-        }) {
+        if !surface.query_matches_pose(xy, [self.pose[0], self.pose[1], self.pose[2]]) {
             return 0;
         }
         let candidate = match b.snapshot.try_lock() {
@@ -541,29 +524,14 @@ impl Adapter {
                     self.accepted = None;
                     return 0;
                 }
-                self.accepted = AcceptedPose::new(s.ride, s.revision, b.epoch, s.pose, s.updated);
+                self.accepted =
+                    AcceptedPose::new(s.ride, s.revision, b.epoch, s.pose, s.grounded, s.updated);
                 self.accepted.as_ref().and_then(|pose| {
-                    pose.fresh_observation(
-                        b.ride,
-                        b.revision,
-                        b.epoch,
-                        Instant::now(),
-                        ground,
-                        surface,
-                        observation,
-                    )
+                    pose.fresh(b.ride, b.revision, b.epoch, Instant::now(), surface, xy, ground, layer, valid)
                 })
             }
             Err(std::sync::TryLockError::WouldBlock) => self.accepted.as_ref().and_then(|pose| {
-                pose.fresh_observation(
-                    b.ride,
-                    b.revision,
-                    b.epoch,
-                    Instant::now(),
-                    ground,
-                    surface,
-                    observation,
-                )
+                pose.fresh(b.ride, b.revision, b.epoch, Instant::now(), surface, xy, ground, layer, valid)
             }),
             Err(std::sync::TryLockError::Poisoned(_)) => return 0,
         };
@@ -571,6 +539,7 @@ impl Adapter {
             return 0;
         };
         self.pose = pose;
+        self.grounded = self.accepted.is_some_and(|a| a.grounded());
         let sequence = match b.sequence.checked_add(1) {
             Some(v) => v,
             None => return 0,
@@ -582,11 +551,9 @@ impl Adapter {
             revision: b.revision,
             now,
             ground,
-            query: observation
-                .map(|o| o.0)
-                .unwrap_or([self.pose[0], self.pose[1]]),
-            layer: observation.map(|o| o.1).unwrap_or(0),
-            valid: observation.map(|o| o.2).unwrap_or(0),
+            query: xy,
+            layer,
+            valid,
             buttons: p.buttons,
             left: p.left,
             ..Request::default()

@@ -8,10 +8,6 @@ BASE_SHA256 = "ba78c1ae32ea2eb800311f4513617e75c6283ac94805db016d157745356eb21b"
 COMMANDS = {
     "INPUT_MODE": ([("mode","int")], "int"), "INPUT_READY": ([], "int"), "INPUT_TOGGLE": ([], "int"),
     "POLL": ([], "int"), "READY": ([], "int"), "TOGGLE": ([], "int"), "STOP": ([], None),
-    "VERTEX": ([("x","float"),("y","float"),("z","float")], "int"),
-    "MOUNT": ([("x","float"),("y","float"),("ground","float"),
-               ("heading","float"),("scale","float")], "int"),
-    "TICK": ([("timer","int"),("ground","float"),("valid","int")], "int"),
     "SURFACE_BEGIN": ([("layer","int"),("triangles","int")], "int"),
     "SURFACE_VERTEX": ([("x","float"),("y","float"),("z","float")], "int"),
     "SURFACE_REPLACE": ([("x","float"),("y","float"),("ground","float"),

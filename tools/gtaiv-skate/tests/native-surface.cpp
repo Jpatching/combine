@@ -8,8 +8,7 @@
 #include <cstring>
 extern "C" {
 struct Packet {uint16_t buttons;int16_t left[2],right[2];uint8_t triggers[2];};
-int combine_config(const wchar_t*,uint32_t);void combine_stop();void combine_reset();int combine_vertex(float,float,float);
-int combine_mount(float,float,float,float,float);int combine_poll();int combine_tick(uint32_t,float,const Packet*);float combine_value(int);
+int combine_config(const wchar_t*,uint32_t);void combine_stop();void combine_reset();int combine_poll();float combine_value(int);
 int combine_surface_begin(uint32_t,uint32_t);int combine_surface_vertex(float,float,float);
 int combine_mount_surface(float,float,float,float,float,uint32_t,uint32_t);
 int combine_tick_surface(uint32_t,float,float,float,uint32_t,uint32_t,const Packet*);
@@ -185,7 +184,7 @@ static void cross_thread_reset_proof() {
     phase="cross-thread reset mount";combine_reset();timed_mount(100,10);
     phase="cross-thread reset";cross_thread_reset();
     Packet neutral{};
-    if(combine_tick(GetTickCount(),10,&neutral))throw "reset Session accepted tick";
+    if(combine_tick_surface(GetTickCount(),100,200,10,surfaceLayer,1,&neutral))throw "reset Session accepted tick";
     std::puts("PASS: cross-thread reset removes active pose/readiness and refuses ticks through public native ABI");
 }
 static void mount_reuse_proof() {
@@ -214,7 +213,7 @@ static void mount_reuse_proof() {
     const double reset=timed_mount(100,10);
     if(reset<=warm*3)throw "reset retained warm Session";
     surface_dismount();
-    if(combine_tick(GetTickCount(),10,&neutral))throw "dismounted Session accepted tick";
+    if(combine_tick_surface(GetTickCount(),100,200,10,surfaceLayer,1,&neutral))throw "dismounted Session accepted tick";
     std::printf("PASS: in-process actual Session cold %.3f ms; normal remount %.3f ms; reset %.3f ms; fresh collision/origin, discarded idle pose, cross-thread reset\n",cold,warm,reset);
 }
 int main(int argc,char** argv) {

@@ -42,7 +42,6 @@ function run(mode, surfaces = []) {
  const context={native,log:event=>logs.push(event),wait:()=>{if(++frame>5)throw Error('END');},console,Math,Number};
  const source=fs.readFileSync('tools/gtaiv-skate/combine_skate.js','utf8').replace('const SURFACES = [];','const SURFACES = '+JSON.stringify(surfaces)+';');
  try {vm.runInNewContext(source,context);}catch(e){if(e.message!=='END')throw e;}
- assert.ok(!calls.some(c=>['COMBINE_SKATE_MOUNT','COMBINE_SKATE_VERTEX','COMBINE_SKATE_TICK'].includes(c[0])),'the flat route is gone');
  return {calls,logs,transfers,mounted,restored,camera,vertices,triangles,poseWrites};
 }
 const slope=[{layer:1,qualified:true,evidence:'authored-two-floor-witness',center:[100,200],radius:3,

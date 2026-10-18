@@ -1,68 +1,98 @@
+//! The floor contract: the only way GTA ground reaches a Skate Session.
+//! GTA coordinates are Z-up; Skate is Y-up, in metres.
+pub type Triangle = [[f32; 3]; 3];
 pub const MAX_TRIANGLES: usize = 4096;
-/// Floor agreement tolerance: the coverage window's wall threshold (ADR 0004).
-const FLOOR_AGREEMENT: f32 = 0.3;
-/// One bounded, approximately flat GTA ground patch, sampled on a 5x5 grid.
-/// GTA coordinates are Z-up; Skate is Y-up, in metres.
+/// Floor agreement: host ground at a grounded rider is within the coverage
+/// window's wall threshold of the floor (ADR 0004).
+pub const FLOOR_AGREEMENT: f32 = 0.3;
+/// A host query belongs to the displayed pose when it is this close to it.
+pub const QUERY_AGREEMENT: f32 = 0.001;
+/// Supports closer than this are one floor; farther apart, stacked floors.
+pub const SAME_FLOOR: f32 = 0.001;
+/// The rider stays within this height of the floor under it.
+pub const POSE_HEIGHT: f32 = 3.;
+/// Smallest triangle area (and vertical-face projection) the floor accepts, m^2.
+pub const MIN_AREA: f32 = 0.000001;
+/// GTA coordinate bound for any vertex.
+pub const MAX_COORDINATE: f32 = 1_000_000.;
+/// One upload reaches no farther than this from the rider.
+pub const MAX_REACH: f32 = 1000.;
+/// The Skate frame stays at the mount origin for the whole ride; within this
+/// extent f32 resolves positions to under a millimetre (2^13 m).
+pub const MAX_RIDE: f32 = 8192.;
+/// Accepted GTA-to-Skate scales.
+pub const SCALES: std::ops::RangeInclusive<f32> = 0.1..=10.;
+/// Skate reports ground contact in every physical state but the air states.
+pub fn grounded(state: &str) -> bool {
+    !state.contains("Air")
+}
+/// The Skate frame and selected floor: fixed at mount for the whole ride.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Basis {
+    pub origin: [f32; 3],
+    pub scale: f32,
+    pub layer: u32,
+}
+/// The displayed rider, the host ground queried under it, and Skate ground contact.
+#[derive(Clone, Copy, Debug)]
+pub struct Rider {
+    pub pose: [f32; 3],
+    pub grounded: bool,
+    pub query: [f32; 2],
+    pub ground: f32,
+    pub layer: u32,
+    pub valid: u32,
+}
+/// An installed floor: triangles on one selected layer, in a fixed Skate frame.
 pub struct Surface {
-    points: Vec<[f32; 3]>,
-    origin: [f32; 3],
-    scale: f32,
-    geometry: Option<(u32, Vec<[[f32; 3]; 3]>)>,
+    basis: Basis,
+    triangles: Vec<Triangle>,
+    revision: u64,
 }
 impl Surface {
-    pub fn new(points: Vec<[f32; 3]>, origin: [f32; 3], scale: f32) -> Result<Self, &'static str> {
-        if points.len() != 25
-            || !scale.is_finite()
-            || !(0.1..=10.).contains(&scale)
-            || !origin
-                .iter()
-                .chain(points.iter().flatten())
-                .all(|v| v.is_finite())
-        {
-            return Err("invalid surface");
-        }
-        for (i, p) in points.iter().enumerate() {
-            let expected = [
-                origin[0] - 4. / scale + (i % 5) as f32 * 2. / scale,
-                origin[1] - 4. / scale + (i / 5) as f32 * 2. / scale,
-            ];
-            if (p[0] - expected[0]).abs() > 0.001 / scale
-                || (p[1] - expected[1]).abs() > 0.001 / scale
-                || (p[2] - origin[2]).abs() > 0.05 / scale
-            {
-                return Err("surface is not a flat grid");
+    /// The one way a floor reaches a Session: install these triangles for this
+    /// rider, or refuse with a reason. `current` is None at mount.
+    pub fn install<E>(
+        current: Option<&Surface>,
+        triangles: Vec<Triangle>,
+        basis: Basis,
+        rider: &Rider,
+        install: impl FnOnce(&Surface) -> Result<(), E>,
+    ) -> Result<Surface, &'static str> {
+        let revision = match current {
+            None => 1,
+            Some(old) => {
+                if old.basis != basis {
+                    return Err("floor basis changed");
+                }
+                if !old.agrees(rider) {
+                    return Err("rider left the current floor");
+                }
+                old.revision.checked_add(1).ok_or("floor revisions exhausted")?
             }
+        };
+        let next = Self::qualify(triangles, basis, rider.query, revision)?;
+        if !next.agrees(rider) {
+            return Err("floor does not support the rider");
         }
-        Ok(Self {
-            points,
-            origin,
-            scale,
-            geometry: None,
-        })
+        install(&next).map_err(|_| "Session refused the floor")?;
+        Ok(next)
     }
-    pub fn from_triangles(
-        triangles: Vec<[[f32; 3]; 3]>,
-        origin: [f32; 3],
-        scale: f32,
-        layer: u32,
+    fn qualify(
+        mut triangles: Vec<Triangle>,
+        basis: Basis,
+        near: [f32; 2],
+        revision: u64,
     ) -> Result<Self, &'static str> {
-        Self::from_triangles_at(triangles, origin, scale, layer, [origin[0], origin[1]], origin[2])
-    }
-    pub fn from_triangles_at(
-        mut triangles: Vec<[[f32; 3]; 3]>,
-        origin: [f32; 3],
-        scale: f32,
-        layer: u32,
-        support_xy: [f32; 2],
-        support_ground: f32,
-    ) -> Result<Self, &'static str> {
+        let Basis { origin, scale, layer } = basis;
         if layer == 0
             || triangles.is_empty()
             || triangles.len() > MAX_TRIANGLES
             || !scale.is_finite()
-            || !(0.1..=10.).contains(&scale)
+            || !SCALES.contains(&scale)
             || !origin
                 .iter()
+                .chain(&near)
                 .chain(triangles.iter().flatten().flatten())
                 .all(|v| v.is_finite())
         {
@@ -76,12 +106,11 @@ impl Surface {
             let cross = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], area];
             let magnitude = cross.iter().map(|c| c * c).sum::<f32>().sqrt();
             if !magnitude.is_finite()
-                || magnitude * scale * scale < 0.000001
-                || t.iter().flatten().any(|v| v.abs() > 1_000_000.)
+                || magnitude * scale * scale < MIN_AREA
+                || t.iter().flatten().any(|v| v.abs() > MAX_COORDINATE)
                 || t.iter().any(|p| {
-                    p.iter()
-                        .zip(origin)
-                        .any(|(v, o)| (v - o).abs() * scale > 1000.)
+                    (0..2).any(|i| (p[i] - near[i]).abs() * scale > MAX_REACH)
+                        || (0..3).any(|i| (p[i] - origin[i]).abs() * scale > MAX_RIDE)
                 })
             {
                 return Err("degenerate or oversized geometry");
@@ -90,25 +119,16 @@ impl Surface {
                 t.swap(1, 2);
             }
         }
-        let surface = Self {
-            points: vec![],
-            origin,
-            scale,
-            geometry: Some((layer, triangles)),
-        };
-        if !surface.observation(support_xy, support_ground, layer, 1) {
-            return Err("unsupported mount ground");
-        }
-        Ok(surface)
+        Ok(Self { basis, triangles, revision })
     }
     fn support(&self, xy: [f32; 2]) -> Option<f32> {
-        let (_, triangles) = self.geometry.as_ref()?;
+        let scale = self.basis.scale;
         let mut found: Option<f32> = None;
-        for t in triangles {
+        for t in &self.triangles {
             let d = (t[1][1] - t[2][1]) * (t[0][0] - t[2][0])
                 + (t[2][0] - t[1][0]) * (t[0][1] - t[2][1]);
             // Vertical faces still participate in Session collision, not floor support.
-            if d.abs() * self.scale * self.scale < 0.000001 {
+            if d.abs() * scale * scale < MIN_AREA {
                 continue;
             }
             let a = ((t[1][1] - t[2][1]) * (xy[0] - t[2][0])
@@ -120,7 +140,7 @@ impl Surface {
             let c = 1. - a - b;
             if a >= -0.000001 && b >= -0.000001 && c >= -0.000001 {
                 let z = a * t[0][2] + b * t[1][2] + c * t[2][2];
-                if found.is_some_and(|old| (old - z).abs() * self.scale > 0.001) {
+                if found.is_some_and(|old| (old - z).abs() * scale > SAME_FLOOR) {
                     return None;
                 }
                 found = Some(z);
@@ -128,79 +148,62 @@ impl Surface {
         }
         found
     }
-    pub fn is_geometry(&self) -> bool {
-        self.geometry.is_some()
+    pub fn basis(&self) -> Basis {
+        self.basis
     }
-    pub fn refresh_basis(&self) -> Option<([f32; 3], f32, u32)> {
-        self.geometry.as_ref().map(|(layer, _)| (self.origin, self.scale, *layer))
+    pub fn revision(&self) -> u64 {
+        self.revision
+    }
+    /// Query at the displayed pose, on this floor, with the pose supported by it.
+    pub fn agrees(&self, rider: &Rider) -> bool {
+        self.query_matches_pose(rider.query, rider.pose)
+            && self.observation(rider)
+            && self.contains_pose(rider.pose)
     }
     pub fn query_matches_pose(&self, xy: [f32; 2], pose: [f32; 3]) -> bool {
-        xy.iter()
-            .zip(pose)
-            .all(|(v, p)| v.is_finite() && p.is_finite() && (v - p).abs() * self.scale <= 0.001)
+        xy.iter().zip(pose).all(|(v, p)| {
+            v.is_finite() && p.is_finite() && (v - p).abs() * self.basis.scale <= QUERY_AGREEMENT
+        })
     }
-    pub fn observation(&self, xy: [f32; 2], ground: f32, layer: u32, valid: u32) -> bool {
-        if valid != 1 || !xy.iter().chain([ground].iter()).all(|v| v.is_finite()) {
-            return false;
-        }
-        match self.geometry.as_ref() {
-            Some((selected, _)) => {
-                *selected == layer
-                    && self
-                        .support(xy)
-                        .is_some_and(|z| (z - ground).abs() * self.scale <= FLOOR_AGREEMENT)
-            }
-            None => layer == 0 && self.contains([xy[0], xy[1], ground], ground),
-        }
+    /// The host observation is on this floor's coverage and layer, and, while
+    /// Skate reports ground contact, in floor agreement with it.
+    pub fn observation(&self, rider: &Rider) -> bool {
+        rider.valid == 1
+            && rider.layer == self.basis.layer
+            && rider.query.iter().chain([rider.ground].iter()).all(|v| v.is_finite())
+            && self.support(rider.query).is_some_and(|z| {
+                !rider.grounded || (z - rider.ground).abs() * self.basis.scale <= FLOOR_AGREEMENT
+            })
     }
     pub fn contains_pose(&self, p: [f32; 3]) -> bool {
         p.iter().all(|v| v.is_finite())
             && self
                 .support([p[0], p[1]])
-                .is_some_and(|z| (p[2] - z).abs() * self.scale < 3.)
+                .is_some_and(|z| (p[2] - z).abs() * self.basis.scale < POSE_HEIGHT)
     }
     pub fn to_skate(&self, p: [f32; 3]) -> [f32; 3] {
+        let Basis { origin, scale, .. } = self.basis;
         [
-            (p[0] - self.origin[0]) * self.scale,
-            (p[2] - self.origin[2]) * self.scale,
-            -(p[1] - self.origin[1]) * self.scale,
+            (p[0] - origin[0]) * scale,
+            (p[2] - origin[2]) * scale,
+            -(p[1] - origin[1]) * scale,
         ]
     }
     pub fn to_gta(&self, p: [f32; 3]) -> [f32; 3] {
+        let Basis { origin, scale, .. } = self.basis;
         [
-            p[0] / self.scale + self.origin[0],
-            -p[2] / self.scale + self.origin[1],
-            p[1] / self.scale + self.origin[2],
+            p[0] / scale + origin[0],
+            -p[2] / scale + origin[1],
+            p[1] / scale + origin[2],
         ]
     }
-    pub fn contains(&self, p: [f32; 3], ground: f32) -> bool {
-        p.iter().all(|v| v.is_finite())
-            && ground.is_finite()
-            && (p[0] - self.origin[0]).abs() * self.scale < 3.5
-            && (p[1] - self.origin[1]).abs() * self.scale < 3.5
-            && (ground - self.origin[2]).abs() * self.scale <= 0.05
-            && (p[2] - self.origin[2]).abs() * self.scale < 3.
+    /// GTA-space triangles, wound upward, as qualified.
+    pub fn host_triangles(&self) -> &[Triangle] {
+        &self.triangles
     }
-    pub fn triangles(&self) -> Vec<[[f32; 3]; 3]> {
-        if let Some((_, triangles)) = &self.geometry {
-            return triangles
-                .iter()
-                .map(|t| t.map(|p| self.to_skate(p)))
-                .collect();
-        }
-        let mut out = Vec::new();
-        for y in 0..4 {
-            for x in 0..4 {
-                let a = y * 5 + x;
-                let b = a + 1;
-                let c = a + 5;
-                let d = c + 1;
-                // Y-up winding after the right-handed Z-up -> Y-up rotation.
-                out.push([a, b, c].map(|i| self.to_skate(self.points[i])));
-                out.push([b, d, c].map(|i| self.to_skate(self.points[i])));
-            }
-        }
-        out
+    /// Skate-space triangles for Session collision.
+    pub fn triangles(&self) -> Vec<Triangle> {
+        self.triangles.iter().map(|t| t.map(|p| self.to_skate(p))).collect()
     }
 }
 /// Use the documented GET_GAME_TIMER milliseconds, never raw CLEO time_step.
@@ -244,7 +247,7 @@ pub fn gta_heading(skate_forward: [f32; 3]) -> f32 {
         .to_degrees()
         .rem_euclid(360.)
 }
-/// Bounded preparation; failed uploads cannot leave a reusable partial surface.
+/// Bounded preparation; failed uploads cannot leave a reusable partial floor.
 #[derive(Default)]
 pub struct GeometryBuilder {
     layer: u32,
@@ -270,24 +273,8 @@ impl GeometryBuilder {
         self.vertices.push(p);
         1
     }
-    pub fn finish(
-        &mut self,
-        origin: [f32; 3],
-        scale: f32,
-        layer: u32,
-        valid: u32,
-    ) -> Result<(Surface, Vec<[[f32; 3]; 3]>), &'static str> {
-        self.finish_at(origin, scale, layer, valid, [origin[0], origin[1]], origin[2])
-    }
-    pub fn finish_at(
-        &mut self,
-        origin: [f32; 3],
-        scale: f32,
-        layer: u32,
-        valid: u32,
-        support_xy: [f32; 2],
-        support_ground: f32,
-    ) -> Result<(Surface, Vec<[[f32; 3]; 3]>), &'static str> {
+    /// The complete staged upload for `layer`, consumed whether or not it qualifies.
+    pub fn finish(&mut self, layer: u32, valid: u32) -> Result<Vec<Triangle>, &'static str> {
         let staged = std::mem::take(self);
         if valid != 1
             || layer != staged.layer
@@ -296,14 +283,6 @@ impl GeometryBuilder {
         {
             return Err("incomplete or unqualified surface");
         }
-        let triangles: Vec<_> = staged
-            .vertices
-            .chunks_exact(3)
-            .map(|c| [c[0], c[1], c[2]])
-            .collect();
-        let surface = Surface::from_triangles_at(
-            triangles.clone(), origin, scale, layer, support_xy, support_ground,
-        )?;
-        Ok((surface, triangles))
+        Ok(staged.vertices.chunks_exact(3).map(|c| [c[0], c[1], c[2]]).collect())
     }
 }

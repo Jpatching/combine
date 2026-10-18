@@ -22,6 +22,7 @@ Single-context: root `GLOSSARY.md` and `docs/adr/`. See `docs/agents/domain.md`.
 
 - Tight loop: `python3 tools/gtaiv-skate/check.py` (seconds, no game). Build
   behaviour test-first in its harness; run the game once per slice, at the end.
+- Cut each new branch from a freshly fetched `origin/main`.
 - Gate before every PR: `python3 scripts/verify.py`.
 - Report source checks, runtime observation and owner acceptance as separate claims.
 

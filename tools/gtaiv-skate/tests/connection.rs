@@ -130,3 +130,15 @@ fn stacked_floors_require_an_explicit_selected_layer_and_refresh_supports_curren
     assert!(Surface::from_triangles(moved.clone(), [2., 2., 0.], 1., 7).is_err());
     assert!(Surface::from_triangles_at(moved, [2., 2., 0.], 1., 7, [4., 4.], 0.).is_ok());
 }
+#[test]
+fn floor_agreement_allows_sampling_error_up_to_the_wall_threshold() {
+    let floor = vec![
+        [[0., 0., 0.], [4., 0., 0.], [4., 4., 0.]],
+        [[0., 0., 0.], [4., 4., 0.], [0., 4., 0.]],
+    ];
+    let surface = Surface::from_triangles(floor, [2., 2., 0.], 1., 7).unwrap();
+    assert!(surface.observation([2., 2.], 0.29, 7, 1));
+    assert!(surface.observation([2., 2.], -0.29, 7, 1));
+    assert!(!surface.observation([2., 2.], 0.31, 7, 1));
+    assert!(!surface.observation([2., 2.], -0.31, 7, 1));
+}

@@ -29,3 +29,20 @@ ways, dismount, walk) succeeds from a build of `main`.
   but crossing between stacked floors does not.
 - Every metre threshold depends on the unverified `SCALE = 1` assumption in
   `tools/gtaiv-skate/combine_skate.js`.
+
+## Floor agreement
+
+Triangles between 2 m samples miss curved ground by more than the original 0.05 m
+ride check (about 0.08 m at an 8 m radius), so that check would end rides on
+ordinary streets. **Floor agreement** asks which floor the rider is on, not how
+planted the skater looks. Host ground at the rider must be within the wall
+threshold (0.3 m) of the window, the same jump the window itself calls a wall.
+One tolerance applies to every surface, authored or sampled. Losing it dismounts
+with "floor agreement lost".
+
+Denser sampling was rejected: it shrinks curvature error but not the error near
+a step, and it costs four times the probes per halving. The mount-preparation
+check stays at 0.05 m, because it compares host ground with itself.
+
+Known limitation: steps under the wall threshold, such as curbs, ride as ramps,
+and the skater can be drawn up to the step height off host ground near them.

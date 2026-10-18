@@ -298,11 +298,12 @@ uploads 32 triangles (two per cell) as layer 1 through `COMBINE_SKATE_MOUNT_SURF
 Mount is refused with a stated **coverage gap** for a non-finite sample, a near-zero
 sample (ambiguous or unloaded; the native has no success flag, so genuine zero-height
 ground is unsupported) or a neighbouring step above `WALL_THRESHOLD` (0.3 m). The
-window does not move yet: riding out of it dismounts with "window edge". Riding still
-requires GTA ground within 0.05 m of the triangles. `tests/coverage-window.cjs`
-reports the interpolation error. Rolling ground with a radius of curvature of about
-16 m or more stays within it. About 8 m or tighter, and steps between samples such as
-curbs, exceed it and dismount. The native `COMBINE_SKATE_MOUNT`/`TICK`/`VERTEX` flat
+window does not move yet: riding out of it dismounts with "window edge". Riding
+requires **floor agreement**: GTA ground at the rider within `WALL_THRESHOLD` of the
+triangles, otherwise it dismounts with "floor agreement lost". Rolling ground and curbs
+between samples keep it (`tests/coverage-window.cjs` reports their interpolation
+error); curbs ride as ramps, so the ped can sit up to the step height off GTA ground
+near them. The native `COMBINE_SKATE_MOUNT`/`TICK`/`VERTEX` flat
 path remains in Rust until it is removed. Coordinates rotate GTA Z-up to Skate Y-up and translate around the
 mount position. **One GTA unit = one metre is an assumption requiring runtime
 measurement.** GTA heading 0 maps +Y to Skate −Z; headings/pose axes also need

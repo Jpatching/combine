@@ -22,6 +22,10 @@ An active instance of the existing Skate simulation, with its collision, control
 Host-game floor found by querying the running game around the rider, as opposed to floor decoded from collision files.
 _Avoid_: live ground, probe surface
 
+**Resident collision**:
+The host game's collision currently held in memory around the player, as opposed to collision files on disk.
+_Avoid_: loaded bounds, nearby collision, streamed bounds
+
 **Coverage window**:
 The area of sampled surface currently given to the Skate Session around the rider.
 _Avoid_: flat patch, patch, grid

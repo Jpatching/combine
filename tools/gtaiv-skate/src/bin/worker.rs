@@ -2,7 +2,7 @@
 mod connection;
 #[path = "../wire.rs"]
 mod wire;
-use connection::{Clock, Surface, gta_heading, skate_heading};
+use connection::{Basis, Clock, Rider, Surface, grounded, gta_heading, skate_heading};
 use skate_host::bridge::{Controls, Session};
 use std::{io, path::PathBuf};
 fn main() {
@@ -40,40 +40,33 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 {
                     return Err("stale prepare".into());
                 }
-                let next = if request.layer != 0 {
-                    if request.valid != 1
-                        || request.query != [request.origin[0], request.origin[1]]
-                        || request.ground != request.origin[2]
-                    {
-                        return Err("unqualified prepare".into());
-                    }
-                    Surface::from_triangles(
-                        request.triangles.clone(),
-                        request.origin,
-                        request.scale,
-                        request.layer,
-                    )?
-                } else {
-                    if !request.triangles.is_empty() {
-                        return Err("unselected geometry".into());
-                    }
-                    Surface::new(request.points.to_vec(), request.origin, request.scale)?
-                };
-                if let Some(active) = session.as_mut() {
-                    active.suspend_input();
-                    let collision = active.collision_builder().build(next.triangles(), vec![])?;
-                    active.install_collision(collision)?;
-                } else {
-                    session = Some(Session::new(
-                        &root,
-                        next.triangles(),
-                        vec![],
-                        [0., 1., 0.],
-                        skate_heading(request.heading),
-                    )?);
+                if request.query != [request.origin[0], request.origin[1]]
+                    || request.ground != request.origin[2]
+                {
+                    return Err("unqualified prepare".into());
                 }
+                let basis = Basis { origin: request.origin, scale: request.scale, layer: request.layer };
+                let rider = Rider {
+                    pose: request.origin,
+                    grounded: true,
+                    query: request.query,
+                    ground: request.ground,
+                    layer: request.layer,
+                    valid: request.valid,
+                };
+                let heading = skate_heading(request.heading);
+                let next = Surface::install(None, request.triangles, basis, &rider, |floor| {
+                    if let Some(active) = session.as_mut() {
+                        active.suspend_input();
+                        let collision = active.collision_builder().build(floor.triangles(), vec![])?;
+                        active.install_collision(collision)
+                    } else {
+                        session = Some(Session::new(&root, floor.triangles(), vec![], [0., 1., 0.], heading)?);
+                        Ok::<_, String>(())
+                    }
+                })?;
                 let active = session.as_mut().ok_or("session missing")?;
-                active.activate([0., 1., 0.], skate_heading(request.heading))?;
+                active.activate([0., 1., 0.], heading)?;
                 clock = None;
                 identity = request.ride;
                 revision = request.revision;
@@ -90,18 +83,19 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                     return Err("stale tick".into());
                 }
                 let selected = surface.as_ref().ok_or("surface missing")?;
-                if selected.is_geometry()
-                    && !selected.observation(
-                        request.query,
-                        request.ground,
-                        request.layer,
-                        request.valid,
-                    )
-                    || !selected.is_geometry() && request.layer != 0
-                {
+                let active = session.as_mut().ok_or("session missing")?;
+                let pose = active.pose();
+                let seen = Rider {
+                    pose: selected.to_gta(pose.root.w_axis.truncate().to_array()),
+                    grounded: grounded(&pose.state),
+                    query: request.query,
+                    ground: request.ground,
+                    layer: request.layer,
+                    valid: request.valid,
+                };
+                if !selected.observation(&seen) {
                     return Err("unqualified tick".into());
                 }
-                let active = session.as_mut().ok_or("session missing")?;
                 if clock.is_none() {
                     clock = Some(Clock::new(request.now, active.period())?);
                 }
@@ -128,20 +122,21 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                     return Err("stale collision replacement".into());
                 }
                 let old = surface.as_ref().ok_or("surface missing")?;
-                let (origin, scale, layer) = old.refresh_basis().ok_or("flat collision replacement")?;
                 let active = session.as_mut().ok_or("session missing")?;
                 let pose = active.pose();
-                let position = old.to_gta(pose.root.w_axis.truncate().to_array());
-                if request.origin != origin || request.scale != scale || request.layer != layer
-                    || request.valid != 1 || !old.query_matches_pose(request.query, position)
-                    || !old.observation(request.query, request.ground, layer, 1) {
-                    return Err("unqualified collision replacement".into());
-                }
-                let next = Surface::from_triangles_at(request.triangles, origin, scale, layer,
-                    request.query, request.ground)?;
-                if !next.contains_pose(position) { return Err("replacement lost rider support".into()); }
-                let collision = active.collision_builder().build(next.triangles(), vec![])?;
-                active.install_collision(collision)?;
+                let rider = Rider {
+                    pose: old.to_gta(pose.root.w_axis.truncate().to_array()),
+                    grounded: grounded(&pose.state),
+                    query: request.query,
+                    ground: request.ground,
+                    layer: request.layer,
+                    valid: request.valid,
+                };
+                let basis = Basis { origin: request.origin, scale: request.scale, layer: request.layer };
+                let next = Surface::install(Some(old), request.triangles, basis, &rider, |floor| {
+                    let collision = active.collision_builder().build(floor.triangles(), vec![])?;
+                    active.install_collision(collision)
+                })?;
                 surface = Some(next);
                 sequence = request.sequence;
             }
@@ -164,13 +159,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             return Err("invalid pose".into());
         }
         let pos = selected.to_gta(pose.root.w_axis.truncate().to_array());
-        if request.kind != 3
-            && !(if selected.is_geometry() {
-                selected.contains_pose(pos)
-            } else {
-                selected.contains(pos, request.ground)
-            })
-        {
+        if request.kind != 3 && !selected.contains_pose(pos) {
             return Err("surface exit".into());
         }
         let heading = gta_heading(pose.root.z_axis.truncate().to_array());
@@ -179,6 +168,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             revision,
             sequence: request.sequence,
             pose: [pos[0], pos[1], pos[2], heading],
+            grounded: grounded(&pose.state),
             period: active.period(),
         }
         .write(&mut output)?;

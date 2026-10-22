@@ -8,8 +8,7 @@
 #include <cstring>
 extern "C" {
 struct Packet {uint16_t buttons;int16_t left[2],right[2];uint8_t triggers[2];};
-int combine_config(const wchar_t*,uint32_t);void combine_stop();int combine_vertex(float,float,float);
-int combine_mount(float,float,float,float,float);int combine_poll();int combine_tick(uint32_t,float,const Packet*);float combine_value(int);
+int combine_config(const wchar_t*,uint32_t);void combine_stop();int combine_poll();float combine_value(int);
 int combine_surface_begin(uint32_t,uint32_t);int combine_surface_vertex(float,float,float);
 int combine_mount_surface(float,float,float,float,float,uint32_t,uint32_t);
 int combine_tick_surface(uint32_t,float,float,float,uint32_t,uint32_t,const Packet*);
@@ -17,10 +16,14 @@ int combine_tick_surface(uint32_t,float,float,float,uint32_t,uint32_t,const Pack
 using Time=std::chrono::steady_clock;
 static double maximum=0;
 template<class F> int bounded(F action) {const auto start=Time::now();const int result=action();const double ms=std::chrono::duration<double,std::milli>(Time::now()-start).count();if(ms>maximum)maximum=ms;if(ms>50)throw "blocking parent call";return result;}
+// A level authored floor at z=10 on layer 1, two triangles around the origin.
 static void mount(float originX=100.f,float originY=200.f) {
     combine_stop();Sleep(100);
-    for(int y=0;y<5;y++)for(int x=0;x<5;x++)if(!combine_vertex(originX+(x-2)*2,originY+(y-2)*2,10.f))throw "vertex refusal";
-    if(bounded([&]{return combine_mount(originX,originY,10,0,1);})!=2)throw "prepare refused";
+    if(!combine_surface_begin(1,2))throw "level floor begin refused";
+    const float x0=originX-16,x1=originX+16,y0=originY-16,y1=originY+16;
+    const float level[][3]={{x0,y0,10},{x1,y0,10},{x1,y1,10},{x0,y0,10},{x1,y1,10},{x0,y1,10}};
+    for(const auto& v:level)if(!combine_surface_vertex(v[0],v[1],v[2]))throw "vertex refusal";
+    if(bounded([&]{return combine_mount_surface(originX,originY,10,0,1,1,1);})!=2)throw "prepare refused";
     const auto start=Time::now();int state=2;
     while(state==2 && Time::now()-start<std::chrono::seconds(60)) {state=bounded([]{return combine_poll();});Sleep(5);}
     if(state!=1)throw "preparation unavailable";
@@ -36,9 +39,11 @@ static void stall_owned() {
     if(Thread32First(snapshot,&entry))do {if(entry.th32OwnerProcessID==id) {const HANDLE thread=OpenThread(THREAD_SUSPEND_RESUME,FALSE,entry.th32ThreadID);if(thread) {if(SuspendThread(thread)!=DWORD(-1))count++;CloseHandle(thread);}}}while(Thread32Next(snapshot,&entry));
     CloseHandle(snapshot);if(!count)throw "owned worker stall unavailable";
 }
+// One level-floor tick observed at the displayed pose.
+static int level_tick(const Packet& p) {return combine_tick_surface(GetTickCount(),combine_value(0),combine_value(1),10,1,1,&p);}
 static void drive(uint16_t buttons,int16_t stick) {
     Packet p{buttons,{stick,0},{0,0},{0,0}};
-    for(int n=0;n<30;n++) {if(!bounded([&]{return combine_tick(GetTickCount(),10,&p);}))throw "tick refused";for(int i=0;i<4;i++)if(!std::isfinite(combine_value(i)))throw "invalid pose";Sleep(17);}
+    for(int n=0;n<30;n++) {if(!bounded([&]{return level_tick(p);}))throw "tick refused";for(int i=0;i<4;i++)if(!std::isfinite(combine_value(i)))throw "invalid pose";Sleep(17);}
 }
 // Literal authored triangles, not game geometry. The independent observation
 // formula below describes the known plane at the last displayed query position.
@@ -146,12 +151,12 @@ int main(int argc,char** argv) {
         combine_stop();
         std::puts("PASS: real Session push/steer, same-child warm remount, collision revision and stale pose discard");
         mount();stall_owned();Packet p{};const auto start=Time::now();bool refused=false;
-        while(Time::now()-start<std::chrono::seconds(2)) {if(!bounded([&]{return combine_tick(GetTickCount(),10,&p);})) {refused=true;break;}Sleep(5);}
+        while(Time::now()-start<std::chrono::seconds(2)) {if(!bounded([&]{return level_tick(p);})) {refused=true;break;}Sleep(5);}
         if(!refused || Time::now()-start>std::chrono::milliseconds(500))throw "stall detection exceeded bound";
         combine_stop();std::puts("PASS: owned worker stall refuses riding; GTA native restoration requires live test");
         mount();const HANDLE process=OpenProcess(PROCESS_TERMINATE,FALSE,owned_worker());if(!process)throw "owned exit unavailable";TerminateProcess(process,3);CloseHandle(process);
         refused=false;const auto exited=Time::now();
-        while(Time::now()-exited<std::chrono::seconds(2)) {if(!bounded([&]{return combine_tick(GetTickCount(),10,&p);})) {refused=true;break;}Sleep(5);}
+        while(Time::now()-exited<std::chrono::seconds(2)) {if(!bounded([&]{return level_tick(p);})) {refused=true;break;}Sleep(5);}
         if(!refused)throw "worker exit not detected";
         combine_stop();mount();drive(0,0);combine_stop();
         std::printf("PASS: exit detected and fresh worker remount; maximum parent call %.3f ms\n",maximum);return 0;

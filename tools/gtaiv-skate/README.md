@@ -51,15 +51,27 @@ The public C ABI and matching `COMBINE_SKATE_*` commands provide this sequence:
    Worker return 3 means an earlier tick is still pending: poll and retry the
    replacement with a fresh observation. Return 0 requires stopping the ride.
 
-Observation agreement compares the mesh and host at the query position within
-5 cm; pose containment uses mesh support at the returned pose position. Ambiguous
-overlapping support, missing coverage and unavailable observations are refused.
+Every floor reaches a Session through one entry point, `Surface::install` in
+`src/connection.rs`: install these triangles for this rider pose, or refuse with a
+reason. Mount and replacement in both backends call it; each installed floor gets
+the next revision (mount 1). Its thresholds are defined there once: **floor
+agreement** (host ground at the query within 0.3 m of the mesh, ADR 0004), 0.001 m
+query/pose agreement and same-floor support, 3 m pose height, 4096 triangles, area
+and coordinate bounds. Floor agreement applies only while Skate reports ground
+contact (any physical state but the air states, exposed as `VALUE(4)`: 1 grounded,
+0 airborne); leaving the ground is not refused by it. Pose containment uses mesh
+support at the returned pose position. Ambiguous overlapping support, missing
+coverage and unavailable observations are refused. The Skate frame stays at the
+mount origin for the whole ride, because Session cannot move the skater without
+resetting its bodies; one upload reaches at most 1000 m from the rider and the frame
+at most 8192 m from the origin, where f32 still resolves a millimetre.
 Layer numbers are supplied by a qualified caller, not discovered GTA layers.
 The geometry constructor bounds input; it cannot prove decoded GTA placement,
 loading or contact. Ground agreement does not prove curb/wall response.
 
-Worker frames now carry version 3. Geometry appears in bounded preparation and
-replacement payloads; ordinary ticks carry a position-bearing observation.
+Worker frames now carry version 4. Geometry appears in bounded preparation and
+replacement payloads; ordinary ticks carry a position-bearing observation and
+responses report Skate ground contact.
 Mixed old/new worker and parent binaries are rejected. Build/stage matching
 candidates together, only after normal shutdown and with retained rollback.
 
@@ -102,7 +114,7 @@ initial preparation return 1 or 2 respectively, so selecting the wrong backend
 fails. Every remount reconfigures after stop. It checks missing/incomplete geometry
 refusal without pose exposure or partial-preparation reuse, actual Session push
 over changing ramp heights, height following, unavailable/wrong-layer refusal,
-ground disagreement above 5 cm, query-position mismatch, stale-time refusal,
+ground disagreement beyond floor agreement (0.3 m), query-position mismatch, stale-time refusal,
 pose clearing and remount recovery. The moving-coverage case changes the ramp
 slope mid-ride and requires Session to follow the new heights. These are authored
 checks, not GTA
@@ -297,14 +309,20 @@ queries the ground native on a 5×5 grid at 2 m spacing (±4 m), from rider z + 
 uploads 32 triangles (two per cell) as layer 1 through `COMBINE_SKATE_MOUNT_SURFACE`.
 Mount is refused with a stated **coverage gap** for a non-finite sample, a near-zero
 sample (ambiguous or unloaded; the native has no success flag, so genuine zero-height
-ground is unsupported) or a neighbouring step above `WALL_THRESHOLD` (0.3 m). The
-window does not move yet: riding out of it dismounts with "window edge". Riding
-requires **floor agreement**: GTA ground at the rider within `WALL_THRESHOLD` of the
-triangles, otherwise it dismounts with "floor agreement lost". Rolling ground and curbs
-between samples keep it (`tests/coverage-window.cjs` reports their interpolation
-error); curbs ride as ramps, so the ped can sit up to the step height off GTA ground
-near them. The native `COMBINE_SKATE_MOUNT`/`TICK`/`VERTEX` flat
-path remains in Rust until it is removed. Coordinates rotate GTA Z-up to Skate Y-up and translate around the
+ground is unsupported) or a neighbouring step above `WALL_THRESHOLD` (0.3 m, equal to
+`FLOOR.agreement`).
+The window follows the rider in fixed 2 m world cells centred on the sample lattice:
+crossing out of the centre cell resamples it and installs it through
+`SURFACE_REPLACE` as a new revision, with no remount. Neighbouring windows share
+lattice samples, so a swap leaves the floor under the rider unchanged. Reaching a
+coverage gap on the way (wall-height step, unloaded or missing ground) dismounts
+with "coverage gap (…)"; a window containing a gap is refused whole, so the ride
+ends up to a window's half-width (4 m) before the wall. Riding requires **floor
+agreement** while Skate reports ground contact: GTA ground at the rider within
+`FLOOR.agreement` of the triangles, otherwise it dismounts with "floor agreement
+lost". Rolling ground and curbs between samples keep it (`tests/coverage-window.cjs`
+reports their interpolation error); curbs ride as ramps, so the ped can sit up to
+the step height off GTA ground near them. Coordinates rotate GTA Z-up to Skate Y-up and translate around the
 mount position. **One GTA unit = one metre is an assumption requiring runtime
 measurement.** GTA heading 0 maps +Y to Skate −Z; headings/pose axes also need
 runtime observation. This sampled patch is not a complete GTA collision mesh:
@@ -314,7 +332,7 @@ Select and privately survey one clear real GTA surface before acceptance.
 Timing uses GET_GAME_TIMER milliseconds and the actual Session period. More than
 250 ms between frames or over 32 pending ticks abandons riding. Invalid player,
 vehicle/death transition, missing camera, disconnected controller, invalid pose,
-changed ground height or leaving the patch restores GTA. Initialization retains
+changed ground height or leaving coverage restores GTA. Initialization retains
 GTA ownership until Session and camera are ready. Restoration unfreezes the ped,
 returns player control and removes the owned camera. Each restoration operation
 is attempted independently if a GTA native throws.
@@ -398,8 +416,8 @@ and runtime identity, and independently validated ground. Repeated reads never
 extend that deadline; poisoned shared state refuses riding. A Windows kill-on-close job contains owned
 workers; cancellation/failure terminates only that child. No game-thread shutdown
 wait is performed. An idle Session can remain warm; each new ride installs collision
-from the newly sampled grid before activation. Cancellation during an outstanding
-request may discard the warm child. The unchanged 5 cm surface guard still applies.
+from the newly uploaded floor before activation. Cancellation during an outstanding
+request may discard the warm child.
 
 Worker wire and freshness checks are included in `check.py` above.
 

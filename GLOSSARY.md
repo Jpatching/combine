@@ -23,13 +23,13 @@ Host-game floor found by querying the running game around the rider, as opposed 
 _Avoid_: live ground, probe surface
 
 **Coverage window**:
-The area of sampled surface currently given to the Skate Session around the rider.
+The area of sampled surface currently given to the Skate Session around the rider. It follows the rider in fixed world cells: crossing out of its centre cell resamples it, and the new window replaces the old one without a remount.
 _Avoid_: flat patch, patch, grid
 
 **Coverage gap**:
-A place the coverage window cannot honestly cover, such as a wall-sized height jump, unloaded ground, a vehicle or the window's edge. Mounting there is refused, or riding into it dismounts, with a stated reason.
+A place the coverage window cannot honestly cover, such as a wall-sized height jump, unloaded ground or a vehicle. Mounting there is refused, or riding into it dismounts, with a stated reason. The window's edge is not a gap: the window moves with the rider.
 _Avoid_: hole, unsupported area
 
 **Floor agreement**:
-The host-game ground under the rider belongs to the floor the coverage window describes, allowing for the error that sampling introduces. It is about which floor the rider is on, not how closely the skater appears planted on it. Losing it ends the ride with a stated reason.
+The host-game ground under the rider belongs to the floor the coverage window describes, allowing for the error that sampling introduces. It is about which floor the rider is on, not how closely the skater appears planted on it. It is checked only while Skate reports ground contact; leaving the ground does not lose it. Losing it ends the ride with a stated reason.
 _Avoid_: ground check, height match

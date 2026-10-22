@@ -21,10 +21,6 @@ pub extern "C" fn combine_stop() {
     });
 }
 #[unsafe(no_mangle)]
-pub extern "C" fn combine_vertex(x: f32, y: f32, z: f32) -> i32 {
-    guarded(|a| a.vertex([x, y, z]))
-}
-#[unsafe(no_mangle)]
 pub unsafe extern "C" fn combine_config(path: *const u16, length: u32) -> i32 {
     if path.is_null() || length == 0 || length >= 32768 {
         return 0;
@@ -38,19 +34,8 @@ pub unsafe extern "C" fn combine_config(path: *const u16, length: u32) -> i32 {
     })
 }
 #[unsafe(no_mangle)]
-pub extern "C" fn combine_mount(x: f32, y: f32, z: f32, heading: f32, scale: f32) -> i32 {
-    guarded(|a| a.mount([x, y, z], heading, scale))
-}
-#[unsafe(no_mangle)]
 pub extern "C" fn combine_poll() -> i32 {
     guarded(|a| a.poll())
-}
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn combine_tick(now: u32, ground: f32, packet: *const Packet) -> i32 {
-    if packet.is_null() {
-        return 0;
-    }
-    guarded(|a| a.tick(now, ground, unsafe { &*packet }))
 }
 #[unsafe(no_mangle)]
 pub extern "C" fn combine_value(index: i32) -> f32 {

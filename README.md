@@ -1,17 +1,12 @@
-# Combine
+# Combine (archived)
 
-Combine puts the existing Skate simulation into offline GTA IV: mount where you
-stand, ride on GTA's own ground, dismount back to ordinary GTA. Game data and
-private trials stay local.
+**Archived 2026-10-23. Work continues in [skate-gta](https://github.com/Jpatching/skate-gta):**
+the Skate simulation ridden inside offline GTA IV.
 
-```sh
-python3 tools/gtaiv-skate/check.py   # tight loop: riding checks, no game
-python3 scripts/verify.py            # gate before every PR
-```
-
-- Riding source: [`tools/gtaiv-skate/`](tools/gtaiv-skate/README.md).
-- [Agent instructions](AGENTS.md), [glossary](GLOSSARY.md) and [surface decision](docs/adr/0004-live-host-queries-supply-riding-surfaces.md).
-- Current work: open GitHub issues.
+This repository is kept read-only as history. It holds the earlier experiments
+(Synergy/trickshot, Fortnite, recipe catalogue, Sandcastle runner, workbench) and
+the GTA IV adapter up to #77, which skate-gta carries forward as `adapter/`.
+Collision research lives in [`research/results/`](research/results/gtaiv-120059-native-collision-feasibility.md).
 
 [Source pins](research/upstream.lock.json), [patches](patches/README.md) and
 [licences](licenses/Synergy-GPL-3.0.md) identify retained third-party sources.
